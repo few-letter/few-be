@@ -1,11 +1,11 @@
 package com.few.api.domain.batch.article
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.few.api.config.jooq.ApiTransactional
 import com.few.api.domain.batch.article.reader.WorkBookSubscriberReader
 import com.few.api.domain.batch.article.writer.WorkBookSubscriberWriter
 import com.few.api.domain.batch.log.ApiBatchCallExecutionService
 import org.springframework.stereotype.Service
-import repo.jooq.DataSourceTransactional
 
 @Service
 class ApiBatchSendArticleEmailService(
@@ -14,7 +14,7 @@ class ApiBatchSendArticleEmailService(
     private val batchCallExecutionService: ApiBatchCallExecutionService,
     private val objectMapper: ObjectMapper,
 ) {
-    @DataSourceTransactional
+    @ApiTransactional
     fun execute() {
         val startTime = System.currentTimeMillis()
         workBookSubscriberReader.execute().let { item ->

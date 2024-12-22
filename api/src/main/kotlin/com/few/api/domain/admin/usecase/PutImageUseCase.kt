@@ -1,5 +1,6 @@
 package com.few.api.domain.admin.usecase
 
+import com.few.api.config.jooq.ApiTransactional
 import com.few.api.domain.admin.repo.image.ImageDao
 import com.few.api.domain.admin.repo.image.command.InsertImageIfoCommand
 import com.few.api.domain.admin.service.GetUrlService
@@ -12,7 +13,6 @@ import com.few.api.domain.common.exception.InsertException
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.webp.WebpWriter
 import org.springframework.stereotype.Component
-import repo.jooq.DataSourceTransactional
 import storage.image.PutImageProvider
 import java.io.File
 
@@ -22,7 +22,7 @@ class PutImageUseCase(
     private val putImageService: PutImageProvider,
     private val getUrlService: GetUrlService,
 ) {
-    @DataSourceTransactional
+    @ApiTransactional
     fun execute(useCaseIn: PutImageUseCaseIn): PutImageUseCaseOut {
         val imageSource = useCaseIn.source
         val suffix = imageSource.originalFilename?.substringAfterLast(".") ?: "jpg"

@@ -15,7 +15,6 @@ tasks.withType(BootJar::class.java) {
 
 dependencies {
     /** module */
-    implementation(project(":repo"))
     implementation(project(":library:email"))
     implementation(project(":library:storage"))
     implementation(project(":library:web"))
@@ -25,9 +24,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-aop")
     implementation("org.springframework.boot:spring-boot-starter-cache")
-
-    /** jooq */
-    jooqCodegen("org.jooq:jooq-meta-extensions:${DependencyVersion.JOOQ}")
 
     /** Local Cache **/
     implementation("org.ehcache:ehcache:${DependencyVersion.EHCACHE}")
@@ -45,6 +41,17 @@ dependencies {
 
     /** jsoup - html parser */
     implementation("org.jsoup:jsoup:1.15.3")
+
+    /** mysql */
+    implementation("com.mysql:mysql-connector-j")
+
+    /** jooq */
+    jooqCodegen("org.jooq:jooq-meta-extensions:${DependencyVersion.JOOQ}")
+    implementation("org.springframework.boot:spring-boot-starter-jooq")
+
+    /** flyway */
+    implementation("org.flywaydb:flyway-core:${DependencyVersion.FLYWAY}")
+    implementation("org.flywaydb:flyway-mysql")
 }
 
 tasks.withType(OpenApi3Task::class.java) {
