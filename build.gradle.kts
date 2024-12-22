@@ -88,7 +88,6 @@ allprojects {
 
     tasks.withType<Test> {
         useJUnitPlatform()
-        systemProperty("allure.results.directory", "$projectDir/build/allure-results")
     }
 
     sourceSets {
@@ -191,6 +190,7 @@ subprojects {
     tasks {
         test {
             useJUnitPlatform()
+            systemProperty("allure.results.directory", "$projectDir/build/allure-results")
         }
 
         register<Test>("architectureSpecTest") {
