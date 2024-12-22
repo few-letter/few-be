@@ -16,10 +16,10 @@ tasks.withType(BootJar::class.java) {
 dependencies {
     /** module */
     implementation(project(":repo"))
-    implementation(project(":email"))
-    implementation(project(":storage"))
-    implementation(project(":web"))
-    testImplementation(testFixtures(project(":web")))
+    implementation(project(":library:email"))
+    implementation(project(":library:storage"))
+    implementation(project(":library:web"))
+    testImplementation(testFixtures(project(":library:web")))
 
     /** spring starter */
     implementation("org.springframework.boot:spring-boot-starter-actuator")
