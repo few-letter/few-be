@@ -1,6 +1,7 @@
 package com.few.api.domain.subscription.usecase
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.few.api.config.jooq.ApiTransactional
 import com.few.api.domain.common.exception.NotFoundException
 import com.few.api.domain.common.vo.ViewCategory
 import com.few.api.domain.common.vo.WorkBookStatus
@@ -15,7 +16,6 @@ import com.few.api.domain.subscription.service.dto.ReadAllWorkbookTitleInDto
 import com.few.api.domain.subscription.service.dto.ReadArticleIdByWorkbookIdAndDayDto
 import com.few.api.domain.subscription.usecase.dto.*
 import org.springframework.stereotype.Component
-import repo.jooq.DataSourceTransactional
 import java.lang.IllegalStateException
 
 @Suppress("ktlint:standard:class-naming")
@@ -51,7 +51,7 @@ class BrowseSubscribeWorkbooksUseCase(
     private val subscriptionWorkbookService: SubscriptionWorkbookService,
     private val objectMapper: ObjectMapper,
 ) {
-    @DataSourceTransactional
+    @ApiTransactional
     fun execute(useCaseIn: BrowseSubscribeWorkbooksUseCaseIn): BrowseSubscribeWorkbooksUseCaseOut {
         val strategy =
             when (useCaseIn.view) {

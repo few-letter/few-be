@@ -5,7 +5,6 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import repo.config.RepoConfig
 import security.config.SecurityConfig
 import storage.document.config.DocumentStorageConfig
 import storage.image.config.ImageStorageConfig
@@ -14,7 +13,6 @@ import web.config.WebConfig
 @Configuration
 @ComponentScan(basePackages = [ApiConfig.BASE_PACKAGE])
 @Import(
-    RepoConfig::class,
     MailConfig::class,
     ImageStorageConfig::class,
     DocumentStorageConfig::class,

@@ -1,5 +1,6 @@
 package com.few.api.domain.article.usecase
 
+import com.few.api.config.jooq.ApiTransactional
 import com.few.api.domain.article.event.dto.ReadArticleEvent
 import com.few.api.domain.article.repo.ArticleDao
 import com.few.api.domain.article.repo.query.SelectArticleRecordQuery
@@ -15,7 +16,6 @@ import com.few.api.domain.common.exception.NotFoundException
 import com.few.api.domain.common.vo.CategoryType
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
-import repo.jooq.DataSourceTransactional
 
 @Component
 class ReadArticleUseCase(
@@ -25,7 +25,7 @@ class ReadArticleUseCase(
     private val articleViewCountTxCase: ArticleViewCountTxCase,
     private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
-    @DataSourceTransactional(readOnly = true)
+    @ApiTransactional(readOnly = true)
     fun execute(useCaseIn: ReadArticleUseCaseIn): ReadArticleUseCaseOut {
         val articleRecord =
             articleDao.selectArticleRecord(SelectArticleRecordQuery(useCaseIn.articleId))

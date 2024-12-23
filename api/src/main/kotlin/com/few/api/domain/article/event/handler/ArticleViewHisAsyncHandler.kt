@@ -1,6 +1,7 @@
 package com.few.api.domain.article.event.handler
 
 import com.few.api.config.ApiDatabaseAccessThreadPoolConfig.Companion.DATABASE_ACCESS_POOL
+import com.few.api.config.jooq.ApiTransactional
 import com.few.api.domain.article.repo.ArticleViewCountDao
 import com.few.api.domain.article.repo.ArticleViewHisDao
 import com.few.api.domain.article.repo.command.ArticleViewHisCommand
@@ -9,7 +10,6 @@ import com.few.api.domain.common.vo.CategoryType
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
-import repo.jooq.DataSourceTransactional
 
 @Component
 class ArticleViewHisAsyncHandler(
@@ -19,7 +19,7 @@ class ArticleViewHisAsyncHandler(
     private val log = KotlinLogging.logger {}
 
     @Async(value = DATABASE_ACCESS_POOL)
-    @DataSourceTransactional
+    @ApiTransactional
     fun addArticleViewHis(
         articleId: Long,
         memberId: Long,

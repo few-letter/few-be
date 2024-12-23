@@ -43,10 +43,10 @@ jobs:
                   java-version: '17'
                   distribution: 'temurin'
 
-            - name: Jooq Code Generation
+            - name: Jooq Code Generation for API Module
               run: |
-                  ./gradlew  jooqCodegenAll
+                  ./gradlew  api:jooqCodegen
 
-            - name: API Test with Gradle
+            - name: Test with Gradle
               run: |
-                  ./gradlew  api:test
+                  ./gradlew test
