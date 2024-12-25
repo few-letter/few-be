@@ -126,6 +126,9 @@ subprojects {
      * jpa meta-annotations not automatically opened through the default settings of the plugin.spring
      */
     allOpen {
+        annotation("jakarta.persistence.Entity")
+        annotation("jakarta.persistence.MappedSuperclass")
+        annotation("jakarta.persistence.Embeddable")
     }
 
     dependencyManagement {
@@ -160,12 +163,15 @@ subprojects {
         testImplementation("io.mockk:mockk:${DependencyVersion.MOCKK}")
         testImplementation("com.tngtech.archunit:archunit-junit5:${DependencyVersion.ARCH_UNIT_JUNIT5}")
         testImplementation("org.springframework.modulith:spring-modulith-starter-test")
+        testImplementation("io.qameta.allure:allure-junit5:${DependencyVersion.ALLURE_JUNIT5}")
 
         /** kotest */
         testImplementation("io.kotest:kotest-runner-junit5:${DependencyVersion.KOTEST}")
         testImplementation("io.kotest:kotest-assertions-core:${DependencyVersion.KOTEST}")
+        testImplementation("io.kotest:kotest-framework-api:${DependencyVersion.KOTEST}")
         testImplementation("io.kotest.extensions:kotest-extensions-spring:${DependencyVersion.KOTEST_EXTENSION}")
         testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${DependencyVersion.COROUTINE_TEST}")
+        testImplementation("io.kotest.extensions:kotest-extensions-allure:${DependencyVersion.KOTEST_EXTENSION}")
 
         /** Kotlin Logger **/
         implementation("io.github.oshai:kotlin-logging-jvm:${DependencyVersion.KOTLIN_LOGGING}")
@@ -184,6 +190,7 @@ subprojects {
     tasks {
         test {
             useJUnitPlatform()
+            systemProperty("allure.results.directory", "$projectDir/build/allure-results")
         }
 
         register<Test>("architectureSpecTest") {
@@ -245,104 +252,7 @@ subprojects {
         into("$projectDir/src/main/resources/static/docs/${project.name}/swagger-ui")
     }
 
-    /** copy data migration */
-    tasks.create("copyDataMigration") {
-        doLast {
-            val root = rootDir
-            val flyWayResourceDir = "/db/migration/entity"
-            val dataMigrationDir = "$root/data/$flyWayResourceDir"
-            File(dataMigrationDir).walkTopDown().forEach {
-                if (it.isFile) {
-                    it.copyTo(
-                        File("${project.projectDir}/src/main/resources$flyWayResourceDir/${it.name}"),
-                        true,
-                    )
-                }
-            }
-        }
-    }
-
-    jooq {
-        configuration {
-            generator {
-                database {
-                    name = "org.jooq.meta.extensions.ddl.DDLDatabase"
-                    properties {
-                        // Specify the location of your SQL script.
-                        // You may use ant-style file matching, e.g. /path/**/to/*.sql
-                        //
-                        // Where:
-                        // - ** matches any directory subtree
-                        // - * matches any number of characters in a directory / file name
-                        // - ? matches a single character in a directory / file name
-                        property {
-                            key = "scripts"
-                            value = "src/main/resources/db/migration/**/*.sql"
-                        }
-
-                        // The sort order of the scripts within a directory, where:
-                        //
-                        // - semantic: sorts versions, e.g. v-3.10.0 is after v-3.9.0 (default)
-                        // - alphanumeric: sorts strings, e.g. v-3.10.0 is before v-3.9.0
-                        // - flyway: sorts files the same way as flyway does
-                        // - none: doesn't sort directory contents after fetching them from the directory
-                        property {
-                            key = "sort"
-                            value = "flyway"
-                        }
-
-                        // The default schema for unqualified objects:
-                        //
-                        // - public: all unqualified objects are located in the PUBLIC (upper case) schema
-                        // - none: all unqualified objects are located in the default schema (default)
-                        //
-                        // This configuration can be overridden with the schema mapping feature
-                        property {
-                            key = "unqualifiedSchema"
-                            value = "none"
-                        }
-
-                        // The default name case for unquoted objects:
-                        //
-                        // - as_is: unquoted object names are kept unquoted
-                        // - upper: unquoted object names are turned into upper case (most databases)
-                        // - lower: unquoted object names are turned into lower case (e.g. PostgreSQL)
-                        property {
-                            key = "defaultNameCase"
-                            value = "as_is"
-                        }
-                    }
-                }
-
-                generate {
-                    isDeprecated = false
-                    isRecords = true
-                    isImmutablePojos = true
-                    isFluentSetters = true
-                    isJavaTimeTypes = true
-                }
-
-                target {
-                    packageName = "jooq.jooq_dsl"
-                    directory = "src/generated"
-                    encoding = "UTF-8"
-                }
-            }
-        }
-    }
-
     defaultTasks("bootRun")
-}
-
-/** do all copy data migration */
-tasks.register("copyDataMigrationAll") {
-    dependsOn(":api:copyDataMigration")
-}
-
-/** do all jooq codegen */
-tasks.register("jooqCodegenAll") {
-    dependsOn("copyDataMigrationAll")
-    dependsOn(":api:jooqCodegen")
 }
 
 /** git hooks */

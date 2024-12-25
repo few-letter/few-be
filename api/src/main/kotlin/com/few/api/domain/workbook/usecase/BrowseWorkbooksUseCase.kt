@@ -1,5 +1,6 @@
 package com.few.api.domain.workbook.usecase
 
+import com.few.api.config.jooq.ApiTransactional
 import com.few.api.domain.common.vo.CategoryType
 import com.few.api.domain.common.vo.ViewCategory
 import com.few.api.domain.workbook.repo.WorkbookDao
@@ -17,7 +18,6 @@ import com.few.api.domain.workbook.usecase.dto.WriterDetail
 import com.few.api.domain.workbook.usecase.model.*
 import com.few.api.domain.workbook.usecase.model.order.*
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 
 enum class WorkBookOrderStrategy {
     BASIC,
@@ -43,7 +43,7 @@ class BrowseWorkbooksUseCase(
     private val workbookMemberService: WorkbookMemberService,
     private val workbookSubscribeService: WorkbookSubscribeService,
 ) {
-    @Transactional
+    @ApiTransactional
     fun execute(useCaseIn: BrowseWorkbooksUseCaseIn): BrowseWorkbooksUseCaseOut {
         val workbookRecords =
             workbookDao.browseWorkBookWithSubscriptionCount(

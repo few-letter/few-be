@@ -1,5 +1,6 @@
 package com.few.api.domain.admin.usecase
 
+import com.few.api.config.jooq.ApiTransactional
 import com.few.api.domain.admin.repo.document.DocumentDao
 import com.few.api.domain.admin.repo.document.command.InsertDocumentIfoCommand
 import com.few.api.domain.admin.service.GetUrlService
@@ -10,7 +11,6 @@ import com.few.api.domain.admin.utils.ObjectPathGenerator
 import com.few.api.domain.common.exception.ExternalIntegrationException
 import com.few.api.domain.common.exception.InsertException
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import storage.document.PutDocumentProvider
 import java.io.File
 
@@ -21,7 +21,7 @@ class ConvertContentUseCase(
     private val putDocumentService: PutDocumentProvider,
     private val getUrlService: GetUrlService,
 ) {
-    @Transactional
+    @ApiTransactional
     fun execute(useCaseIn: ConvertContentUseCaseIn): ConvertContentUseCaseOut {
         val contentSource = useCaseIn.content
 

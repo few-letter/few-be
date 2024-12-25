@@ -1,5 +1,6 @@
 package com.few.api.domain.member.usecase
 
+import com.few.api.config.jooq.ApiTransactional
 import com.few.api.domain.common.exception.NotFoundException
 import com.few.api.domain.common.vo.MemberType
 import com.few.api.domain.member.exception.NotValidTokenException
@@ -8,7 +9,6 @@ import com.few.api.domain.member.repo.command.UpdateMemberTypeCommand
 import com.few.api.domain.member.usecase.dto.TokenUseCaseIn
 import com.few.api.domain.member.usecase.dto.TokenUseCaseOut
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import security.Roles
 import security.TokenGenerator
 import security.TokenResolver
@@ -22,7 +22,7 @@ class TokenUseCase(
     private val memberDao: MemberDao,
     private val idEncryption: IdEncryptor,
 ) {
-    @Transactional
+    @ApiTransactional
     fun execute(useCaseIn: TokenUseCaseIn): TokenUseCaseOut {
         var isLogin = true
 

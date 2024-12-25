@@ -1,5 +1,6 @@
 package com.few.api.domain.workbook.article.usecase
 
+import com.few.api.config.jooq.ApiTransactional
 import com.few.api.domain.article.event.dto.ReadArticleEvent
 import com.few.api.domain.article.repo.ArticleDao
 import com.few.api.domain.article.repo.query.SelectWorkBookArticleRecordQuery
@@ -15,7 +16,6 @@ import com.few.api.domain.workbook.article.dto.ReadWorkBookArticleUseCaseIn
 import com.few.api.domain.workbook.article.dto.WriterDetail
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 
 @Service
 class ReadWorkBookArticleUseCase(
@@ -25,7 +25,7 @@ class ReadWorkBookArticleUseCase(
     private val articleViewCountTxCase: ArticleViewCountTxCase,
     private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
-    @Transactional(readOnly = true)
+    @ApiTransactional(readOnly = true)
     fun execute(useCaseIn: ReadWorkBookArticleUseCaseIn): ReadWorkBookArticleOut {
         val articleRecord =
             articleDao.selectWorkBookArticleRecord(

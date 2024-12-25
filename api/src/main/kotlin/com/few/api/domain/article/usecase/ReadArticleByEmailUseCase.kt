@@ -1,5 +1,6 @@
 package com.few.api.domain.article.usecase
 
+import com.few.api.config.jooq.ApiTransactional
 import com.few.api.domain.article.service.ArticleLogService
 import com.few.api.domain.article.service.ArticleMemberService
 import com.few.api.domain.article.service.dto.InsertOpenEventDto
@@ -9,14 +10,13 @@ import com.few.api.domain.article.usecase.dto.ReadArticleByEmailUseCaseIn
 import com.few.api.domain.common.exception.NotFoundException
 import com.few.api.domain.common.vo.EmailLogEventType
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 
 @Component
 class ReadArticleByEmailUseCase(
     private val memberService: ArticleMemberService,
     private val articleLogService: ArticleLogService,
 ) {
-    @Transactional
+    @ApiTransactional
     fun execute(useCaseIn: ReadArticleByEmailUseCaseIn) {
         val memberId =
             memberService.readMemberByEmail(ReadMemberByEmailDto(useCaseIn.destination[0]))

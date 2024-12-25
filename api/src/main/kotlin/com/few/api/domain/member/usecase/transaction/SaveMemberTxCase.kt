@@ -1,5 +1,6 @@
 package com.few.api.domain.member.usecase.transaction
 
+import com.few.api.config.jooq.ApiTransactional
 import com.few.api.domain.common.exception.InsertException
 import com.few.api.domain.common.vo.MemberType
 import com.few.api.domain.member.repo.MemberDao
@@ -9,7 +10,6 @@ import com.few.api.domain.member.repo.record.MemberIdAndIsDeletedRecord
 import com.few.api.domain.member.usecase.dto.SaveMemberTxCaseIn
 import com.few.api.domain.member.usecase.dto.SaveMemberTxCaseOut
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 
 @Component
 class SaveMemberTxCase(
@@ -22,7 +22,7 @@ class SaveMemberTxCase(
         private const val SIGNUP_SUB_COMMENT = "가입하신 이메일 주소를 확인해주세요."
     }
 
-    @Transactional
+    @ApiTransactional
     fun execute(dto: SaveMemberTxCaseIn): SaveMemberTxCaseOut =
         dto.record?.let { signUpBeforeMember ->
             signUpBeforeMember.takeIf { it.isDeleted }?.let {

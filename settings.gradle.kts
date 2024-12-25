@@ -1,10 +1,9 @@
 rootProject.name = "few"
 
 include("api")
-include("data")
-include("repo")
-include("email")
-include("storage")
-include("web")
-include("security")
-include("domain-generator")
+include("library")
+include("library:email")
+include("library:storage")
+include("library:web")
+include("library:security")
+include("library:event")

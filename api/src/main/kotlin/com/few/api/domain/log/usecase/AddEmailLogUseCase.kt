@@ -1,5 +1,6 @@
 package com.few.api.domain.log.usecase
 
+import com.few.api.config.jooq.ApiTransactional
 import com.few.api.domain.common.exception.NotFoundException
 import com.few.api.domain.common.vo.EmailLogEventType
 import com.few.api.domain.log.dto.AddEmailLogUseCaseIn
@@ -9,14 +10,13 @@ import com.few.api.domain.log.repo.query.SelectEventByMessageIdAndEventTypeQuery
 import com.few.api.domain.member.repo.MemberDao
 import com.few.api.domain.member.repo.query.SelectMemberByEmailQuery
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 
 @Component
 class AddEmailLogUseCase(
     private val memberDao: MemberDao,
     private val sendArticleEventHistoryDao: SendArticleEventHistoryDao,
 ) {
-    @Transactional
+    @ApiTransactional
     fun execute(useCaseIn: AddEmailLogUseCaseIn) {
         val (memberId, _, _, _) =
             memberDao.selectMemberByEmail(

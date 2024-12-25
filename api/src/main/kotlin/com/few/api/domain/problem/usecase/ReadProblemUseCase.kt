@@ -1,5 +1,6 @@
 package com.few.api.domain.problem.usecase
 
+import com.few.api.config.jooq.ApiTransactional
 import com.few.api.domain.common.exception.NotFoundException
 import com.few.api.domain.problem.repo.ProblemDao
 import com.few.api.domain.problem.repo.query.SelectProblemQuery
@@ -8,14 +9,13 @@ import com.few.api.domain.problem.usecase.dto.ReadProblemContentsUseCaseOutDetai
 import com.few.api.domain.problem.usecase.dto.ReadProblemUseCaseIn
 import com.few.api.domain.problem.usecase.dto.ReadProblemUseCaseOut
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 
 @Component
 class ReadProblemUseCase(
     private val problemDao: ProblemDao,
     private val contentsJsonMapper: ContentsJsonMapper,
 ) {
-    @Transactional(readOnly = true)
+    @ApiTransactional(readOnly = true)
     fun execute(useCaseIn: ReadProblemUseCaseIn): ReadProblemUseCaseOut {
         val problemId = useCaseIn.problemId
 

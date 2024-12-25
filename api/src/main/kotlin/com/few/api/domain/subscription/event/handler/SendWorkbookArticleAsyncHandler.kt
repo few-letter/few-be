@@ -1,6 +1,7 @@
 package com.few.api.domain.subscription.event.handler
 
 import com.few.api.config.ApiDatabaseAccessThreadPoolConfig.Companion.DATABASE_ACCESS_POOL
+import com.few.api.config.jooq.ApiTransactional
 import com.few.api.domain.common.exception.NotFoundException
 import com.few.api.domain.common.lock.ApiLockFor
 import com.few.api.domain.common.lock.ApiLockIdentifier
@@ -16,7 +17,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Propagation
-import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 
 @Component
@@ -32,7 +32,7 @@ class SendWorkbookArticleAsyncHandler(
 
     @Async(value = DATABASE_ACCESS_POOL)
     @ApiLockFor(identifier = ApiLockIdentifier.SUBSCRIPTION_MEMBER_ID_WORKBOOK_ID)
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @ApiTransactional(propagation = Propagation.REQUIRES_NEW)
     fun sendWorkbookArticle(
         memberId: Long,
         workbookId: Long,

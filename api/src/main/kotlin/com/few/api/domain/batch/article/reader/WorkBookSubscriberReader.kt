@@ -1,5 +1,6 @@
 package com.few.api.domain.batch.article.reader
 
+import com.few.api.config.jooq.ApiTransactional
 import com.few.api.domain.batch.article.dto.WorkBookSubscriberItem
 import com.few.api.domain.common.vo.DayCode
 import jooq.jooq_dsl.tables.Subscription.SUBSCRIPTION
@@ -8,7 +9,6 @@ import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.TableField
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
@@ -19,7 +19,7 @@ class WorkBookSubscriberReader(
     private val dslContext: DSLContext,
 ) {
     /** 구독 테이블에서 학습지를 구독하고 있는 회원의 정보를 조회한다.*/
-    @Transactional(readOnly = true)
+    @ApiTransactional(readOnly = true)
     fun execute(): List<WorkBookSubscriberItem> {
         val time = LocalTime.now(ZoneId.of("Asia/Seoul")).hour.let { LocalTime.of(it, 0, 0) }
         val date = LocalDate.now(ZoneId.of("Asia/Seoul"))

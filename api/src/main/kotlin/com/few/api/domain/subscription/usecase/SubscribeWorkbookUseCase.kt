@@ -1,5 +1,6 @@
 package com.few.api.domain.subscription.usecase
 
+import com.few.api.config.jooq.ApiTransactional
 import com.few.api.domain.common.exception.NotFoundException
 import com.few.api.domain.common.lock.ApiLockFor
 import com.few.api.domain.common.lock.ApiLockIdentifier
@@ -16,7 +17,6 @@ import com.few.api.domain.subscription.usecase.model.WorkbookSubscriptionHistory
 import com.few.api.domain.subscription.usecase.model.WorkbookSubscriptionStatus
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 
 @Component
 class SubscribeWorkbookUseCase(
@@ -24,7 +24,7 @@ class SubscribeWorkbookUseCase(
     private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
     @ApiLockFor(ApiLockIdentifier.SUBSCRIPTION_MEMBER_ID_WORKBOOK_ID)
-    @Transactional
+    @ApiTransactional
     fun execute(useCaseIn: SubscribeWorkbookUseCaseIn) {
         val subTargetWorkbookId = useCaseIn.workbookId
         val memberId = useCaseIn.memberId

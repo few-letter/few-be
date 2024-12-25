@@ -1,5 +1,6 @@
 package com.few.api.domain.batch.article.writer
 
+import com.few.api.config.jooq.ApiTransactional
 import com.few.api.domain.article.email.SendArticleEmailService
 import com.few.api.domain.batch.article.dto.WorkBookSubscriberItem
 import com.few.api.domain.batch.article.dto.toMemberIds
@@ -19,7 +20,6 @@ import org.jooq.DSLContext
 import org.jooq.InsertSetMoreStep
 import org.jooq.UpdateConditionStep
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -35,7 +35,7 @@ class WorkBookSubscriberWriter(
     /**
      * 구독자들에게 이메일을 전송하고 진행률을 업데이트한다.
      */
-    @Transactional
+    @ApiTransactional
     fun execute(items: List<WorkBookSubscriberItem>): Map<Any, Any> {
         val memberIds = items.toMemberIds()
         val targetWorkBookIds = items.toTargetWorkBookIds()

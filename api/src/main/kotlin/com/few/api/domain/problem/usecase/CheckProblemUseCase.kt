@@ -1,5 +1,6 @@
 package com.few.api.domain.problem.usecase
 
+import com.few.api.config.jooq.ApiTransactional
 import com.few.api.domain.common.exception.InsertException
 import com.few.api.domain.common.exception.NotFoundException
 import com.few.api.domain.problem.repo.ProblemDao
@@ -9,14 +10,13 @@ import com.few.api.domain.problem.repo.query.SelectProblemAnswerQuery
 import com.few.api.domain.problem.usecase.dto.CheckProblemUseCaseIn
 import com.few.api.domain.problem.usecase.dto.CheckProblemUseCaseOut
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 
 @Component
 class CheckProblemUseCase(
     private val problemDao: ProblemDao,
     private val submitHistoryDao: SubmitHistoryDao,
 ) {
-    @Transactional
+    @ApiTransactional
     fun execute(useCaseIn: CheckProblemUseCaseIn): CheckProblemUseCaseOut {
         val memberId = useCaseIn.memberId
         val problemId = useCaseIn.problemId

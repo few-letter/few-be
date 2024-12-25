@@ -15,19 +15,15 @@ tasks.withType(BootJar::class.java) {
 
 dependencies {
     /** module */
-    implementation(project(":repo"))
-    implementation(project(":email"))
-    implementation(project(":storage"))
-    implementation(project(":web"))
-    testImplementation(testFixtures(project(":web")))
+    implementation(project(":library:email"))
+    implementation(project(":library:storage"))
+    implementation(project(":library:web"))
+    testImplementation(testFixtures(project(":library:web")))
 
     /** spring starter */
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-aop")
     implementation("org.springframework.boot:spring-boot-starter-cache")
-
-    /** jooq */
-    jooqCodegen("org.jooq:jooq-meta-extensions:${DependencyVersion.JOOQ}")
 
     /** Local Cache **/
     implementation("org.ehcache:ehcache:${DependencyVersion.EHCACHE}")
@@ -45,6 +41,86 @@ dependencies {
 
     /** jsoup - html parser */
     implementation("org.jsoup:jsoup:1.15.3")
+
+    /** mysql */
+    implementation("com.mysql:mysql-connector-j")
+
+    /** jooq */
+    jooqCodegen("org.jooq:jooq-meta-extensions:${DependencyVersion.JOOQ}")
+    implementation("org.springframework.boot:spring-boot-starter-jooq")
+
+    /** flyway */
+    implementation("org.flywaydb:flyway-core:${DependencyVersion.FLYWAY}")
+    implementation("org.flywaydb:flyway-mysql")
+}
+
+jooq {
+    configuration {
+        generator {
+            database {
+                name = "org.jooq.meta.extensions.ddl.DDLDatabase"
+                properties {
+                    // Specify the location of your SQL script.
+                    // You may use ant-style file matching, e.g. /path/**/to/*.sql
+                    //
+                    // Where:
+                    // - ** matches any directory subtree
+                    // - * matches any number of characters in a directory / file name
+                    // - ? matches a single character in a directory / file name
+                    property {
+                        key = "scripts"
+                        value = "src/main/resources/db/migration/**/*.sql"
+                    }
+
+                    // The sort order of the scripts within a directory, where:
+                    //
+                    // - semantic: sorts versions, e.g. v-3.10.0 is after v-3.9.0 (default)
+                    // - alphanumeric: sorts strings, e.g. v-3.10.0 is before v-3.9.0
+                    // - flyway: sorts files the same way as flyway does
+                    // - none: doesn't sort directory contents after fetching them from the directory
+                    property {
+                        key = "sort"
+                        value = "flyway"
+                    }
+
+                    // The default schema for unqualified objects:
+                    //
+                    // - public: all unqualified objects are located in the PUBLIC (upper case) schema
+                    // - none: all unqualified objects are located in the default schema (default)
+                    //
+                    // This configuration can be overridden with the schema mapping feature
+                    property {
+                        key = "unqualifiedSchema"
+                        value = "none"
+                    }
+
+                    // The default name case for unquoted objects:
+                    //
+                    // - as_is: unquoted object names are kept unquoted
+                    // - upper: unquoted object names are turned into upper case (most databases)
+                    // - lower: unquoted object names are turned into lower case (e.g. PostgreSQL)
+                    property {
+                        key = "defaultNameCase"
+                        value = "as_is"
+                    }
+                }
+            }
+
+            generate {
+                isDeprecated = false
+                isRecords = true
+                isImmutablePojos = true
+                isFluentSetters = true
+                isJavaTimeTypes = true
+            }
+
+            target {
+                packageName = "jooq.jooq_dsl"
+                directory = "src/generated"
+                encoding = "UTF-8"
+            }
+        }
+    }
 }
 
 tasks.withType(OpenApi3Task::class.java) {

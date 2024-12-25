@@ -1,5 +1,6 @@
 package com.few.api.domain.article.usecase
 
+import com.few.api.config.jooq.ApiTransactional
 import com.few.api.domain.article.repo.ArticleDao
 import com.few.api.domain.article.repo.ArticleMainCardDao
 import com.few.api.domain.article.repo.ArticleViewCountDao
@@ -12,7 +13,6 @@ import com.few.api.domain.article.usecase.dto.*
 import com.few.api.domain.common.exception.NotFoundException
 import com.few.api.domain.common.vo.CategoryType
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import java.util.*
 import kotlin.Comparator
 
@@ -22,7 +22,7 @@ class BrowseArticlesUseCase(
     private val articleMainCardDao: ArticleMainCardDao,
     private val articleDao: ArticleDao,
 ) {
-    @Transactional(readOnly = true)
+    @ApiTransactional(readOnly = true)
     fun execute(useCaseIn: ReadArticlesUseCaseIn): ReadArticlesUseCaseOut {
         /**
          * 아티클 조회수 테이블에서 마지막 읽은 아티클 아이디, 카테고리를 기반으로 Offset(테이블 row 순위)을 구함

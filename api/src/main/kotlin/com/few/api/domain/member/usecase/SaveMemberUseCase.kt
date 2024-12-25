@@ -1,5 +1,6 @@
 package com.few.api.domain.member.usecase
 
+import com.few.api.config.jooq.ApiTransactional
 import com.few.api.domain.member.email.SendAuthEmailService
 import com.few.api.domain.member.email.dto.Content
 import com.few.api.domain.member.email.dto.SendAuthEmailArgs
@@ -10,7 +11,6 @@ import com.few.api.domain.member.usecase.dto.SaveMemberUseCaseIn
 import com.few.api.domain.member.usecase.dto.SaveMemberUseCaseOut
 import com.few.api.domain.member.usecase.transaction.SaveMemberTxCase
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import security.encryptor.IdEncryptor
 import java.net.URL
 
@@ -21,7 +21,7 @@ class SaveMemberUseCase(
     private val idEncryption: IdEncryptor,
     private val saveMemberTxCase: SaveMemberTxCase,
 ) {
-    @Transactional
+    @ApiTransactional
     fun execute(useCaseIn: SaveMemberUseCaseIn): SaveMemberUseCaseOut {
         /** email을 통해 가입 이력이 있는지 확인 */
             val (headComment, subComment, memberId) =
