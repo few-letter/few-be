@@ -18,7 +18,7 @@ class NaverNewsCrawler(
     private val fewGson: Gson,
 ) {
     private val log = KotlinLogging.logger {}
-    private val regex_news_links = "https://n\\.news\\.naver\\.com/mnews/article/\\d+/\\d+$"
+    private val regexNewsLinks = "https://n\\.news\\.naver\\.com/mnews/article/\\d+/\\d+$"
     private val headers =
         mapOf(
             "User-Agent" to
@@ -47,7 +47,7 @@ class NaverNewsCrawler(
             val soup = getSoup(url)
 
             // Regex to match the desired link pattern
-            val pattern = Pattern.compile(regex_news_links)
+            val pattern = Pattern.compile(regexNewsLinks)
             val links =
                 soup.select("a[href]").mapNotNull { element ->
                     val href = element.attr("href")
