@@ -13,7 +13,7 @@ dependencyManagement {
 }
 
 dependencies {
-    implementation(project(":library"))
+    implementation(project(":library:web"))
 
     /** jsoup - html parser */
     implementation("org.jsoup:jsoup:1.15.3")
