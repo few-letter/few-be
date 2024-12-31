@@ -1,7 +1,0 @@
--- 로그 기록 테이블
-CREATE TABLE LOG_IFO
-(
-    id         BIGINT PRIMARY KEY AUTO_INCREMENT,
-    history    JSON         NOT NULL DEFAULT (JSON_OBJECT()),
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);

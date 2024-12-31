@@ -1,2 +1,0 @@
--- 구독 전송 시간을 추가한다.
-ALTER TABLE SUBSCRIPTION ADD COLUMN send_time TIME DEFAULT '08:00';
