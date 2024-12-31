@@ -6,6 +6,11 @@ tasks.getByName("jar") {
     enabled = true
 }
 
+plugins {
+    /** test  fixtures */
+    id("java-test-fixtures")
+}
+
 dependencies {
     api(project(":library:security"))
 

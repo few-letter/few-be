@@ -13,6 +13,11 @@ tasks.withType(BootJar::class.java) {
     loaderImplementation = org.springframework.boot.loader.tools.LoaderImplementation.CLASSIC
 }
 
+plugins {
+    /** jooq */
+    id("org.jooq.jooq-codegen-gradle") version DependencyVersion.JOOQ
+}
+
 dependencies {
     /** module */
     implementation(project(":library:email"))
