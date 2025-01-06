@@ -11,6 +11,7 @@ import com.few.api.domain.log.controller.ApiLogController
 import com.few.api.domain.log.usecase.AddApiLogUseCase
 import com.few.api.domain.log.usecase.AddEmailLogUseCase
 import com.few.api.domain.member.controller.MemberController
+import com.few.api.domain.member.usecase.BrowseMemberViewsUseCase
 import com.few.api.domain.member.usecase.DeleteMemberUseCase
 import com.few.api.domain.member.usecase.SaveMemberUseCase
 import com.few.api.domain.member.usecase.TokenUseCase
@@ -121,6 +122,9 @@ abstract class ApiControllerTestSpec {
 
     @MockBean
     lateinit var tokenUseCase: TokenUseCase
+
+    @MockBean
+    lateinit var browseMemberViewsUseCase: BrowseMemberViewsUseCase
 
     /** ProblemControllerTest */
     @MockBean
