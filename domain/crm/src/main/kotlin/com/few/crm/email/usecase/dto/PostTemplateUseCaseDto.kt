@@ -12,7 +12,7 @@ data class PostTemplateUseCaseIn(
 )
 
 data class PostTemplateUseCaseOut(
-    val id: Long?,
+    val id: Long,
     val templateName: String,
     val version: Float?,
 )

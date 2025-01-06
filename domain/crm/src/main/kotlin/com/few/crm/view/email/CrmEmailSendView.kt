@@ -11,6 +11,7 @@ import com.few.crm.view.CommonVerticalLayout
 import com.vaadin.flow.component.button.Button
 import com.vaadin.flow.component.dialog.Dialog
 import com.vaadin.flow.component.grid.Grid
+import com.vaadin.flow.component.notification.Notification
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.component.textfield.TextArea
@@ -176,13 +177,18 @@ class CrmEmailSendView(
         val sendButton =
             Button("Send").apply {
                 addClickListener {
-                    sendNotificationEmailUseCase.execute(
-                        SendNotificationEmailUseCaseIn(
-                            templateId = emailTemplate!!.id!!,
-                            templateVersion = null,
-                            userIds = selectedUsers.map { it.id!! },
-                        ),
-                    )
+                    try {
+                        sendNotificationEmailUseCase.execute(
+                            SendNotificationEmailUseCaseIn(
+                                templateId = emailTemplate!!.id!!,
+                                templateVersion = null,
+                                userIds = selectedUsers.map { it.id!! },
+                            ),
+                        )
+                    } catch (e: Exception) {
+                        val alter = Notification.show(e.message, 3000, Notification.Position.MIDDLE)
+                        alter.open()
+                    }
                     dialog.close()
                 }
             }

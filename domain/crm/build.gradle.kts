@@ -20,6 +20,9 @@ dependencies {
     implementation(project(":library:email"))
     implementation(project(":library:event"))
 
+    /** jsoup - html parser */
+    implementation("org.jsoup:jsoup:1.15.3")
+
     /** jpa */
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 

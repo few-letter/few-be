@@ -24,39 +24,41 @@ class BrowseTemplateUseCase(
                 null
             }
 
-        templates
-            .map { template ->
-                val history = histories?.get(template.id)
-                template to history
-            }.map {
-                val template = it.first
-                val templateHistories = it.second
-                TemplateResult(
-                    template =
-                        TemplateCurrent(
-                            id = template.id!!,
-                            templateName = template.templateName,
-                            subject = template.subject,
-                            body = template.body,
-                            variables = template.variables,
-                            version = template.version,
-                            createdAt = template.createdAt.toString(),
-                        ),
-                    histories =
-                        templateHistories?.map { history ->
-                            TemplateHistory(
-                                id = history.id!!,
-                                templateId = history.templateId,
-                                subject = history.subject,
-                                body = history.body,
-                                variables = history.variables,
-                                version = history.version,
-                                createdAt = history.createdAt.toString(),
-                            )
-                        } ?: emptyList(),
-                )
-            }.let {
-                return BrowseTemplateUseCaseOut(it)
-            }
+        return run {
+            templates
+                .map { template ->
+                    val history = histories?.get(template.id)
+                    template to history
+                }.map {
+                    val template = it.first
+                    val templateHistories = it.second
+                    TemplateResult(
+                        template =
+                            TemplateCurrent(
+                                id = template.id!!,
+                                templateName = template.templateName,
+                                subject = template.subject,
+                                body = template.body,
+                                variables = template.variables,
+                                version = template.version,
+                                createdAt = template.createdAt.toString(),
+                            ),
+                        histories =
+                            templateHistories?.map { history ->
+                                TemplateHistory(
+                                    id = history.id!!,
+                                    templateId = history.templateId,
+                                    subject = history.subject,
+                                    body = history.body,
+                                    variables = history.variables,
+                                    version = history.version,
+                                    createdAt = history.createdAt.toString(),
+                                )
+                            } ?: emptyList(),
+                    )
+                }.let {
+                    BrowseTemplateUseCaseOut(it)
+                }
+        }
     }
 }

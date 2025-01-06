@@ -11,6 +11,7 @@ import com.vaadin.flow.component.button.Button
 import com.vaadin.flow.component.dialog.Dialog
 import com.vaadin.flow.component.formlayout.FormLayout
 import com.vaadin.flow.component.grid.Grid
+import com.vaadin.flow.component.notification.Notification
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.component.textfield.TextArea
 import com.vaadin.flow.component.textfield.TextField
@@ -82,15 +83,20 @@ class CrmEmailTemplateView(
 
         val saveButton =
             Button("Save") {
-                PostTemplateUseCaseIn(
-                    id = null,
-                    templateName = templateNameField.value,
-                    subject = subjectField.value,
-                    version = 1.0f,
-                    body = bodyField.value,
-                    variables = variablesField.value.split(",").map { it.trim() },
-                ).let {
-                    postTemplateUseCase.execute(it)
+                try {
+                    PostTemplateUseCaseIn(
+                        id = null,
+                        templateName = templateNameField.value,
+                        subject = subjectField.value,
+                        version = 1.0f,
+                        body = bodyField.value,
+                        variables = variablesField.value.split(",").map { it.trim() },
+                    ).let {
+                        postTemplateUseCase.execute(it)
+                    }
+                } catch (e: Exception) {
+                    val alter = Notification.show(e.message, 3000, Notification.Position.MIDDLE)
+                    alter.open()
                 }
 
                 grid.setItems(emailTemplateRepository.findAll())
@@ -130,15 +136,20 @@ class CrmEmailTemplateView(
 
         val saveButton =
             Button("Save") {
-                PostTemplateUseCaseIn(
-                    id = template.id,
-                    templateName = templateNameField.value,
-                    subject = subjectField.value,
-                    version = template.version + 1,
-                    body = bodyField.value,
-                    variables = variablesField.value.split(",").map { it.trim() },
-                ).let {
-                    postTemplateUseCase.execute(it)
+                try {
+                    PostTemplateUseCaseIn(
+                        id = template.id,
+                        templateName = templateNameField.value,
+                        subject = subjectField.value,
+                        version = template.version + 1,
+                        body = bodyField.value,
+                        variables = variablesField.value.split(",").map { it.trim() },
+                    ).let {
+                        postTemplateUseCase.execute(it)
+                    }
+                } catch (e: Exception) {
+                    val alter = Notification.show(e.message, 3000, Notification.Position.MIDDLE)
+                    alter.open()
                 }
                 grid.setItems(emailTemplateRepository.findAll())
                 dialog.close()
