@@ -89,6 +89,7 @@ class LocalDelegatedSecurityConfigurer(
                     AntPathRequestMatcher("/batch/**"),
                     /** 인증 불필요 */
                     AntPathRequestMatcher("/api/v1/members", HttpMethod.POST.name()),
+                    AntPathRequestMatcher("/api/v1/members", HttpMethod.GET.name()),
                     AntPathRequestMatcher("/api/v1/members/token", HttpMethod.POST.name()),
                     AntPathRequestMatcher("/api/v1/articles", HttpMethod.GET.name()),
                     AntPathRequestMatcher("/api/v1/articles/categories", HttpMethod.GET.name()),
@@ -98,6 +99,15 @@ class LocalDelegatedSecurityConfigurer(
                     AntPathRequestMatcher("/api/v1/workbooks/*/articles/*", HttpMethod.GET.name()),
                     AntPathRequestMatcher("/api/v1/problems/**", HttpMethod.GET.name()),
                     AntPathRequestMatcher("/api/v1/problems/*", HttpMethod.POST.name()),
+                    /** v2
+                     * TODO: v2는 우선 시큐리티 미적용
+                     * */
+                    AntPathRequestMatcher("/api/v2/**"),
+                    /**
+                     * view
+                     * TODO: view는 우선 시큐리티 미적용
+                     * */
+                    AntPathRequestMatcher("/view/**"),
                 )
         }
 

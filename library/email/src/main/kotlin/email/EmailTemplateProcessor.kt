@@ -5,10 +5,18 @@ import org.thymeleaf.TemplateEngine
 
 @Component
 class EmailTemplateProcessor(
-    private val templateEngine: TemplateEngine,
+    private val templateEngines: Map<String, TemplateEngine>,
 ) {
     fun process(
         template: String,
         context: EmailContext,
-    ): String = templateEngine.process(template, context.getContext())
+        templateType: EmailTemplateType? = EmailTemplateType.HTML,
+    ): String {
+        templateEngines.keys
+            .find {
+                it.contains(templateType!!.name, ignoreCase = true)
+            }?.let {
+                return templateEngines[it]!!.process(template, context.getContext())
+            } ?: throw IllegalArgumentException("Invalid template type")
+    }
 }
