@@ -10,9 +10,9 @@ package event
  * @property eventTime 이벤트 발행 시간 (기본값: 현재 시간)
  */
 abstract class Event(
-    protected val eventId: String = EventUtils.generateEventId(),
-    protected val eventType: String,
-    protected val eventTime: Long = System.currentTimeMillis(),
+    val eventId: String = EventUtils.generateEventId(),
+    val eventType: String,
+    val eventTime: Long = System.currentTimeMillis(),
 ) {
     /**
      * Get data
