@@ -30,7 +30,7 @@ class LocalMessageBroadCasterTest {
         fun testLocalMessageReverseRelay(): TestLocalMessageReverseRelay = TestLocalMessageReverseRelay()
 
         @Bean
-        fun testObjectMapper(): ObjectMapper =
+        fun objectMapper(): ObjectMapper =
             ObjectMapper().registerModule(
                 KotlinModule
                     .Builder()

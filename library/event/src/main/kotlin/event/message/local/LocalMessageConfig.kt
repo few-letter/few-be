@@ -6,13 +6,11 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Profile
 
 @Configuration
 class LocalMessageConfig {
     val log = KotlinLogging.logger { }
 
-    @Profile("local")
     @Bean
     fun localMessageBroadCaster(
         context: ApplicationContext,
