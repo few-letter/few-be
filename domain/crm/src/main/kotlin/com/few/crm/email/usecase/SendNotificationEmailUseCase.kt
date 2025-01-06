@@ -34,42 +34,11 @@ class SendNotificationEmailUseCase(
         val userIds = useCaseIn.userIds
         val sendType = "email"
 
-        val properties =
-            templateVersion?.let { it ->
-                emailTemplateHistoryRepository
-                    .findByTemplateIdAndVersion(templateId, it)
-                    ?.let {
-                        NotificationEmailTemplateProperties(
-                            subject = it.subject,
-                            body = it.body,
-                        )
-                    }
-                    ?: throw IllegalArgumentException("Template not found")
-            } ?: emailTemplateRepository
-                .findById(templateId)
-                .orElseThrow { IllegalArgumentException("Template not found") }
-                .let {
-                    NotificationEmailTemplateProperties(
-                        subject = it.subject,
-                        body = it.body,
-                    )
-                }
+        val properties = getEmailNotificationProperties(templateVersion, templateId)
 
         val targetUsers =
-            if (userIds.isEmpty()) {
-                userRepository
-                    .findAllExistByUserAttributesKey()
-                    .groupBy {
-                        objectMapper.readValue(it.userAttributes, Map::class.java)[sendType] as String
-                    }
-            } else {
-                userRepository
-                    .findAllByIdIn(userIds)
-                    .filter {
-                        objectMapper.readValue(it.userAttributes, Map::class.java)[sendType] != null
-                    }.groupBy {
-                        objectMapper.readValue(it.userAttributes, Map::class.java)[sendType] as String
-                    }
+            getTargetUsers(userIds, sendType).groupBy {
+                objectMapper.readValue(it.userAttributes, Map::class.java)[sendType] as String
             }
 
         targetUsers.keys.forEach { email ->
@@ -94,8 +63,47 @@ class SendNotificationEmailUseCase(
             )
         }
 
-        return SendNotificationEmailUseCaseOut(
-            isSuccess = true,
-        )
+        return run {
+            SendNotificationEmailUseCaseOut(
+                isSuccess = true,
+            )
+        }
     }
+
+    private fun getTargetUsers(
+        userIds: List<Long>,
+        sendType: String,
+    ) = if (userIds.isEmpty()) {
+        userRepository
+            .findAllExistByUserAttributesKey()
+    } else {
+        userRepository
+            .findAllByIdIn(userIds)
+            .filter {
+                objectMapper.readValue(it.userAttributes, Map::class.java)[sendType] != null
+            }
+    }
+
+    private fun getEmailNotificationProperties(
+        templateVersion: Float?,
+        templateId: Long,
+    ) = templateVersion?.let { it ->
+        emailTemplateHistoryRepository
+            .findByTemplateIdAndVersion(templateId, it)
+            ?.let {
+                NotificationEmailTemplateProperties(
+                    subject = it.subject,
+                    body = it.body,
+                )
+            }
+            ?: throw IllegalArgumentException("Template not found")
+    } ?: emailTemplateRepository
+        .findById(templateId)
+        .orElseThrow { IllegalArgumentException("Template not found") }
+        .let {
+            NotificationEmailTemplateProperties(
+                subject = it.subject,
+                body = it.body,
+            )
+        }
 }
