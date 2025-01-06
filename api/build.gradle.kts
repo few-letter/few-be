@@ -19,6 +19,9 @@ plugins {
 }
 
 dependencies {
+    /** domain */
+    implementation(project(":domain:crm"))
+
     /** module */
     implementation(project(":library:email"))
     implementation(project(":library:storage"))
@@ -225,7 +228,7 @@ val releaseVersion =
     }
 
 tasks.register("buildDockerImage") {
-    dependsOn("bootJar")
+    dependsOn("build")
 
     doLast {
         exec {
@@ -273,7 +276,7 @@ tasks.register("buildDockerImage") {
 }
 
 tasks.register("buildEcsDockerImage") {
-    dependsOn("bootJar")
+    dependsOn("build")
 
     doLast {
         exec {
@@ -292,7 +295,7 @@ tasks.register("buildEcsDockerImage") {
 }
 
 tasks.register("buildPinpointEcsDockerImageDev") {
-    dependsOn("bootJar")
+    dependsOn("build")
 
     doLast {
         exec {
@@ -313,7 +316,7 @@ tasks.register("buildPinpointEcsDockerImageDev") {
 }
 
 tasks.register("buildPinpointEcsDockerImagePrd") {
-    dependsOn("bootJar")
+    dependsOn("build")
 
     doLast {
         exec {
