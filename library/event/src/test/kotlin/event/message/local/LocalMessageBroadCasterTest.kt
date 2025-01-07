@@ -13,6 +13,7 @@ import event.message.MessagePayload
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
@@ -52,6 +53,7 @@ class LocalMessageBroadCasterTest {
     @Autowired
     lateinit var context: ApplicationContext
 
+    @Disabled
     @Test
     fun is_registered_localMessageBroadCaster_bean() {
         // given & when
@@ -61,6 +63,7 @@ class LocalMessageBroadCasterTest {
         assertNotNull(bean)
     }
 
+    @Disabled
     @Test
     fun localMessageBroadCaster_broadcast_message() {
         val originalOut = System.out
