@@ -1,7 +1,11 @@
 package event.message.local
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import event.EventUtils
 import event.fixtures.TestLocalMessageReverseRelay
 import event.fixtures.TestMessage
@@ -18,6 +22,8 @@ import org.springframework.context.annotation.Profile
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Profile("test, local")
 @SpringJUnitConfig(LocalMessageBroadCasterTest.LocalMessageBroadCasterTestConfig::class, LocalMessageConfig::class)
@@ -31,11 +37,16 @@ class LocalMessageBroadCasterTest {
 
         @Bean
         fun objectMapper(): ObjectMapper =
-            ObjectMapper().registerModule(
-                KotlinModule
-                    .Builder()
-                    .build(),
-            )
+            ObjectMapper().apply {
+                registerKotlinModule()
+                registerModules(JavaTimeModule())
+                disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+
+                val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
+                val localDateTimeDeserializer = LocalDateTimeDeserializer(dateTimeFormatter)
+                val module = SimpleModule().addDeserializer(LocalDateTime::class.java, localDateTimeDeserializer)
+                registerModule(module)
+            }
     }
 
     @Autowired
@@ -64,7 +75,7 @@ class LocalMessageBroadCasterTest {
                     MessagePayload(
                         eventId = EventUtils.generateEventId(),
                         eventType = "Test",
-                        eventTime = System.currentTimeMillis(),
+                        eventTime = LocalDateTime.now(),
                         data =
                             mapOf(
                                 "test" to "test",
