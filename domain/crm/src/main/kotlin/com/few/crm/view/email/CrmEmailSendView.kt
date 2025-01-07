@@ -290,14 +290,20 @@ class CrmEmailSendView(
                                 .findFirst()
                                 .orElseThrow { IllegalArgumentException("Time is required") }
                         val dateTime = LocalDateTime.of(date, time)
-                        NotificationEmailSendTimeOutEvent(
-                            templateId = emailTemplate!!.id!!,
-                            userIds = selectedUsers.map { it.id!! },
-                            eventType = "TimeOutEvent",
-                            expiredTime = dateTime,
-                            eventPublisher = applicationEventPublisher,
-                        ).let {
-                            timeOutEventTaskManager.newSchedule(it)
+                        try {
+                            NotificationEmailSendTimeOutEvent
+                                .new(
+                                    templateId = emailTemplate!!.id!!,
+                                    userIds = selectedUsers.map { it.id!! },
+                                    expiredTime = dateTime,
+                                    eventPublisher = applicationEventPublisher,
+                                ).let {
+                                    taskScheduler.schedule(it, it.expiredTime.toScheduleTime())
+                                    applicationEventPublisher.publishEvent(it)
+                                }
+                        } catch (e: Exception) {
+                            val alter = Notification.show(e.message, 3000, Notification.Position.MIDDLE)
+                            alter.open()
                         }
                     }
                     dialog.close()

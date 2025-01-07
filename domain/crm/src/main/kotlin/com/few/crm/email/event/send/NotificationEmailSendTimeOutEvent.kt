@@ -23,6 +23,26 @@ class NotificationEmailSendTimeOutEvent(
         completed,
         eventPublisher,
     ) {
+    companion object {
+        fun new(
+            templateId: Long,
+            userIds: List<Long>,
+            expiredTime: LocalDateTime,
+            eventPublisher: ApplicationEventPublisher,
+        ): NotificationEmailSendTimeOutEvent {
+            if (LocalDateTime.now().isAfter(expiredTime)) {
+                throw IllegalArgumentException("Expired time must be after current time")
+            }
+            return NotificationEmailSendTimeOutEvent(
+                templateId = templateId,
+                userIds = userIds,
+                expiredTime = expiredTime,
+                eventType = "TimeOutEvent",
+                eventPublisher = eventPublisher,
+            )
+        }
+    }
+
     override fun timeExpiredEvent(): TimeExpiredEvent =
         NotificationEmailSendTimeOutInvokeEvent(
             templateId = templateId,
