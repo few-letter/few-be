@@ -6,7 +6,8 @@ import com.few.crm.email.event.send.NotificationEmailSendTimeOutEvent
 import com.few.crm.email.repository.EmailTemplateRepository
 import com.few.crm.email.usecase.SendNotificationEmailUseCase
 import com.few.crm.email.usecase.dto.SendNotificationEmailUseCaseIn
-import com.few.crm.support.toScheduleTime
+import com.few.crm.support.schedule.TaskView
+import com.few.crm.support.schedule.TimeOutEventTaskManager
 import com.few.crm.user.domain.User
 import com.few.crm.user.repository.UserRepository
 import com.few.crm.view.CommonVerticalLayout
@@ -25,7 +26,6 @@ import com.vaadin.flow.component.timepicker.TimePicker
 import com.vaadin.flow.router.Route
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Sort
-import org.springframework.scheduling.TaskScheduler
 import java.time.*
 
 @Route("/crm/email/send")
@@ -33,7 +33,7 @@ class CrmEmailSendView(
     private val emailTemplateRepository: EmailTemplateRepository,
     private val userRepository: UserRepository,
     private val sendNotificationEmailUseCase: SendNotificationEmailUseCase,
-    private val taskScheduler: TaskScheduler,
+    private val timeOutEventTaskManager: TimeOutEventTaskManager,
     private val applicationEventPublisher: ApplicationEventPublisher,
     private val objectMapper: ObjectMapper,
 ) : CommonVerticalLayout() {
@@ -69,9 +69,22 @@ class CrmEmailSendView(
         templateGrid.height = "auto"
         userGrid.height = "auto"
 
+        val buttonLayout =
+            HorizontalLayout().apply {
+                isSpacing = true
+                isPadding = true
+            }
+
         val notificationButton =
             Button("Notification").apply {
                 addClickListener { sendNotificationEmail() }
+            }
+
+        val scheduledNotificationButton =
+            Button("Scheduled Notification").apply {
+                addClickListener {
+                    openScheduledNotificationDialog()
+                }
             }
 
         val templates = emailTemplateRepository.findAll(Sort.by(Sort.Order.desc("id")))
@@ -120,9 +133,43 @@ class CrmEmailSendView(
         userGrid.addColumn(User::userAttributes).setHeader("User Attributes")
         userGrid.addColumn(User::createdAt).setHeader("Created At")
 
-        contentArea.add(notificationButton)
+        buttonLayout.add(notificationButton, scheduledNotificationButton)
+        contentArea.add(buttonLayout)
         contentArea.add(searchLayout, templateGrid)
         contentArea.add(userGrid)
+    }
+
+    private fun openScheduledNotificationDialog() {
+        val dialog =
+            Dialog().apply {
+                width = "80%"
+                height = "60%"
+            }
+        val layout =
+            VerticalLayout().apply {
+                setSizeFull()
+                style.set("overflow", "auto")
+            }
+
+        val grid = Grid(TaskView::class.java)
+        grid.selectionMode = Grid.SelectionMode.SINGLE
+        val tasks = timeOutEventTaskManager.scheduledTasksView()
+        grid.setItems(tasks)
+        val cancelTaskButton =
+            Button("Cancel Task").apply {
+                addClickListener {
+                    val selectedTask = grid.selectedItems.firstOrNull()
+                    if (selectedTask != null) {
+                        timeOutEventTaskManager.cancel(selectedTask.taskName)
+                        grid.setItems(timeOutEventTaskManager.scheduledTasksView())
+                    }
+                }
+            }
+
+        layout.add(grid)
+        layout.add(cancelTaskButton)
+        dialog.add(layout)
+        dialog.open()
     }
 
     private fun filterGridByEmail(templateName: String) {
