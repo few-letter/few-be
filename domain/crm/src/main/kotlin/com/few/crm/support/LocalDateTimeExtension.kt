@@ -5,7 +5,11 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-fun LocalDateTimeExtension.parse(date: String): LocalDateTime = LocalDateTime.parse(date, LocalDateTimeExtension.dateTimeFormatter)
+fun LocalDateTimeExtension.parseEventTime(date: String): LocalDateTime =
+    LocalDateTime.parse(date, LocalDateTimeExtension.eventTimeFormatter)
+
+fun LocalDateTimeExtension.parseExpiredTime(date: String): LocalDateTime =
+    LocalDateTime.parse(date, LocalDateTimeExtension.expiredTimeFormatter)
 
 fun LocalDateTime.toScheduleTime(): Instant =
     Instant.ofEpochSecond(
@@ -19,6 +23,7 @@ fun LocalDateTime.toScheduleTime(): Instant =
 
 class LocalDateTimeExtension {
     companion object {
-        val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
+        val eventTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS")
+        val expiredTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
     }
 }

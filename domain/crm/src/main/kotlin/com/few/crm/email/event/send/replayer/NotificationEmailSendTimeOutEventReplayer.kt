@@ -6,7 +6,8 @@ import com.few.crm.email.event.send.NotificationEmailSendTimeOutEvent
 import com.few.crm.email.repository.ScheduledEventRepository
 import com.few.crm.support.LocalDateTimeExtension
 import com.few.crm.support.jpa.CrmTransactional
-import com.few.crm.support.parse
+import com.few.crm.support.parseEventTime
+import com.few.crm.support.parseExpiredTime
 import com.few.crm.support.toScheduleTime
 import event.EventRePlayer
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -20,9 +21,9 @@ fun JsonNode.templateId() = this["templateId"].asLong()
 
 fun JsonNode.userIds() = this["userIds"].map { it.asLong() }
 
-fun JsonNode.eventTime() = LocalDateTimeExtension().parse(this["eventTime"].asText())
+fun JsonNode.eventTime() = LocalDateTimeExtension().parseEventTime(this["eventTime"].asText())
 
-fun JsonNode.expiredTime() = LocalDateTimeExtension().parse(this["expiredTime"].asText())
+fun JsonNode.expiredTime() = LocalDateTimeExtension().parseExpiredTime(this["expiredTime"].asText())
 
 @Component
 class NotificationEmailSendTimeOutEventReplayer(
