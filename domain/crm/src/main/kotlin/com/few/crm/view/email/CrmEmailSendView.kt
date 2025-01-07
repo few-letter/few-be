@@ -2,28 +2,39 @@ package com.few.crm.view.email
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.few.crm.email.domain.EmailTemplate
+import com.few.crm.email.event.send.NotificationEmailSendTimeOutEvent
 import com.few.crm.email.repository.EmailTemplateRepository
 import com.few.crm.email.usecase.SendNotificationEmailUseCase
 import com.few.crm.email.usecase.dto.SendNotificationEmailUseCaseIn
+import com.few.crm.support.toScheduleTime
 import com.few.crm.user.domain.User
 import com.few.crm.user.repository.UserRepository
 import com.few.crm.view.CommonVerticalLayout
 import com.vaadin.flow.component.button.Button
+import com.vaadin.flow.component.checkbox.Checkbox
+import com.vaadin.flow.component.datepicker.DatePicker
 import com.vaadin.flow.component.dialog.Dialog
 import com.vaadin.flow.component.grid.Grid
 import com.vaadin.flow.component.notification.Notification
+import com.vaadin.flow.component.orderedlayout.FlexComponent
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.component.textfield.TextArea
 import com.vaadin.flow.component.textfield.TextField
+import com.vaadin.flow.component.timepicker.TimePicker
 import com.vaadin.flow.router.Route
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Sort
+import org.springframework.scheduling.TaskScheduler
+import java.time.*
 
 @Route("/crm/email/send")
 class CrmEmailSendView(
     private val emailTemplateRepository: EmailTemplateRepository,
     private val userRepository: UserRepository,
     private val sendNotificationEmailUseCase: SendNotificationEmailUseCase,
+    private val taskScheduler: TaskScheduler,
+    private val applicationEventPublisher: ApplicationEventPublisher,
     private val objectMapper: ObjectMapper,
 ) : CommonVerticalLayout() {
     private val templateGrid =
@@ -174,26 +185,82 @@ class CrmEmailSendView(
             }.setHeader("Email")
             .setAutoWidth(true)
 
+        val timeLayout =
+            HorizontalLayout().apply {
+                alignItems = FlexComponent.Alignment.BASELINE
+                isSpacing = true
+                isPadding = true
+            }
+        val isNowCheckbox =
+            Checkbox("Is Now").apply {
+                value = true
+                addClickListener {
+                    value != value
+                    if (value) {
+                        timeLayout.children
+                            .filter { it is DatePicker || it is TimePicker }
+                            .forEach { timeLayout.remove(it) }
+                    } else {
+                        val datePicker = DatePicker("Select Date")
+                        datePicker.value = LocalDate.now()
+                        val timePicker = TimePicker("Select Time")
+                        timePicker.setStep(Duration.ofMinutes(30))
+                        timeLayout.add(datePicker, timePicker)
+                    }
+                }
+            }
+        timeLayout.add(isNowCheckbox)
+
         val sendButton =
             Button("Send").apply {
                 addClickListener {
-                    try {
-                        sendNotificationEmailUseCase.execute(
-                            SendNotificationEmailUseCaseIn(
-                                templateId = emailTemplate!!.id!!,
-                                templateVersion = null,
-                                userIds = selectedUsers.map { it.id!! },
-                            ),
-                        )
-                    } catch (e: Exception) {
-                        val alter = Notification.show(e.message, 3000, Notification.Position.MIDDLE)
-                        alter.open()
+                    if (isNowCheckbox.value) {
+                        try {
+                            sendNotificationEmailUseCase.execute(
+                                SendNotificationEmailUseCaseIn(
+                                    templateId = emailTemplate!!.id!!,
+                                    templateVersion = null,
+                                    userIds = selectedUsers.map { it.id!! },
+                                ),
+                            )
+                        } catch (e: Exception) {
+                            val alter = Notification.show(e.message, 3000, Notification.Position.MIDDLE)
+                            alter.open()
+                        }
+                    } else {
+                        val date =
+                            timeLayout.children
+                                .filter { it is DatePicker }
+                                .map { it as DatePicker }
+                                .map { it.value }
+                                .findFirst()
+                                .orElseThrow { IllegalArgumentException("Date is required") }
+                        val time =
+                            timeLayout.children
+                                .filter { it is TimePicker }
+                                .map { it as TimePicker }
+                                .map { it.value }
+                                .findFirst()
+                                .orElseThrow { IllegalArgumentException("Time is required") }
+                        val dateTime = LocalDateTime.of(date, time)
+                        NotificationEmailSendTimeOutEvent(
+                            templateId = emailTemplate!!.id!!,
+                            userIds = selectedUsers.map { it.id!! },
+                            eventType = "TimeOutEvent",
+                            expiredTime = dateTime,
+                            eventPublisher = applicationEventPublisher,
+                        ).let {
+                            taskScheduler.schedule(it, it.expiredTime.toScheduleTime())
+                            applicationEventPublisher.publishEvent(it)
+                        }
                     }
                     dialog.close()
                 }
             }
 
-        layout.add(templateGrid, userGrid, sendButton)
+        layout.add(templateGrid, userGrid)
+        layout.add(timeLayout)
+        layout.add(sendButton)
         dialog.add(layout)
         dialog.open()
     }
