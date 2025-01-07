@@ -20,6 +20,8 @@ data class ScheduledEvent(
     var completed: Boolean,
     @Column(name = "is_not_consumed")
     var isNotConsumed: Boolean = false,
+    @Column(name = "canceled")
+    var canceled: Boolean = false,
 ) {
     constructor() : this(
         eventId = "",
@@ -35,6 +37,13 @@ data class ScheduledEvent(
 
     fun isNotConsumed(): ScheduledEvent {
         isNotConsumed = true
+        return this
+    }
+
+    fun cancel(): ScheduledEvent {
+        completed = true
+        isNotConsumed = true
+        canceled = true
         return this
     }
 }
