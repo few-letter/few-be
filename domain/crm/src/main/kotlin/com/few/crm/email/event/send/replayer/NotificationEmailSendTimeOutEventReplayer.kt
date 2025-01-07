@@ -8,13 +8,12 @@ import com.few.crm.support.LocalDateTimeExtension
 import com.few.crm.support.jpa.CrmTransactional
 import com.few.crm.support.parseEventTime
 import com.few.crm.support.parseExpiredTime
-import com.few.crm.support.toScheduleTime
+import com.few.crm.support.schedule.TimeOutEventTaskManager
 import event.EventRePlayer
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.context.ApplicationEventPublisher
-import org.springframework.scheduling.TaskScheduler
 import org.springframework.stereotype.Component
 
 fun JsonNode.templateId() = this["templateId"].asLong()
@@ -30,7 +29,7 @@ class NotificationEmailSendTimeOutEventReplayer(
     private val eventScheduleRepository: ScheduledEventRepository,
     private val objectMapper: ObjectMapper,
     private val applicationEventPublisher: ApplicationEventPublisher,
-    private val taskScheduler: TaskScheduler,
+    private val timeOutEventTaskManager: TimeOutEventTaskManager,
 ) : EventRePlayer(),
     ApplicationRunner {
     val log = KotlinLogging.logger {}
@@ -66,7 +65,7 @@ class NotificationEmailSendTimeOutEventReplayer(
                         return@forEach
                     }
                     log.info { "Event is replayed. eventId: ${event.eventId} expiredTime: ${event.expiredTime}" }
-                    taskScheduler.schedule(event, event.expiredTime.toScheduleTime())
+                    timeOutEventTaskManager.reSchedule(event)
                 }
             }
         log.info { "==================== [END] NotificationEmailSendTimeOutEventReplayer ====================" }
