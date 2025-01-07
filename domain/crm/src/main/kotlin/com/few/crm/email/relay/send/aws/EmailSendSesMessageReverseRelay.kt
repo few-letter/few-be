@@ -28,7 +28,7 @@ fun Map<*, *>.timestamp(): LocalDateTime = (this["timestamp"] as String).let { Z
 
 fun Map<*, *>.destination() = (this["destination"] as List<*>).joinToString(", ")
 
- @Profile("!local")
+@Profile("!local")
 @Service
 class EmailSendSesMessageReverseRelay(
     private val applicationEventPublisher: ApplicationEventPublisher,
