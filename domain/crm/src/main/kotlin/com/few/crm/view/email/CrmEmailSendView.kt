@@ -298,8 +298,7 @@ class CrmEmailSendView(
                                     expiredTime = dateTime,
                                     eventPublisher = applicationEventPublisher,
                                 ).let {
-                                    taskScheduler.schedule(it, it.expiredTime.toScheduleTime())
-                                    applicationEventPublisher.publishEvent(it)
+                                    timeOutEventTaskManager.newSchedule(it)
                                 }
                         } catch (e: Exception) {
                             val alter = Notification.show(e.message, 3000, Notification.Position.MIDDLE)
