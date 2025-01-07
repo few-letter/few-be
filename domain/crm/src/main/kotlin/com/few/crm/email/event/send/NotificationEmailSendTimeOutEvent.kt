@@ -1,18 +1,18 @@
-package event.fixtures
+package com.few.crm.email.event.send
 
-import event.EventDetails
 import event.EventUtils
 import event.TimeExpiredEvent
 import event.TimeOutEvent
 import org.springframework.context.ApplicationEventPublisher
 import java.time.LocalDateTime
 
-@EventDetails(outBox = false)
-class TestTimeOutEvent(
+class NotificationEmailSendTimeOutEvent(
+    val templateId: Long,
+    val userIds: List<Long>,
     eventId: String = EventUtils.generateEventId(),
     eventType: String,
     eventTime: LocalDateTime = LocalDateTime.now(),
-    expiredTime: LocalDateTime = LocalDateTime.now(),
+    expiredTime: LocalDateTime,
     completed: Boolean = false,
     eventPublisher: ApplicationEventPublisher,
 ) : TimeOutEvent(
@@ -23,15 +23,24 @@ class TestTimeOutEvent(
         completed,
         eventPublisher,
     ) {
-    override fun timeExpiredEvent(): TimeExpiredEvent = TestTimeExpiredEvent(eventId, eventType, eventTime)
+    override fun timeExpiredEvent(): TimeExpiredEvent =
+        NotificationEmailSendTimeOutInvokeEvent(
+            templateId = templateId,
+            userIds = userIds,
+            timeOutEventId = eventId,
+            eventType = "ExpiredEvent",
+        )
 }
 
-@EventDetails(outBox = false)
-class TestTimeExpiredEvent(
-    eventId: String,
+class NotificationEmailSendTimeOutInvokeEvent(
+    val templateId: Long,
+    val userIds: List<Long>,
+    timeOutEventId: String,
+    eventId: String = EventUtils.generateEventId(),
     eventType: String,
     eventTime: LocalDateTime = LocalDateTime.now(),
 ) : TimeExpiredEvent(
+        timeOutEventId,
         eventId,
         eventType,
         eventTime,
