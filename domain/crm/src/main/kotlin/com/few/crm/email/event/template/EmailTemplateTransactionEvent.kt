@@ -2,11 +2,12 @@ package com.few.crm.email.event.template
 
 import event.Event
 import event.EventUtils
+import java.time.LocalDateTime
 
 abstract class EmailTemplateTransactionEvent(
     eventId: String = EventUtils.generateEventId(),
     eventType: String,
-    eventTime: Long = System.currentTimeMillis(),
+    eventTime: LocalDateTime = LocalDateTime.now(),
 ) : Event(
         eventId = eventId,
         eventType = eventType,
@@ -16,7 +17,7 @@ abstract class EmailTemplateTransactionEvent(
 abstract class EmailTemplateTransactionAfterCompletionEvent(
     eventId: String = EventUtils.generateEventId(),
     eventType: String,
-    eventTime: Long = System.currentTimeMillis(),
+    eventTime: LocalDateTime = LocalDateTime.now(),
 ) : EmailTemplateTransactionEvent(
         eventId = eventId,
         eventType = eventType,
@@ -27,12 +28,7 @@ class PostEmailTemplateEvent(
     val templateId: Long,
     eventId: String = EventUtils.generateEventId(),
     eventType: String,
-    eventTime: Long = System.currentTimeMillis(),
+    eventTime: LocalDateTime = LocalDateTime.now(),
 ) : EmailTemplateTransactionAfterCompletionEvent(
-        eventType = "PostEmailTemplateEvent",
-    ) {
-    override fun getData(): Map<String, Any> =
-        mapOf(
-            "templateId" to templateId,
-        )
-}
+        eventType = "PostEvent",
+    )

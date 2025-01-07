@@ -1,5 +1,7 @@
 package event
 
+import java.time.LocalDateTime
+
 /**
  * Event
  *
@@ -12,12 +14,5 @@ package event
 abstract class Event(
     val eventId: String = EventUtils.generateEventId(),
     val eventType: String,
-    val eventTime: Long = System.currentTimeMillis(),
-) {
-    /**
-     * Get data
-     *
-     * @return 이벤트 데이터
-     */
-    abstract fun getData(): Map<String, Any>
-}
+    val eventTime: LocalDateTime = LocalDateTime.now(),
+)

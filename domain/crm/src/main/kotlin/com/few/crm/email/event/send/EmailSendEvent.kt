@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 abstract class EmailSendEvent(
     eventId: String = EventUtils.generateEventId(),
     eventType: String,
-    eventTime: Long = System.currentTimeMillis(),
+    eventTime: LocalDateTime = LocalDateTime.now(),
     val messageId: String,
     val destination: String,
     val timestamp: LocalDateTime,
@@ -17,13 +17,6 @@ abstract class EmailSendEvent(
         eventType = eventType,
         eventTime = eventTime,
     ) {
-    override fun getData(): Map<String, Any> =
-        mapOf(
-            "messageId" to messageId,
-            "destination" to destination,
-            "timestamp" to timestamp,
-        )
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -53,7 +46,7 @@ class EmailSentEvent(
     val emailBody: String,
     eventId: String = EventUtils.generateEventId(),
     eventType: String,
-    eventTime: Long = System.currentTimeMillis(),
+    eventTime: LocalDateTime = LocalDateTime.now(),
     messageId: String,
     destination: String,
     timestamp: LocalDateTime = LocalDateTime.now(),
@@ -69,7 +62,7 @@ class EmailSentEvent(
 class EmailDeliveryEvent(
     eventId: String,
     eventType: String,
-    eventTime: Long,
+    eventTime: LocalDateTime,
     messageId: String,
     destination: String,
     timestamp: LocalDateTime,
@@ -85,7 +78,7 @@ class EmailDeliveryEvent(
 class EmailOpenEvent(
     eventId: String,
     eventType: String,
-    eventTime: Long,
+    eventTime: LocalDateTime,
     messageId: String,
     destination: String,
     timestamp: LocalDateTime,
@@ -101,7 +94,7 @@ class EmailOpenEvent(
 class EmailClickEvent(
     eventId: String,
     eventType: String,
-    eventTime: Long,
+    eventTime: LocalDateTime,
     messageId: String,
     destination: String,
     timestamp: LocalDateTime,
@@ -117,7 +110,7 @@ class EmailClickEvent(
 class EmailDeliveryDelayEvent(
     eventId: String,
     eventType: String,
-    eventTime: Long,
+    eventTime: LocalDateTime,
     messageId: String,
     destination: String,
     timestamp: LocalDateTime,
