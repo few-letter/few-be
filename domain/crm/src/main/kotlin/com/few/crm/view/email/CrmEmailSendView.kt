@@ -151,8 +151,46 @@ class CrmEmailSendView(
                 style.set("overflow", "auto")
             }
 
-        val grid = Grid(TaskView::class.java)
+        val grid =
+            Grid(TaskView::class.java).apply {
+                removeAllColumns()
+            }
         grid.selectionMode = Grid.SelectionMode.SINGLE
+        grid.addColumn(TaskView::taskName).setHeader("Task Name").setAutoWidth(true)
+        grid
+            .addComponentColumn {
+                TextField().apply {
+                    value = it.values["expiredTime"].toString()
+                    isReadOnly = true
+                }
+            }.setHeader("Notification Time")
+            .setAutoWidth(true)
+            .setSortable(true)
+        grid
+            .addComponentColumn {
+                TextField().apply {
+                    value =
+                        (it.values["templateId"] as Long).let {
+                            emailTemplateRepository.findById(it).get().templateName
+                        }
+                    isReadOnly = true
+                }
+            }.setHeader("Template Name")
+            .setAutoWidth(true)
+        grid
+            .addComponentColumn {
+                TextField().apply {
+                    value =
+                        (it.values["userIds"] as List<Long>).let {
+                            userRepository.findAllByIdIn(it).joinToString(", ") { user ->
+                                objectMapper.readValue(user.userAttributes, Map::class.java)["email"] as String
+                            }
+                        }
+                    isReadOnly = true
+                }
+            }.setHeader("User Emails")
+            .setAutoWidth(true)
+        grid.addColumn(TaskView::values).setHeader("Values").setAutoWidth(true)
         val tasks = timeOutEventTaskManager.scheduledTasksView()
         grid.setItems(tasks)
         val cancelTaskButton =
@@ -251,7 +289,8 @@ class CrmEmailSendView(
                         val datePicker = DatePicker("Select Date")
                         datePicker.value = LocalDate.now()
                         val timePicker = TimePicker("Select Time")
-                        timePicker.setStep(Duration.ofMinutes(30))
+                        timePicker.setStep(Duration.ofMinutes(15))
+                        timePicker.value = LocalTime.now()
                         timeLayout.add(datePicker, timePicker)
                     }
                 }
