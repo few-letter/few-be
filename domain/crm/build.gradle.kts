@@ -43,4 +43,20 @@ tasks.named("bootJar") {
 tasks.withType(Test::class.java) {
     useJUnitPlatform()
     systemProperty("allure.results.directory", "$projectDir/build/allure-results")
+
+    doLast {
+        val allureResults = File("$projectDir/build/allure-results")
+        if (allureResults.exists()) {
+            val allureReport = File("$projectDir/build/allure-report")
+            allureReport.deleteRecursively()
+            allureResults.copyRecursively(allureReport)
+        }
+
+        val results = File("$rootDir/api/build/allure-results")
+        if (results.exists()) {
+            val report = File("$rootDir/api/build/allure-results")
+            // result -> report
+            results.copyRecursively(report)
+        }
+    }
 }

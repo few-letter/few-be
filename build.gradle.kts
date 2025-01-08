@@ -257,3 +257,8 @@ tasks.withType(Test::class.java) {
     useJUnitPlatform()
     systemProperty("allure.results.directory", "$projectDir/build/allure-results")
 }
+
+tasks.register("generateAllureResults") {
+    dependsOn("api:test")
+    dependsOn("domain:crm:test")
+}
