@@ -95,7 +95,7 @@ class AwsSchedulerService(
                     taskName = payload["eventId"] as String,
                     values =
                         mapOf(
-                            "templateId" to (payload["templateId"] as Int),
+                            "templateId" to (payload["templateId"] as Int).toLong(),
                             "userIds" to (payload["userIds"] as List<Int>).map { it.toLong() },
                             "eventId" to payload["eventId"] as String,
                             "eventType" to payload["eventType"] as String,
