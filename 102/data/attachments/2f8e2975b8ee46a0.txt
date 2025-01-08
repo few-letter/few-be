@@ -1,0 +1,14 @@
+[%autowidth.stretch, cols="h,a"]
+|===
+|Base package
+|`com.few.crm.email`
+|Bean references
+|* `c.f.c.u.repository.UserRepository` (in User)
+* `c.f.c.s.schedule.TimeOutEventTaskManager` (in Support)
+|Events listened to
+|* `c.f.c.e.event.schedule.CancelScheduledEvent` (async) 
+* `c.f.c.e.event.send.EmailSendEvent` (async) 
+* `c.f.c.e.event.send.NotificationEmailSendTimeOutInvokeEvent` (async) 
+* `c.f.c.e.event.send.NotificationEmailSendTimeOutEvent` (async) 
+* `c.f.c.e.event.template.EmailTemplateTransactionAfterCompletionEvent` (async) 
+|===
