@@ -20,7 +20,7 @@ abstract class TimeOutEvent(
     eventTime: LocalDateTime = LocalDateTime.now(),
     val expiredTime: LocalDateTime,
     var completed: Boolean = false,
-    private val eventPublisher: ApplicationEventPublisher,
+    protected val eventPublisher: ApplicationEventPublisher,
 ) : Event(
         eventId,
         eventType,
