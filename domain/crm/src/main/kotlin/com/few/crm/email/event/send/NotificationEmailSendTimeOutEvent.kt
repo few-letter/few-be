@@ -6,7 +6,7 @@ import event.TimeOutEvent
 import org.springframework.context.ApplicationEventPublisher
 import java.time.LocalDateTime
 
-class NotificationEmailSendTimeOutEvent(
+open class NotificationEmailSendTimeOutEvent(
     val templateId: Long,
     val userIds: List<Long>,
     eventId: String = EventUtils.generateEventId(),
@@ -50,6 +50,20 @@ class NotificationEmailSendTimeOutEvent(
             timeOutEventId = eventId,
             eventType = "ExpiredEvent",
         )
+
+    fun isLongTermEvent(now: LocalDateTime): Boolean = expiredTime.isAfter(now)
+
+    fun toLongTermEvent(): AwsNotificationEmailSendTimeOutEvent =
+        AwsNotificationEmailSendTimeOutEvent(
+            templateId = templateId,
+            userIds = userIds,
+            eventId = eventId,
+            eventType = eventType,
+            eventTime = eventTime,
+            expiredTime = expiredTime,
+            completed = completed,
+            eventPublisher = eventPublisher,
+        )
 }
 
 class NotificationEmailSendTimeOutInvokeEvent(
@@ -64,4 +78,24 @@ class NotificationEmailSendTimeOutInvokeEvent(
         eventId,
         eventType,
         eventTime,
+    )
+
+class AwsNotificationEmailSendTimeOutEvent(
+    templateId: Long,
+    userIds: List<Long>,
+    eventId: String = EventUtils.generateEventId(),
+    eventType: String,
+    eventTime: LocalDateTime = LocalDateTime.now(),
+    expiredTime: LocalDateTime,
+    completed: Boolean = false,
+    eventPublisher: ApplicationEventPublisher,
+) : NotificationEmailSendTimeOutEvent(
+        templateId,
+        userIds,
+        eventId,
+        eventType,
+        eventTime,
+        expiredTime,
+        completed,
+        eventPublisher,
     )
