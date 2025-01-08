@@ -11,4 +11,5 @@ package event
 @Retention(AnnotationRetention.RUNTIME)
 annotation class EventDetails(
     val outBox: Boolean = false,
+    val publishedLocations: Array<String> = [],
 )
