@@ -24,6 +24,7 @@ fun LocalDateTime.toScheduleExpression(): String =
 
 @Service
 class AwsSchedulerService(
+    // TODO fix the dependency
     private val scheduledEventRepository: ScheduledEventRepository,
     private val awsSchedulerClient: SchedulerClient,
     private val objectMapper: ObjectMapper,

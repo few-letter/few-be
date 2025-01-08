@@ -1,19 +1,16 @@
 package com.few.crm.email.usecase
 
 import com.few.crm.email.domain.EmailTemplate
-import com.few.crm.email.event.template.PostEmailTemplateEvent
 import com.few.crm.email.repository.EmailTemplateRepository
 import com.few.crm.email.service.HtmlValidator
 import com.few.crm.email.usecase.dto.PostTemplateUseCaseIn
 import com.few.crm.email.usecase.dto.PostTemplateUseCaseOut
 import com.few.crm.support.jpa.CrmTransactional
-import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 
 @Service
 class PostTemplateUseCase(
     private val emailTemplateRepository: EmailTemplateRepository,
-    private val applicationEventPublisher: ApplicationEventPublisher,
     private val htmlValidator: HtmlValidator,
 ) {
     @CrmTransactional
@@ -63,13 +60,6 @@ class PostTemplateUseCase(
                 template.updateVersion(version)
             }
         }
-
-        applicationEventPublisher.publishEvent(
-            PostEmailTemplateEvent(
-                templateId = modifiedOrNewTemplate.id!!,
-                eventType = "POST",
-            ),
-        )
 
         return run {
             PostTemplateUseCaseOut(
