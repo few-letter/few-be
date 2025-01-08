@@ -1,15 +1,17 @@
 package com.few.crm.email.domain
 
+import com.few.crm.email.event.template.PostEmailTemplateEvent
 import com.few.crm.support.jpa.converter.StringListConverter
 import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.domain.AbstractAggregateRoot
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "email_templates")
 @EntityListeners(AuditingEntityListener::class)
-data class EmailTemplate(
+class EmailTemplate(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
@@ -27,7 +29,7 @@ data class EmailTemplate(
     var version: Float = 1.0f,
     @CreatedDate
     var createdAt: LocalDateTime? = null,
-) {
+) : AbstractAggregateRoot<EmailTemplate>() {
     protected constructor() : this(
         templateName = "",
         subject = "",
@@ -50,7 +52,15 @@ data class EmailTemplate(
             )
     }
 
-    fun isNewTemplate(): Boolean = id == null
+    fun isNewTemplate(): Boolean {
+        registerEvent(
+            PostEmailTemplateEvent(
+                templateId = this.id ?: 0,
+                eventType = "POST",
+            ),
+        )
+        return id == null
+    }
 
     fun modifySubject(subject: String?): EmailTemplate {
         subject?.let {
@@ -77,6 +87,13 @@ data class EmailTemplate(
         } ?: kotlin.run {
             this.version += 0.1f
         }
+
+        registerEvent(
+            PostEmailTemplateEvent(
+                templateId = this.id!!,
+                eventType = "POST",
+            ),
+        )
         return this
     }
 }
