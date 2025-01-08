@@ -40,9 +40,18 @@ class NotificationEmailSendTimeOutEventReplayer(
     }
 
     override fun replay() {
-        log.info { "==================== [START] NotificationEmailSendTimeOutEventReplayer ====================" }
+        val logBuffer = StringBuilder()
+        logBuffer.appendLine("NotificationEmailSendTimeOutEventReplayer:")
         var expiredEventCount = 0L
         var replayedEventCount = 0L
+        val expiredEventsLogBuffer =
+            StringBuilder().apply {
+                appendLine("\\-Expired events:")
+            }
+        val replayedEventsLogBuffer =
+            StringBuilder().apply {
+                appendLine("\\-Replayed events:")
+            }
         eventScheduleRepository
             .findAllByEventClassAndCompletedFalse(NotificationEmailSendTimeOutEvent::class.simpleName.toString())
             .filter {
@@ -62,18 +71,20 @@ class NotificationEmailSendTimeOutEventReplayer(
                         )
                     if (event.isExpired()) {
                         // TODO alert
-                        log.error { "Event is expired. eventId: ${event.eventId} expiredTime: ${event.expiredTime}" }
+                        expiredEventsLogBuffer.appendLine("  - eventId: ${event.eventId} expiredTime: ${event.expiredTime}")
                         eventScheduleRepository.findByEventId(event.eventId)?.isNotConsumed()?.complete()
                         expiredEventCount++
                         return@forEach
                     }
-                    log.info { "Event is replayed. eventId: ${event.eventId} expiredTime: ${event.expiredTime}" }
+                    replayedEventsLogBuffer.appendLine("  - eventId: ${event.eventId} expiredTime: ${event.expiredTime}")
                     timeOutEventTaskManager.reSchedule(event)
                     replayedEventCount++
                 }
             }
-        log.info { "Expired event count: $expiredEventCount" }
-        log.info { "Replayed event count: $replayedEventCount" }
-        log.info { "==================== [END] NotificationEmailSendTimeOutEventReplayer ====================" }
+        logBuffer.append(expiredEventsLogBuffer)
+        logBuffer.append(replayedEventsLogBuffer)
+        logBuffer.appendLine("Expired event count: $expiredEventCount")
+        logBuffer.append("Replayed event count: $replayedEventCount")
+        log.info { logBuffer.toString() }
     }
 }
