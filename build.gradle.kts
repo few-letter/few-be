@@ -178,20 +178,6 @@ subprojects {
         includeCompileClasspath = false
     }
 
-    tasks {
-        test {
-            useJUnitPlatform()
-            systemProperty("allure.results.directory", "$projectDir/build/allure-results")
-        }
-
-        register<Test>("architectureSpecTest") {
-            group = "spec"
-            useJUnitPlatform {
-                includeTags("ArchitectureSpec")
-            }
-        }
-    }
-
     /** server url */
     val serverUrl =
         project.hasProperty("serverUrl").let {
@@ -265,4 +251,9 @@ tasks.named("gitExecutableHooks").configure {
 
 tasks.named("clean").configure {
     dependsOn("gitExecutableHooks")
+}
+
+tasks.withType(Test::class.java) {
+    useJUnitPlatform()
+    systemProperty("allure.results.directory", "$projectDir/build/allure-results")
 }

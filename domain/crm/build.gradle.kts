@@ -39,3 +39,8 @@ vaadin {
 tasks.named("bootJar") {
     dependsOn("vaadinBuildFrontend")
 }
+
+tasks.withType(Test::class.java) {
+    useJUnitPlatform()
+    systemProperty("allure.results.directory", "$projectDir/build/allure-results")
+}
