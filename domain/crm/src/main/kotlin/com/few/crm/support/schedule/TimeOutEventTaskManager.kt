@@ -94,13 +94,15 @@ class TimeOutEventTaskManager(
         tasks[taskName]?.let {
             it.task.cancel(false)
             tasks.remove(taskName)
-            applicationEventPublisher.publishEvent(
-                CancelScheduledEvent(
-                    targetEventId = taskName,
-                ),
-            )
-            log.info { "Task $taskName is cancelled" }
+        } ?: run {
+            awsSchedulerService.deleteSchedule(taskName)
         }
+        applicationEventPublisher.publishEvent(
+            CancelScheduledEvent(
+                targetEventId = taskName,
+            ),
+        )
+        log.info { "Task $taskName is cancelled" }
     }
 
     fun scheduledTasksView(): List<TaskView> {

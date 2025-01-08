@@ -106,4 +106,20 @@ class AwsSchedulerService(
                 )
             }.toList()
     }
+
+    fun deleteSchedule(eventId: String) {
+        try {
+            awsSchedulerClient.deleteSchedule(
+                DeleteScheduleRequest
+                    .builder()
+                    .name(eventId)
+                    .groupName(groupName)
+                    .build(),
+            )
+            log.info { "Successfully deleted schedule $eventId" }
+        } catch (ex: Exception) {
+            log.error { "Error deleting schedule: ${ex.message}" }
+            throw RuntimeException("Error deleting schedule: ${ex.message}", ex)
+        }
+    }
 }
