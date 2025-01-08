@@ -50,6 +50,6 @@ tasks.withType(Test::class.java) {
         if (!results.exists()) {
             results.mkdirs()
         }
-        results.copyRecursively(allureResults, true)
+        allureResults.copyRecursively(results, true)
     }
 }
