@@ -35,7 +35,7 @@ class EmailSendSesMessageReverseRelay(
 ) : EmailSendMessageReverseRelay() {
     val log = KotlinLogging.logger { }
 
-    @SqsListener(queueNames = ["few_crm_sqs"], factory = SQS_LISTENER_CONTAINER_FACTORY)
+    @SqsListener(queueNames = ["crm_ses_sqs"], factory = SQS_LISTENER_CONTAINER_FACTORY)
     fun onMessage(
         message: String,
         acknowledgement: Acknowledgement,
