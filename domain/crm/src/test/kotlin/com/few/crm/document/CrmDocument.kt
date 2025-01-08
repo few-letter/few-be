@@ -33,8 +33,10 @@ class CrmDocument {
             modules
                 .filterNot { it.name == "config" }
                 .forEach {
-                    val outputFile = File("build/spring-modulith-docs/module-${it.name}.adoc")
-                    Allure.addAttachment("${it.name} Module", "text/plain", outputFile.readText())
+                    val adocFile = File("build/spring-modulith-docs/module-${it.name}.adoc")
+                    val pumlFile = File("build/spring-modulith-docs/module-${it.name}.puml")
+                    Allure.addAttachment("${it.name} Module Adoc", "text/plain", adocFile.readText())
+                    Allure.addAttachment("${it.name} Module Puml", "text/plain", pumlFile.readText())
                 }
         }
     }
