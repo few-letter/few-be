@@ -2,9 +2,9 @@ package com.few.crm.email.service
 
 import com.few.crm.email.domain.EmailSendEventType
 import com.few.crm.email.domain.SentEmail
-import event.domain.PublishEvents
 import email.*
 import email.provider.CrmAwsSESEmailSendProvider
+import event.domain.PublishEvents
 import org.springframework.boot.autoconfigure.mail.MailProperties
 import org.springframework.stereotype.Component
 
