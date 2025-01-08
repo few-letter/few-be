@@ -95,12 +95,12 @@ class AwsSchedulerService(
                     taskName = payload["eventId"] as String,
                     values =
                         mapOf(
-                            "templateId" to payload["templateId"] as Int,
-                            "userIds" to payload["userIds"] as List<Int>,
+                            "templateId" to (payload["templateId"] as Int).toLong(),
+                            "userIds" to (payload["userIds"] as List<Int>).map { it.toLong() },
                             "eventId" to payload["eventId"] as String,
                             "eventType" to payload["eventType"] as String,
-                            "eventTime" to payload["eventTime"] as String,
-                            "expiredTime" to payload["expiredTime"] as String,
+                            "eventTime" to LocalDateTime.parse(payload["eventTime"] as String),
+                            "expiredTime" to LocalDateTime.parse(payload["expiredTime"] as String),
                             "completed" to payload["completed"] as Boolean,
                         ),
                 )
