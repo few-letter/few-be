@@ -15,7 +15,7 @@ abstract class ScheduledEvent(
         eventTime,
     )
 
-@EventDetails(publishedLocations = ["com.few.crm.support.schedule.TimeOutEventTaskManager"] )
+@EventDetails(publishedLocations = ["com.few.crm.support.schedule.TimeOutEventTaskManager"])
 class CancelScheduledEvent(
     val targetEventId: String,
     eventId: String = EventUtils.generateEventId(),

@@ -7,7 +7,9 @@ import event.TimeOutEvent
 import org.springframework.context.ApplicationEventPublisher
 import java.time.LocalDateTime
 
-@EventDetails(publishedLocations = ["com.few.crm.email.event.send.replayer.NotificationEmailSendTimeOutEventReplayer", "com.few.crm.view.email.CrmEmailSendView"])
+@EventDetails(
+    publishedLocations = ["com.few.crm.email.event.send.replayer.NotificationEmailSendTimeOutEventReplayer", "com.few.crm.view.email.CrmEmailSendView"],
+)
 open class NotificationEmailSendTimeOutEvent(
     val templateId: Long,
     val userIds: List<Long>,
@@ -68,7 +70,9 @@ open class NotificationEmailSendTimeOutEvent(
         )
 }
 
-@EventDetails(publishedLocations = ["com.few.crm.email.event.send.NotificationEmailSendTimeOutInvokeEvent", "com.few.crm.email.relay.send.aws.ScheduledEventReverseRelay"])
+@EventDetails(
+    publishedLocations = ["com.few.crm.email.event.send.NotificationEmailSendTimeOutInvokeEvent", "com.few.crm.email.relay.send.aws.ScheduledEventReverseRelay"],
+)
 class NotificationEmailSendTimeOutInvokeEvent(
     val templateId: Long,
     val userIds: List<Long>,

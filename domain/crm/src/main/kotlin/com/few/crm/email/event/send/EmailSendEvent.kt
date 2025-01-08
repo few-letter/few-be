@@ -40,7 +40,10 @@ abstract class EmailSendEvent(
     override fun toString(): String = "EmailSendEvent(messageId='$messageId', destination='$destination', timestamp=$timestamp)"
 }
 
-@EventDetails(outBox = false, publishedLocations = ["com.few.crm.email.domain.SentEmail", "com.few.crm.email.event.send.handler.NotificationEmailSendTimeOutInvokeEventHandler"])
+@EventDetails(
+    outBox = false,
+    publishedLocations = ["com.few.crm.email.domain.SentEmail", "com.few.crm.email.event.send.handler.NotificationEmailSendTimeOutInvokeEventHandler"],
+)
 class EmailSentEvent(
     val userExternalId: String,
     val emailBody: String,
