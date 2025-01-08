@@ -2,11 +2,15 @@ package com.few.crm.support.schedule
 
 import com.few.crm.email.event.schedule.CancelScheduledEvent
 import com.few.crm.email.event.send.NotificationEmailSendTimeOutEvent
+import com.few.crm.support.schedule.aws.AwsSchedulerService
+import com.few.crm.support.schedule.aws.dto.NotificationEmailSendTimeOutEventInput
 import com.few.crm.support.toScheduleTime
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.TaskScheduler
 import org.springframework.stereotype.Component
+import java.time.LocalDateTime
 import java.util.concurrent.ScheduledFuture
 
 class ManagedTask(
@@ -22,8 +26,10 @@ data class TaskView(
 
 @Component
 class TimeOutEventTaskManager(
+    private val awsSchedulerService: AwsSchedulerService,
     private val taskScheduler: TaskScheduler,
     private val applicationEventPublisher: ApplicationEventPublisher,
+    @Value("\${crm.schedule.aws-min-minutes}") private val awsMinMinutes: Int,
 ) {
     val log = KotlinLogging.logger {}
 
@@ -41,8 +47,23 @@ class TimeOutEventTaskManager(
     }
 
     fun newSchedule(event: NotificationEmailSendTimeOutEvent) {
-        schedule(event)
-        applicationEventPublisher.publishEvent(event)
+        if (event.isLongTermEvent(LocalDateTime.now().plusMinutes(awsMinMinutes.toLong()))) {
+            val input =
+                NotificationEmailSendTimeOutEventInput(
+                    templateId = event.templateId,
+                    userIds = event.userIds,
+                    timeOutEventId = event.eventId,
+                )
+            awsSchedulerService.createSchedule(
+                name = event.eventId,
+                schedule = event.expiredTime,
+                input = input,
+            )
+            applicationEventPublisher.publishEvent(event.toLongTermEvent())
+        } else {
+            schedule(event)
+            applicationEventPublisher.publishEvent(event)
+        }
     }
 
     fun reSchedule(event: NotificationEmailSendTimeOutEvent) {
@@ -73,14 +94,19 @@ class TimeOutEventTaskManager(
         tasks[taskName]?.let {
             it.task.cancel(false)
             tasks.remove(taskName)
-            applicationEventPublisher.publishEvent(
-                CancelScheduledEvent(
-                    targetEventId = taskName,
-                ),
-            )
-            log.info { "Task $taskName is cancelled" }
+        } ?: run {
+            awsSchedulerService.deleteSchedule(taskName)
         }
+        applicationEventPublisher.publishEvent(
+            CancelScheduledEvent(
+                targetEventId = taskName,
+            ),
+        )
+        log.info { "Task $taskName is cancelled" }
     }
 
-    fun scheduledTasksView(): List<TaskView> = tasks.values.map { it.taskView }
+    fun scheduledTasksView(): List<TaskView> {
+        val awsScheduleViews = awsSchedulerService.registeredScheduleView()
+        return tasks.values.map { it.taskView } + awsScheduleViews
+    }
 }

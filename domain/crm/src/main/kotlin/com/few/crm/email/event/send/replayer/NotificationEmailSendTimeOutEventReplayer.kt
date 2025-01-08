@@ -41,8 +41,10 @@ class NotificationEmailSendTimeOutEventReplayer(
 
     override fun replay() {
         log.info { "==================== [START] NotificationEmailSendTimeOutEventReplayer ====================" }
+        var expiredEventCount = 0L
+        var replayedEventCount = 0L
         eventScheduleRepository
-            .findAllByCompletedFalse()
+            .findAllByEventClassAndCompletedFalse(NotificationEmailSendTimeOutEvent::class.simpleName.toString())
             .filter {
                 it.eventClass == NotificationEmailSendTimeOutEvent::class.simpleName
             }.forEach {
@@ -62,12 +64,16 @@ class NotificationEmailSendTimeOutEventReplayer(
                         // TODO alert
                         log.error { "Event is expired. eventId: ${event.eventId} expiredTime: ${event.expiredTime}" }
                         eventScheduleRepository.findByEventId(event.eventId)?.isNotConsumed()?.complete()
+                        expiredEventCount++
                         return@forEach
                     }
                     log.info { "Event is replayed. eventId: ${event.eventId} expiredTime: ${event.expiredTime}" }
                     timeOutEventTaskManager.reSchedule(event)
+                    replayedEventCount++
                 }
             }
+        log.info { "Expired event count: $expiredEventCount" }
+        log.info { "Replayed event count: $replayedEventCount" }
         log.info { "==================== [END] NotificationEmailSendTimeOutEventReplayer ====================" }
     }
 }

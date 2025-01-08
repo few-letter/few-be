@@ -5,6 +5,11 @@ crm:
     region:
         static: ap-northeast-2
     auth: ${CRM_AUTH:0518}
+    schedule:
+        aws-min-minutes: 1
+        groupName: crm
+        roleArn: thisisarn
+        sqsArn: thisisarn
 
 spring:
   crm:

@@ -22,12 +22,15 @@ data class ScheduledEvent(
     var isNotConsumed: Boolean = false,
     @Column(name = "canceled")
     var canceled: Boolean = false,
+    @Column(name = "scheduled_at")
+    val scheduledAt: String,
 ) {
     constructor() : this(
         eventId = "",
         eventClass = "",
         eventPayload = "",
         completed = false,
+        scheduledAt = "",
     )
 
     fun complete(): ScheduledEvent {
