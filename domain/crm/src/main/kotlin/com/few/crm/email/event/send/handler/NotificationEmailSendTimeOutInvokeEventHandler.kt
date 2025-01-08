@@ -27,7 +27,9 @@ class NotificationEmailSendTimeOutInvokeEventHandler(
 ) : EventHandler<NotificationEmailSendTimeOutInvokeEvent> {
     @CrmTransactional
     override fun handle(event: NotificationEmailSendTimeOutInvokeEvent) {
-        scheduledEventRepository.findByEventId(event.timeOutEventId)?.complete()
+        scheduledEventRepository
+            .findByEventIdAndCompletedFalseForUpdate(event.timeOutEventId)
+            ?.complete() ?: return
         val templateId = event.templateId
         val userIds = event.userIds
         val template =
