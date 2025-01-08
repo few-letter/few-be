@@ -4,7 +4,15 @@ import jakarta.persistence.*
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 
 @Entity
-@Table(name = "scheduled_events")
+@Table(
+    name = "scheduled_events",
+    uniqueConstraints = [
+        UniqueConstraint(
+            name = "event_id_unique",
+            columnNames = ["event_id"],
+        ),
+    ],
+)
 @EntityListeners(AuditingEntityListener::class)
 data class ScheduledEvent(
     @Id
