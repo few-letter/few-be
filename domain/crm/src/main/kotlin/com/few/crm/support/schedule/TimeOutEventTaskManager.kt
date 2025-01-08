@@ -22,7 +22,14 @@ class ManagedTask(
 data class TaskView(
     val taskName: String,
     val values: Map<String, Any>,
-)
+) {
+    init {
+        require(values.isNotEmpty()) { "TaskView values must not be empty" }
+        require((values["templateId"] != null) && (values["templateId"] is Long)) { "TaskView must have templateId" }
+        require((values["userIds"] != null) && (values["userIds"] is List<*>)) { "TaskView must have userIds" }
+        require((values["expiredTime"] != null) && (values["expiredTime"] is LocalDateTime)) { "TaskView must have expiredTime" }
+    }
+}
 
 @Component
 class TimeOutEventTaskManager(
