@@ -40,7 +40,13 @@ abstract class EmailSendEvent(
     override fun toString(): String = "EmailSendEvent(messageId='$messageId', destination='$destination', timestamp=$timestamp)"
 }
 
-@EventDetails(outBox = false)
+@EventDetails(
+    outBox = false,
+    publishedLocations = [
+        "com.few.crm.email.domain.SentEmail",
+        "com.few.crm.email.event.send.handler.NotificationEmailSendTimeOutInvokeEventHandler",
+    ],
+)
 class EmailSentEvent(
     val userExternalId: String,
     val emailBody: String,
@@ -59,6 +65,7 @@ class EmailSentEvent(
         timestamp = timestamp,
     )
 
+@EventDetails(outBox = false, publishedLocations = ["com.few.crm.email.relay.send.EmailSendEventMessageMapper"])
 class EmailDeliveryEvent(
     eventId: String,
     eventType: String,
@@ -75,6 +82,7 @@ class EmailDeliveryEvent(
         timestamp = timestamp,
     )
 
+@EventDetails(outBox = false, publishedLocations = ["com.few.crm.email.relay.send.EmailSendEventMessageMapper"])
 class EmailOpenEvent(
     eventId: String,
     eventType: String,
@@ -91,6 +99,7 @@ class EmailOpenEvent(
         timestamp = timestamp,
     )
 
+@EventDetails(outBox = false, publishedLocations = ["com.few.crm.email.relay.send.EmailSendEventMessageMapper"])
 class EmailClickEvent(
     eventId: String,
     eventType: String,
@@ -107,6 +116,7 @@ class EmailClickEvent(
         timestamp = timestamp,
     )
 
+@EventDetails(outBox = false, publishedLocations = ["com.few.crm.email.relay.send.EmailSendEventMessageMapper"])
 class EmailDeliveryDelayEvent(
     eventId: String,
     eventType: String,
