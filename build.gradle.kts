@@ -183,13 +183,6 @@ subprojects {
             useJUnitPlatform()
             systemProperty("allure.results.directory", "$projectDir/build/allure-results")
         }
-
-        register<Test>("architectureSpecTest") {
-            group = "spec"
-            useJUnitPlatform {
-                includeTags("ArchitectureSpec")
-            }
-        }
     }
 
     /** server url */
@@ -241,6 +234,13 @@ subprojects {
         val generateSwaggerUISampleTask = tasks.named(generateSwaggerUITask, GenerateSwaggerUI::class).get()
         from(generateSwaggerUISampleTask.outputDir)
         into("$projectDir/src/main/resources/static/docs/${project.name}/swagger-ui")
+    }
+
+    tasks.register("allureReport", Copy::class) {
+        group = "documentation"
+
+        from("$projectDir/build/allure-results")
+        into("$rootDir/allure-results")
     }
 
     defaultTasks("bootRun")
