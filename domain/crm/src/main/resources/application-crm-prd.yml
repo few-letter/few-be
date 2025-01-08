@@ -9,7 +9,7 @@ crm:
         aws-min-minutes: ${CRM_SCHEDULE_MIN_MINUTES:10}
         groupName: ${CRM_SCHEDULE_GROUP_NAME:crm}
         roleArn: ${CRM_SCHEDULE_ROLE_ARN}
-        targetArn: ${CRM_SCHEDULE_TARGET_ARN}
+        sqsArn: ${CRM_SCHEDULE_TARGET_ARN}
 
 spring:
     crm:
