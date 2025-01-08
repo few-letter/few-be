@@ -46,17 +46,10 @@ tasks.withType(Test::class.java) {
 
     doLast {
         val allureResults = File("$projectDir/build/allure-results")
-        if (allureResults.exists()) {
-            val allureReport = File("$projectDir/build/allure-report")
-            allureReport.deleteRecursively()
-            allureResults.copyRecursively(allureReport)
-        }
-
         val results = File("$rootDir/api/build/allure-results")
-        if (results.exists()) {
-            val report = File("$rootDir/api/build/allure-results")
-            // result -> report
-            results.copyRecursively(report)
+        if (!results.exists()) {
+            results.mkdirs()
         }
+        results.copyRecursively(allureResults, true)
     }
 }
