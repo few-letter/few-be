@@ -1,7 +1,7 @@
 package com.few.crm.email.domain
 
 import com.few.crm.email.event.send.EmailSentEvent
-import org.springframework.data.domain.AbstractAggregateRoot
+import event.domain.DomainAbstractAggregateRoot
 
 class SentEmail(
     private val userExternalId: String,
@@ -9,7 +9,7 @@ class SentEmail(
     private val destination: String,
     private val emailMessageId: String,
     private val eventType: EmailSendEventType = EmailSendEventType.SEND,
-) : AbstractAggregateRoot<SentEmail>() {
+) : DomainAbstractAggregateRoot<SentEmail>() {
     init {
         registerEvent(
             EmailSentEvent(

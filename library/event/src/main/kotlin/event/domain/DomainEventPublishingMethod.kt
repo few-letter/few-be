@@ -18,7 +18,7 @@ class DomainEventPublishingMethod(
 
         fun of(type: Class<*>): DomainEventPublishingMethod {
             if (!type.superclass.isAssignableFrom(DomainAbstractAggregateRoot::class.java)) {
-                throw IllegalArgumentException("Type must extend DomainAbstractAggregateRoot")
+                throw IllegalArgumentException("Type must extend DomainAbstractAggregateRoot: $type")
             }
 
             val result =
