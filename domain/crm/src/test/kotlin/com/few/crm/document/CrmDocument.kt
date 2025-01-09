@@ -23,6 +23,7 @@ class CrmDocument {
     inner class DependencyDiagram {
         @Story("CRM 모듈 의존성 다이어그램")
         @Link("https://thetimetube.herokuapp.com/asciidoc/")
+        @Link("https://www.planttext.com/")
         @Test
         fun `create dependency diagram`() {
             val modules = ApplicationModules.of("com.few.crm")
@@ -44,6 +45,8 @@ class CrmDocument {
     @Nested
     inner class EventDocument {
         @Story("CRM 이벤트 발행 문서")
+        @Link("https://thetimetube.herokuapp.com/asciidoc/")
+        @Link("https://www.planttext.com/")
         @Test
         fun `create event document`() {
             val classes = ClassFileImporter().importPackages("com.few.crm")
