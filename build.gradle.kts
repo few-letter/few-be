@@ -131,6 +131,7 @@ subprojects {
             imports {
                 mavenBom("org.springframework.modulith:spring-modulith-bom:${DependencyVersion.SPRING_MODULITH}")
                 mavenBom("com.vaadin:vaadin-bom:${DependencyVersion.VAADIN}")
+                mavenBom("org.springframework.cloud:spring-cloud-dependencies:2023.0.4")
             }
         }
     }
