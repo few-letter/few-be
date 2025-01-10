@@ -5,3 +5,9 @@ openai:
         model:
             basic: gpt-4o-mini
             advanced: gpt-4o
+
+crawl:
+    naver:
+        news:
+            max-page: 100
+            max-links: 100

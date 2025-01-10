@@ -4,7 +4,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
-data class News(
+data class ContentSpec(
     val id: String = UUID.randomUUID().toString().substring(0, 4),
     var title: String = "",
     var date: LocalDateTime = LocalDateTime.now(),
@@ -29,8 +29,8 @@ data class News(
         )
 
     companion object {
-        fun fromMap(data: Map<String, Any>): News =
-            News(
+        fun fromMap(data: Map<String, Any>): ContentSpec =
+            ContentSpec(
                 id = data["id"] as? String ?: UUID.randomUUID().toString(),
                 title = data["title"] as String,
                 content = data["content"] as String,

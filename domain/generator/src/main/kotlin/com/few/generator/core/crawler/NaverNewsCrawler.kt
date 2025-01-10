@@ -1,10 +1,11 @@
-package com.few.generator.core
+package com.few.generator.core.crawler
 
-import com.few.generator.core.model.News
-import com.google.gson.Gson
+import com.few.generator.core.Crawler
+import com.few.generator.core.model.ContentSpec
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.io.File
 import java.time.LocalDateTime
@@ -13,10 +14,9 @@ import java.util.regex.Pattern
 
 @Component
 class NaverNewsCrawler(
-    private val maxPages: Int = 100,
-    private val maxLinks: Int = 100,
-    private val fewGson: Gson,
-) {
+    @Value("\${crawl.naver.news.max-pages}") var maxPages: Int,
+    @Value("\${crawl.naver.news.max-links}") var maxLinks: Int,
+) : Crawler {
     private val log = KotlinLogging.logger {}
     private val regexNewsLinks = "https://n\\.news\\.naver\\.com/mnews/article/\\d+/\\d+$"
     private val headers =
@@ -25,49 +25,8 @@ class NaverNewsCrawler(
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
         )
 
-    private fun getSoup(url: String): Document {
-        val connection = Jsoup.connect(url)
-        headers.forEach { (key, value) ->
-            connection.header(key, value)
-        }
-        return connection.get()
-    }
-
-    private fun makeUrl(
-        sid: Int,
-        page: Int,
-    ) = "https://news.naver.com/main/main.naver?mode=LSD&mid=shm&sid1=$sid#&date=%2000:00:00&page=$page"
-
-    fun getNaverNewsUrls(sid: Int): List<String> {
-        log.info { "$sid 분야의 뉴스 링크를 수집합니다." }
-        val allLinks = mutableSetOf<String>()
-
-        for (page in 1..maxPages) {
-            val url = makeUrl(sid, page)
-            val soup = getSoup(url)
-
-            // Regex to match the desired link pattern
-            val pattern = Pattern.compile(regexNewsLinks)
-            val links =
-                soup.select("a[href]").mapNotNull { element ->
-                    val href = element.attr("href")
-                    if (pattern.matcher(href).matches()) href else null
-                }
-
-            allLinks.addAll(links)
-
-            if (allLinks.size >= maxLinks) {
-                break
-            }
-
-            Thread.sleep(500) // 0.5 seconds delay
-        }
-
-        return allLinks.take(maxLinks).toList()
-    }
-
-    fun getNewsContent(url: String): News? {
-        log.info { "뉴스 내용을 가져오는 중: $url" }
+    override fun execute(url: String): ContentSpec? {
+        log.info { "Start crawling $url" }
         val soup: Document = getSoup(url)
 
         val title = soup.selectFirst("#title_area > span")
@@ -113,7 +72,7 @@ class NaverNewsCrawler(
             }
 
         return originalLink?.let {
-            News(
+            ContentSpec(
                 title = title.text().trim(),
                 content = content.text().trim(),
                 date = dateTime,
@@ -123,11 +82,47 @@ class NaverNewsCrawler(
         }
     }
 
-    fun saveContentAsJson(content: List<News>) {
-        // 콘텐츠를 JSON으로 직렬화
-        val jsonContent = fewGson.toJson(content)
+    fun getUrls(
+        sid: Int,
+        maxPages: Int,
+        maxLinks: Int,
+    ): List<String> {
+        val allLinks = mutableSetOf<String>()
 
-        // TODO DB에 저장
-        File("crawled_news.json").writeText(jsonContent, Charsets.UTF_8)
+        for (page in 1..maxPages) {
+            val url = makeUrl(sid, page)
+            val soup = getSoup(url)
+
+            // Regex to match the desired link pattern
+            val pattern = Pattern.compile(regexNewsLinks)
+            val links =
+                soup.select("a[href]").mapNotNull { element ->
+                    val href = element.attr("href")
+                    if (pattern.matcher(href).matches()) href else null
+                }
+
+            allLinks.addAll(links)
+
+            if (allLinks.size >= maxLinks) {
+                break
+            }
+        }
+
+        return allLinks.take(maxLinks).toList()
     }
+
+    fun getUrls(sid: Int): List<String> = getUrls(sid, maxPages, maxLinks)
+
+    private fun getSoup(url: String): Document {
+        val connection = Jsoup.connect(url)
+        headers.forEach { (key, value) ->
+            connection.header(key, value)
+        }
+        return connection.get()
+    }
+
+    private fun makeUrl(
+        sid: Int,
+        page: Int,
+    ) = "https://news.naver.com/main/main.naver?mode=LSD&mid=shm&sid1=$sid#&date=%2000:00:00&page=$page"
 }

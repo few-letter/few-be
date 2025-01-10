@@ -1,24 +1,24 @@
 package com.few.generator.core.model
 
-data class GroupNews(
+data class GroupContentSpec(
     val topic: String = "",
-    val news: List<News> = listOf(),
+    val contentSpecs: List<ContentSpec> = listOf(),
     var section: SectionContent = SectionContent(),
 ) {
     fun toMap(): Map<String, Any> =
         mapOf(
             "topic" to topic,
-            "news" to news.map { it.toMap() },
+            "news" to contentSpecs.map { it.toMap() },
             "section" to section.toDict(),
         )
 
     companion object {
-        fun fromMap(data: Map<String, Any>): GroupNews {
-            val newsList = (data["news"] as List<Map<String, Any>>).map { News.fromMap(it) }
+        fun fromMap(data: Map<String, Any>): GroupContentSpec {
+            val contentSpecList = (data["news"] as List<Map<String, Any>>).map { ContentSpec.fromMap(it) }
             val sectionData = SectionContent.fromDict(data["section"] as Map<String, Any>? ?: emptyMap())
-            return GroupNews(
+            return GroupContentSpec(
                 topic = data["topic"] as String,
-                news = newsList,
+                contentSpecs = contentSpecList,
                 section = sectionData,
             )
         }
