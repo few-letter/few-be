@@ -2,7 +2,7 @@ package com.few.crm.view.email
 
 import com.few.crm.email.domain.EmailSendHistory
 import com.few.crm.email.repository.EmailSendHistoryRepository
-import com.few.crm.view.CommonVerticalLayout
+import web.view.CommonVerticalLayout
 import com.vaadin.flow.component.grid.Grid
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout
 import com.vaadin.flow.component.textfield.TextArea

@@ -24,5 +24,3 @@ spring:
         properties:
             hibernate:
                 format_sql: true
-vaadin:
-    urlMapping: /view/*

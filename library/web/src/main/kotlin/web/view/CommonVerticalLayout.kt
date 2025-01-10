@@ -1,4 +1,4 @@
-package com.few.crm.view
+package web.view
 
 import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.button.Button
@@ -19,11 +19,11 @@ abstract class CommonVerticalLayout : VerticalLayout() {
         val user = VaadinService.getCurrentRequest().wrappedSession.getAttribute("user")
         if (user == null || user == "") {
             UI.getCurrent().access {
-                UI.getCurrent().navigate("crm/login")
+                UI.getCurrent().navigate("login")
             }
         }
 
-        val logo = H1("FEW CRM")
+        val logo = H1("FEW")
         logo.addClassName("logo")
         val logout =
             Button("Logout") {

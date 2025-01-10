@@ -21,3 +21,6 @@ web:
 
 webhook:
     discord: "localhost:8080/webhook/discord/unused"
+
+vaadin:
+    urlMapping: /view/*

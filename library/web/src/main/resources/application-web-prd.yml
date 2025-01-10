@@ -21,3 +21,6 @@ web:
 
 webhook:
     discord: ${WEBHOOK_DISCORD}
+
+vaadin:
+    urlMapping: /view/*
