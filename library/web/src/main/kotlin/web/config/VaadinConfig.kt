@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration
 @EnableVaadin(
     value = [
         "com.few",
+        "web.view",
     ],
 )
 @EnableAutoConfiguration(
