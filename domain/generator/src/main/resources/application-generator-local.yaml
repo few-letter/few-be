@@ -9,5 +9,5 @@ openai:
 crawl:
     naver:
         news:
-            max-page: 100
+            max-pages: 100
             max-links: 100

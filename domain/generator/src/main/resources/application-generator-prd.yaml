@@ -9,5 +9,5 @@ openai:
 crawl:
     naver:
         news:
-            max-page: ${NAVER_NEWS_MAX_PAGE:100}
+            max-pages: ${NAVER_NEWS_MAX_PAGE:100}
             max-links: ${NAVER_NEWS_MAX_LINKS:100}
