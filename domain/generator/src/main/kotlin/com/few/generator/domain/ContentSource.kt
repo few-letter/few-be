@@ -15,7 +15,7 @@ data class ContentSource(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
     @Lob
-    @Column(name = "source", columnDefinition = "BLOB")
+    @Column(name = "source", columnDefinition = "MEDIUMTEXT")
     @Convert(converter = GroupContentSpecListConverter::class)
     var source: List<GroupContentSpec>,
     @Column(name = "crawl_url_id")
