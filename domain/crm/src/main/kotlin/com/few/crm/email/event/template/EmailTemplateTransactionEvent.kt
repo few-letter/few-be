@@ -25,7 +25,7 @@ abstract class EmailTemplateTransactionAfterCompletionEvent(
         eventTime = eventTime,
     )
 
-@EventDetails(publishedLocations = ["com.few.crm.email.domain.EmailTemplate"])
+@EventDetails
 class PostEmailTemplateEvent(
     val templateId: Long,
     eventId: String = EventUtils.generateEventId(),

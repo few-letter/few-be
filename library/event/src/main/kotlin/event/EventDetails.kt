@@ -1,5 +1,7 @@
 package event
 
+import org.jmolecules.event.annotation.DomainEvent
+
 /**
  * Event details
  *
@@ -9,7 +11,7 @@ package event
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
+@DomainEvent
 annotation class EventDetails(
     val outBox: Boolean = false,
-    val publishedLocations: Array<String> = [],
 )
