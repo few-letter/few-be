@@ -60,9 +60,19 @@ class PostTemplateUseCase(
 
         modifiedOrNewTemplate.let { template ->
             if (template.isNewTemplate()) {
-                emailTemplateRepository.save(template)
+                emailTemplateRepository.save(template).let {
+                    emailTemplateHistoryRepository.save(
+                        EmailTemplateHistory(
+                            templateId = it.id!!,
+                            subject = it.subject,
+                            body = it.body,
+                            variables = it.variables,
+                            version = it.version,
+                        ),
+                    )
+                }
             } else {
-                template.updateVersion(version)
+                emailTemplateRepository.save(template)
             }
         }
 
