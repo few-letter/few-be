@@ -7,7 +7,6 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.regex.Pattern
@@ -40,9 +39,6 @@ class NaverNewsCrawler(
                 "#ct > div.media_end_head.go_trans > div.media_end_head_info.nv_notrans > div.media_end_head_info_datestamp > a.media_end_head_origin_link",
             )
         val originalLink = linkElement?.attr("href")
-
-        // TODO 원본 데이터 DB 저장으로 변경
-        File("soup_content.txt").writeText(soup.outerHtml(), Charsets.UTF_8)
 
         if (title == null || date == null || content == null) {
             return null
