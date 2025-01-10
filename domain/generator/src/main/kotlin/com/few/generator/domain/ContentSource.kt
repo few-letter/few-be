@@ -18,10 +18,13 @@ data class ContentSource(
     @Column(name = "source", columnDefinition = "BLOB")
     @Convert(converter = GroupContentSpecListConverter::class)
     var source: List<GroupContentSpec>,
+    @Column(name = "crawl_url_id")
+    var crawlUrlId: Long,
     @CreatedDate
     var createdAt: LocalDateTime? = null,
 ) {
     constructor() : this(
         source = emptyList(),
+        crawlUrlId = 0,
     )
 }

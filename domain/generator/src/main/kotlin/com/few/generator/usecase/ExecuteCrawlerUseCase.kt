@@ -53,6 +53,7 @@ class ExecuteCrawlerUseCase(
             contentSourceRepository.save(
                 ContentSource(
                     source = aiContent,
+                    crawlUrlId = crawlUrl.id!!,
                 ),
             )
 
