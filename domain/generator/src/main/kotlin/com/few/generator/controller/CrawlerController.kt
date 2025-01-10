@@ -38,7 +38,10 @@ class CrawlerController(
         val useCaseOut = executeCrawlerUseCase.execute(ExecuteCrawlerUseCaseIn(sid))
 
         return ApiResponseGenerator.success(
-            ExecuteCrawlerResponse(useCaseOut.sid, useCaseOut.crawlingIds),
+            ExecuteCrawlerResponse(
+                crawlUrlId = useCaseOut.crawlUrlId,
+                contentSourceId = useCaseOut.contentSourceId,
+            ),
             HttpStatus.OK,
         )
     }
