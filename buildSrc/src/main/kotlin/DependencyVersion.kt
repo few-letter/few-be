@@ -15,6 +15,9 @@ object DependencyVersion {
     /** springModulith */
     const val SPRING_MODULITH = "1.3.1"
 
+    /** jmolecules */
+    const val JMOLECULES = "0.24.1"
+
     /** jwt */
     const val JWT = "0.11.5"
 
