@@ -1,8 +1,5 @@
 package com.few.crm.email.event.send
 
-import com.few.crm.email.event.send.replayer.NotificationEmailSendTimeOutEventReplayer
-import com.few.crm.email.relay.send.aws.ScheduledEventReverseRelay
-import com.few.crm.view.email.CrmEmailSendView
 import event.EventDetails
 import event.EventUtils
 import event.TimeExpiredEvent
@@ -10,12 +7,7 @@ import event.TimeOutEvent
 import org.springframework.context.ApplicationEventPublisher
 import java.time.LocalDateTime
 
-@EventDetails(
-    publishedClasses = [
-        NotificationEmailSendTimeOutEventReplayer::class,
-        CrmEmailSendView::class,
-    ],
-)
+@EventDetails
 open class NotificationEmailSendTimeOutEvent(
     val templateId: Long,
     val userIds: List<Long>,
@@ -76,12 +68,7 @@ open class NotificationEmailSendTimeOutEvent(
         )
 }
 
-@EventDetails(
-    publishedClasses = [
-        NotificationEmailSendTimeOutInvokeEvent::class,
-        ScheduledEventReverseRelay::class,
-    ],
-)
+@EventDetails()
 class NotificationEmailSendTimeOutInvokeEvent(
     val templateId: Long,
     val userIds: List<Long>,
@@ -96,7 +83,7 @@ class NotificationEmailSendTimeOutInvokeEvent(
         eventTime,
     )
 
-@EventDetails(publishedClasses = [NotificationEmailSendTimeOutEvent::class])
+@EventDetails()
 class AwsNotificationEmailSendTimeOutEvent(
     templateId: Long,
     userIds: List<Long>,

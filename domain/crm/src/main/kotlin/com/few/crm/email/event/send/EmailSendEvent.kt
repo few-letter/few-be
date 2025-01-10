@@ -1,8 +1,5 @@
 package com.few.crm.email.event.send
 
-import com.few.crm.email.domain.SentEmail
-import com.few.crm.email.event.send.handler.NotificationEmailSendTimeOutInvokeEventHandler
-import com.few.crm.email.relay.send.EmailSendEventMessageMapper
 import event.Event
 import event.EventDetails
 import event.EventUtils
@@ -45,10 +42,6 @@ abstract class EmailSendEvent(
 
 @EventDetails(
     outBox = false,
-    publishedClasses = [
-        SentEmail::class,
-        NotificationEmailSendTimeOutInvokeEventHandler::class,
-    ],
 )
 class EmailSentEvent(
     val userExternalId: String,
@@ -68,7 +61,7 @@ class EmailSentEvent(
         timestamp = timestamp,
     )
 
-@EventDetails(outBox = false, publishedClasses = [EmailSendEventMessageMapper::class])
+@EventDetails(outBox = false)
 class EmailDeliveryEvent(
     eventId: String,
     eventType: String,
@@ -85,7 +78,7 @@ class EmailDeliveryEvent(
         timestamp = timestamp,
     )
 
-@EventDetails(outBox = false, publishedClasses = [EmailSendEventMessageMapper::class])
+@EventDetails(outBox = false)
 class EmailOpenEvent(
     eventId: String,
     eventType: String,
@@ -102,7 +95,7 @@ class EmailOpenEvent(
         timestamp = timestamp,
     )
 
-@EventDetails(outBox = false, publishedClasses = [EmailSendEventMessageMapper::class])
+@EventDetails(outBox = false)
 class EmailClickEvent(
     eventId: String,
     eventType: String,
@@ -119,7 +112,7 @@ class EmailClickEvent(
         timestamp = timestamp,
     )
 
-@EventDetails(outBox = false, publishedClasses = [EmailSendEventMessageMapper::class])
+@EventDetails(outBox = false)
 class EmailDeliveryDelayEvent(
     eventId: String,
     eventType: String,

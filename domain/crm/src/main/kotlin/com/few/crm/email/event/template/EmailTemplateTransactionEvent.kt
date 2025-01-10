@@ -1,6 +1,5 @@
 package com.few.crm.email.event.template
 
-import com.few.crm.email.domain.EmailTemplate
 import event.Event
 import event.EventDetails
 import event.EventUtils
@@ -26,7 +25,7 @@ abstract class EmailTemplateTransactionAfterCompletionEvent(
         eventTime = eventTime,
     )
 
-@EventDetails(publishedClasses = [EmailTemplate::class])
+@EventDetails
 class PostEmailTemplateEvent(
     val templateId: Long,
     eventId: String = EventUtils.generateEventId(),
