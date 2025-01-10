@@ -2,10 +2,7 @@ package com.few.crm.document
 
 import com.tngtech.archunit.base.DescribedPredicate
 import com.tngtech.archunit.core.domain.JavaClass
-import com.tngtech.archunit.core.domain.JavaModifier
-import com.tngtech.archunit.core.importer.ClassFileImporter
 import event.Event
-import event.EventDetails
 import io.qameta.allure.Allure
 import io.qameta.allure.Epic
 import io.qameta.allure.Feature
@@ -23,7 +20,6 @@ class CrmDocument {
     @Nested
     inner class DependencyDiagram {
         @Story("CRM 모듈 의존성 다이어그램")
-        @Link("https://thetimetube.herokuapp.com/asciidoc/")
         @Link("https://www.planttext.com/")
         @Test
         fun `create dependency diagram`() {
@@ -31,20 +27,17 @@ class CrmDocument {
                 ApplicationModules.of(
                     "com.few.crm",
                     DescribedPredicate.describe(
-                        "not Event class",
+                        "ignore event classes",
                         JavaClass.Predicates.assignableTo(Event::class.java),
                     ),
                 )
             Documenter(modules)
-                .writeDocumentation()
                 .writeIndividualModulesAsPlantUml()
 
             modules
                 .filterNot { it.name == "config" }
                 .forEach {
-                    val adocFile = File("build/spring-modulith-docs/module-${it.name}.adoc")
                     val pumlFile = File("build/spring-modulith-docs/module-${it.name}.puml")
-                    Allure.addAttachment("${it.name} Module Adoc", "text/plain", adocFile.readText())
                     Allure.addAttachment("${it.name} Module Puml", "text/plain", pumlFile.readText())
                 }
         }
@@ -54,85 +47,26 @@ class CrmDocument {
     inner class EventDocument {
         @Story("CRM 이벤트 발행 문서")
         @Link("https://thetimetube.herokuapp.com/asciidoc/")
-        @Link("https://www.planttext.com/")
         @Test
         fun `create event document`() {
-            val classes = ClassFileImporter().importPackages("com.few.crm")
-            val eventClasses =
-                classes
-                    .stream()
-                    .filter { it.isAssignableTo(Event::class.java) }
-                    .filter { it.isAnonymousClass.not() }
-                    .filter { it.isInnerClass.not() }
-                    .filter { it.isLocalClass.not() }
-                    .filter { it.modifiers.contains(JavaModifier.ABSTRACT).not() }
-                    .toList()
-
-            val notQualifiedEventClasses = mutableListOf<JavaClass>()
-            val logBuilder = StringBuilder()
-
-            eventClasses.forEach { event ->
-                if (event.isAnnotatedWith(EventDetails::class.java)) {
-                    val eventDetails = event.getAnnotationOfType(EventDetails::class.java)
-                    val publishedLocations = eventDetails.publishedClasses
-                    if (publishedLocations.isEmpty()) {
-                        notQualifiedEventClasses.add(event)
-                    } else {
-                        publishedLocations
-                            .filter { it.simpleName != event.simpleName }
-                            .forEach { publishedLocation ->
-                                event.directDependenciesToSelf
-                                    .find {
-                                        it.originClass.simpleName == publishedLocation.simpleName
-                                    }?.let {
-                                        logBuilder.appendLine("* ${it.originClass.fullName}")
-                                    } ?: run {
-                                    notQualifiedEventClasses.add(event)
-                                }
-                            }
-                    }
-                } else {
-                    notQualifiedEventClasses.add(event)
-                }
-            }
-
-            if (notQualifiedEventClasses.isNotEmpty()) {
-                logBuilder.appendLine("\n== Not Qualified Event Classes")
-                logBuilder.appendLine("_The following event classes are not annotated with @EventDetails:_")
-                notQualifiedEventClasses.forEach {
-                    logBuilder.appendLine("* ${it.fullName}")
-                }
-                throw IllegalStateException(logBuilder.toString())
-            }
-
-            val outputFile = File("build/event-docs/event-published-document.adoc")
-            if (outputFile.exists()) {
-                outputFile.delete()
-            }
-            outputFile.parentFile.mkdirs()
-            val adocContent = StringBuilder()
-
-            adocContent.appendLine("[%autowidth.stretch, cols=\"h,a\"]")
-            adocContent.appendLine("|===")
-            adocContent.appendLine("|Event Class | Published Locations")
-
-            eventClasses.forEach { event ->
-                val eventDetails = event.getAnnotationOfType(EventDetails::class.java)
-                val publishedLocations = eventDetails.publishedClasses
-
-                adocContent.appendLine("|`${event.simpleName}`")
-                adocContent.appendLine("|")
-                adocContent.appendLine(
-                    publishedLocations.joinToString("\n") { "* `$it`" },
+            val modules =
+                ApplicationModules.of(
+                    "com.few.crm",
                 )
-            }
+            Documenter(modules)
+                .writeModuleCanvases(
+                    Documenter.CanvasOptions
+                        .defaults()
+                        .revealInternals()
+                        .revealEmptyLines(),
+                )
 
-            adocContent.appendLine("|===")
-
-            outputFile.writeText(adocContent.toString())
-
-            Allure.addAttachment("Event Document", "text/plain", adocContent.toString())
-            println("Event document generated at: ${outputFile.absolutePath}")
+            modules
+                .filterNot { it.name == "config" }
+                .forEach {
+                    val adocFile = File("build/spring-modulith-docs/module-${it.name}.adoc")
+                    Allure.addAttachment("${it.name} Module Adoc", "text/plain", adocFile.readText())
+                }
         }
     }
 }
