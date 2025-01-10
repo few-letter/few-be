@@ -5,12 +5,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-@EnableVaadin(
-    value = [
-        "com.few",
-        "web.view",
-    ],
-)
+@EnableVaadin(value = ["com.few"])
 @EnableAutoConfiguration(
     exclude = [
         CrudConfiguration::class,
