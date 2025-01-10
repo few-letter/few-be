@@ -5,7 +5,6 @@ import com.few.crm.user.domain.User
 import com.few.crm.user.repository.UserRepository
 import com.few.crm.user.usecase.EnrollUserUseCase
 import com.few.crm.user.usecase.dto.EnrollUserUseCaseIn
-import web.view.CommonVerticalLayout
 import com.vaadin.flow.component.button.Button
 import com.vaadin.flow.component.dialog.Dialog
 import com.vaadin.flow.component.formlayout.FormLayout
@@ -13,6 +12,7 @@ import com.vaadin.flow.component.grid.Grid
 import com.vaadin.flow.component.textfield.TextField
 import com.vaadin.flow.router.Route
 import org.springframework.web.client.RestTemplate
+import web.view.CommonVerticalLayout
 
 @Route("/crm/users")
 class CrmUserView(
