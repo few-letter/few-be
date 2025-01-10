@@ -1,0 +1,37 @@
+[%autowidth.stretch, cols="h,a"]
+|===
+|Event Class | Published Locations
+|`EmailOpenEvent`
+|
+* `class com.few.crm.email.relay.send.EmailSendEventMessageMapper`
+|`AwsNotificationEmailSendTimeOutEvent`
+|
+* `class com.few.crm.email.event.send.NotificationEmailSendTimeOutEvent`
+|`EmailDeliveryEvent`
+|
+* `class com.few.crm.email.relay.send.EmailSendEventMessageMapper`
+|`EmailSentEvent`
+|
+* `class com.few.crm.email.domain.SentEmail`
+* `class com.few.crm.email.event.send.handler.NotificationEmailSendTimeOutInvokeEventHandler`
+|`EmailClickEvent`
+|
+* `class com.few.crm.email.relay.send.EmailSendEventMessageMapper`
+|`EmailDeliveryDelayEvent`
+|
+* `class com.few.crm.email.relay.send.EmailSendEventMessageMapper`
+|`NotificationEmailSendTimeOutInvokeEvent`
+|
+* `class com.few.crm.email.event.send.NotificationEmailSendTimeOutInvokeEvent`
+* `class com.few.crm.email.relay.send.aws.ScheduledEventReverseRelay`
+|`CancelScheduledEvent`
+|
+* `class com.few.crm.support.schedule.TimeOutEventTaskManager`
+|`NotificationEmailSendTimeOutEvent`
+|
+* `class com.few.crm.email.event.send.replayer.NotificationEmailSendTimeOutEventReplayer`
+* `class com.few.crm.view.email.CrmEmailSendView`
+|`PostEmailTemplateEvent`
+|
+* `class com.few.crm.email.domain.EmailTemplate`
+|===
