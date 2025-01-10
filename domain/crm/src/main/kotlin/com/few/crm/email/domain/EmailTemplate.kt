@@ -52,48 +52,58 @@ class EmailTemplate(
             )
     }
 
-    fun isNewTemplate(): Boolean {
-        registerEvent(
-            PostEmailTemplateEvent(
-                templateId = this.id ?: 0,
-                eventType = "POST",
-            ),
-        )
-        return id == null
-    }
+    fun isNewTemplate(): Boolean = id == null
 
-    fun modifySubject(subject: String?): EmailTemplate {
-        subject?.let {
-            this.subject = it
-        }
-        return this
-    }
-
-    fun modifyBody(
-        body: String,
-        variables: List<String>,
-    ): EmailTemplate {
-        this.body = body
-        this.variables = variables
-        return this
-    }
-
-    fun updateVersion(version: Float?): EmailTemplate {
-        version?.let {
-            if (it <= this.version) {
-                throw IllegalArgumentException("Invalid version: $it")
-            }
-            this.version = it
-        } ?: kotlin.run {
-            this.version += 0.1f
-        }
-
+    private fun registerModifyEvent() {
         registerEvent(
             PostEmailTemplateEvent(
                 templateId = this.id!!,
                 eventType = "POST",
             ),
         )
-        return this
+    }
+
+    fun modify(): EmailTemplateModifyBuilder = EmailTemplateModifyBuilder(this)
+
+    class EmailTemplateModifyBuilder(
+        private val template: EmailTemplate,
+        private var isVersionUpdated: Boolean = false,
+    ) {
+        fun modifySubject(subject: String?): EmailTemplateModifyBuilder {
+            subject?.let {
+                template.subject = subject
+            }
+            return this
+        }
+
+        fun modifyBody(
+            body: String,
+            variables: List<String>,
+        ): EmailTemplateModifyBuilder {
+            template.body = body
+            template.variables = variables
+            return this
+        }
+
+        fun updateVersion(version: Float?): EmailTemplateModifyBuilder {
+            version?.let {
+                if (it <= template.version) {
+                    throw IllegalArgumentException("Invalid version: $it")
+                }
+                this.template.version = it
+            } ?: kotlin.run {
+                this.template.version += 0.1f
+            }
+            isVersionUpdated = true
+            return this
+        }
+
+        fun done(): EmailTemplate {
+            if (!isVersionUpdated) {
+                updateVersion(null)
+            }
+            template.registerModifyEvent()
+            return template
+        }
     }
 }
