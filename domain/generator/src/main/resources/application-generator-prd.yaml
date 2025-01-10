@@ -1,0 +1,7 @@
+openai:
+    api:
+        key: ${OPENAI_API_TOKEN}
+        url: ${OPENAI_API_URL:https://api.openai.com/v1/chat/completions}
+        model:
+            basic: ${OPENAI_MODEL_BASIC:gpt-4o-mini}
+            advanced: ${OPENAI_MODEL_ADVANCED:gpt-4o}
