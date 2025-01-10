@@ -1,5 +1,6 @@
 package com.few.crm.document
 
+import com.tngtech.archunit.base.DescribedPredicate
 import com.tngtech.archunit.core.domain.JavaClass
 import com.tngtech.archunit.core.domain.JavaModifier
 import com.tngtech.archunit.core.importer.ClassFileImporter
@@ -26,7 +27,14 @@ class CrmDocument {
         @Link("https://www.planttext.com/")
         @Test
         fun `create dependency diagram`() {
-            val modules = ApplicationModules.of("com.few.crm")
+            val modules =
+                ApplicationModules.of(
+                    "com.few.crm",
+                    DescribedPredicate.describe(
+                        "not Event class",
+                        JavaClass.Predicates.assignableTo(Event::class.java),
+                    ),
+                )
             Documenter(modules)
                 .writeDocumentation()
                 .writeIndividualModulesAsPlantUml()
@@ -66,16 +74,16 @@ class CrmDocument {
             eventClasses.forEach { event ->
                 if (event.isAnnotatedWith(EventDetails::class.java)) {
                     val eventDetails = event.getAnnotationOfType(EventDetails::class.java)
-                    val publishedLocations = eventDetails.publishedLocations
+                    val publishedLocations = eventDetails.publishedClasses
                     if (publishedLocations.isEmpty()) {
                         notQualifiedEventClasses.add(event)
                     } else {
                         publishedLocations
-                            .filter { it != (event.packageName + "." + event.simpleName) }
+                            .filter { it.simpleName != event.simpleName }
                             .forEach { publishedLocation ->
                                 event.directDependenciesToSelf
                                     .find {
-                                        it.originClass.fullName == publishedLocation
+                                        it.originClass.simpleName == publishedLocation.simpleName
                                     }?.let {
                                         logBuilder.appendLine("* ${it.originClass.fullName}")
                                     } ?: run {
@@ -110,7 +118,7 @@ class CrmDocument {
 
             eventClasses.forEach { event ->
                 val eventDetails = event.getAnnotationOfType(EventDetails::class.java)
-                val publishedLocations = eventDetails.publishedLocations
+                val publishedLocations = eventDetails.publishedClasses
 
                 adocContent.appendLine("|`${event.simpleName}`")
                 adocContent.appendLine("|")

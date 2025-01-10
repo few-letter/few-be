@@ -1,5 +1,6 @@
 package com.few.crm.email.event.schedule
 
+import com.few.crm.support.schedule.TimeOutEventTaskManager
 import event.Event
 import event.EventDetails
 import event.EventUtils
@@ -15,7 +16,7 @@ abstract class ScheduledEvent(
         eventTime,
     )
 
-@EventDetails(publishedLocations = ["com.few.crm.support.schedule.TimeOutEventTaskManager"])
+@EventDetails(publishedClasses = [TimeOutEventTaskManager::class])
 class CancelScheduledEvent(
     val targetEventId: String,
     eventId: String = EventUtils.generateEventId(),

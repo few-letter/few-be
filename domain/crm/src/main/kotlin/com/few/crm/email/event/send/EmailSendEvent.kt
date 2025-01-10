@@ -1,5 +1,8 @@
 package com.few.crm.email.event.send
 
+import com.few.crm.email.domain.SentEmail
+import com.few.crm.email.event.send.handler.NotificationEmailSendTimeOutInvokeEventHandler
+import com.few.crm.email.relay.send.EmailSendEventMessageMapper
 import event.Event
 import event.EventDetails
 import event.EventUtils
@@ -42,9 +45,9 @@ abstract class EmailSendEvent(
 
 @EventDetails(
     outBox = false,
-    publishedLocations = [
-        "com.few.crm.email.domain.SentEmail",
-        "com.few.crm.email.event.send.handler.NotificationEmailSendTimeOutInvokeEventHandler",
+    publishedClasses = [
+        SentEmail::class,
+        NotificationEmailSendTimeOutInvokeEventHandler::class,
     ],
 )
 class EmailSentEvent(
@@ -65,7 +68,7 @@ class EmailSentEvent(
         timestamp = timestamp,
     )
 
-@EventDetails(outBox = false, publishedLocations = ["com.few.crm.email.relay.send.EmailSendEventMessageMapper"])
+@EventDetails(outBox = false, publishedClasses = [EmailSendEventMessageMapper::class])
 class EmailDeliveryEvent(
     eventId: String,
     eventType: String,
@@ -82,7 +85,7 @@ class EmailDeliveryEvent(
         timestamp = timestamp,
     )
 
-@EventDetails(outBox = false, publishedLocations = ["com.few.crm.email.relay.send.EmailSendEventMessageMapper"])
+@EventDetails(outBox = false, publishedClasses = [EmailSendEventMessageMapper::class])
 class EmailOpenEvent(
     eventId: String,
     eventType: String,
@@ -99,7 +102,7 @@ class EmailOpenEvent(
         timestamp = timestamp,
     )
 
-@EventDetails(outBox = false, publishedLocations = ["com.few.crm.email.relay.send.EmailSendEventMessageMapper"])
+@EventDetails(outBox = false, publishedClasses = [EmailSendEventMessageMapper::class])
 class EmailClickEvent(
     eventId: String,
     eventType: String,
@@ -116,7 +119,7 @@ class EmailClickEvent(
         timestamp = timestamp,
     )
 
-@EventDetails(outBox = false, publishedLocations = ["com.few.crm.email.relay.send.EmailSendEventMessageMapper"])
+@EventDetails(outBox = false, publishedClasses = [EmailSendEventMessageMapper::class])
 class EmailDeliveryDelayEvent(
     eventId: String,
     eventType: String,
