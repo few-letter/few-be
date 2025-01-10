@@ -64,7 +64,10 @@ class CrmJpaConfig {
     }
 
     @Bean(name = [TRANSACTION_MANAGER])
-    fun transactionManager(emf: EntityManagerFactory): PlatformTransactionManager = JpaTransactionManager(emf)
+    fun transactionManager(
+        @Qualifier(ENTITY_MANAGER_FACTORY)
+        emf: EntityManagerFactory,
+    ): PlatformTransactionManager = JpaTransactionManager(emf)
 
     @Bean(name = [JPA_PROPERTIES])
     @ConfigurationProperties("spring.crm.jpa")
