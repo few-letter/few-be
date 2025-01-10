@@ -10,7 +10,6 @@ import com.few.crm.support.schedule.TaskView
 import com.few.crm.support.schedule.TimeOutEventTaskManager
 import com.few.crm.user.domain.User
 import com.few.crm.user.repository.UserRepository
-import web.view.CommonVerticalLayout
 import com.vaadin.flow.component.button.Button
 import com.vaadin.flow.component.checkbox.Checkbox
 import com.vaadin.flow.component.datepicker.DatePicker
@@ -26,6 +25,7 @@ import com.vaadin.flow.component.timepicker.TimePicker
 import com.vaadin.flow.router.Route
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Sort
+import web.view.CommonVerticalLayout
 import java.time.*
 
 @Route("/crm/email/send")
