@@ -1,3 +1,0 @@
-"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
-"passed","Wed Jan 08 11:45:39 GMT 2025","Wed Jan 08 11:45:40 GMT 2025","1643","","com.few.crm.document.CrmDocument.EventDocument","","com.few.crm.document.CrmDocument$EventDocument","create event document","create event document()",""
-"passed","Wed Jan 08 11:45:35 GMT 2025","Wed Jan 08 11:45:39 GMT 2025","4131","","com.few.crm.document.CrmDocument.DependencyDiagram","","com.few.crm.document.CrmDocument$DependencyDiagram","create dependency diagram","create dependency diagram()",""
