@@ -1,0 +1,91 @@
+[%autowidth.stretch, cols="h,a"]
+|===
+|Base package
+|`com.few.crm.email`
+|Spring components
+|_Controllers_
+
+* `c.f.c.e.controller.CrmEmailController`
+
+_Services_
+
+* `c.f.c.e.relay.send.aws.EmailSendSesMessageReverseRelay`
+* `c.f.c.e.relay.send.aws.ScheduledEventReverseRelay`
+* `c.f.c.e.service.HtmlValidator`
+* `c.f.c.e.usecase.BrowseTemplateUseCase`
+* `c.f.c.e.usecase.PostTemplateUseCase`
+* `c.f.c.e.usecase.SendNotificationEmailUseCase`
+
+_Repositories_
+
+* `c.f.c.e.repository.EmailSendHistoryRepository`
+* `c.f.c.e.repository.EmailTemplateHistoryRepository`
+* `c.f.c.e.repository.EmailTemplateRepository`
+* `c.f.c.e.repository.ScheduledEventRepository`
+
+_Event listeners_
+
+* `c.f.c.e.event.schedule.ScheduledEventListener`
+* `c.f.c.e.event.send.EmailSendEventListener`
+* `c.f.c.e.event.send.NotificationEmailSendTimeOutEventListener`
+* `c.f.c.e.event.template.EventTemplateTransactionListener`
+
+_Others_
+
+* `c.f.c.e.event.schedule.handler.CancelScheduledEventHandler`
+* `c.f.c.e.event.send.handler.EmailClickEventHandler`
+* `c.f.c.e.event.send.handler.EmailDeliveryDelayEventHandler`
+* `c.f.c.e.event.send.handler.EmailDeliveryEventHandler`
+* `c.f.c.e.event.send.handler.EmailOpenEventHandler`
+* `c.f.c.e.event.send.handler.EmailSentEventHandler`
+* `c.f.c.e.event.send.handler.NotificationEmailSendTimeOutEventHandler`
+* `c.f.c.e.event.send.handler.NotificationEmailSendTimeOutInvokeEventHandler`
+* `c.f.c.e.event.send.replayer.NotificationEmailSendTimeOutEventReplayer`
+* `c.f.c.e.event.template.handler.PostEmailTemplateEventHandler`
+* `c.f.c.e.relay.send.EmailSendEventMessageMapper`
+* `c.f.c.e.service.CrmSendNonVariablesEmailService`
+|Bean references
+|* `c.f.c.u.repository.UserRepository` (in User)
+* `c.f.c.s.schedule.TimeOutEventTaskManager` (in Support)
+|Aggregate roots
+|* `c.f.c.e.domain.EmailSendHistory`
+* `c.f.c.e.domain.EmailTemplate`
+* `c.f.c.e.domain.EmailTemplateHistory`
+* `c.f.c.e.domain.ScheduledEvent`
+|Value types
+|* 
+|Published events
+|* `c.f.c.e.event.schedule.CancelScheduledEvent` created by:
+** `com.few.crm.support.schedule.TimeOutEventTaskManager.cancel(…)`
+* `c.f.c.e.event.send.AwsNotificationEmailSendTimeOutEvent` created by:
+** `c.f.c.e.event.send.NotificationEmailSendTimeOutEvent.toLongTermEvent()`
+* `c.f.c.e.event.send.EmailClickEvent` created by:
+** `c.f.c.e.relay.send.EmailSendEventMessageMapper.to(…)`
+* `c.f.c.e.event.send.EmailDeliveryDelayEvent` created by:
+** `c.f.c.e.relay.send.EmailSendEventMessageMapper.to(…)`
+* `c.f.c.e.event.send.EmailDeliveryEvent` created by:
+** `c.f.c.e.relay.send.EmailSendEventMessageMapper.to(…)`
+* `c.f.c.e.event.send.EmailOpenEvent` created by:
+** `c.f.c.e.relay.send.EmailSendEventMessageMapper.to(…)`
+* `c.f.c.e.event.send.EmailSentEvent` created by:
+** `c.f.c.e.domain.SentEmail.<init>(…)`
+** `c.f.c.e.event.send.handler.NotificationEmailSendTimeOutInvokeEventHandler.handle(…)`
+* `c.f.c.e.event.send.NotificationEmailSendTimeOutEvent` created by:
+** `c.f.c.e.event.send.AwsNotificationEmailSendTimeOutEvent.<init>(…)`
+** `c.f.c.e.event.send.replayer.NotificationEmailSendTimeOutEventReplayer.replay()`
+** `c.f.c.e.event.send.Companion.new(…)`
+* `c.f.c.e.event.send.NotificationEmailSendTimeOutInvokeEvent` created by:
+** `c.f.c.e.event.send.NotificationEmailSendTimeOutEvent.timeExpiredEvent()`
+** `c.f.c.e.relay.send.aws.ScheduledEventReverseRelay.onMessage(…)`
+* `c.f.c.e.event.template.PostEmailTemplateEvent` created by:
+** `c.f.c.e.domain.EmailTemplate.registerModifyEvent()`
+
+|Events listened to
+|* `c.f.c.e.event.schedule.CancelScheduledEvent` (async) 
+* `c.f.c.e.event.send.EmailSendEvent` (async) 
+* `c.f.c.e.event.send.NotificationEmailSendTimeOutInvokeEvent` (async) 
+* `c.f.c.e.event.send.NotificationEmailSendTimeOutEvent` (async) 
+* `c.f.c.e.event.template.EmailTemplateTransactionAfterCompletionEvent` (async) 
+|Properties
+|none
+|===
