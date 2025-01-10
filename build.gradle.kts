@@ -11,17 +11,10 @@ plugins {
     id("org.springframework.boot") version DependencyVersion.SPRING_BOOT
     id("io.spring.dependency-management") version DependencyVersion.SPRING_DEPENDENCY_MANAGEMENT
 
-    id("java-test-fixtures")
-
-    /** jooq */
-    id("org.jooq.jooq-codegen-gradle") version DependencyVersion.JOOQ
-
     /** docs */
     id("org.asciidoctor.jvm.convert") version DependencyVersion.ASCIIDOCTOR
     id("com.epages.restdocs-api-spec") version DependencyVersion.EPAGES_REST_DOCS_API_SPEC
     id("org.hidetake.swagger.generator") version DependencyVersion.SWAGGER_GENERATOR
-
-    id("org.jetbrains.dokka") version "1.9.20"
 }
 
 java.sourceCompatibility = JavaVersion.VERSION_18
@@ -34,6 +27,7 @@ allprojects {
 
     repositories {
         mavenCentral()
+        maven("https://maven.vaadin.com/vaadin-addons")
     }
 
     val ktlint by configurations.creating
@@ -111,12 +105,8 @@ subprojects {
     apply(plugin = "org.jetbrains.kotlin.plugin.allopen")
     apply(plugin = "org.jetbrains.kotlin.kapt")
     apply(plugin = "org.hidetake.swagger.generator")
-    apply(plugin = "org.jooq.jooq-codegen-gradle")
-    apply(plugin = "org.jetbrains.dokka")
-    apply(plugin = "java-test-fixtures")
     apply(plugin = "org.asciidoctor.jvm.convert")
     apply(plugin = "com.epages.restdocs-api-spec")
-    apply(plugin = "org.hidetake.swagger.generator")
 
     /**
      * https://kotlinlang.org/docs/reference/compiler-plugins.html#spring-support
@@ -140,6 +130,7 @@ subprojects {
             dependency("org.jooq:jooq:${DependencyVersion.JOOQ}")
             imports {
                 mavenBom("org.springframework.modulith:spring-modulith-bom:${DependencyVersion.SPRING_MODULITH}")
+                mavenBom("com.vaadin:vaadin-bom:${DependencyVersion.VAADIN}")
             }
         }
     }
@@ -192,13 +183,6 @@ subprojects {
             useJUnitPlatform()
             systemProperty("allure.results.directory", "$projectDir/build/allure-results")
         }
-
-        register<Test>("architectureSpecTest") {
-            group = "spec"
-            useJUnitPlatform {
-                includeTags("ArchitectureSpec")
-            }
-        }
     }
 
     /** server url */
@@ -250,6 +234,13 @@ subprojects {
         val generateSwaggerUISampleTask = tasks.named(generateSwaggerUITask, GenerateSwaggerUI::class).get()
         from(generateSwaggerUISampleTask.outputDir)
         into("$projectDir/src/main/resources/static/docs/${project.name}/swagger-ui")
+    }
+
+    tasks.register("allureReport", Copy::class) {
+        group = "documentation"
+
+        from("$projectDir/build/allure-results")
+        into("$rootDir/allure-results")
     }
 
     defaultTasks("bootRun")

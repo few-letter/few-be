@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component
 @Component
 class AwsSESEmailSendProvider(
     private val amazonSimpleEmailService: AmazonSimpleEmailService,
-    private val javaEmailSendProvider: JavaEmailSendProvider,
 ) : EmailSendProvider {
     private val log = KotlinLogging.logger {}
 
@@ -42,17 +41,6 @@ class AwsSESEmailSendProvider(
         }.onFailure {
             log.warn {
                 "Failed to send email using AWS SES. Falling back to JavaMailSender. Error: $it"
-            }
-            runCatching {
-                log.info {
-                    "Sending email using JavaMailSender."
-                }
-                javaEmailSendProvider.sendEmail(from, to, subject, message)
-            }.onFailure {
-                log.error {
-                    "Failed to send email using JavaMailSender."
-                }
-                throw it
             }
         }.let {
             return it.getOrThrow()

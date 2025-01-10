@@ -1,0 +1,99 @@
+package com.few.crm.email.usecase
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.few.crm.email.domain.EmailSendEventType
+import com.few.crm.email.repository.EmailTemplateHistoryRepository
+import com.few.crm.email.repository.EmailTemplateRepository
+import com.few.crm.email.service.CrmSendNonVariablesEmailService
+import com.few.crm.email.service.NonContent
+import com.few.crm.email.service.SendEmailDto
+import com.few.crm.email.usecase.dto.SendNotificationEmailUseCaseIn
+import com.few.crm.email.usecase.dto.SendNotificationEmailUseCaseOut
+import com.few.crm.user.repository.UserRepository
+import org.springframework.stereotype.Service
+
+data class NotificationEmailTemplateProperties(
+    val subject: String,
+    val body: String,
+)
+
+@Service
+class SendNotificationEmailUseCase(
+    private val emailTemplateRepository: EmailTemplateRepository,
+    private val emailTemplateHistoryRepository: EmailTemplateHistoryRepository,
+    private val userRepository: UserRepository,
+    private val crmSendNonVariablesEmailService: CrmSendNonVariablesEmailService,
+    private val objectMapper: ObjectMapper,
+) {
+    fun execute(useCaseIn: SendNotificationEmailUseCaseIn): SendNotificationEmailUseCaseOut {
+        val templateId = useCaseIn.templateId
+        val templateVersion: Float? = useCaseIn.templateVersion
+        val userIds = useCaseIn.userIds
+        val sendType = "email"
+
+        val properties = getEmailNotificationProperties(templateVersion, templateId)
+
+        val targetUsers =
+            getTargetUsers(userIds, sendType).groupBy {
+                objectMapper.readValue(it.userAttributes, Map::class.java)[sendType] as String
+            }
+
+        targetUsers.keys.forEach { email ->
+            crmSendNonVariablesEmailService.send(
+                SendEmailDto(
+                    to = email,
+                    subject = properties.subject,
+                    template = properties.body,
+                    content = NonContent(),
+                    userExternalId = targetUsers[email]!!.first().externalId!!,
+                    emailBody = properties.body,
+                    destination = email,
+                    eventType = EmailSendEventType.SEND,
+                ),
+            )
+        }
+
+        return run {
+            SendNotificationEmailUseCaseOut(
+                isSuccess = true,
+            )
+        }
+    }
+
+    private fun getTargetUsers(
+        userIds: List<Long>,
+        sendType: String,
+    ) = if (userIds.isEmpty()) {
+        userRepository
+            .findAllExistByUserAttributesKey()
+    } else {
+        userRepository
+            .findAllByIdIn(userIds)
+            .filter {
+                objectMapper.readValue(it.userAttributes, Map::class.java)[sendType] != null
+            }
+    }
+
+    private fun getEmailNotificationProperties(
+        templateVersion: Float?,
+        templateId: Long,
+    ) = templateVersion?.let { it ->
+        emailTemplateHistoryRepository
+            .findByTemplateIdAndVersion(templateId, it)
+            ?.let {
+                NotificationEmailTemplateProperties(
+                    subject = it.subject,
+                    body = it.body,
+                )
+            }
+            ?: throw IllegalArgumentException("Template not found")
+    } ?: emailTemplateRepository
+        .findById(templateId)
+        .orElseThrow { IllegalArgumentException("Template not found") }
+        .let {
+            NotificationEmailTemplateProperties(
+                subject = it.subject,
+                body = it.body,
+            )
+        }
+}

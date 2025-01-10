@@ -5,13 +5,14 @@ import event.EventUtils
 import event.TimeExpiredEvent
 import event.TimeOutEvent
 import org.springframework.context.ApplicationEventPublisher
+import java.time.LocalDateTime
 
 @EventDetails(outBox = false)
 class TestTimeOutEvent(
     eventId: String = EventUtils.generateEventId(),
     eventType: String,
-    eventTime: Long = System.currentTimeMillis(),
-    expiredTime: Long,
+    eventTime: LocalDateTime = LocalDateTime.now(),
+    expiredTime: LocalDateTime = LocalDateTime.now(),
     completed: Boolean = false,
     eventPublisher: ApplicationEventPublisher,
 ) : TimeOutEvent(
@@ -22,32 +23,22 @@ class TestTimeOutEvent(
         completed,
         eventPublisher,
     ) {
-    override fun timeExpiredEvent(): TimeExpiredEvent = TestTimeExpiredEvent(eventId, eventType, eventTime)
-
-    override fun getData(): Map<String, Any> =
-        mapOf(
-            "eventId" to eventId,
-            "eventType" to eventType,
-            "eventTime" to eventTime,
-            "expiredTime" to expiredTime,
-            "completed" to completed,
+    override fun timeExpiredEvent(): TimeExpiredEvent =
+        TestTimeExpiredEvent(
+            timeOutEventId = eventId,
+            eventType = "ExpiredEvent",
         )
 }
 
 @EventDetails(outBox = false)
 class TestTimeExpiredEvent(
-    eventId: String,
+    timeOutEventId: String,
+    eventId: String = EventUtils.generateEventId(),
     eventType: String,
-    eventTime: Long,
+    eventTime: LocalDateTime = LocalDateTime.now(),
 ) : TimeExpiredEvent(
+        timeOutEventId,
         eventId,
         eventType,
         eventTime,
-    ) {
-    override fun getData(): Map<String, Any> =
-        mapOf(
-            "eventId" to eventId,
-            "eventType" to eventType,
-            "eventTime" to eventTime,
-        )
-}
+    )

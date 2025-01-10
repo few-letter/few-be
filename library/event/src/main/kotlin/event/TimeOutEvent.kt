@@ -1,6 +1,7 @@
 package event
 
 import org.springframework.context.ApplicationEventPublisher
+import java.time.LocalDateTime
 
 /**
  * Time out event
@@ -16,9 +17,9 @@ import org.springframework.context.ApplicationEventPublisher
 abstract class TimeOutEvent(
     eventId: String = EventUtils.generateEventId(),
     eventType: String,
-    eventTime: Long = System.currentTimeMillis(),
-    protected val expiredTime: Long,
-    protected var completed: Boolean = false,
+    eventTime: LocalDateTime = LocalDateTime.now(),
+    val expiredTime: LocalDateTime,
+    var completed: Boolean = false,
     protected val eventPublisher: ApplicationEventPublisher,
 ) : Event(
         eventId,
@@ -41,7 +42,7 @@ abstract class TimeOutEvent(
      * @param time  시간 (기본값: 현재 시간)
      * @return 이벤트 만료 여부
      */
-    fun isExpired(time: Long = System.currentTimeMillis()): Boolean = !completed && time > expiredTime
+    fun isExpired(time: LocalDateTime = LocalDateTime.now()): Boolean = !completed && time.isAfter(expiredTime)
 
     /**
      * Run
@@ -73,9 +74,10 @@ abstract class TimeOutEvent(
  * Expired time event
  */
 abstract class TimeExpiredEvent(
+    val timeOutEventId: String,
     eventId: String,
     eventType: String,
-    eventTime: Long,
+    eventTime: LocalDateTime,
 ) : Event(
         eventId,
         eventType,

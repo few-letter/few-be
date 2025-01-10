@@ -2,6 +2,7 @@ package event.message
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
+import java.time.LocalDateTime
 
 /**
  * Message payload
@@ -21,6 +22,7 @@ data class MessagePayload
     constructor(
         @JsonProperty("eventId") val eventId: String?,
         @JsonProperty("eventType") val eventType: String?,
-        @JsonProperty("eventTime") val eventTime: Long?,
+        @JsonProperty("eventTime")
+        val eventTime: LocalDateTime?,
         @JsonProperty("data") val data: Map<String, Any>?,
     )
