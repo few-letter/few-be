@@ -2,13 +2,13 @@ package com.few.crm.view.email
 
 import com.few.crm.email.domain.EmailSendHistory
 import com.few.crm.email.repository.EmailSendHistoryRepository
-import web.view.CommonVerticalLayout
 import com.vaadin.flow.component.grid.Grid
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout
 import com.vaadin.flow.component.textfield.TextArea
 import com.vaadin.flow.component.textfield.TextField
 import com.vaadin.flow.router.Route
 import org.springframework.data.domain.Sort
+import web.view.CommonVerticalLayout
 
 @Route("/crm/email/send/histories")
 class CrmEmailSendHistoryView(

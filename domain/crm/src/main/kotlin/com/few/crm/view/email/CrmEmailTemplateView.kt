@@ -6,7 +6,6 @@ import com.few.crm.email.repository.EmailTemplateHistoryRepository
 import com.few.crm.email.repository.EmailTemplateRepository
 import com.few.crm.email.usecase.PostTemplateUseCase
 import com.few.crm.email.usecase.dto.PostTemplateUseCaseIn
-import web.view.CommonVerticalLayout
 import com.vaadin.flow.component.button.Button
 import com.vaadin.flow.component.dialog.Dialog
 import com.vaadin.flow.component.formlayout.FormLayout
@@ -17,6 +16,7 @@ import com.vaadin.flow.component.textfield.TextArea
 import com.vaadin.flow.component.textfield.TextField
 import com.vaadin.flow.router.Route
 import org.springframework.data.domain.Sort
+import web.view.CommonVerticalLayout
 
 @Route("/crm/email/templates")
 class CrmEmailTemplateView(
