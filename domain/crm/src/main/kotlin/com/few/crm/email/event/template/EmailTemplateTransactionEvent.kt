@@ -32,5 +32,7 @@ class PostEmailTemplateEvent(
     eventType: String,
     eventTime: LocalDateTime = LocalDateTime.now(),
 ) : EmailTemplateTransactionAfterCompletionEvent(
-        eventType = "PostEvent",
+        eventId = eventId,
+        eventType = eventType,
+        eventTime = eventTime,
     )
