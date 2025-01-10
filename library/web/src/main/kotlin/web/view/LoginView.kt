@@ -1,4 +1,4 @@
-package com.few.crm.view
+package web.view
 
 import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.html.H1
@@ -13,10 +13,10 @@ import com.vaadin.flow.server.VaadinService
 import com.vaadin.flow.server.auth.AnonymousAllowed
 import org.springframework.web.client.RestTemplate
 
-@Route("/crm/login")
+@Route("/login")
 @PageTitle("Login")
 @AnonymousAllowed
-class CrmLoginView :
+class LoginView :
     VerticalLayout(),
     BeforeEnterObserver {
     private val loginOverlay = LoginOverlay()

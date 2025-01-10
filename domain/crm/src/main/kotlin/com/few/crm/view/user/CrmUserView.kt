@@ -5,7 +5,7 @@ import com.few.crm.user.domain.User
 import com.few.crm.user.repository.UserRepository
 import com.few.crm.user.usecase.EnrollUserUseCase
 import com.few.crm.user.usecase.dto.EnrollUserUseCaseIn
-import com.few.crm.view.CommonVerticalLayout
+import web.view.CommonVerticalLayout
 import com.vaadin.flow.component.button.Button
 import com.vaadin.flow.component.dialog.Dialog
 import com.vaadin.flow.component.formlayout.FormLayout

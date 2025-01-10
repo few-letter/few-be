@@ -6,7 +6,7 @@ import com.few.crm.email.repository.EmailTemplateHistoryRepository
 import com.few.crm.email.repository.EmailTemplateRepository
 import com.few.crm.email.usecase.PostTemplateUseCase
 import com.few.crm.email.usecase.dto.PostTemplateUseCaseIn
-import com.few.crm.view.CommonVerticalLayout
+import web.view.CommonVerticalLayout
 import com.vaadin.flow.component.button.Button
 import com.vaadin.flow.component.dialog.Dialog
 import com.vaadin.flow.component.formlayout.FormLayout

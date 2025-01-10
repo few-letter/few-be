@@ -22,4 +22,8 @@ dependencies {
     api("org.springframework.restdocs:spring-restdocs-mockmvc")
     api("org.springdoc:springdoc-openapi-ui:${DependencyVersion.SPRINGDOC}")
     api("com.epages:restdocs-api-spec-mockmvc:${DependencyVersion.EPAGES_REST_DOCS_API_SPEC}")
+
+
+    /** vaadin */
+    api("com.vaadin:vaadin-spring-boot-starter")
 }
