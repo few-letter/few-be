@@ -26,9 +26,6 @@ dependencies {
     implementation("io.awspring.cloud:spring-cloud-aws-starter-sqs:${DependencyVersion.AWS_SQS}")
 
     implementation("software.amazon.awssdk:scheduler:2.29.45")
-
-    /** vaadin */
-    implementation("com.vaadin:vaadin-spring-boot-starter")
 }
 
 vaadin {

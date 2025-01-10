@@ -10,7 +10,7 @@ import com.few.crm.support.schedule.TaskView
 import com.few.crm.support.schedule.TimeOutEventTaskManager
 import com.few.crm.user.domain.User
 import com.few.crm.user.repository.UserRepository
-import com.few.crm.view.CommonVerticalLayout
+import web.view.CommonVerticalLayout
 import com.vaadin.flow.component.button.Button
 import com.vaadin.flow.component.checkbox.Checkbox
 import com.vaadin.flow.component.datepicker.DatePicker
