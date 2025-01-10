@@ -9,5 +9,19 @@ openai:
 crawl:
     naver:
         news:
-            max-pages: 100
-            max-links: 100
+            max-pages: 10
+            max-links: 10
+
+spring:
+    generator:
+        datasource:
+            url: jdbc:mysql://localhost:13306/generator?allowPublicKeyRetrieval=true&rewriteBatchedStatements=true&allowMultiQueries=true
+            username: root
+            password: root
+            driver-class-name: com.mysql.cj.jdbc.Driver
+        jpa:
+            hibernate:
+                ddl-auto: update
+            properties:
+                hibernate:
+                    format_sql: true

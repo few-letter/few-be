@@ -17,4 +17,7 @@ dependencies {
 
     /** gson **/
     implementation("com.google.code.gson:gson:${DependencyVersion.GSON}")
+
+    /** jpa */
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 }
