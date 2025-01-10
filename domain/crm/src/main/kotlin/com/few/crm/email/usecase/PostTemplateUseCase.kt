@@ -1,6 +1,8 @@
 package com.few.crm.email.usecase
 
 import com.few.crm.email.domain.EmailTemplate
+import com.few.crm.email.domain.EmailTemplateHistory
+import com.few.crm.email.repository.EmailTemplateHistoryRepository
 import com.few.crm.email.repository.EmailTemplateRepository
 import com.few.crm.email.service.HtmlValidator
 import com.few.crm.email.usecase.dto.PostTemplateUseCaseIn
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service
 @Service
 class PostTemplateUseCase(
     private val emailTemplateRepository: EmailTemplateRepository,
+    private val emailTemplateHistoryRepository: EmailTemplateHistoryRepository,
     private val htmlValidator: HtmlValidator,
 ) {
     @CrmTransactional
@@ -42,8 +45,10 @@ class PostTemplateUseCase(
 
         val modifiedOrNewTemplate =
             persistedTemplate
+                ?.modify()
                 ?.modifySubject(subject)
                 ?.modifyBody(body, variables)
+                ?.done()
                 ?: run {
                     EmailTemplate.new(
                         templateName = templateName,
@@ -55,9 +60,19 @@ class PostTemplateUseCase(
 
         modifiedOrNewTemplate.let { template ->
             if (template.isNewTemplate()) {
-                emailTemplateRepository.save(template)
+                emailTemplateRepository.save(template).let {
+                    emailTemplateHistoryRepository.save(
+                        EmailTemplateHistory(
+                            templateId = it.id!!,
+                            subject = it.subject,
+                            body = it.body,
+                            variables = it.variables,
+                            version = it.version,
+                        ),
+                    )
+                }
             } else {
-                template.updateVersion(version)
+                emailTemplateRepository.save(template)
             }
         }
 
