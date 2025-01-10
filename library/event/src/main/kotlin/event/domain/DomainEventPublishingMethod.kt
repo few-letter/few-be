@@ -2,6 +2,7 @@ package event.domain
 
 import event.domain.DomainEventPublishingMethod.Companion.NONE
 import event.domain.util.AnnotationDetectionMethodCallback
+import org.jmolecules.ddd.annotation.AggregateRoot
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.lang.Nullable
 import org.springframework.util.ReflectionUtils
@@ -19,6 +20,10 @@ class DomainEventPublishingMethod(
         fun of(type: Class<*>): DomainEventPublishingMethod {
             if (!type.superclass.isAssignableFrom(DomainAbstractAggregateRoot::class.java)) {
                 throw IllegalArgumentException("Type must extend DomainAbstractAggregateRoot: $type")
+            }
+
+            if (!type.isAnnotationPresent(AggregateRoot::class.java)) {
+                throw IllegalArgumentException("Type must be annotated with @AggregateRoot: $type")
             }
 
             val result =
