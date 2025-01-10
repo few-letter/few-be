@@ -6,10 +6,14 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class OpenAiFeignConfiguration(
+class GeneratorOpenAiFeignConfiguration(
     @Value("\${openai.api.key}") private val apiKey: String,
 ) {
-    @Bean
+    companion object {
+        const val REQUEST_INTERCEPTOR_BEAN_NAME = GeneratorConfig.BEAN_NAME_PREFIX + "OpenAiRequestInterceptor"
+    }
+
+    @Bean(REQUEST_INTERCEPTOR_BEAN_NAME)
     fun requestInterceptor(): RequestInterceptor =
         RequestInterceptor { template ->
             template.header("Authorization", "Bearer $apiKey")

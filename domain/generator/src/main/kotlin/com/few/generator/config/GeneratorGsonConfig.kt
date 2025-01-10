@@ -6,8 +6,12 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class GsonConfig {
-    @Bean
+class GeneratorGsonConfig {
+    companion object {
+        const val GSON_BEAN_NAME = GeneratorConfig.BEAN_NAME_PREFIX + "Gson"
+    }
+
+    @Bean(GSON_BEAN_NAME)
     fun fewGson(): Gson =
         GsonBuilder()
             .setLenient()
