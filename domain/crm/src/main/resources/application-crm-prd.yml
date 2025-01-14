@@ -24,3 +24,11 @@ spring:
             properties:
                 hibernate:
                     format_sql: true
+
+thread-pool:
+    crm:
+        core-pool-size: ${CRM_THREAD_POOL_CORE_SIZE:5}
+        max-pool-size: ${CRM_THREAD_POOL_MAX_SIZE:15}
+        queue-capacity: ${CRM_THREAD_POOL_QUEUE_CAPACITY:30}
+        wait-for-tasks-to-complete-on-shutdown: ${CRM_THREAD_POOL_WAIT_FOR_TASKS_TO_COMPLETE_ON_SHUTDOWN:true}
+        await-termination-seconds: ${CRM_THREAD_POOL_AWAIT_TERMINATION_SECONDS:60}
