@@ -4,6 +4,7 @@ import com.few.crm.email.domain.EmailSendEventType
 import com.few.crm.email.domain.EmailSendHistory
 import com.few.crm.email.event.send.EmailSentEvent
 import com.few.crm.email.repository.EmailSendHistoryRepository
+import com.few.crm.support.jpa.CrmTransactional
 import event.EventHandler
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
@@ -14,6 +15,7 @@ class EmailSentEventHandler(
 ) : EventHandler<EmailSentEvent> {
     val logger = KotlinLogging.logger {}
 
+    @CrmTransactional
     override fun handle(event: EmailSentEvent) {
         logger.info { "Handling EmailSentEvent: $event" }
         emailSendHistoryRepository.save(
