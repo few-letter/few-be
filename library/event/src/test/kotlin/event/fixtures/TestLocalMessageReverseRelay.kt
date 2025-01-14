@@ -15,7 +15,6 @@ class TestLocalMessageReverseRelay : MessageReverseRelay<TestEvent> {
         publish(
             TestEvent(
                 eventId = message.payload?.eventId!!,
-                eventType = message.payload?.eventType!!,
                 eventTime = message.payload?.eventTime!!,
             ),
         )
