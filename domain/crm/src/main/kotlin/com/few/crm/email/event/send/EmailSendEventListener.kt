@@ -1,5 +1,6 @@
 package com.few.crm.email.event.send
 
+import com.few.crm.config.CrmThreadPoolConfig.Companion.CRM_LISTENER_POOL
 import com.few.crm.email.event.send.handler.*
 import com.few.crm.email.relay.send.EmailSendEventMessageMapper
 import com.few.crm.support.jpa.CrmTransactional
@@ -18,7 +19,7 @@ class EmailSendEventListener(
     private val emailDeliveryDelayEventHandler: EmailDeliveryDelayEventHandler,
     private val emailSendEventMessageMapper: EmailSendEventMessageMapper,
 ) {
-    @Async
+    @Async(CRM_LISTENER_POOL)
     @EventListener
     @CrmTransactional(propagation = Propagation.REQUIRES_NEW)
     fun onEvent(event: EmailSendEvent) {

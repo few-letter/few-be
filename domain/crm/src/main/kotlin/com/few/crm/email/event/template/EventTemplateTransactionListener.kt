@@ -1,5 +1,6 @@
 package com.few.crm.email.event.template
 
+import com.few.crm.config.CrmThreadPoolConfig.Companion.CRM_LISTENER_POOL
 import com.few.crm.email.event.template.handler.PostEmailTemplateEventHandler
 import com.few.crm.support.jpa.CrmTransactional
 import org.springframework.scheduling.annotation.Async
@@ -12,7 +13,7 @@ import org.springframework.transaction.event.TransactionalEventListener
 class EventTemplateTransactionListener(
     private val postEmailTemplateEventHandler: PostEmailTemplateEventHandler,
 ) {
-    @Async
+    @Async(CRM_LISTENER_POOL)
     @CrmTransactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMPLETION)
     fun handleAfterCompletionEvent(event: EmailTemplateTransactionAfterCompletionEvent) {
