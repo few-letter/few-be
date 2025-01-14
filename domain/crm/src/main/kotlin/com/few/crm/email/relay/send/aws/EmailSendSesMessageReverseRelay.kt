@@ -1,7 +1,7 @@
 package com.few.crm.email.relay.send.aws
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.few.crm.config.CrmSqsConfig.Companion.SQS_LISTENER_CONTAINER_FACTORY
 import com.few.crm.email.event.send.EmailSendEvent
 import com.few.crm.email.relay.send.EmailSendEventMessageMapper
@@ -17,14 +17,24 @@ import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 
-fun ObjectMapper.readMail(message: String): Map<String, Any> =
-    (readValue(message) as Map<String, Any>).let { it["Message"] as String }.let { readValue(it) as Map<String, Any> }
+fun ObjectMapper.readMessage(message: String): JsonNode = readTree(message)["Message"]!!
 
-fun Map<*, *>.messageId() = this["messageId"] as String
+fun JsonNode.mail(): JsonNode = this["mail"]
 
-fun Map<*, *>.timestamp(): LocalDateTime = (this["timestamp"] as String).let { ZonedDateTime.parse(it).toLocalDateTime() }
+fun JsonNode.eventType(): String = this["eventType"].asText()
 
-fun Map<*, *>.destination() = (this["destination"] as List<*>).joinToString(", ")
+fun JsonNode.messageId(): String = this["messageId"].asText()
+
+fun JsonNode.timestamp(): LocalDateTime = (this["timestamp"].asText()).let { ZonedDateTime.parse(it).toLocalDateTime() }
+
+fun JsonNode.destination() = (this["destination"] as List<*>).joinToString(", ")
+
+fun JsonNode.data() =
+    mapOf(
+        "messageId" to messageId(),
+        "destination" to destination(),
+        "timestamp" to timestamp(),
+    )
 
 @Profile("!local")
 @Service
@@ -41,19 +51,14 @@ class EmailSendSesMessageReverseRelay(
         acknowledgement: Acknowledgement,
     ) {
         objectMapper
-            .readMail(message)
+            .readMessage(message)
             .let {
-                val mail = it["mail"] as Map<*, *>
+                val mail = it.mail()
                 MessagePayload(
                     eventId = EventUtils.generateEventId(),
-                    eventType = it["eventType"] as String,
-                    eventTime = LocalDateTime.now(),
-                    data =
-                        mapOf(
-                            "messageId" to mail.messageId(),
-                            "destination" to mail.destination(),
-                            "timestamp" to mail.timestamp(),
-                        ),
+                    eventType = it.eventType(),
+                    eventTime = EventUtils.generateEventPublishedTime(),
+                    data = mail.data(),
                 )
             }.let {
                 eventMessageMapper.to(it)
