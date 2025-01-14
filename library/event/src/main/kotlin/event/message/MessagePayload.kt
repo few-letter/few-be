@@ -10,7 +10,7 @@ import java.time.LocalDateTime
  *  메시지 페이로드
  *
  * @property eventId 이벤트 식별자
- * @property eventType 이벤트 행위 타입
+ * @property eventType 이벤트 타입
  * @property eventTime 이벤트 발행 시간
  * @property data 이벤트 데이터
  *
