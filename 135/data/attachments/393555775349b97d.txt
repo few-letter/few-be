@@ -1,0 +1,25 @@
+[%autowidth.stretch, cols="h,a"]
+|===
+|Base package
+|`com.few.crm.user`
+|Spring components
+|_Services_
+
+* `c.f.c.u.usecase.EnrollUserUseCase`
+
+_Repositories_
+
+* `c.f.c.u.repository.UserRepository`
+|Bean references
+|None
+|Aggregate roots
+|* `c.f.c.u.domain.User`
+|Value types
+|* 
+|Published events
+|none
+|Events listened to
+|
+|Properties
+|none
+|===
