@@ -15,17 +15,10 @@ import java.time.LocalDateTime
  * @see TimeExpiredEvent 시간 만료 이벤트
  */
 abstract class TimeOutEvent(
-    eventId: String = EventUtils.generateEventId(),
-    eventType: String,
-    eventTime: LocalDateTime = LocalDateTime.now(),
     val expiredTime: LocalDateTime,
     var completed: Boolean = false,
     protected val eventPublisher: ApplicationEventPublisher,
-) : Event(
-        eventId,
-        eventType,
-        eventTime,
-    ),
+) : Event(),
     Runnable {
     /**
      * Complete event
@@ -75,11 +68,4 @@ abstract class TimeOutEvent(
  */
 abstract class TimeExpiredEvent(
     val timeOutEventId: String,
-    eventId: String,
-    eventType: String,
-    eventTime: LocalDateTime,
-) : Event(
-        eventId,
-        eventType,
-        eventTime,
-    )
+) : Event()

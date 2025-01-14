@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.few.crm.email.domain.ScheduledEvent
 import com.few.crm.email.event.send.AwsNotificationEmailSendTimeOutEvent
 import com.few.crm.email.event.send.NotificationEmailSendTimeOutEvent
+import com.few.crm.email.event.send.NotificationEmailSendTimeOutEventType
 import com.few.crm.email.repository.ScheduledEventRepository
 import com.few.crm.support.jpa.CrmTransactional
 import event.EventHandler
@@ -18,10 +19,11 @@ class NotificationEmailSendTimeOutEventHandler(
     override fun handle(event: NotificationEmailSendTimeOutEvent) {
         val scheduledAt =
             if (event is AwsNotificationEmailSendTimeOutEvent) {
-                "AWS"
+                NotificationEmailSendTimeOutEventType.AWS.name
             } else {
-                "APP"
+                NotificationEmailSendTimeOutEventType.APP.name
             }
+
         scheduledEventRepository.save(
             ScheduledEvent(
                 eventId = event.eventId,

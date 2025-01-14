@@ -35,7 +35,6 @@ class ScheduledEventReverseRelay(
                 templateId = templateId,
                 userIds = userIds,
                 timeOutEventId = eventTime,
-                eventType = "AWSINVOKE",
             ).let { event ->
                 publish(event)
             }

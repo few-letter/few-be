@@ -7,54 +7,48 @@ import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 import java.util.*
 
+fun Map<String, Any>.messageId() = this["messageId"] as String
+
+fun Map<String, Any>.destination() = this["destination"] as String
+
+fun Map<String, Any>.timestamp() = this["timestamp"] as LocalDateTime
+
 @Component
 class EmailSendEventMessageMapper : MessageMapper<EmailSendEvent, EmailSendMessage>() {
     override fun map(event: EmailSendEvent): Optional<EmailSendMessage> = Optional.empty()
 
     fun to(messagePayload: MessagePayload): Optional<EmailSendEvent> =
         when (messagePayload.eventType!!.lowercase(Locale.getDefault())) {
-            "open" ->
+            EmailSendStatus.OPEN.name.lowercase() ->
                 Optional.of(
                     EmailOpenEvent(
-                        eventId = messagePayload.eventId!!,
-                        eventType = messagePayload.eventType!!,
-                        eventTime = messagePayload.eventTime!!,
-                        messageId = messagePayload.data!!["messageId"] as String,
-                        destination = messagePayload.data!!["destination"] as String,
-                        timestamp = messagePayload.data!!["timestamp"] as LocalDateTime,
+                        messageId = messagePayload.data!!.messageId(),
+                        destination = messagePayload.data!!.destination(),
+                        timestamp = messagePayload.data!!.timestamp(),
                     ),
                 )
-            "delivery" ->
+            EmailSendStatus.DELIVERY.name.lowercase() ->
                 Optional.of(
                     EmailDeliveryEvent(
-                        eventId = messagePayload.eventId!!,
-                        eventType = messagePayload.eventType!!,
-                        eventTime = messagePayload.eventTime!!,
-                        messageId = messagePayload.data!!["messageId"] as String,
-                        destination = messagePayload.data!!["destination"] as String,
-                        timestamp = messagePayload.data!!["timestamp"] as LocalDateTime,
+                        messageId = messagePayload.data!!.messageId(),
+                        destination = messagePayload.data!!.destination(),
+                        timestamp = messagePayload.data!!.timestamp(),
                     ),
                 )
-            "click" ->
+            EmailSendStatus.CLICK.name.lowercase() ->
                 Optional.of(
                     EmailClickEvent(
-                        eventId = messagePayload.eventId!!,
-                        eventType = messagePayload.eventType!!,
-                        eventTime = messagePayload.eventTime!!,
-                        messageId = messagePayload.data!!["messageId"] as String,
-                        destination = messagePayload.data!!["destination"] as String,
-                        timestamp = messagePayload.data!!["timestamp"] as LocalDateTime,
+                        messageId = messagePayload.data!!.messageId(),
+                        destination = messagePayload.data!!.destination(),
+                        timestamp = messagePayload.data!!.timestamp(),
                     ),
                 )
-            "deliverydelay" ->
+            EmailSendStatus.DELIVERYDELAY.name.lowercase() ->
                 Optional.of(
                     EmailDeliveryDelayEvent(
-                        eventId = messagePayload.eventId!!,
-                        eventType = messagePayload.eventType!!,
-                        eventTime = messagePayload.eventTime!!,
-                        messageId = messagePayload.data!!["messageId"] as String,
-                        destination = messagePayload.data!!["destination"] as String,
-                        timestamp = messagePayload.data!!["timestamp"] as LocalDateTime,
+                        messageId = messagePayload.data!!.messageId(),
+                        destination = messagePayload.data!!.destination(),
+                        timestamp = messagePayload.data!!.timestamp(),
                     ),
                 )
             else -> Optional.empty()

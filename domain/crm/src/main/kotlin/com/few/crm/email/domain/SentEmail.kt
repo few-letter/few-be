@@ -19,7 +19,6 @@ class SentEmail(
                 emailBody = emailBody,
                 messageId = emailMessageId,
                 destination = destination,
-                eventType = eventType.name,
             ),
         )
     }
