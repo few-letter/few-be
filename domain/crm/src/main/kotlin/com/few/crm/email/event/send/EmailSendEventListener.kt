@@ -2,10 +2,12 @@ package com.few.crm.email.event.send
 
 import com.few.crm.email.event.send.handler.*
 import com.few.crm.email.relay.send.EmailSendEventMessageMapper
+import com.few.crm.support.jpa.CrmTransactional
 import event.isOutBox
 import org.springframework.context.event.EventListener
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Propagation
 
 @Component
 class EmailSendEventListener(
@@ -18,6 +20,7 @@ class EmailSendEventListener(
 ) {
     @Async
     @EventListener
+    @CrmTransactional(propagation = Propagation.REQUIRES_NEW)
     fun onEvent(event: EmailSendEvent) {
         when (event) {
             is EmailSentEvent -> emailSentEventHandler.handle(event)
