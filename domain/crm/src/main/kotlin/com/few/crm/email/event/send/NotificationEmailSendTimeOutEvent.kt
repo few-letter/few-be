@@ -1,26 +1,24 @@
 package com.few.crm.email.event.send
 
 import event.EventDetails
-import event.EventUtils
 import event.TimeExpiredEvent
 import event.TimeOutEvent
 import org.springframework.context.ApplicationEventPublisher
 import java.time.LocalDateTime
 
+enum class NotificationEmailSendTimeOutEventType {
+    AWS,
+    APP,
+}
+
 @EventDetails
 open class NotificationEmailSendTimeOutEvent(
     val templateId: Long,
     val userIds: List<Long>,
-    eventId: String = EventUtils.generateEventId(),
-    eventType: String,
-    eventTime: LocalDateTime = LocalDateTime.now(),
     expiredTime: LocalDateTime,
     completed: Boolean = false,
     eventPublisher: ApplicationEventPublisher,
 ) : TimeOutEvent(
-        eventId,
-        eventType,
-        eventTime,
         expiredTime,
         completed,
         eventPublisher,
@@ -39,7 +37,6 @@ open class NotificationEmailSendTimeOutEvent(
                 templateId = templateId,
                 userIds = userIds,
                 expiredTime = expiredTime,
-                eventType = "TimeOutEvent",
                 eventPublisher = eventPublisher,
             )
         }
@@ -50,7 +47,6 @@ open class NotificationEmailSendTimeOutEvent(
             templateId = templateId,
             userIds = userIds,
             timeOutEventId = eventId,
-            eventType = "ExpiredEvent",
         )
 
     fun isLongTermEvent(now: LocalDateTime): Boolean = expiredTime.isAfter(now)
@@ -59,46 +55,31 @@ open class NotificationEmailSendTimeOutEvent(
         AwsNotificationEmailSendTimeOutEvent(
             templateId = templateId,
             userIds = userIds,
-            eventId = eventId,
-            eventType = eventType,
-            eventTime = eventTime,
             expiredTime = expiredTime,
             completed = completed,
             eventPublisher = eventPublisher,
         )
 }
 
-@EventDetails()
+@EventDetails
 class NotificationEmailSendTimeOutInvokeEvent(
     val templateId: Long,
     val userIds: List<Long>,
     timeOutEventId: String,
-    eventId: String = EventUtils.generateEventId(),
-    eventType: String,
-    eventTime: LocalDateTime = LocalDateTime.now(),
 ) : TimeExpiredEvent(
         timeOutEventId,
-        eventId,
-        eventType,
-        eventTime,
     )
 
-@EventDetails()
+@EventDetails
 class AwsNotificationEmailSendTimeOutEvent(
     templateId: Long,
     userIds: List<Long>,
-    eventId: String = EventUtils.generateEventId(),
-    eventType: String,
-    eventTime: LocalDateTime = LocalDateTime.now(),
     expiredTime: LocalDateTime,
     completed: Boolean = false,
     eventPublisher: ApplicationEventPublisher,
 ) : NotificationEmailSendTimeOutEvent(
         templateId,
         userIds,
-        eventId,
-        eventType,
-        eventTime,
         expiredTime,
         completed,
         eventPublisher,

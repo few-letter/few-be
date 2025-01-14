@@ -1,7 +1,6 @@
 package com.few.crm.email.event.send.handler
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.few.crm.email.domain.EmailSendEventType
 import com.few.crm.email.event.send.EmailSentEvent
 import com.few.crm.email.event.send.NotificationEmailSendTimeOutInvokeEvent
 import com.few.crm.email.repository.EmailTemplateRepository
@@ -30,6 +29,7 @@ class NotificationEmailSendTimeOutInvokeEventHandler(
         scheduledEventRepository
             .findByEventIdAndCompletedFalseForUpdate(event.timeOutEventId)
             ?.complete() ?: return
+
         val templateId = event.templateId
         val userIds = event.userIds
         val template =
@@ -49,13 +49,13 @@ class NotificationEmailSendTimeOutInvokeEventHandler(
                         content = NonContent(),
                     ),
                 )
+
             applicationEventPublisher.publishEvent(
                 EmailSentEvent(
                     userExternalId = user.externalId!!,
                     emailBody = template.body,
                     destination = email,
                     messageId = emailMessageId,
-                    eventType = EmailSendEventType.SEND.name,
                 ),
             )
         }

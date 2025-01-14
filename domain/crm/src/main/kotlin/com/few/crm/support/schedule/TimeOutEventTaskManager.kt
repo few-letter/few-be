@@ -88,7 +88,6 @@ class TimeOutEventTaskManager(
                         "templateId" to event.templateId,
                         "userIds" to event.userIds,
                         "eventId" to event.eventId,
-                        "eventType" to event.eventType,
                         "eventTime" to event.eventTime,
                         "expiredTime" to event.expiredTime,
                         "completed" to event.completed,

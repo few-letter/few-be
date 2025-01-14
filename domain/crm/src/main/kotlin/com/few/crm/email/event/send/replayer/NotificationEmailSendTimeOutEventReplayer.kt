@@ -62,9 +62,6 @@ class NotificationEmailSendTimeOutEventReplayer(
                         NotificationEmailSendTimeOutEvent(
                             templateId = eventJson.templateId(),
                             userIds = eventJson.userIds(),
-                            eventId = it.eventId,
-                            eventType = it.eventClass,
-                            eventTime = eventJson.eventTime(),
                             expiredTime = eventJson.expiredTime(),
                             completed = it.completed,
                             eventPublisher = applicationEventPublisher,

@@ -58,7 +58,6 @@ class EmailTemplate(
         registerEvent(
             PostEmailTemplateEvent(
                 templateId = this.id!!,
-                eventType = "POST",
             ),
         )
     }
