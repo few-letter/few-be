@@ -26,6 +26,13 @@ spring:
                 - thread-prd
                 # domain
                 - crm-prd
+    modulith:
+        events:
+            jdbc:
+                schema-initialization:
+                    enabled: true
+            republish-outstanding-events-on-restart: true
+
 auth:
     batch: ${AUTH_BATCH:0518}
 

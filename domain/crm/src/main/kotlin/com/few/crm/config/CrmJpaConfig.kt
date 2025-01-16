@@ -3,6 +3,8 @@ package com.few.crm.config
 import jakarta.persistence.EntityManagerFactory
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateProperties
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateSettings
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties
@@ -33,6 +35,11 @@ import javax.sql.DataSource
 @Import(
     value = [
         CrmDataSourceConfig::class,
+    ],
+)
+@EnableAutoConfiguration(
+    exclude = [
+        HibernateJpaAutoConfiguration::class,
     ],
 )
 class CrmJpaConfig {

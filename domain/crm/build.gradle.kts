@@ -13,7 +13,7 @@ plugins {
 dependencies {
     implementation(project(":library:web"))
     implementation(project(":library:email"))
-    implementation(project(":library:event"))
+    api(project(":library:event"))
 
     /** jsoup - html parser */
     implementation("org.jsoup:jsoup:1.15.3")

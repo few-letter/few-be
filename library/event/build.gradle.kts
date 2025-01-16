@@ -9,4 +9,8 @@ tasks.getByName("jar") {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-json")
     api("org.jmolecules.integrations:jmolecules-starter-ddd:${DependencyVersion.JMOLECULES}")
+
+    api("org.springframework.modulith:spring-modulith-events-core")
+    implementation("org.springframework.modulith:spring-modulith-events-api")
+    implementation("org.springframework.modulith:spring-modulith-starter-jdbc")
 }
