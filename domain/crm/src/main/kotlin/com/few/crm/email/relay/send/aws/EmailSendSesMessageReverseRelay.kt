@@ -6,12 +6,13 @@ import com.few.crm.config.CrmSqsConfig.Companion.SQS_LISTENER_CONTAINER_FACTORY
 import com.few.crm.email.event.send.EmailSendEvent
 import com.few.crm.email.relay.send.EmailSendEventMessageMapper
 import com.few.crm.email.relay.send.EmailSendMessageReverseRelay
+import com.few.crm.support.CrmApplicationEventPublisher
+import com.few.crm.support.jpa.CrmTransactional
 import event.EventUtils
 import event.message.MessagePayload
 import io.awspring.cloud.sqs.annotation.SqsListener
 import io.awspring.cloud.sqs.listener.acknowledgement.Acknowledgement
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -39,12 +40,13 @@ fun JsonNode.data() =
 @Profile("!local")
 @Service
 class EmailSendSesMessageReverseRelay(
-    private val applicationEventPublisher: ApplicationEventPublisher,
+    private val applicationEventPublisher: CrmApplicationEventPublisher,
     private val objectMapper: ObjectMapper,
     private val eventMessageMapper: EmailSendEventMessageMapper,
 ) : EmailSendMessageReverseRelay() {
     val log = KotlinLogging.logger { }
 
+    @CrmTransactional
     @SqsListener(queueNames = ["crm_ses_sqs"], factory = SQS_LISTENER_CONTAINER_FACTORY)
     fun onMessage(
         message: String,
@@ -70,6 +72,6 @@ class EmailSendSesMessageReverseRelay(
 
     override fun publish(event: EmailSendEvent) {
         log.info { "Publishing event: $event" }
-        applicationEventPublisher.publishEvent(event)
+        applicationEventPublisher.publishEventAndRecord(event)
     }
 }

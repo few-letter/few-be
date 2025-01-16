@@ -15,8 +15,8 @@ class EventTemplateTransactionListener(
 ) {
     @Async(CRM_LISTENER_POOL)
     @CrmTransactional(propagation = Propagation.REQUIRES_NEW)
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMPLETION)
-    fun handleAfterCompletionEvent(event: EmailTemplateTransactionAfterCompletionEvent) {
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    fun handleAfterCompletionEvent(event: EmailTemplateTransactionAfterCommitEvent) {
         when (event) {
             is PostEmailTemplateEvent -> postEmailTemplateEventHandler.handle(event)
         }

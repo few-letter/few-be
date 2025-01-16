@@ -4,11 +4,14 @@ import com.few.crm.config.CrmThreadPoolConfig.Companion.CRM_LISTENER_POOL
 import com.few.crm.email.event.send.handler.*
 import com.few.crm.email.relay.send.EmailSendEventMessageMapper
 import com.few.crm.support.jpa.CrmTransactional
-import event.isOutBox
 import org.springframework.context.event.EventListener
+import org.springframework.modulith.events.core.EventPublicationRepository
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Propagation
+import org.springframework.transaction.event.TransactionalEventListener
+import java.time.Instant
+import java.util.*
 
 @Component
 class EmailSendEventListener(
@@ -18,6 +21,7 @@ class EmailSendEventListener(
     private val emailClickEventHandler: EmailClickEventHandler,
     private val emailDeliveryDelayEventHandler: EmailDeliveryDelayEventHandler,
     private val emailSendEventMessageMapper: EmailSendEventMessageMapper,
+    private val eventPublicationRepository: EventPublicationRepository,
 ) {
     @Async(CRM_LISTENER_POOL)
     @EventListener
@@ -30,13 +34,22 @@ class EmailSendEventListener(
             is EmailClickEvent -> emailClickEventHandler.handle(event)
             is EmailDeliveryDelayEvent -> emailDeliveryDelayEventHandler.handle(event)
         }
+
+        eventPublicationRepository.markCompleted(UUID.fromString(event.eventId), Instant.now())
     }
 
-    fun relay(event: EmailSendEvent) {
-        if (event.isOutBox()) {
-            emailSendEventMessageMapper.map(event).ifPresent { message ->
-                // TODO Relay message
-            }
+    @Async(CRM_LISTENER_POOL)
+    @TransactionalEventListener
+    @CrmTransactional(propagation = Propagation.REQUIRES_NEW)
+    fun onInCompleteEvent(event: EmailSendEvent) {
+        when (event) {
+            is EmailSentEvent -> emailSentEventHandler.handle(event)
+            is EmailDeliveryEvent -> emailDeliveryEventHandler.handle(event)
+            is EmailOpenEvent -> emailOpenEventHandler.handle(event)
+            is EmailClickEvent -> emailClickEventHandler.handle(event)
+            is EmailDeliveryDelayEvent -> emailDeliveryDelayEventHandler.handle(event)
         }
+
+        eventPublicationRepository.markCompleted(UUID.fromString(event.eventId), Instant.now())
     }
 }
