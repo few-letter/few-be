@@ -5,9 +5,9 @@ import event.EventDetails
 
 abstract class EmailTemplateTransactionEvent : Event()
 
-abstract class EmailTemplateTransactionAfterCompletionEvent : EmailTemplateTransactionEvent()
+abstract class EmailTemplateTransactionAfterCommitEvent : EmailTemplateTransactionEvent()
 
 @EventDetails
 class PostEmailTemplateEvent(
     val templateId: Long,
-) : EmailTemplateTransactionAfterCompletionEvent()
+) : EmailTemplateTransactionAfterCommitEvent()

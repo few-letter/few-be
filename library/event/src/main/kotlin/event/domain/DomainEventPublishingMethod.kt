@@ -4,9 +4,13 @@ import event.domain.DomainEventPublishingMethod.Companion.NONE
 import event.domain.util.AnnotationDetectionMethodCallback
 import org.jmolecules.ddd.annotation.AggregateRoot
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.data.domain.AfterDomainEventPublication
+import org.springframework.data.domain.DomainEvents
 import org.springframework.lang.Nullable
+import org.springframework.modulith.events.core.EventPublicationRepository
 import org.springframework.util.ReflectionUtils
 import java.lang.reflect.Method
+import java.time.Instant
 import java.util.function.Supplier
 
 class DomainEventPublishingMethod(
@@ -33,7 +37,7 @@ class DomainEventPublishingMethod(
                     Supplier {
                         getDetector(
                             type,
-                            AfterEventPublication::class.java,
+                            AfterDomainEventPublication::class.java,
                         )
                     },
                 )
@@ -44,6 +48,7 @@ class DomainEventPublishingMethod(
     fun publishEventsFrom(
         aggregates: Iterable<*>,
         publisher: ApplicationEventPublisher,
+        eventPublicationRepository: EventPublicationRepository,
     ) {
         for (aggregateRoot in aggregates) {
             if (!type.isInstance(aggregateRoot)) {
@@ -52,6 +57,15 @@ class DomainEventPublishingMethod(
 
             for (event in asCollection(ReflectionUtils.invokeMethod(publishingMethod!!, aggregateRoot), null)) {
                 publisher.publishEvent(event)
+                if (event is TraceAbleEvent) {
+                    eventPublicationRepository.create(
+                        EventPublication(
+                            event = event,
+                            targetIdentifier = event.targetIdentifier,
+                            publicationDate = Instant.now(),
+                        ),
+                    )
+                }
             }
 
             if (clearingMethod != null) {

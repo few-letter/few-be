@@ -4,12 +4,14 @@ import org.springframework.aop.framework.ProxyFactory
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.lang.Nullable
+import org.springframework.modulith.events.core.EventPublicationRepository
 import org.springframework.stereotype.Component
 import java.lang.reflect.Method
 
 @Component
 class DomainEventPublishingProxyPostProcessor(
     private val publisher: ApplicationEventPublisher,
+    private val publicationRepository: EventPublicationRepository,
 ) : BeanPostProcessor {
     override fun postProcessAfterInitialization(
         bean: Any,
@@ -24,7 +26,7 @@ class DomainEventPublishingProxyPostProcessor(
                 val returnType = method.returnType
                 val domainEventPublishingMethod = DomainEventPublishingMethod.of(returnType)
                 proxyFactory.addAdvice(
-                    DomainEventPublishingMethodInterceptor(domainEventPublishingMethod, publisher),
+                    DomainEventPublishingMethodInterceptor(domainEventPublishingMethod, publisher, publicationRepository),
                 )
             }
             return proxyFactory.proxy

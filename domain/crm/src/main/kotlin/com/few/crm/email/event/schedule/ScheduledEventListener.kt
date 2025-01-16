@@ -1,5 +1,6 @@
 package com.few.crm.email.event.schedule
 
+import com.few.crm.config.CrmThreadPoolConfig.Companion.CRM_LISTENER_POOL
 import com.few.crm.email.event.schedule.handler.CancelScheduledEventHandler
 import com.few.crm.support.jpa.CrmTransactional
 import org.springframework.context.event.EventListener
@@ -11,7 +12,7 @@ import org.springframework.transaction.annotation.Propagation
 class ScheduledEventListener(
     private val cancelScheduledEventHandler: CancelScheduledEventHandler,
 ) {
-    @Async
+    @Async(CRM_LISTENER_POOL)
     @EventListener
     @CrmTransactional(propagation = Propagation.REQUIRES_NEW)
     fun onCancelEvent(event: CancelScheduledEvent) {
