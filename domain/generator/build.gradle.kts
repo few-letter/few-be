@@ -20,4 +20,7 @@ dependencies {
 
     /** jpa */
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+
+    /** Spring AI **/
+    implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter:0.8.0")
 }
