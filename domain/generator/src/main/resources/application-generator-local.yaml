@@ -1,14 +1,3 @@
-openai:
-    api:
-        key: ${OPENAI_API_TOKEN:thisisopenai}
-        url: https://api.openai.com/v1/chat/completions
-
-crawl:
-    naver:
-        news:
-            max-pages: 10
-            max-links: 10
-
 spring:
     cloud:
         openfeign:
