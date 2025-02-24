@@ -4,7 +4,7 @@ enum class MODEL(
     val value: String,
 ) {
     GPT_4O("gpt-4o"),
-    FOURO_MINI("gpt-4o-mini"),
+    GPT_4O_MINI("gpt-4o-mini"),
 
     ;
 

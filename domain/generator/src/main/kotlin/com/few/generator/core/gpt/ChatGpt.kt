@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestBody
 
 @FeignClient(
     value = "openai",
-    name = "openAiClient",
 )
 interface ChatGpt {
     @PostMapping
