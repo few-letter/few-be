@@ -1,7 +1,7 @@
 package com.few.generator.core.gpt.prompt
 
 enum class ROLE(
-    s: String,
+    value: String,
 ) {
     SYSTEM("system"),
     USER("user"),
