@@ -15,14 +15,14 @@ class ContentsGeneratorUseCase(
 
     @GeneratorTransactional
     fun execute(sourceUrl: String): List<String> {
-        // 스크래핑 후 Raw 데이터 저장
+        // 1. 스크래핑 후 Raw 데이터 저장
         val rawContents = rawContentsService.create(sourceUrl)
 
-        // raw 데이터 기반 provisioning 생성
-        provisioningService.create(rawContents)
+        // 2. raw 데이터 기반 provisioning 생성
+        val provisioningContents = provisioningService.create(rawContents)
 
-        // gen 생성
-        // TODO
+        // 3. gen 생성
+        // TODO provisioningContents 기반으로 gen 1,2,3 생성
 
         return emptyList()
     }

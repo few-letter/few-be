@@ -34,13 +34,8 @@ class GsonDecoder(
         return bodyObj
     }
 
-    private fun postHandler(completion: ChatCompletion): String {
+    private fun postHandler(completion: ChatCompletion) {
         val choicesCount = completion.choices?.size ?: 0
         log.info { "Asking ChatGpt response choices count: $choicesCount" }
-
-        return completion.choices
-            ?.find { it.index == 0 }
-            ?.message
-            ?.content ?: throw RuntimeException("No response found in ${completion.id} asking")
     }
 }

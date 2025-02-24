@@ -8,7 +8,13 @@ data class ChatCompletion(
     val choices: List<Choice>? = null,
     val usage: Usage? = null,
     val system_fingerprint: String? = null,
-)
+) {
+    fun getFirstChoiceMessage(): String =
+        choices
+            ?.find { it.index == 0 }
+            ?.message
+            ?.content ?: throw RuntimeException("No response found in $id completion")
+}
 
 data class Choice(
     val index: Int? = null,

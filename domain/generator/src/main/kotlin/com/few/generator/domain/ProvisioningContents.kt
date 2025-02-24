@@ -18,4 +18,4 @@ data class ProvisioningContents(
     val coreTextsJson: String = "[]", // JSON 문자열로 저장
     @CreatedDate
     var createdAt: LocalDateTime? = null,
-)
+) // TODO: completion의 ID 저장
