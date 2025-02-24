@@ -1,5 +1,6 @@
 package com.few.generator.config
 
+import com.few.generator.core.gpt.prompt.*
 import com.google.gson.*
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -16,13 +17,20 @@ class GeneratorGsonConfig {
     }
 
     @Bean(GSON_BEAN_NAME)
-    fun gson(): Gson =
-        GsonBuilder()
-            .setLenient()
-            .disableHtmlEscaping()
-            .setPrettyPrinting()
-            .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeAdapter())
-            .create()
+    fun gson(): Gson {
+        val create =
+            GsonBuilder()
+                .registerTypeAdapter(ROLE::class.java, RoleSerializer())
+                .registerTypeAdapter(ROLE::class.java, RoleDeserializer())
+                .registerTypeAdapter(MODEL::class.java, ModelSerializer()) // 추가
+                .registerTypeAdapter(MODEL::class.java, ModelDeserializer()) // 추가
+                .setLenient()
+                .disableHtmlEscaping()
+                .setPrettyPrinting()
+                .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeAdapter())
+                .create()
+        return create
+    }
 }
 
 class LocalDateTimeAdapter :
@@ -41,4 +49,40 @@ class LocalDateTimeAdapter :
         typeOfT: Type,
         context: JsonDeserializationContext,
     ): LocalDateTime = LocalDateTime.parse(json.asString, formatter)
+}
+
+class ModelSerializer : JsonSerializer<MODEL> {
+    override fun serialize(
+        src: MODEL?,
+        typeOfSrc: Type?,
+        context: JsonSerializationContext?,
+    ): JsonElement = JsonPrimitive(src?.value)
+}
+
+class ModelDeserializer : JsonDeserializer<MODEL> {
+    override fun deserialize(
+        json: JsonElement?,
+        typeOfT: Type?,
+        context: JsonDeserializationContext?,
+    ): MODEL =
+        MODEL.fromValue(json?.asString ?: throw JsonParseException("Invalid MODEL value"))
+            ?: throw JsonParseException("Unknown MODEL value: ${json?.asString}")
+}
+
+class RoleSerializer : JsonSerializer<ROLE> {
+    override fun serialize(
+        src: ROLE?,
+        typeOfSrc: Type?,
+        context: JsonSerializationContext?,
+    ): JsonElement = JsonPrimitive(src?.value)
+}
+
+class RoleDeserializer : JsonDeserializer<ROLE> {
+    override fun deserialize(
+        json: JsonElement?,
+        typeOfT: Type?,
+        context: JsonDeserializationContext?,
+    ): ROLE =
+        ROLE.fromValue(json?.asString ?: throw JsonParseException("Invalid ROLE value"))
+            ?: throw JsonParseException("Unknown ROLE value: ${json?.asString}")
 }
