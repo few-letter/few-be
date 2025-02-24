@@ -10,11 +10,23 @@ crawl:
             max-links: 10
 
 spring:
-    ai:
-        openai:
-            api-key: ${OPENAI_API_TOKEN}
-            model: gpt-3.5-turbo  # or gpt-4
-            temperature: 0.7
+    cloud:
+        openfeign:
+            client:
+                config:
+                    openai:
+                        url: https://api.openai.com/v1/chat/completions
+                        connectTimeout: 60000
+                        readTimeout: 60000
+                        loggerLevel: full
+                        errorDecoder: com.few.generator.config.feign.OpenAiErrorDecoder
+                        defaultRequestHeaders:
+                            - Authorization: Bearer ${OPENAI_API_TOKEN:thisisopenai}
+                            - Content-Type: application/json
+                        requestInterceptors:
+                            - com.few.generator.config.feign.OpenAiRequestInterceptor
+                        encoder: com.few.generator.config.feign.OpenAiEncoder
+                        decoder: com.few.generator.config.feign.OpenAiDecoder
     generator:
         datasource:
             url: jdbc:mysql://localhost:13306/generator?allowPublicKeyRetrieval=true&rewriteBatchedStatements=true&allowMultiQueries=true

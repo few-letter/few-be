@@ -10,6 +10,23 @@ crawl:
             max-links: ${NAVER_NEWS_MAX_LINKS:100}
 
 spring:
+    cloud:
+        openfeign:
+            client:
+                config:
+                    openai:
+                        url: https://api.openai.com/v1/chat/completions
+                        connectTimeout: 60000
+                        readTimeout: 60000
+                        loggerLevel: full
+                        errorDecoder: com.few.generator.config.feign.OpenAiErrorDecoder
+                        defaultRequestHeaders:
+                            - Authorization: Bearer ${OPENAI_API_TOKEN:thisisopenai}
+                            - Content-Type: application/json
+                        requestInterceptors:
+                            - com.few.generator.config.feign.OpenAiRequestInterceptor
+                        encoder: com.few.generator.config.feign.OpenAiEncoder
+                        decoder: com.few.generator.config.feign.OpenAiDecoder
     crm:
         generator:
             url: ${DB_HOSTNAME}/generator?allowPublicKeyRetrieval=true&rewriteBatchedStatements=true&allowMultiQueries=true
