@@ -1,7 +1,0 @@
-[%autowidth.stretch, cols="h,a"]
-|===
-|Base package
-|`com.few.crm.support`
-|Bean references
-|* `c.f.c.e.repository.ScheduledEventRepository` (in Email)
-|===

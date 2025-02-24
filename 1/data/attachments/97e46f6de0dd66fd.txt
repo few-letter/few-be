@@ -1,0 +1,19 @@
+[%autowidth.stretch, cols="h,a"]
+|===
+|Base package
+|`com.few.crm.view`
+|Spring components
+|None
+|Bean references
+|None
+|Aggregate roots
+|* 
+|Value types
+|* 
+|Published events
+|none
+|Events listened to
+|
+|Properties
+|none
+|===

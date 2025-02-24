@@ -1,0 +1,26 @@
+[%autowidth.stretch, cols="h,a"]
+|===
+|Base package
+|`com.few.crm.support`
+|Spring components
+|_Services_
+
+* `c.f.c.s.schedule.aws.AwsSchedulerService`
+
+_Others_
+
+* `c.f.c.s.CrmApplicationEventPublisher`
+* `c.f.c.s.schedule.TimeOutEventTaskManager`
+|Bean references
+|* `c.f.c.e.repository.ScheduledEventRepository` (in Email)
+|Aggregate roots
+|* 
+|Value types
+|* 
+|Published events
+|none
+|Events listened to
+|
+|Properties
+|none
+|===
