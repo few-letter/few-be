@@ -1,6 +1,6 @@
 package com.few.generator.service
 
-import com.few.generator.core.prompt.ProvisioningPromptGenerator
+import com.few.generator.core.gpt.prompt.ProvisioningPromptGenerator
 import com.few.generator.domain.ProvisioningContents
 import com.few.generator.domain.RawContents
 import io.github.oshai.kotlinlogging.KotlinLogging

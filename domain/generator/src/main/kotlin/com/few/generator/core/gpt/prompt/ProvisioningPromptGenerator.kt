@@ -1,4 +1,4 @@
-package com.few.generator.core.prompt
+package com.few.generator.core.gpt.prompt
 
 import org.springframework.stereotype.Component
 
@@ -9,13 +9,13 @@ class ProvisioningPromptGenerator {
         description: String,
         rawTexts: String,
     ): Prompt {
-        val systemPrompt =
+        val systemContent =
             """
             You are tasked with analyzing webpage metadata and content to extract relevant sentences. 
             You must extract sentences exactly as they appear, without any modifications.
             """.trimIndent()
 
-        val userPrompt =
+        val userContent =
             """
             ## Instructions
             1. Extract all topic-related sentences from the given text exactly as they appear, without any modifications.
@@ -28,9 +28,7 @@ class ProvisioningPromptGenerator {
             3. Target Sentences to Extract: $rawTexts
             """.trimIndent()
 
-        val jsonObject = mapOf("body_texts" to emptyList<String>())
-
-        return Prompt(systemPrompt, userPrompt, jsonObject)
+        return Prompt(messages = listOf(Message(ROLE.SYSTEM, systemContent), Message(ROLE.USER, userContent)))
     }
 
     fun createCoreTexts(
@@ -38,13 +36,13 @@ class ProvisioningPromptGenerator {
         description: String,
         bodyTexts: String,
     ): Prompt {
-        val systemPrompt =
+        val systemContent =
             """
             You are tasked with analyzing webpage title, summary, and content to extract important sentences. 
             You must extract sentences exactly as they appear, without any modifications.
             """.trimIndent()
 
-        val userPrompt =
+        val userContent =
             """
             ## Instructions
             1. Extract all factual and content-wise important sentences from the given text exactly as they appear, without any modifications.
@@ -57,8 +55,6 @@ class ProvisioningPromptGenerator {
             3. Target Sentences to Extract: $bodyTexts
             """.trimIndent()
 
-        val jsonObject = mapOf("core_texts" to emptyList<String>())
-
-        return Prompt(systemPrompt, userPrompt, jsonObject)
+        return Prompt(messages = listOf(Message(ROLE.SYSTEM, systemContent), Message(ROLE.USER, userContent)))
     }
 }
