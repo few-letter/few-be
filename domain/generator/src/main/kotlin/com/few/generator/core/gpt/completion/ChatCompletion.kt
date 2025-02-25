@@ -26,6 +26,7 @@ data class Choice(
 data class Message(
     val role: String? = null,
     val content: String? = null,
+    val refusal: String? = null,
 )
 
 data class Usage(

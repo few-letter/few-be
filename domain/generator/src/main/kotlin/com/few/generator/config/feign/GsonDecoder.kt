@@ -36,6 +36,16 @@ class GsonDecoder(
 
     private fun postHandler(completion: ChatCompletion) {
         val choicesCount = completion.choices?.size ?: 0
+        val refusal =
+            completion.choices
+                ?.get(0)
+                ?.message
+                ?.refusal
+
         log.info { "Asking ChatGpt response choices count: $choicesCount" }
+
+        if (choicesCount == 0 || refusal != null) {
+            throw RuntimeException("ChatGpt response choices count is 0. Refusal: ${refusal ?: "NotFound"}")
+        }
     }
 }
