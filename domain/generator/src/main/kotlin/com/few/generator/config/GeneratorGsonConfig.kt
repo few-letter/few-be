@@ -17,20 +17,17 @@ class GeneratorGsonConfig {
     }
 
     @Bean(GSON_BEAN_NAME)
-    fun gson(): Gson {
-        val create =
-            GsonBuilder()
-                .registerTypeAdapter(ROLE::class.java, RoleSerializer())
-                .registerTypeAdapter(ROLE::class.java, RoleDeserializer())
-                .registerTypeAdapter(MODEL::class.java, ModelSerializer()) // 추가
-                .registerTypeAdapter(MODEL::class.java, ModelDeserializer()) // 추가
-                .setLenient()
-                .disableHtmlEscaping()
-                .setPrettyPrinting()
-                .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeAdapter())
-                .create()
-        return create
-    }
+    fun gson(): Gson =
+        GsonBuilder()
+            .registerTypeAdapter(ROLE::class.java, RoleSerializer())
+            .registerTypeAdapter(ROLE::class.java, RoleDeserializer())
+            .registerTypeAdapter(MODEL::class.java, ModelSerializer()) // 추가
+            .registerTypeAdapter(MODEL::class.java, ModelDeserializer()) // 추가
+            .setLenient()
+            .disableHtmlEscaping()
+            .setPrettyPrinting()
+            .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeAdapter())
+            .create()
 }
 
 class LocalDateTimeAdapter :

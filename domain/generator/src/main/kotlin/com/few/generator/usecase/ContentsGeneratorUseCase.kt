@@ -1,5 +1,6 @@
 package com.few.generator.usecase
 
+import com.few.generator.service.GenService
 import com.few.generator.service.ProvisioningService
 import com.few.generator.service.RawContentsService
 import com.few.generator.support.jpa.GeneratorTransactional
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component
 class ContentsGeneratorUseCase(
     private val rawContentsService: RawContentsService,
     private val provisioningService: ProvisioningService,
+    private val genService: GenService,
 ) {
     private val log = KotlinLogging.logger {}
 
@@ -22,7 +24,7 @@ class ContentsGeneratorUseCase(
         val provisioningContents = provisioningService.create(rawContents)
 
         // 3. gen 생성
-        // TODO provisioningContents 기반으로 gen 1,2,3 생성
+        val gens = genService.create(rawContents, provisioningContents)
 
         return emptyList()
     }

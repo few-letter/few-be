@@ -1,5 +1,6 @@
 package com.few.generator.core.gpt.prompt
 
+import com.few.generator.core.gpt.prompt.schema.Texts
 import org.springframework.stereotype.Component
 
 @Component
@@ -28,13 +29,16 @@ class ProvisioningPromptGenerator {
             3. Target Sentences to Extract: $rawTexts
             """.trimIndent()
 
-        return Prompt(messages = listOf(Message(ROLE.SYSTEM, systemContent), Message(ROLE.USER, userContent)))
+        return Prompt(
+            messages = listOf(Message(ROLE.SYSTEM, systemContent), Message(ROLE.USER, userContent)),
+            response_format = ResponseFormat(schema = Texts.schema, classType = Texts::class.java),
+        )
     }
 
     fun createCoreTexts(
         title: String,
         description: String,
-        bodyTexts: String,
+        bodyTexts: Texts,
     ): Prompt {
         val systemContent =
             """
@@ -52,9 +56,12 @@ class ProvisioningPromptGenerator {
             ## Input
             1. Webpage Title: $title
             2. Webpage Summary: $description
-            3. Target Sentences to Extract: $bodyTexts
+            3. Target Sentences to Extract: ${bodyTexts.texts.joinToString(", ")}
             """.trimIndent()
 
-        return Prompt(messages = listOf(Message(ROLE.SYSTEM, systemContent), Message(ROLE.USER, userContent)))
+        return Prompt(
+            messages = listOf(Message(ROLE.SYSTEM, systemContent), Message(ROLE.USER, userContent)),
+            response_format = ResponseFormat(schema = Texts.schema, classType = Texts::class.java),
+        )
     }
 }
