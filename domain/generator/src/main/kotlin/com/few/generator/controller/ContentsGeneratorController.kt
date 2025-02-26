@@ -13,7 +13,7 @@ import web.ApiResponseGenerator
 class ContentsGeneratorController(
     private val contentsGeneratorUseCase: ContentsGeneratorUseCase,
 ) {
-    @PostMapping(value = ["/generator/contents"], consumes = ["application/json"])
+    @PostMapping(value = ["/generators/contents"], consumes = ["application/json"])
     fun create(
         @RequestBody request: WebContentsGeneratorRequest,
     ): ApiResponse<ApiResponse.SuccessBody<ContentsGeneratorResponse>> {
