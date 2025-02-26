@@ -6,7 +6,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 
 @Component
-class OpenAiErrorDecoder : ErrorDecoder {
+class ErrorDecoder : ErrorDecoder {
     private val log = KotlinLogging.logger {}
     private val defaultDecoder = ErrorDecoder.Default()
 
@@ -15,6 +15,7 @@ class OpenAiErrorDecoder : ErrorDecoder {
         response: Response,
     ): Exception {
         log.error { "Open AI API Status Code: ${response.status()}" }
+        ResponseClassThreadLocal.clear()
         return defaultDecoder.decode(methodKey, response)
     }
 }
