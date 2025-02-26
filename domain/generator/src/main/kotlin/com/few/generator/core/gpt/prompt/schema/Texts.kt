@@ -2,7 +2,7 @@ package com.few.generator.core.gpt.prompt.schema
 
 data class Texts(
     val texts: List<String>,
-) {
+) : Schema() {
     companion object {
         val schema =
             mapOf(

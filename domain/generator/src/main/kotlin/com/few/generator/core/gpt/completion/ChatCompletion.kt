@@ -1,5 +1,6 @@
 package com.few.generator.core.gpt.completion
 
+import com.few.generator.core.gpt.prompt.schema.Schema
 import com.google.gson.GsonBuilder
 import java.lang.reflect.Type
 
@@ -23,7 +24,7 @@ data class ChatCompletion(
 
     // TODO: chatGpt.ask 메소드에 AOP 적용하여 ChatCompletion 메소드 호출 없이 변환되어 필드로 기저장되도록 변경
     // Or FeginClient Interceptor에 적용 (prompt.response_format.classType 필드 공유되어야 함)
-    fun <T> getFirstChoiceMessage(type: Type): T =
+    fun <T : Schema> getFirstChoiceMessage(type: Type): T =
         gson.fromJson(
             choices
                 ?.find { it.index == 0 }
