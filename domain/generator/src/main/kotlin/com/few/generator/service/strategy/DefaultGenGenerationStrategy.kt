@@ -1,0 +1,27 @@
+package com.few.generator.service.strategy
+
+import com.few.generator.core.gpt.ChatGpt
+import com.few.generator.core.gpt.prompt.PromptGenerator
+import com.few.generator.core.gpt.prompt.schema.Headline
+import com.few.generator.core.gpt.prompt.schema.Summary
+import com.few.generator.domain.Gen
+import org.springframework.stereotype.Component
+
+@Component
+class DefaultGenGenerationStrategy(
+    private val promptGenerator: PromptGenerator,
+    private val chatGpt: ChatGpt,
+) : GenGenerationStrategy {
+    override fun generate(material: Material): Gen {
+        val headlinePrompt = promptGenerator.toHeadlineDefault(material.title!!, material.description!!, material.coreTextsJson!!)
+        val headline: Headline = chatGpt.ask(headlinePrompt) as Headline
+
+        val summaryPrompt = promptGenerator.toSummaryDefault(material.title!!, material.description!!, material.coreTextsJson!!)
+        val summary: Summary = chatGpt.ask(summaryPrompt) as Summary
+
+        return Gen(
+            headline = headline.headline,
+            summary = summary.summary,
+        )
+    }
+}
