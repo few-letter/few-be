@@ -1,19 +1,24 @@
 package com.few.generator.service
 
+import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.core.gpt.ChatGpt
-import com.few.generator.core.gpt.prompt.ProvisioningPromptGenerator
+import com.few.generator.core.gpt.prompt.PromptGenerator
 import com.few.generator.core.gpt.prompt.schema.Texts
 import com.few.generator.domain.ProvisioningContents
 import com.few.generator.domain.RawContents
 import com.few.generator.repository.ProvisioningContentsRepository
+import com.google.gson.Gson
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
 @Service
 class ProvisioningService(
-    private val provisioningPromptGenerator: ProvisioningPromptGenerator,
+    private val promptGenerator: PromptGenerator,
     private val chatGpt: ChatGpt,
     private val provisioningContentsRepository: ProvisioningContentsRepository,
+    @Qualifier(GSON_BEAN_NAME)
+    private val gson: Gson,
 ) {
     private val log = KotlinLogging.logger {}
 
@@ -24,16 +29,8 @@ class ProvisioningService(
         return provisioningContentsRepository.save(
             ProvisioningContents(
                 completionIds = mutableListOf(bodyTexts.completionId!!, coreTexts.completionId!!),
-                bodyTextsJson =
-                    bodyTexts.texts.joinToString( // TODO: DB 저장 타입 등 정의, 수정 필요
-                        prefix = "[",
-                        postfix = "]",
-                    ) { "\"$it\"" },
-                coreTextsJson =
-                    coreTexts.texts.joinToString(
-                        prefix = "[",
-                        postfix = "]",
-                    ) { "\"$it\"" },
+                bodyTextsJson = gson.toJson(bodyTexts.texts), // TODO: DB 저장 타입 등 정의, 수정 필요
+                coreTextsJson = gson.toJson(bodyTexts.texts),
             ),
         )
     }
@@ -43,7 +40,7 @@ class ProvisioningService(
         description: String,
         rawTexts: String,
     ): Texts {
-        val prompt = provisioningPromptGenerator.createBodyTexts(title, description, rawTexts)
+        val prompt = promptGenerator.toBodyTexts(title, description, rawTexts)
         val texts: Texts = chatGpt.ask(prompt) as Texts
         return texts
     }
@@ -53,7 +50,7 @@ class ProvisioningService(
         description: String,
         bodyTexts: Texts,
     ): Texts {
-        val prompt = provisioningPromptGenerator.createCoreTexts(title, description, bodyTexts)
+        val prompt = promptGenerator.toCoreTexts(title, description, bodyTexts)
         val texts = chatGpt.ask(prompt) as Texts
         return texts
     }
