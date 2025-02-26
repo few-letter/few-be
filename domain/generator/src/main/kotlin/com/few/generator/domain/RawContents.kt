@@ -1,13 +1,9 @@
 package com.few.generator.domain
 
 import jakarta.persistence.*
-import org.springframework.data.annotation.CreatedDate
-import org.springframework.data.jpa.domain.support.AuditingEntityListener
-import java.time.LocalDateTime
 
 @Entity
 @Table(name = "raw_contents")
-@EntityListeners(AuditingEntityListener::class)
 data class RawContents(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +20,4 @@ data class RawContents(
     val rawTexts: String,
     @Column(nullable = true, columnDefinition = "TEXT")
     val imageUrls: String = "[]",
-    @CreatedDate
-    var createdAt: LocalDateTime? = null,
-)
+) : BaseEntity()
