@@ -5,10 +5,11 @@ import com.few.generator.core.gpt.prompt.PromptGenerator
 import com.few.generator.core.gpt.prompt.schema.Headline
 import com.few.generator.core.gpt.prompt.schema.Summary
 import com.few.generator.domain.Gen
+import com.few.generator.service.strategy.GenGenerationStrategy.Companion.STRATEGY_NAME_BASIC
 import org.springframework.stereotype.Component
 
-@Component
-class DefaultGenGenerationStrategy(
+@Component(STRATEGY_NAME_BASIC)
+class BasicGenGenerationStrategy(
     private val promptGenerator: PromptGenerator,
     private val chatGpt: ChatGpt,
 ) : GenGenerationStrategy {
