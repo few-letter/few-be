@@ -3,7 +3,7 @@ package com.few.generator.core.gpt.prompt.schema
 data class KeywordCategory(
     val keywords: List<String>,
     val category: String,
-) : Schema() {
+) : GptResponse() {
     companion object {
         val schema =
             mapOf(

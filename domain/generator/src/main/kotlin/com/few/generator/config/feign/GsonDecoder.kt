@@ -2,13 +2,13 @@ package com.few.generator.config.feign
 
 import com.few.generator.config.GeneratorGsonConfig
 import com.few.generator.core.gpt.completion.ChatCompletion
+import com.few.generator.core.gpt.prompt.schema.GptResponse
 import com.google.gson.Gson
 import feign.Response
 import feign.codec.Decoder
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
-import java.io.InputStreamReader
 import java.lang.reflect.Type
 
 @Component
@@ -21,20 +21,40 @@ class GsonDecoder(
     override fun decode(
         response: Response,
         type: Type,
-    ): Any? {
-        val body = response.body()
-        if (body == null) {
-            return null
-        }
-        val reader = InputStreamReader(body.asInputStream())
-        val bodyObj = gson.fromJson(reader, ChatCompletion::class.java)
+    ) = runCatching {
+        val responseBody =
+            response
+                .body()
+                ?.asInputStream()
+                ?.reader()
+                ?.readText()
+                ?: throw RuntimeException("Empty response body")
 
-        postHandler(bodyObj)
+        val completion = gson.fromJson(responseBody, ChatCompletion::class.java)
+        validateResponse(completion)
 
-        return bodyObj
+        decodeFirstResponse(completion)
+    }.onFailure {
+        throw RuntimeException("Failed to decode response body", it)
+    }.also {
+        ResponseClassThreadLocal.clear()
     }
 
-    private fun postHandler(completion: ChatCompletion) {
+    private fun decodeFirstResponse(completion: ChatCompletion): GptResponse {
+        val responseContentStr =
+            completion.choices
+                ?.find { it.index == 0 }
+                ?.message
+                ?.content ?: throw RuntimeException("No response found in ${completion.id} completion")
+
+        val responseClass = ResponseClassThreadLocal.get() ?: throw RuntimeException("Response class not found in thread local")
+
+        val responseDtoObj = gson.fromJson(responseContentStr, responseClass)
+
+        return responseDtoObj
+    }
+
+    private fun validateResponse(completion: ChatCompletion) {
         val choicesCount = completion.choices?.size ?: 0
         val refusal =
             completion.choices

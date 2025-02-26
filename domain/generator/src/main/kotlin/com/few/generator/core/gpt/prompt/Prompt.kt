@@ -1,6 +1,6 @@
 package com.few.generator.core.gpt.prompt
 
-import java.lang.reflect.Type
+import com.few.generator.core.gpt.prompt.schema.GptResponse
 
 data class Prompt(
     val model: MODEL = MODEL.GPT_4O_MINI,
@@ -18,5 +18,5 @@ data class ResponseFormat(
     val type: String = "json_object",
     val schema: Map<String, Any>,
     @Transient
-    val classType: Type,
+    val responseClassType: Class<out GptResponse>,
 )

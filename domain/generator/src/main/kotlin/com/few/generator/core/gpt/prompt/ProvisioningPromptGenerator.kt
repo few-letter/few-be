@@ -31,7 +31,7 @@ class ProvisioningPromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemContent), Message(ROLE.USER, userContent)),
-            response_format = ResponseFormat(schema = Texts.schema, classType = Texts::class.java),
+            response_format = ResponseFormat(schema = Texts.schema, responseClassType = Texts::class.java),
         )
     }
 
@@ -61,7 +61,7 @@ class ProvisioningPromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemContent), Message(ROLE.USER, userContent)),
-            response_format = ResponseFormat(schema = Texts.schema, classType = Texts::class.java),
+            response_format = ResponseFormat(schema = Texts.schema, responseClassType = Texts::class.java),
         )
     }
 }

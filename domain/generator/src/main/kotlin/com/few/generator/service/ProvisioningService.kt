@@ -43,8 +43,8 @@ class ProvisioningService(
         rawTexts: String,
     ): Texts {
         val prompt = provisioningPromptGenerator.createBodyTexts(title, description, rawTexts)
-        val completion = chatGpt.ask(prompt)
-        return completion.getFirstChoiceMessage(prompt.response_format.classType)
+        val texts: Texts = chatGpt.ask(prompt) as Texts
+        return texts
     }
 
     private fun makeCoreTexts(
@@ -53,7 +53,7 @@ class ProvisioningService(
         bodyTexts: Texts,
     ): Texts {
         val prompt = provisioningPromptGenerator.createCoreTexts(title, description, bodyTexts)
-        val completion = chatGpt.ask(prompt)
-        return completion.getFirstChoiceMessage(prompt.response_format.classType)
+        val texts = chatGpt.ask(prompt) as Texts
+        return texts
     }
 }

@@ -1,6 +1,7 @@
 package com.few.generator.config.feign
 
 import com.few.generator.config.GeneratorGsonConfig
+import com.few.generator.core.gpt.prompt.Prompt
 import com.google.gson.Gson
 import feign.RequestTemplate
 import feign.codec.Encoder
@@ -18,6 +19,15 @@ class GsonEncoder(
         bodyType: Type?,
         template: RequestTemplate?,
     ) {
-        template?.body(gson.toJson(obj, bodyType))
+        runCatching {
+            template?.body(gson.toJson(obj, bodyType))
+            (obj as? Prompt)
+                ?.response_format
+                ?.responseClassType
+                ?.let { ResponseClassThreadLocal.set(it) }
+        }.onFailure {
+            ResponseClassThreadLocal.clear()
+            throw RuntimeException("Failed to encode request body", it)
+        }
     }
 }
