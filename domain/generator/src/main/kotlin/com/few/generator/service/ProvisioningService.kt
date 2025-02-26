@@ -22,7 +22,8 @@ class ProvisioningService(
         val coreTexts: Texts = makeCoreTexts(rawContents.title, rawContents.description, bodyTexts)
 
         return provisioningContentsRepository.save(
-            ProvisioningContents( // TODO: completion의 ID 저장
+            ProvisioningContents(
+                completionIds = mutableListOf(bodyTexts.completionId!!, coreTexts.completionId!!),
                 bodyTextsJson =
                     bodyTexts.texts.joinToString( // TODO: DB 저장 타입 등 정의, 수정 필요
                         prefix = "[",

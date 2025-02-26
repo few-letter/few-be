@@ -50,6 +50,7 @@ class GsonDecoder(
         val responseClass = ResponseClassThreadLocal.get() ?: throw RuntimeException("Response class not found in thread local")
 
         val responseDtoObj = gson.fromJson(responseContentStr, responseClass)
+        responseDtoObj.completionId = completion.id
 
         return responseDtoObj
     }
