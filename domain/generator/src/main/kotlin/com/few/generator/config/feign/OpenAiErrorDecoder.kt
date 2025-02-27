@@ -6,7 +6,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 
 @Component
-class ErrorDecoder : ErrorDecoder {
+class OpenAiErrorDecoder : ErrorDecoder {
     private val log = KotlinLogging.logger {}
     private val defaultDecoder = ErrorDecoder.Default()
 

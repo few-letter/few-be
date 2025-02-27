@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
 import java.lang.reflect.Type
 
 @Component
-class GsonDecoder(
+class OpenAiDecoder(
     @Qualifier(GeneratorGsonConfig.GSON_BEAN_NAME)
     private val gson: Gson,
 ) : Decoder {
