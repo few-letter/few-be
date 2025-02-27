@@ -1,6 +1,7 @@
 package com.few.generator.core
 
 import com.few.generator.config.JsoupConnectionFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jsoup.nodes.Document
 import org.springframework.stereotype.Component
 import java.net.URI
@@ -20,6 +21,7 @@ class Scrapper(
     private val sleepTime: Long = 200,
     private val connectionFactory: JsoupConnectionFactory,
 ) {
+    private val log = KotlinLogging.logger {}
     private val imageExtensions = listOf(".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg")
 
     fun get(url: String): Document? {
@@ -32,7 +34,7 @@ class Scrapper(
                 Thread.sleep(sleepTime)
                 return response
             } catch (e: Exception) {
-                println("Request failed: ${e.message}")
+                log.error { "Request failed: ${e.message}" }
             }
         }
         return null
