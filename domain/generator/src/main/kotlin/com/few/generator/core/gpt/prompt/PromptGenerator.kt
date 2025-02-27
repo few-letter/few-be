@@ -32,7 +32,7 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            response_format = ResponseFormat(schema = Headline.schema, responseClassType = Headline::class.java),
+            responseFormat = ResponseFormat(schema = Headline.schema, responseClassType = Headline::class.java),
         )
     }
 
@@ -60,7 +60,7 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            response_format = ResponseFormat(schema = Headline.schema, responseClassType = Headline::class.java),
+            responseFormat = ResponseFormat(schema = Headline.schema, responseClassType = Headline::class.java),
         )
     }
 
@@ -93,7 +93,7 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            response_format = ResponseFormat(schema = Summary.schema, responseClassType = Summary::class.java),
+            responseFormat = ResponseFormat(schema = Summary.schema, responseClassType = Summary::class.java),
         )
     }
 
@@ -121,7 +121,7 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            response_format = ResponseFormat(schema = Summary.schema, responseClassType = Summary::class.java),
+            responseFormat = ResponseFormat(schema = Summary.schema, responseClassType = Summary::class.java),
         )
     }
 
@@ -151,7 +151,7 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            response_format = ResponseFormat(schema = Texts.schema, responseClassType = Texts::class.java),
+            responseFormat = ResponseFormat(schema = Texts.schema, responseClassType = Texts::class.java),
         )
     }
 
@@ -181,7 +181,7 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            response_format = ResponseFormat(schema = Texts.schema, responseClassType = Texts::class.java),
+            responseFormat = ResponseFormat(schema = Texts.schema, responseClassType = Texts::class.java),
         )
     }
 
@@ -212,7 +212,7 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            response_format = ResponseFormat(schema = Headline.schema, responseClassType = Headline::class.java),
+            responseFormat = ResponseFormat(schema = Headline.schema, responseClassType = Headline::class.java),
         )
     }
 
@@ -243,7 +243,7 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            response_format = ResponseFormat(schema = Summary.schema, responseClassType = Summary::class.java),
+            responseFormat = ResponseFormat(schema = Summary.schema, responseClassType = Summary::class.java),
         )
     }
 
@@ -266,7 +266,7 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            response_format = ResponseFormat(schema = HighlightText.schema, responseClassType = HighlightText::class.java),
+            responseFormat = ResponseFormat(schema = HighlightText.schema, responseClassType = HighlightText::class.java),
         )
     }
 
@@ -296,7 +296,7 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            response_format = ResponseFormat(schema = Headline.schema, responseClassType = Headline::class.java),
+            responseFormat = ResponseFormat(schema = Headline.schema, responseClassType = Headline::class.java),
         )
     }
 
@@ -327,7 +327,7 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            response_format = ResponseFormat(schema = Summary.schema, responseClassType = Summary::class.java),
+            responseFormat = ResponseFormat(schema = Summary.schema, responseClassType = Summary::class.java),
         )
     }
 
@@ -351,7 +351,7 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            response_format = ResponseFormat(schema = HighlightTexts.schema, responseClassType = HighlightTexts::class.java),
+            responseFormat = ResponseFormat(schema = HighlightTexts.schema, responseClassType = HighlightTexts::class.java),
         )
     }
 }

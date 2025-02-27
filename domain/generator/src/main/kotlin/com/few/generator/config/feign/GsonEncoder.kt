@@ -22,7 +22,7 @@ class GsonEncoder(
         runCatching {
             template?.body(gson.toJson(obj, bodyType))
             (obj as? Prompt)
-                ?.response_format
+                ?.responseFormat
                 ?.responseClassType
                 ?.let { ResponseClassThreadLocal.set(it) }
         }.onFailure {

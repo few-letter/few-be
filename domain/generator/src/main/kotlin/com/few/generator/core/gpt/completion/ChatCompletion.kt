@@ -1,5 +1,7 @@
 package com.few.generator.core.gpt.completion
 
+import com.google.gson.annotations.SerializedName
+
 /**
  * Open AI API 응답 포멧
  */
@@ -10,14 +12,16 @@ data class ChatCompletion(
     val model: String? = null,
     val choices: List<Choice>? = null,
     val usage: Usage? = null,
-    val system_fingerprint: String? = null,
+    @SerializedName("system_fingerprint")
+    val systemFingerprint: String? = null,
 )
 
 data class Choice(
     val index: Int? = null,
     val message: Message? = null,
     val logprobs: Boolean? = null,
-    val finish_reason: String? = null,
+    @SerializedName("finish_reason")
+    val finishReason: String? = null,
 )
 
 data class Message(
@@ -27,19 +31,28 @@ data class Message(
 )
 
 data class Usage(
-    val prompt_tokens: Int? = null,
-    val completion_tokens: Int? = null,
-    val total_tokens: Int? = null,
-    val prompt_tokens_details: PromptTokensDetails? = null,
-    val completion_tokens_details: CompletionTokensDetails? = null,
+    @SerializedName("prompt_tokens")
+    val promptTokens: Int? = null,
+    @SerializedName("completion_tokens")
+    val completionTokens: Int? = null,
+    @SerializedName("total_tokens")
+    val totalTokens: Int? = null,
+    @SerializedName("prompt_tokens_details")
+    val promptTokensDetails: PromptTokensDetails? = null,
+    @SerializedName("completion_tokens_details")
+    val completionTokensDetails: CompletionTokensDetails? = null,
 )
 
 data class PromptTokensDetails(
-    val cached_tokens: Int? = null,
+    @SerializedName("cached_tokens")
+    val cachedTokens: Int? = null,
 )
 
 data class CompletionTokensDetails(
-    val reasoning_tokens: Int? = null,
-    val accepted_prediction_tokens: Int? = null,
-    val rejected_prediction_tokens: Int? = null,
+    @SerializedName("reasoning_tokens")
+    val reasoningTokens: Int? = null,
+    @SerializedName("accepted_prediction_tokens")
+    val acceptedPredictionTokens: Int? = null,
+    @SerializedName("rejected_prediction_tokens")
+    val rejectedPredictionTokens: Int? = null,
 )
