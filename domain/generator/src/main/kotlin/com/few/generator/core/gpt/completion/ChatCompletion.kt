@@ -14,6 +14,14 @@ data class ChatCompletion(
     val usage: Usage? = null,
     @SerializedName("system_fingerprint")
     val systemFingerprint: String? = null,
+    val error: OpenAiError? = null,
+)
+
+data class OpenAiError(
+    val code: String? = null,
+    val message: String? = null,
+    val type: String? = null,
+    val param: String? = null,
 )
 
 data class Choice(
