@@ -15,6 +15,7 @@ spring:
                 - thread-local
                 # domain
                 - crm-local
+                - generator-local
             prd:
                 # module
                 - security-prd
@@ -26,6 +27,7 @@ spring:
                 - thread-prd
                 # domain
                 - crm-prd
+                - generator-prd
 auth:
     batch: ${AUTH_BATCH:0518}
 

@@ -20,7 +20,8 @@ plugins {
 
 dependencies {
     /** domain */
-    implementation(project(":domain:crm"))
+//    implementation(project(":domain:crm"))
+    implementation(project(":domain:generator"))
 
     /** module */
     implementation(project(":library:email"))
