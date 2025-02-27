@@ -4,6 +4,7 @@ import com.few.generator.service.GenService
 import com.few.generator.service.ProvisioningService
 import com.few.generator.service.RawContentsService
 import com.few.generator.support.jpa.GeneratorTransactional
+import com.few.generator.usecase.out.ContentsGeneratorUseCaseOut
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 
@@ -16,7 +17,7 @@ class ContentsGeneratorUseCase(
     private val log = KotlinLogging.logger {}
 
     @GeneratorTransactional
-    fun execute(sourceUrl: String): List<String> {
+    fun execute(sourceUrl: String): ContentsGeneratorUseCaseOut {
         // 1. 스크래핑 후 Raw 데이터 저장
         val rawContents = rawContentsService.create(sourceUrl)
 
@@ -26,6 +27,11 @@ class ContentsGeneratorUseCase(
         // 3. gen 생성
         val gens = genService.create(rawContents, provisioningContents)
 
-        return emptyList()
+        return ContentsGeneratorUseCaseOut(
+            sourceUrl = sourceUrl,
+            rawContentId = rawContents.id!!,
+            provisioningContentId = provisioningContents.id!!,
+            genIds = gens.map { it.id!! },
+        )
     }
 }

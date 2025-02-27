@@ -17,11 +17,14 @@ class ContentsGeneratorController(
     fun create(
         @RequestBody request: WebContentsGeneratorRequest,
     ): ApiResponse<ApiResponse.SuccessBody<ContentsGeneratorResponse>> {
-        val contentsIds = contentsGeneratorUseCase.execute(request.sourceUrl)
+        val useCaseOut = contentsGeneratorUseCase.execute(request.sourceUrl)
 
         return ApiResponseGenerator.success(
             ContentsGeneratorResponse(
-                contentsIds,
+                sourceUrl = useCaseOut.sourceUrl,
+                rawContentId = useCaseOut.rawContentId,
+                provisioningContentId = useCaseOut.provisioningContentId,
+                genIds = useCaseOut.genIds,
             ),
             HttpStatus.CREATED,
         )

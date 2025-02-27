@@ -1,6 +1,6 @@
-package com.few.generator.controller.response
+package com.few.generator.usecase.out
 
-data class ContentsGeneratorResponse(
+data class ContentsGeneratorUseCaseOut(
     val sourceUrl: String,
     val rawContentId: Long,
     val provisioningContentId: Long,
