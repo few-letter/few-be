@@ -5,12 +5,12 @@ import jakarta.persistence.*
 
 @Entity
 @Table(name = "provisioning_contents")
-data class ProvisioningContents(
+data class ProvisioningContents( // TODO: DB컬럼 타입 변경 필요
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
     @Convert(converter = MutableListJsonConverter::class)
-    @Column(columnDefinition = "TEXT", nullable = false) // TODO: 타입 변경 필요
+    @Column(columnDefinition = "TEXT", nullable = false)
     val completionIds: MutableList<String> = mutableListOf(),
     @Column(columnDefinition = "TEXT", nullable = false)
     val bodyTextsJson: String = "[]", // JSON 문자열로 저장
