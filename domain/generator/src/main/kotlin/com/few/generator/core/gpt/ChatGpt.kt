@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody
     value = "openai",
 )
 interface ChatGpt {
-    @PostMapping
+    @PostMapping("/v1/chat/completions")
     fun ask(
         @RequestBody request: Prompt,
     ): GptResponse

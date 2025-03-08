@@ -3,15 +3,16 @@ spring:
         openfeign:
             client:
                 config:
-                    openai:
-                        url: https://api.openai.com/v1/chat/completions
+                    default:
                         connectTimeout: 60000
                         readTimeout: 60000
                         loggerLevel: full
+                    openai:
+                        url: https://api.openai.com
                         errorDecoder: com.few.generator.config.feign.OpenAiErrorDecoder
                         defaultRequestHeaders:
-                            Authorization: ["Bearer ${OPENAI_API_TOKEN:thisisopenai}"]
-                            Content-Type: ["application/json"]
+                            Authorization: "Bearer ${OPENAI_API_TOKEN:thisisopenai}"
+                            Content-Type: "application/json"
                         requestInterceptors:
                             - com.few.generator.config.feign.OpenAiRequestInterceptor
                         encoder: com.few.generator.config.feign.OpenAiEncoder
