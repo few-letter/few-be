@@ -5,10 +5,10 @@ import org.hibernate.cfg.AvailableSettings
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
-import org.springframework.boot.autoconfigure.orm.jpa.HibernateProperties
-import org.springframework.boot.autoconfigure.orm.jpa.HibernatePropertiesCustomizer
-import org.springframework.boot.autoconfigure.orm.jpa.HibernateSettings
-import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
+import org.springframework.boot.autoconfigure.orm.jpa.*
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder
 import org.springframework.context.annotation.Bean
@@ -26,9 +26,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement
 import org.springframework.util.ClassUtils
 import javax.sql.DataSource
 
-/**
- * [org.springframework.data.jpa.repository.config.EnableJpaAuditing] is configured at [com.few.crm.config.CrmJpaConfig]
- */
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
@@ -39,6 +36,13 @@ import javax.sql.DataSource
 @Import(
     value = [
         GeneratorDataSourceConfig::class,
+    ],
+)
+@EnableAutoConfiguration(
+    exclude = [
+        DataSourceAutoConfiguration::class,
+        DataSourceTransactionManagerAutoConfiguration::class,
+        HibernateJpaAutoConfiguration::class,
     ],
 )
 class GeneratorJpaConfig {
