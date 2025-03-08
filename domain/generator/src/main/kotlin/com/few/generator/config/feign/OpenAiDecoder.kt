@@ -33,7 +33,7 @@ class OpenAiDecoder(
         val completion = gson.fromJson(responseBody, ChatCompletion::class.java)
         validateResponse(completion)
 
-        decodeFirstResponse(completion)
+        return@runCatching decodeFirstResponse(completion)
     }.onFailure {
         throw RuntimeException("Failed to decode response body", it)
     }.also {
