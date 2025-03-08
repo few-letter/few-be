@@ -3,7 +3,6 @@ rootProject.name = "few"
 include("api")
 
 include("domain")
-include("domain:crm")
 
 include("library")
 include("library:email")
