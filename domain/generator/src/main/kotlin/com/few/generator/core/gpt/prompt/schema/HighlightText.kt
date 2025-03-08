@@ -4,6 +4,7 @@ data class HighlightText(
     val highlightText: String,
 ) : GptResponse() {
     companion object {
+        val name = "HighlightText"
         val schema =
             mapOf(
                 "type" to "object",
@@ -15,6 +16,7 @@ data class HighlightText(
                             ),
                     ),
                 "required" to listOf("highlightText"),
+                "additionalProperties" to false,
             )
     }
 }

@@ -4,6 +4,7 @@ data class Texts(
     val texts: List<String>,
 ) : GptResponse() {
     companion object {
+        val name = "Texts"
         val schema =
             mapOf(
                 "type" to "object",
@@ -19,6 +20,7 @@ data class Texts(
                             ),
                     ),
                 "required" to listOf("texts"),
+                "additionalProperties" to false,
             )
     }
 }

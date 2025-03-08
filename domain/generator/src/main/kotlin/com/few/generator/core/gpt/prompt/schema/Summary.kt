@@ -4,6 +4,7 @@ data class Summary(
     val summary: String,
 ) : GptResponse() {
     companion object {
+        val name = "Summary"
         val schema =
             mapOf(
                 "type" to "object",
@@ -15,6 +16,7 @@ data class Summary(
                             ),
                     ),
                 "required" to listOf("summary"),
+                "additionalProperties" to false,
             )
     }
 }

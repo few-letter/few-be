@@ -5,6 +5,7 @@ data class KeywordCategory(
     val category: String,
 ) : GptResponse() {
     companion object {
+        val name = "KeywordCategory"
         val schema =
             mapOf(
                 "type" to "object",
@@ -24,6 +25,7 @@ data class KeywordCategory(
                             ),
                     ),
                 "required" to listOf("keywords"),
+                "additionalProperties" to false,
             )
     }
 }

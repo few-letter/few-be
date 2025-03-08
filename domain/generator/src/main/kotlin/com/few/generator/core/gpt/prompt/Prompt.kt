@@ -17,8 +17,14 @@ data class Message(
 )
 
 data class ResponseFormat(
-    val type: String = "json_object",
-    val schema: Map<String, Any>,
+    val type: String = "json_schema",
+    @SerializedName("json_schema")
+    val jsonSchema: JsonSchema,
     @Transient
     val responseClassType: Class<out GptResponse>,
+)
+
+data class JsonSchema(
+    val name: String,
+    val schema: Map<String, Any>,
 )

@@ -32,7 +32,11 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat = ResponseFormat(schema = Headline.schema, responseClassType = Headline::class.java),
+            responseFormat =
+                ResponseFormat(
+                    jsonSchema = JsonSchema(Headline.name, Headline.schema),
+                    responseClassType = Headline::class.java,
+                ),
         )
     }
 
@@ -60,7 +64,11 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat = ResponseFormat(schema = Headline.schema, responseClassType = Headline::class.java),
+            responseFormat =
+                ResponseFormat(
+                    jsonSchema = JsonSchema(Headline.name, Headline.schema),
+                    responseClassType = Headline::class.java,
+                ),
         )
     }
 
@@ -93,7 +101,7 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat = ResponseFormat(schema = Summary.schema, responseClassType = Summary::class.java),
+            responseFormat = ResponseFormat(jsonSchema = JsonSchema(Summary.name, Summary.schema), responseClassType = Summary::class.java),
         )
     }
 
@@ -121,7 +129,7 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat = ResponseFormat(schema = Summary.schema, responseClassType = Summary::class.java),
+            responseFormat = ResponseFormat(jsonSchema = JsonSchema(Summary.name, Summary.schema), responseClassType = Summary::class.java),
         )
     }
 
@@ -151,7 +159,7 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat = ResponseFormat(schema = Texts.schema, responseClassType = Texts::class.java),
+            responseFormat = ResponseFormat(jsonSchema = JsonSchema(Texts.name, Texts.schema), responseClassType = Texts::class.java),
         )
     }
 
@@ -181,7 +189,7 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat = ResponseFormat(schema = Texts.schema, responseClassType = Texts::class.java),
+            responseFormat = ResponseFormat(jsonSchema = JsonSchema(Texts.name, Texts.schema), responseClassType = Texts::class.java),
         )
     }
 
@@ -212,7 +220,11 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat = ResponseFormat(schema = Headline.schema, responseClassType = Headline::class.java),
+            responseFormat =
+                ResponseFormat(
+                    jsonSchema = JsonSchema(Headline.name, Headline.schema),
+                    responseClassType = Headline::class.java,
+                ),
         )
     }
 
@@ -243,7 +255,7 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat = ResponseFormat(schema = Summary.schema, responseClassType = Summary::class.java),
+            responseFormat = ResponseFormat(jsonSchema = JsonSchema(Summary.name, Summary.schema), responseClassType = Summary::class.java),
         )
     }
 
@@ -266,7 +278,11 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat = ResponseFormat(schema = HighlightText.schema, responseClassType = HighlightText::class.java),
+            responseFormat =
+                ResponseFormat(
+                    jsonSchema = JsonSchema(HighlightText.name, HighlightText.schema),
+                    responseClassType = HighlightText::class.java,
+                ),
         )
     }
 
@@ -296,7 +312,11 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat = ResponseFormat(schema = Headline.schema, responseClassType = Headline::class.java),
+            responseFormat =
+                ResponseFormat(
+                    jsonSchema = JsonSchema(Headline.name, Headline.schema),
+                    responseClassType = Headline::class.java,
+                ),
         )
     }
 
@@ -327,7 +347,7 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat = ResponseFormat(schema = Summary.schema, responseClassType = Summary::class.java),
+            responseFormat = ResponseFormat(jsonSchema = JsonSchema(Summary.name, Summary.schema), responseClassType = Summary::class.java),
         )
     }
 
@@ -351,7 +371,11 @@ class PromptGenerator {
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat = ResponseFormat(schema = HighlightTexts.schema, responseClassType = HighlightTexts::class.java),
+            responseFormat =
+                ResponseFormat(
+                    jsonSchema = JsonSchema(HighlightTexts.name, HighlightTexts.schema),
+                    responseClassType = HighlightTexts::class.java,
+                ),
         )
     }
 }
