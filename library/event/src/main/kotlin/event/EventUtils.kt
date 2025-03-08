@@ -1,5 +1,6 @@
 package event
 
+import java.time.LocalDateTime
 import java.util.*
 
 /**
@@ -22,5 +23,13 @@ class EventUtils {
          * @return 이벤트 ID
          */
         fun generateEventId(): String = UUID.randomUUID().toString()
+
+        /**
+         * Generate event time
+         *
+         *  이벤트 발행 시간을 생성합니다.
+         * @return
+         */
+        fun generateEventPublishedTime(): LocalDateTime = LocalDateTime.now()
     }
 }
