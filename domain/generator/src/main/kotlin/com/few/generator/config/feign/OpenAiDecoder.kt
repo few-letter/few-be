@@ -36,9 +36,10 @@ class OpenAiDecoder(
         return@runCatching decodeFirstResponse(completion)
     }.onFailure {
         throw RuntimeException("Failed to decode response body", it)
-    }.also {
-        ResponseClassThreadLocal.clear()
-    }
+    }.getOrThrow()
+        .also {
+            ResponseClassThreadLocal.clear()
+        }
 
     private fun decodeFirstResponse(completion: ChatCompletion): GptResponse {
         val responseContentStr =
