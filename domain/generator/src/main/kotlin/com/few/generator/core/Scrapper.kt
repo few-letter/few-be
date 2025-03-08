@@ -110,8 +110,8 @@ class Scrapper(
         soup.select("script, style, nav, footer, header").forEach { it.remove() }
 
         val mainContent = soup.selectFirst("main, article, div.content") ?: soup
-        val title = soup.selectFirst("title")?.text()?.trim() ?: ""
-        val description = soup.selectFirst("meta[name=description]")?.attr("content")?.trim() ?: ""
+        val title = soup.selectFirst("title")?.text()?.trim()
+        val description = soup.selectFirst("meta[name=description]")?.attr("content")?.trim()
         val thumbnailImageUrl = soup.selectFirst("meta[property=og:image]")?.attr("content")?.trim() ?: ""
 
         val textElements = mainContent.select("p, h1, h2, h3, h4, h5, h6, div")
@@ -123,6 +123,8 @@ class Scrapper(
 
         val rawTexts = getTexts(allTexts.joinToString("\n"))
         val images = getImages(soup)
+
+        if (title == null || description == null) throw RuntimeException("스크래핑 실패")
 
         return ScrappedResult(title, description, thumbnailImageUrl, rawTexts, images)
     }
