@@ -1,6 +1,5 @@
 package com.few.api.config
 
-import com.few.crm.config.CrmConfig
 import com.few.generator.config.GeneratorConfig
 import email.config.MailConfig
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
@@ -20,7 +19,6 @@ import web.config.WebConfig
     DocumentStorageConfig::class,
     WebConfig::class,
     SecurityConfig::class,
-    CrmConfig::class,
     GeneratorConfig::class,
 )
 @ConfigurationPropertiesScan(basePackages = [ApiConfig.BASE_PACKAGE])
