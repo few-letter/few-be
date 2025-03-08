@@ -52,5 +52,7 @@ class OpenAiErrorDecoder(
         }.getOrElse {
             log.error(it) { "Error while decoding response" }
             defaultDecoder.decode(methodKey, response)
+        }.also {
+            ResponseClassThreadLocal.clear()
         }
 }

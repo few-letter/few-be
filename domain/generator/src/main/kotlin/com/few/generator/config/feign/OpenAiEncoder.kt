@@ -1,6 +1,7 @@
 package com.few.generator.config.feign
 
 import com.few.generator.config.GeneratorGsonConfig
+import com.few.generator.core.gpt.prompt.Prompt
 import com.google.gson.Gson
 import feign.RequestTemplate
 import feign.codec.Encoder
@@ -19,6 +20,7 @@ class OpenAiEncoder(
         template: RequestTemplate?,
     ) {
         runCatching {
+            ResponseClassThreadLocal.set((obj as Prompt).responseFormat.responseClassType)
             template?.body(gson.toJson(obj))
         }.onFailure {
             ResponseClassThreadLocal.clear()
