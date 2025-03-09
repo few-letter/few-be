@@ -28,6 +28,7 @@ class ProvisioningService(
 
         return provisioningContentsRepository.save(
             ProvisioningContents(
+                rawContentsId = rawContents.id!!,
                 completionIds = mutableListOf(bodyTexts.completionId!!, coreTexts.completionId!!),
                 bodyTextsJson = gson.toJson(bodyTexts.texts), // TODO: DB 저장 타입 등 정의, 수정 필요
                 coreTextsJson = gson.toJson(bodyTexts.texts),

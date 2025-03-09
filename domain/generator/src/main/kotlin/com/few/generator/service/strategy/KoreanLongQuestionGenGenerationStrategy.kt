@@ -43,6 +43,7 @@ class KoreanLongQuestionGenGenerationStrategy(
         val highlightTexts: HighlightTexts = chatGpt.ask(highlightTextPrompt) as HighlightTexts
 
         return Gen(
+            provisioningContentsId = material.provisioningContentsId,
             headline = headline.headline,
             summary = summary.summary,
             highlightTexts = gson.toJson(highlightTexts),

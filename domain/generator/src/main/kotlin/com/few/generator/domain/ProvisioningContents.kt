@@ -9,6 +9,8 @@ data class ProvisioningContents( // TODO: DB컬럼 타입 변경 필요
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
+    @Column(nullable = false)
+    val rawContentsId: Long,
     @Convert(converter = MutableListJsonConverter::class)
     @Column(columnDefinition = "TEXT", nullable = false)
     val completionIds: MutableList<String> = mutableListOf(),

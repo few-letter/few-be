@@ -20,6 +20,7 @@ class GenService(
         val genBasic =
             genGenerationStrategies[GenGenerationStrategy.STRATEGY_NAME_BASIC]!!.generate(
                 Material(
+                    provisioningContentsId = provisioningContents.id!!,
                     title = rawContents.title,
                     description = rawContents.description,
                     coreTextsJson = provisioningContents.coreTextsJson,
@@ -29,6 +30,7 @@ class GenService(
         val genKorean =
             genGenerationStrategies[GenGenerationStrategy.STRATEGY_NAME_KOREAN]!!.generate(
                 Material(
+                    provisioningContentsId = provisioningContents.id!!,
                     title = rawContents.title,
                     description = rawContents.description,
                     coreTextsJson = provisioningContents.coreTextsJson,
@@ -40,6 +42,7 @@ class GenService(
         val genKoreanQuestion =
             genGenerationStrategies[GenGenerationStrategy.STRATEGY_NAME_KOREAN_QUESTION]!!.generate(
                 Material(
+                    provisioningContentsId = provisioningContents.id!!,
                     title = rawContents.title,
                     description = rawContents.description,
                     coreTextsJson = provisioningContents.coreTextsJson,
@@ -51,6 +54,7 @@ class GenService(
         val genKoreanLongQuestion =
             genGenerationStrategies[GenGenerationStrategy.STRATEGY_NAME_KOREAN_LONG_QUESTION]!!.generate(
                 Material(
+                    provisioningContentsId = provisioningContents.id!!,
                     title = rawContents.title,
                     description = rawContents.description,
                     coreTextsJson = provisioningContents.coreTextsJson,

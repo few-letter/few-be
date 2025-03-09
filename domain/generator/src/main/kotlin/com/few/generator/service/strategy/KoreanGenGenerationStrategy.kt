@@ -34,6 +34,7 @@ class KoreanGenGenerationStrategy(
         val summary: Summary = chatGpt.ask(summaryPrompt) as Summary
 
         return Gen(
+            provisioningContentsId = material.provisioningContentsId,
             headline = headline.headline,
             summary = summary.summary,
         )
