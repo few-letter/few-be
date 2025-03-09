@@ -43,6 +43,7 @@ class KoreanQuestionGenGenerationStrategy(
 
         return Gen(
             provisioningContentsId = material.provisioningContentsId,
+            completionIds = mutableListOf(headline.completionId!!, summary.completionId!!),
             headline = headline.headline,
             summary = summary.summary,
             highlightTexts = gson.toJson(listOf(highlight.highlightText)),
