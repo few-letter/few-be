@@ -22,12 +22,6 @@ spring:
                 - api-repo-prd
                 # api
                 - thread-prd
-    modulith:
-        events:
-            jdbc:
-                schema-initialization:
-                    enabled: true
-            republish-outstanding-events-on-restart: true
 
 auth:
     batch: ${AUTH_BATCH:0518}
