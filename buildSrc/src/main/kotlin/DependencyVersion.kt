@@ -73,4 +73,7 @@ object DependencyVersion {
 
     /** Vaadin **/
     const val VAADIN = "24.5.9"
+
+    /** Gson **/
+    const val GSON = "2.10.1"
 }

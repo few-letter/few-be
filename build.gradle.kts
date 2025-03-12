@@ -131,6 +131,7 @@ subprojects {
             imports {
                 mavenBom("org.springframework.modulith:spring-modulith-bom:${DependencyVersion.SPRING_MODULITH}")
                 mavenBom("com.vaadin:vaadin-bom:${DependencyVersion.VAADIN}")
+                mavenBom("org.springframework.cloud:spring-cloud-dependencies:2023.0.4")
             }
         }
     }
@@ -144,6 +145,7 @@ subprojects {
 
         /** kotlin */
         implementation("org.jetbrains.kotlin:kotlin-reflect")
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j")
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
         implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")

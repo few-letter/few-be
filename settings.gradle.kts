@@ -3,6 +3,7 @@ rootProject.name = "few"
 include("api")
 
 include("domain")
+include("domain:generator")
 
 include("library")
 include("library:email")

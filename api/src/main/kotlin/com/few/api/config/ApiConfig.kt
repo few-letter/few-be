@@ -1,5 +1,6 @@
 package com.few.api.config
 
+import com.few.generator.config.GeneratorConfig
 import email.config.MailConfig
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.context.annotation.ComponentScan
@@ -18,6 +19,7 @@ import web.config.WebConfig
     DocumentStorageConfig::class,
     WebConfig::class,
     SecurityConfig::class,
+    GeneratorConfig::class,
 )
 @ConfigurationPropertiesScan(basePackages = [ApiConfig.BASE_PACKAGE])
 class ApiConfig {

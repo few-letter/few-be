@@ -19,6 +19,9 @@ plugins {
 }
 
 dependencies {
+    /** domain */
+    implementation(project(":domain:generator"))
+
     /** module */
     implementation(project(":library:email"))
     implementation(project(":library:storage"))

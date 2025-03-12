@@ -27,7 +27,7 @@ class ApiFlywayConfig {
     @Bean(name = [FLYWAY])
     fun flyway(configuration: org.flywaydb.core.api.configuration.Configuration?): Flyway = Flyway(configuration)
 
-    @Profile("!new")
+    @Profile("!local") // TODO: Disable Flyway on local profile(Flyway삭제 예정)
     @Bean(name = [FLYWAY_VALIDATE_INITIALIZER])
     fun flywayValidateInitializer(flyway: Flyway?): FlywayMigrationInitializer =
         FlywayMigrationInitializer(flyway) { obj: Flyway -> obj.validate() }
