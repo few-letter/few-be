@@ -47,7 +47,7 @@ class KoreanLongQuestionGenGenerationStrategy(
             completionIds = mutableListOf(headline.completionId!!, summary.completionId!!),
             headline = headline.headline,
             summary = summary.summary,
-            highlightTexts = gson.toJson(highlightTexts),
+            highlightTexts = gson.toJson(highlightTexts.highlightTexts),
         )
     }
 }
