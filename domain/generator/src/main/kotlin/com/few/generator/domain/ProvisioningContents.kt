@@ -4,7 +4,10 @@ import com.few.generator.config.jpa.MutableListJsonConverter
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "provisioning_contents")
+@Table(
+    name = "provisioning_contents",
+    indexes = [Index(name = "idx_provisioning_contents_1", columnList = "raw_contents_id", unique = true)],
+)
 data class ProvisioningContents( // TODO: DB컬럼 타입 변경 필요
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
