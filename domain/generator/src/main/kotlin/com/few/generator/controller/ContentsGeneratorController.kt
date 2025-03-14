@@ -38,7 +38,7 @@ class ContentsGeneratorController(
         )
     }
 
-    @GetMapping(value = ["/rawcontents/{id}"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping(value = ["/rawcontents/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getByRawContents(
         @PathVariable(value = "id")
         @Min(value = 1, message = "{min.id}")
