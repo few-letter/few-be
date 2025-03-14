@@ -1,5 +1,6 @@
 package com.few.generator.usecase
 
+import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.domain.Gen
 import com.few.generator.domain.ProvisioningContents
 import com.few.generator.domain.RawContents
@@ -11,6 +12,9 @@ import com.few.generator.usecase.out.BrowseContentsUsecaseOut
 import com.few.generator.usecase.out.BrowseGenUsecaseOut
 import com.few.generator.usecase.out.BrowseProvisioningContentsUsecaseOut
 import com.few.generator.usecase.out.BrowseRawContentsUsecaseOut
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 
 @Component
@@ -18,6 +22,8 @@ class RawContentsBrowseContentUseCase(
     private val rawContentsRepository: RawContentsRepository,
     private val provisioningContentsRepository: ProvisioningContentsRepository,
     private val genRepository: GenRepository,
+    @Qualifier(GSON_BEAN_NAME)
+    private val gson: Gson,
 ) {
     @GeneratorTransactional(readOnly = true)
     fun execute(rawContentsId: Long): BrowseContentsUsecaseOut {
@@ -41,7 +47,7 @@ class RawContentsBrowseContentUseCase(
                     description = rawContents.description,
                     thumbnailImageUrl = rawContents.thumbnailImageUrl,
                     rawTexts = rawContents.rawTexts,
-                    imageUrls = rawContents.imageUrls,
+                    imageUrls = gson.fromJson(rawContents.imageUrls, object : TypeToken<List<String>>() {}.type),
                     createdAt = rawContents.createdAt!!,
                 ),
             provisioningContents =
@@ -49,8 +55,8 @@ class RawContentsBrowseContentUseCase(
                     id = provContents.id!!,
                     rawContentsId = provContents.rawContentsId,
                     completionIds = provContents.completionIds,
-                    bodyTextsJson = provContents.bodyTextsJson,
-                    coreTextsJson = provContents.coreTextsJson,
+                    bodyTextsJson = gson.fromJson(provContents.bodyTextsJson, object : TypeToken<List<String>>() {}.type),
+                    coreTextsJson = gson.fromJson(provContents.coreTextsJson, object : TypeToken<List<String>>() {}.type),
                     createdAt = provContents.createdAt!!,
                 ),
             gens =
@@ -61,7 +67,7 @@ class RawContentsBrowseContentUseCase(
                         completionIds = it.completionIds,
                         headline = it.headline,
                         summary = it.summary,
-                        highlightTexts = it.highlightTexts,
+                        highlightTexts = gson.fromJson(it.highlightTexts, object : TypeToken<List<String>>() {}.type),
                         createdAt = it.createdAt!!,
                     )
                 },

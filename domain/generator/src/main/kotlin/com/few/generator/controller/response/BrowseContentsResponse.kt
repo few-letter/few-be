@@ -15,7 +15,7 @@ data class BrowseRawContentsResponse(
     val description: String,
     val thumbnailImageUrl: String? = null,
     val rawTexts: String,
-    val imageUrls: String = "[]",
+    val imageUrls: List<String>,
     val createdAt: LocalDateTime,
 )
 
@@ -23,8 +23,8 @@ data class BrowseProvisioningContentsResponse(
     val id: Long,
     val rawContentsId: Long,
     val completionIds: List<String>,
-    val bodyTextsJson: String = "[]",
-    val coreTextsJson: String = "[]",
+    val bodyTextsJson: List<String>,
+    val coreTextsJson: List<String>,
     val createdAt: LocalDateTime,
 )
 
@@ -34,6 +34,6 @@ data class BrowseGenResponse(
     val completionIds: List<String>,
     val headline: String,
     val summary: String,
-    val highlightTexts: String = "[]",
+    val highlightTexts: List<String>,
     val createdAt: LocalDateTime,
 )
