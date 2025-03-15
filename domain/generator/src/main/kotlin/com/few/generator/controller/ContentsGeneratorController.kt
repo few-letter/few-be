@@ -7,10 +7,12 @@ import com.few.generator.usecase.RawContentsBrowseContentUseCase
 import jakarta.validation.constraints.Min
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import web.ApiResponse
 import web.ApiResponseGenerator
 
+@Validated
 @RestController
 @RequestMapping("/api/v1")
 class ContentsGeneratorController(
