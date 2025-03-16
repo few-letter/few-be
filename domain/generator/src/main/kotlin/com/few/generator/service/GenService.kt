@@ -6,6 +6,7 @@ import com.few.generator.domain.RawContents
 import com.few.generator.repository.GenRepository
 import com.few.generator.service.strategy.GenGenerationStrategy
 import com.few.generator.service.strategy.Material
+import com.few.generator.support.common.Constant
 import org.springframework.stereotype.Service
 
 @Service
@@ -18,7 +19,7 @@ class GenService(
         provisioningContents: ProvisioningContents,
     ): List<Gen> {
         val genBasic =
-            genGenerationStrategies[GenGenerationStrategy.STRATEGY_NAME_BASIC]!!.generate(
+            genGenerationStrategies[Constant.GEN.STRATEGY_NAME_BASIC]!!.generate(
                 Material(
                     provisioningContentsId = provisioningContents.id!!,
                     title = rawContents.title,
@@ -28,7 +29,7 @@ class GenService(
             )
 
         val genKorean =
-            genGenerationStrategies[GenGenerationStrategy.STRATEGY_NAME_KOREAN]!!.generate(
+            genGenerationStrategies[Constant.GEN.STRATEGY_NAME_KOREAN]!!.generate(
                 Material(
                     provisioningContentsId = provisioningContents.id!!,
                     title = rawContents.title,
@@ -40,7 +41,7 @@ class GenService(
             )
 
         val genKoreanQuestion =
-            genGenerationStrategies[GenGenerationStrategy.STRATEGY_NAME_KOREAN_QUESTION]!!.generate(
+            genGenerationStrategies[Constant.GEN.STRATEGY_NAME_KOREAN_QUESTION]!!.generate(
                 Material(
                     provisioningContentsId = provisioningContents.id!!,
                     title = rawContents.title,
@@ -52,7 +53,7 @@ class GenService(
             )
 
         val genKoreanLongQuestion =
-            genGenerationStrategies[GenGenerationStrategy.STRATEGY_NAME_KOREAN_LONG_QUESTION]!!.generate(
+            genGenerationStrategies[Constant.GEN.STRATEGY_NAME_KOREAN_LONG_QUESTION]!!.generate(
                 Material(
                     provisioningContentsId = provisioningContents.id!!,
                     title = rawContents.title,

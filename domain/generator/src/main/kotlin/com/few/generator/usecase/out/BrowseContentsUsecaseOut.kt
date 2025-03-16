@@ -35,5 +35,6 @@ data class BrowseGenUsecaseOut(
     val headline: String,
     val summary: String,
     val highlightTexts: List<String>,
+    val type: String,
     val createdAt: LocalDateTime,
 )

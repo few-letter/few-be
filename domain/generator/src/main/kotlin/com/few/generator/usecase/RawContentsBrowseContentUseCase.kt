@@ -1,6 +1,7 @@
 package com.few.generator.usecase
 
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
+import com.few.generator.domain.GEN_TYPE
 import com.few.generator.domain.Gen
 import com.few.generator.domain.ProvisioningContents
 import com.few.generator.domain.RawContents
@@ -68,6 +69,7 @@ class RawContentsBrowseContentUseCase(
                         headline = it.headline,
                         summary = it.summary,
                         highlightTexts = gson.fromJson(it.highlightTexts, object : TypeToken<List<String>>() {}.type),
+                        type = GEN_TYPE.from(it.typeCode).title,
                         createdAt = it.createdAt!!,
                     )
                 },

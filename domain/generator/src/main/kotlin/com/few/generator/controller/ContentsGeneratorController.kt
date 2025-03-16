@@ -79,6 +79,7 @@ class ContentsGeneratorController(
                             headline = it.headline,
                             summary = it.summary,
                             highlightTexts = it.highlightTexts,
+                            type = it.type,
                             createdAt = it.createdAt!!,
                         )
                     },

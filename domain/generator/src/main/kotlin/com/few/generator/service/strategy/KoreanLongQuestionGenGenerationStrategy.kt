@@ -6,13 +6,14 @@ import com.few.generator.core.gpt.prompt.PromptGenerator
 import com.few.generator.core.gpt.prompt.schema.Headline
 import com.few.generator.core.gpt.prompt.schema.HighlightTexts
 import com.few.generator.core.gpt.prompt.schema.Summary
+import com.few.generator.domain.GEN_TYPE
 import com.few.generator.domain.Gen
-import com.few.generator.service.strategy.GenGenerationStrategy.Companion.STRATEGY_NAME_KOREAN_LONG_QUESTION
+import com.few.generator.support.common.Constant
 import com.google.gson.Gson
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 
-@Component(STRATEGY_NAME_KOREAN_LONG_QUESTION)
+@Component(Constant.GEN.STRATEGY_NAME_KOREAN_LONG_QUESTION)
 class KoreanLongQuestionGenGenerationStrategy(
     private val promptGenerator: PromptGenerator,
     private val chatGpt: ChatGpt,
@@ -48,6 +49,7 @@ class KoreanLongQuestionGenGenerationStrategy(
             headline = headline.headline,
             summary = summary.summary,
             highlightTexts = gson.toJson(highlightTexts.highlightTexts),
+            typeCode = GEN_TYPE.STRATEGY_NAME_KOREAN_LONG_QUESTION.code,
         )
     }
 }
