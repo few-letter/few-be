@@ -23,4 +23,13 @@ data class Gen( // TODO: DB컬럼 타입 변경 필요
     val summary: String,
     @Column(columnDefinition = "TEXT", nullable = false)
     val highlightTexts: String = "[]",
-) : BaseEntity()
+) : BaseEntity() {
+    constructor() : this( // TODO: 기본 생성자 필요?
+        id = null,
+        provisioningContentsId = 0L,
+        completionIds = mutableListOf(),
+        headline = "",
+        summary = "",
+        highlightTexts = "[]",
+    )
+}
