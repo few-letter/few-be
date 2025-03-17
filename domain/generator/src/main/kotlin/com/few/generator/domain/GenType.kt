@@ -2,7 +2,7 @@ package com.few.generator.domain
 
 import com.few.generator.support.common.Constant
 
-enum class GEN_TYPE(
+enum class GenType(
     val code: Int,
     val title: String,
 ) {
@@ -14,11 +14,11 @@ enum class GEN_TYPE(
     ;
 
     companion object {
-        fun from(code: Int): GEN_TYPE =
+        fun from(code: Int): GenType =
             values().find { it.code == code }
                 ?: throw IllegalArgumentException("Invalid GEN_TYPE code: $code")
 
-        fun from(title: String): GEN_TYPE =
+        fun from(title: String): GenType =
             values().find { it.title == title }
                 ?: throw IllegalArgumentException("Invalid GEN_TYPE name: $title")
     }

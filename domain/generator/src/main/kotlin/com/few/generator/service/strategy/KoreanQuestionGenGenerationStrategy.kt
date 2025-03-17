@@ -6,8 +6,8 @@ import com.few.generator.core.gpt.prompt.PromptGenerator
 import com.few.generator.core.gpt.prompt.schema.Headline
 import com.few.generator.core.gpt.prompt.schema.HighlightText
 import com.few.generator.core.gpt.prompt.schema.Summary
-import com.few.generator.domain.GEN_TYPE
 import com.few.generator.domain.Gen
+import com.few.generator.domain.GenType
 import com.few.generator.support.common.Constant
 import com.google.gson.Gson
 import org.springframework.beans.factory.annotation.Qualifier
@@ -48,7 +48,7 @@ class KoreanQuestionGenGenerationStrategy(
             headline = headline.headline,
             summary = summary.summary,
             highlightTexts = gson.toJson(listOf(highlight.highlightText)),
-            typeCode = GEN_TYPE.STRATEGY_NAME_KOREAN_QUESTION.code,
+            typeCode = GenType.STRATEGY_NAME_KOREAN_QUESTION.code,
         )
     }
 }
