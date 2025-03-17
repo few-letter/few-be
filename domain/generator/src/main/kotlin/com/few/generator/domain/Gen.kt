@@ -26,7 +26,7 @@ data class Gen( // TODO: DB컬럼 타입 변경 필요
     @Column(nullable = false)
     val typeCode: Int,
 ) : BaseEntity() {
-    constructor() : this( // TODO: 기본 생성자 필요?
+    protected constructor() : this( // TODO: 기본 생성자 필요?
         id = null,
         provisioningContentsId = 0L,
         completionIds = mutableListOf(),

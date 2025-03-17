@@ -22,7 +22,7 @@ data class ProvisioningContents( // TODO: DB컬럼 타입 변경 필요
     @Column(columnDefinition = "TEXT", nullable = false)
     val coreTextsJson: String = "[]", // JSON 문자열로 저장
 ) : BaseEntity() {
-    constructor() : this( // TODO: 기본 생성자 필요?
+    protected constructor() : this( // TODO: 기본 생성자 필요?
         id = null,
         rawContentsId = 0L,
         bodyTextsJson = "[]",
