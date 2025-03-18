@@ -4,7 +4,10 @@ import com.few.generator.config.jpa.MutableListJsonConverter
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "gen")
+@Table(
+    name = "gen",
+    indexes = [Index(name = "idx_gen_1", columnList = "provisioning_contents_id", unique = false)],
+)
 data class Gen( // TODO: DB컬럼 타입 변경 필요
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,4 +23,16 @@ data class Gen( // TODO: DB컬럼 타입 변경 필요
     val summary: String,
     @Column(columnDefinition = "TEXT", nullable = false)
     val highlightTexts: String = "[]",
-) : BaseEntity()
+    @Column(nullable = false)
+    val typeCode: Int,
+) : BaseEntity() {
+    protected constructor() : this( // TODO: 기본 생성자 필요?
+        id = null,
+        provisioningContentsId = 0L,
+        completionIds = mutableListOf(),
+        headline = "",
+        summary = "",
+        highlightTexts = "[]",
+        typeCode = 0,
+    )
+}

@@ -20,4 +20,14 @@ data class RawContents(
     val rawTexts: String,
     @Column(nullable = true, columnDefinition = "TEXT")
     val imageUrls: String = "[]",
-) : BaseEntity()
+) : BaseEntity() {
+    protected constructor() : this( // TODO: 기본 생성자 필요?
+        id = null,
+        url = "",
+        title = "",
+        description = "",
+        thumbnailImageUrl = null,
+        rawTexts = "",
+        imageUrls = "[]",
+    )
+}

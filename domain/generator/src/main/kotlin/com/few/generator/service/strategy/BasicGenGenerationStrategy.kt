@@ -5,10 +5,11 @@ import com.few.generator.core.gpt.prompt.PromptGenerator
 import com.few.generator.core.gpt.prompt.schema.Headline
 import com.few.generator.core.gpt.prompt.schema.Summary
 import com.few.generator.domain.Gen
-import com.few.generator.service.strategy.GenGenerationStrategy.Companion.STRATEGY_NAME_BASIC
+import com.few.generator.domain.GenType
+import com.few.generator.support.common.Constant
 import org.springframework.stereotype.Component
 
-@Component(STRATEGY_NAME_BASIC)
+@Component(Constant.GEN.STRATEGY_NAME_BASIC)
 class BasicGenGenerationStrategy(
     private val promptGenerator: PromptGenerator,
     private val chatGpt: ChatGpt,
@@ -25,6 +26,7 @@ class BasicGenGenerationStrategy(
             completionIds = mutableListOf(headline.completionId!!, summary.completionId!!),
             headline = headline.headline,
             summary = summary.summary,
+            typeCode = GenType.STRATEGY_NAME_BASIC.code,
         )
     }
 }

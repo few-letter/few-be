@@ -112,6 +112,7 @@ class LocalDelegatedSecurityConfigurer(
                      * generator
                      */
                     AntPathRequestMatcher("/api/v1/generators/contents"),
+                    AntPathRequestMatcher("/api/v1/rawcontents/**"),
                 )
         }
 
