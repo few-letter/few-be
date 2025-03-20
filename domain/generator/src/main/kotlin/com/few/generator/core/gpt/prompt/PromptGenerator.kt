@@ -1,10 +1,17 @@
 package com.few.generator.core.gpt.prompt
 
+import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.core.gpt.prompt.schema.*
+import com.few.generator.domain.Category
+import com.google.gson.Gson
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 
 @Component
-class PromptGenerator {
+class PromptGenerator(
+    @Qualifier(GSON_BEAN_NAME)
+    private val gson: Gson,
+) {
     fun toHeadlineKorean(
         title: String,
         description: String,
@@ -375,6 +382,42 @@ class PromptGenerator {
                 ResponseFormat(
                     jsonSchema = JsonSchema(HighlightTexts.name, HighlightTexts.schema),
                     responseClassType = HighlightTexts::class.java,
+                ),
+        )
+    }
+
+    fun toCategory(
+        title: String,
+        description: String,
+        coreTexts: Texts,
+    ): Prompt {
+        val systemPrompt =
+            """
+            웹페이지 콘텐츠 분석 전문가로서, 제공된 제목, 요약 및 본문을 분석하여 가장 적절한 카테고리를 선택하는 작업을 수행합니다.
+            """.trimIndent()
+
+        val categories = gson.toJson(Category.values().map { it.title })
+
+        val userPrompt =
+            """
+            ## 분석할 웹페이지 정보
+            - 제목: $title
+            - 요약: $description
+            - 본문: $coreTexts
+
+            ## 지시사항
+            1. 제목, 요약 및 본문을 검토하여 주요 주제와 내용을 파악하세요.
+            2. 아래 카테고리 목록에서 가장 적합한 항목을 선택하세요:
+               $categories
+            3. 주어진 카테고리 중 적합한 것이 없는 경우에만 'etc' 카테고리를 선택하세요.
+            """.trimIndent()
+
+        return Prompt(
+            messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
+            responseFormat =
+                ResponseFormat(
+                    jsonSchema = JsonSchema(CategorySchema.name, CategorySchema.schema),
+                    responseClassType = CategorySchema::class.java,
                 ),
         )
     }
