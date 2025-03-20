@@ -1,10 +1,7 @@
 package com.few.generator.usecase
 
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
-import com.few.generator.domain.Gen
-import com.few.generator.domain.GenType
-import com.few.generator.domain.ProvisioningContents
-import com.few.generator.domain.RawContents
+import com.few.generator.domain.*
 import com.few.generator.repository.GenRepository
 import com.few.generator.repository.ProvisioningContentsRepository
 import com.few.generator.repository.RawContentsRepository
@@ -58,6 +55,7 @@ class RawContentsBrowseContentUseCase(
                     completionIds = provContents.completionIds,
                     bodyTextsJson = gson.fromJson(provContents.bodyTextsJson, object : TypeToken<List<String>>() {}.type),
                     coreTextsJson = gson.fromJson(provContents.coreTextsJson, object : TypeToken<List<String>>() {}.type),
+                    category = Category.from(provContents.category).name,
                     createdAt = provContents.createdAt!!,
                 ),
             gens =
