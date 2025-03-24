@@ -19,7 +19,7 @@ enum class Category(
     EV(1 shl 13, "EV"),
     EDUCATION(1 shl 14, "Education"),
     FOOD(1 shl 15, "Food"),
-    ETC(1 shl 16, "Etc"),
+    ETC(0, "Etc"),
 
     ;
 
