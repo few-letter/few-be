@@ -29,7 +29,7 @@ enum class Category(
                 ?: throw IllegalArgumentException("Invalid Category code: $code")
 
         fun from(title: String): Category =
-            values().find { it.title.equals(title, ignoreCase = true) }
+            Category.values().find { it.title.equals(title, ignoreCase = true) }
                 ?: throw IllegalArgumentException("Invalid Category title: $title")
     }
 }
