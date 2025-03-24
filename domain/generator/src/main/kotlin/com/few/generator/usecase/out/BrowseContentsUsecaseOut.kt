@@ -25,6 +25,7 @@ data class BrowseProvisioningContentsUsecaseOut(
     val completionIds: List<String>,
     val bodyTextsJson: List<String>,
     val coreTextsJson: List<String>,
+    val category: String,
     val createdAt: LocalDateTime,
 )
 

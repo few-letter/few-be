@@ -68,6 +68,7 @@ class ContentsGeneratorController(
                         completionIds = useCaseOut.provisioningContents.completionIds,
                         bodyTextsJson = useCaseOut.provisioningContents.bodyTextsJson,
                         coreTextsJson = useCaseOut.provisioningContents.coreTextsJson,
+                        category = useCaseOut.provisioningContents.category,
                         createdAt = useCaseOut.provisioningContents.createdAt!!,
                     ),
                 gens =
