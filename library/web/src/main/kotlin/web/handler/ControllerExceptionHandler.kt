@@ -16,6 +16,7 @@ import org.springframework.web.server.ServerWebInputException
 import web.ApiResponse
 import web.ApiResponseGenerator
 import web.ExceptionMessage
+import web.handler.exception.BadRequestException
 import java.nio.file.AccessDeniedException
 
 @RestControllerAdvice
@@ -113,6 +114,18 @@ class ControllerExceptionHandler(
         )
     }
 
+    @ExceptionHandler(BadRequestException::class)
+    fun handleBadRequestException(
+        ex: RuntimeException,
+        request: HttpServletRequest,
+    ): ApiResponse<ApiResponse.FailureBody> {
+        loggingHandler.writeLog(ex, request)
+        return ApiResponseGenerator.fail(
+            ex.message ?: ExceptionMessage.FAIL.message,
+            HttpStatus.BAD_REQUEST, // TODO: 예외 및 코드에 대한 정의 필요
+        )
+    }
+
     @ExceptionHandler(RuntimeException::class)
     fun handleRuntimeException(
         ex: RuntimeException,
@@ -121,7 +134,7 @@ class ControllerExceptionHandler(
         loggingHandler.writeLog(ex, request)
         return ApiResponseGenerator.fail(
             ex.message ?: ExceptionMessage.FAIL.message,
-            HttpStatus.BAD_REQUEST, // TODO: 예외 및 코드에 대한 정의 필요
+            HttpStatus.INTERNAL_SERVER_ERROR, // TODO: 예외 및 코드에 대한 정의 필요
         )
     }
 }

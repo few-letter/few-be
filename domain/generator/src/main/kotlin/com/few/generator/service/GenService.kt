@@ -8,6 +8,7 @@ import com.few.generator.service.strategy.GenGenerationStrategy
 import com.few.generator.service.strategy.Material
 import com.few.generator.support.common.Constant
 import org.springframework.stereotype.Service
+import web.handler.exception.BadRequestException
 
 @Service
 class GenService(
@@ -72,7 +73,7 @@ class GenService(
 
     fun validateExists(provContentsId: Long) {
         if (genRepository.existsByProvisioningContentsId(provContentsId)) {
-            throw RuntimeException("이미 생성된 Gen 컨텐츠가 있습니다.")
+            throw BadRequestException("이미 생성된 Gen 컨텐츠가 있습니다.")
         }
     }
 }

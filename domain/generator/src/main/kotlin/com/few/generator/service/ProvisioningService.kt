@@ -13,6 +13,7 @@ import com.google.gson.Gson
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
+import web.handler.exception.BadRequestException
 
 @Service
 class ProvisioningService(
@@ -26,7 +27,7 @@ class ProvisioningService(
 
     fun create(rawContents: RawContents): ProvisioningContents {
         if (provisioningContentsRepository.findByRawContentsId(rawContents.id!!) != null) {
-            throw RuntimeException("이미 생성된 프로비저닝 컨텐츠가 있습니다.")
+            throw BadRequestException("이미 생성된 프로비저닝 컨텐츠가 있습니다.")
         }
 
         val bodyTexts: Texts = makeBodyTexts(rawContents.title, rawContents.description, rawContents.rawTexts)
@@ -77,5 +78,5 @@ class ProvisioningService(
     fun getById(id: Long): ProvisioningContents =
         provisioningContentsRepository
             .findById(id)
-            .orElseThrow { RuntimeException("프로비저닝 컨텐츠가 존재하지 않습니다.") }
+            .orElseThrow { BadRequestException("프로비저닝 컨텐츠가 존재하지 않습니다.") }
 }
