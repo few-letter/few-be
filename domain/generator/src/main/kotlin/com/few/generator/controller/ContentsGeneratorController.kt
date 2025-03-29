@@ -1,8 +1,10 @@
 package com.few.generator.controller
 
+import com.few.generator.controller.request.CreateGensRequest
 import com.few.generator.controller.request.WebContentsGeneratorRequest
 import com.few.generator.controller.response.*
 import com.few.generator.usecase.CreateAllUseCase
+import com.few.generator.usecase.CreateGenUseCase
 import com.few.generator.usecase.CreateProvisioningUseCase
 import com.few.generator.usecase.RawContentsBrowseContentUseCase
 import jakarta.validation.constraints.Min
@@ -20,6 +22,7 @@ class ContentsGeneratorController(
     private val createAllUseCase: CreateAllUseCase,
     private val rawContentsBrowseContentUseCase: RawContentsBrowseContentUseCase,
     private val createProvisioningUseCase: CreateProvisioningUseCase,
+    private val createGenUseCase: CreateGenUseCase,
 ) {
     @PostMapping(
         value = ["/contents"],
@@ -51,6 +54,26 @@ class ContentsGeneratorController(
         @RequestBody request: WebContentsGeneratorRequest,
     ): ApiResponse<ApiResponse.SuccessBody<ContentsGeneratorResponse>> {
         val useCaseOut = createProvisioningUseCase.execute(request.sourceUrl)
+
+        return ApiResponseGenerator.success(
+            ContentsGeneratorResponse(
+                sourceUrl = useCaseOut.sourceUrl,
+                rawContentId = useCaseOut.rawContentId,
+                provisioningContentId = useCaseOut.provisioningContentId,
+            ),
+            HttpStatus.CREATED,
+        )
+    }
+
+    @PostMapping(
+        value = ["/contents/gens"],
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
+    fun createGens(
+        @RequestBody request: CreateGensRequest,
+    ): ApiResponse<ApiResponse.SuccessBody<ContentsGeneratorResponse>> {
+        val useCaseOut = createGenUseCase.execute(request.provContentsId)
 
         return ApiResponseGenerator.success(
             ContentsGeneratorResponse(

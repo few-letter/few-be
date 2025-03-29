@@ -73,4 +73,9 @@ class ProvisioningService(
         val categorySchema = chatGpt.ask(prompt) as CategorySchema
         return categorySchema
     }
+
+    fun getById(id: Long): ProvisioningContents =
+        provisioningContentsRepository
+            .findById(id)
+            .orElseThrow { RuntimeException("프로비저닝 컨텐츠가 존재하지 않습니다.") }
 }

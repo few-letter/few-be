@@ -39,4 +39,9 @@ class RawContentsService(
 
         return rawContentsRepository.save(rawContents)
     }
+
+    fun getById(id: Long): RawContents =
+        rawContentsRepository
+            .findById(id)
+            .orElseThrow { RuntimeException("Raw 컨텐츠가 존재하지 않습니다.") }
 }
