@@ -112,4 +112,16 @@ class ControllerExceptionHandler(
             HttpStatus.INTERNAL_SERVER_ERROR,
         )
     }
+
+    @ExceptionHandler(RuntimeException::class)
+    fun handleRuntimeException(
+        ex: RuntimeException,
+        request: HttpServletRequest,
+    ): ApiResponse<ApiResponse.FailureBody> {
+        loggingHandler.writeLog(ex, request)
+        return ApiResponseGenerator.fail(
+            ex.message ?: ExceptionMessage.FAIL.message,
+            HttpStatus.BAD_REQUEST, // TODO: 예외 및 코드에 대한 정의 필요
+        )
+    }
 }
