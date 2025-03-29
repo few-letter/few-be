@@ -1,14 +1,17 @@
 package com.few.generator.controller.response
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonInclude
 import java.time.LocalDateTime
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class BrowseContentsResponse(
     val rawContents: BrowseRawContentsResponse,
     val provisioningContents: BrowseProvisioningContentsResponse,
     val gens: List<BrowseGenResponse>,
 )
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class BrowseRawContentsResponse(
     val id: Long,
     val url: String,
@@ -21,6 +24,7 @@ data class BrowseRawContentsResponse(
     val createdAt: LocalDateTime,
 )
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class BrowseProvisioningContentsResponse(
     val id: Long,
     val rawContentsId: Long,
@@ -32,6 +36,7 @@ data class BrowseProvisioningContentsResponse(
     val createdAt: LocalDateTime,
 )
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class BrowseGenResponse(
     val id: Long,
     val provisioningContentsId: Long,
