@@ -4,5 +4,5 @@ data class ContentsGeneratorResponse(
     val sourceUrl: String,
     val rawContentId: Long,
     val provisioningContentId: Long,
-    val genIds: List<Long>,
+    val genIds: List<Long>? = null,
 )

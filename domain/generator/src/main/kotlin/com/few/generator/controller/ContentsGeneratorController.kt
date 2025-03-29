@@ -2,7 +2,8 @@ package com.few.generator.controller
 
 import com.few.generator.controller.request.WebContentsGeneratorRequest
 import com.few.generator.controller.response.*
-import com.few.generator.usecase.ContentsGeneratorUseCase
+import com.few.generator.usecase.CreateAllUseCase
+import com.few.generator.usecase.CreateProvisioningUseCase
 import com.few.generator.usecase.RawContentsBrowseContentUseCase
 import jakarta.validation.constraints.Min
 import org.springframework.http.HttpStatus
@@ -16,18 +17,19 @@ import web.ApiResponseGenerator
 @RestController
 @RequestMapping("/api/v1")
 class ContentsGeneratorController(
-    private val contentsGeneratorUseCase: ContentsGeneratorUseCase,
+    private val createAllUseCase: CreateAllUseCase,
     private val rawContentsBrowseContentUseCase: RawContentsBrowseContentUseCase,
+    private val createProvisioningUseCase: CreateProvisioningUseCase,
 ) {
     @PostMapping(
-        value = ["/generators/contents"],
+        value = ["/contents"],
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
-    fun create(
+    fun createAll(
         @RequestBody request: WebContentsGeneratorRequest,
     ): ApiResponse<ApiResponse.SuccessBody<ContentsGeneratorResponse>> {
-        val useCaseOut = contentsGeneratorUseCase.execute(request.sourceUrl)
+        val useCaseOut = createAllUseCase.execute(request.sourceUrl)
 
         return ApiResponseGenerator.success(
             ContentsGeneratorResponse(
@@ -35,6 +37,26 @@ class ContentsGeneratorController(
                 rawContentId = useCaseOut.rawContentId,
                 provisioningContentId = useCaseOut.provisioningContentId,
                 genIds = useCaseOut.genIds,
+            ),
+            HttpStatus.CREATED,
+        )
+    }
+
+    @PostMapping(
+        value = ["/contents/provisioning"],
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
+    fun createProvisioning(
+        @RequestBody request: WebContentsGeneratorRequest,
+    ): ApiResponse<ApiResponse.SuccessBody<ContentsGeneratorResponse>> {
+        val useCaseOut = createProvisioningUseCase.execute(request.sourceUrl)
+
+        return ApiResponseGenerator.success(
+            ContentsGeneratorResponse(
+                sourceUrl = useCaseOut.sourceUrl,
+                rawContentId = useCaseOut.rawContentId,
+                provisioningContentId = useCaseOut.provisioningContentId,
             ),
             HttpStatus.CREATED,
         )

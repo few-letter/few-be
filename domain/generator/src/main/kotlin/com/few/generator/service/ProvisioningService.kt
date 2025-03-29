@@ -25,6 +25,10 @@ class ProvisioningService(
     private val log = KotlinLogging.logger {}
 
     fun create(rawContents: RawContents): ProvisioningContents {
+        if (provisioningContentsRepository.findByRawContentsId(rawContents.id!!) != null) {
+            throw RuntimeException("이미 생성된 프로비저닝 컨텐츠가 있습니다.")
+        }
+
         val bodyTexts: Texts = makeBodyTexts(rawContents.title, rawContents.description, rawContents.rawTexts)
         val coreTexts: Texts = makeCoreTexts(rawContents.title, rawContents.description, bodyTexts)
         val categorySchema = makeCategory(rawContents.title, rawContents.description, coreTexts)
