@@ -14,7 +14,9 @@ class CreateGenUseCase(
     private val genService: GenService,
 ) {
     @GeneratorTransactional
-    fun execute(provContentsId: Long): ContentsGeneratorUseCaseOut {
+    fun execute(provContentsId: Long): ContentsGeneratorUseCaseOut { // TODO: 젠 타입에 따라 생성하도록 반영
+        genService.validateExists(provContentsId)
+
         // 1. provisioning 조회
         val provisioningContents = provisioningService.getById(provContentsId)
 

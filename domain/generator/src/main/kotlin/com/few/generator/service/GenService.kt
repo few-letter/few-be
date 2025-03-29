@@ -69,4 +69,10 @@ class GenService(
          */
         return genRepository.saveAll(listOf(genBasic, genKorean, genKoreanQuestion, genKoreanLongQuestion))
     }
+
+    fun validateExists(provContentsId: Long) {
+        if (genRepository.existsByProvisioningContentsId(provContentsId)) {
+            throw RuntimeException("이미 생성된 Gen 컨텐츠가 있습니다.")
+        }
+    }
 }
