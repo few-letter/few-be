@@ -113,7 +113,11 @@ class ContentsGeneratorController(
                         completionIds = useCaseOut.provisioningContents.completionIds,
                         bodyTextsJson = useCaseOut.provisioningContents.bodyTextsJson,
                         coreTextsJson = useCaseOut.provisioningContents.coreTextsJson,
-                        category = useCaseOut.provisioningContents.category,
+                        category =
+                            CodeValueResponse(
+                                code = useCaseOut.provisioningContents.category.code,
+                                value = useCaseOut.provisioningContents.category.value,
+                            ),
                         createdAt = useCaseOut.provisioningContents.createdAt!!,
                     ),
                 gens =
@@ -125,7 +129,11 @@ class ContentsGeneratorController(
                             headline = it.headline,
                             summary = it.summary,
                             highlightTexts = it.highlightTexts,
-                            type = it.type,
+                            type =
+                                CodeValueResponse(
+                                    code = it.type.code,
+                                    value = it.type.value,
+                                ),
                             createdAt = it.createdAt!!,
                         )
                     },

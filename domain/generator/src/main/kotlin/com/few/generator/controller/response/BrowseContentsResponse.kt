@@ -31,7 +31,7 @@ data class BrowseProvisioningContentsResponse(
     val completionIds: List<String>,
     val bodyTextsJson: List<String>,
     val coreTextsJson: List<String>,
-    val category: String,
+    val category: CodeValueResponse,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     val createdAt: LocalDateTime,
 )
@@ -44,7 +44,7 @@ data class BrowseGenResponse(
     val headline: String,
     val summary: String,
     val highlightTexts: List<String>,
-    val type: String,
+    val type: CodeValueResponse,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     val createdAt: LocalDateTime,
 )
