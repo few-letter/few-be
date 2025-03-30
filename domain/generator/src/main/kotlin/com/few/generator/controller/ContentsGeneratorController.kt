@@ -75,13 +75,14 @@ class ContentsGeneratorController(
     fun createGens(
         @RequestBody request: CreateGensRequest,
     ): ApiResponse<ApiResponse.SuccessBody<ContentsGeneratorResponse>> {
-        val useCaseOut = createGenUseCase.execute(request.provContentsId)
+        val useCaseOut = createGenUseCase.execute(request.provContentsId, request.types)
 
         return ApiResponseGenerator.success(
             ContentsGeneratorResponse(
                 sourceUrl = useCaseOut.sourceUrl,
                 rawContentId = useCaseOut.rawContentId,
                 provisioningContentId = useCaseOut.provisioningContentId,
+                genIds = useCaseOut.genIds,
             ),
             HttpStatus.CREATED,
         )

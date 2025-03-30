@@ -14,17 +14,27 @@ class CreateGenUseCase(
     private val genService: GenService,
 ) {
     @GeneratorTransactional
-    fun execute(provContentsId: Long): ContentsGeneratorUseCaseOut { // TODO: 젠 타입에 따라 생성하도록 반영
-        genService.validateExists(provContentsId)
-
+    fun execute(
+        provContentsId: Long,
+        requestedTypes: Set<Int>,
+    ): ContentsGeneratorUseCaseOut {
         // 1. provisioning 조회
         val provisioningContents = provisioningService.getById(provContentsId)
 
         // 2. RawContents 조회
         val rawContents = rawContentsService.getById(provisioningContents.rawContentsId)
 
-        // 3. gen 생성
-        val gens = genService.create(rawContents, provisioningContents)
+        // 3. 생성할 gen 타입 조회
+        val existsGenTypes: Set<Int> =
+            genService
+                .getByProvisioningContentsId(provisioningContents.id!!)
+                .map { it.typeCode }
+                .toSet()
+
+        val toBeCreatedTypes = requestedTypes - existsGenTypes
+
+        // 4. gen 생성
+        val gens = genService.create(rawContents, provisioningContents, toBeCreatedTypes)
 
         return ContentsGeneratorUseCaseOut(
             sourceUrl = rawContents.url,

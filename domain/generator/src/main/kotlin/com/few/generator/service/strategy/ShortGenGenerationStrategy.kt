@@ -4,7 +4,6 @@ import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.core.gpt.ChatGpt
 import com.few.generator.core.gpt.prompt.PromptGenerator
 import com.few.generator.core.gpt.prompt.schema.Headline
-import com.few.generator.core.gpt.prompt.schema.HighlightText
 import com.few.generator.core.gpt.prompt.schema.Summary
 import com.few.generator.domain.Gen
 import com.few.generator.domain.GenType
@@ -13,8 +12,8 @@ import com.google.gson.Gson
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 
-@Component(Constant.GEN.STRATEGY_NAME_KOREAN_QUESTION)
-class KoreanQuestionGenGenerationStrategy(
+@Component(Constant.GEN.STRATEGY_NAME_SHORT)
+class ShortGenGenerationStrategy(
     private val promptGenerator: PromptGenerator,
     private val chatGpt: ChatGpt,
     @Qualifier(GSON_BEAN_NAME)
@@ -22,33 +21,28 @@ class KoreanQuestionGenGenerationStrategy(
 ) : GenGenerationStrategy {
     override fun generate(material: Material): Gen {
         val headlinePrompt =
-            promptGenerator.toHeadlineKoreanQuestion(
-                material.title!!,
-                material.description!!,
-                material.headline!!,
-                material.summary!!,
+            promptGenerator.toHeadlineShort(
+                title = material.title!!,
+                description = material.description!!,
+                coreTextsJson = material.coreTextsJson!!,
             )
         val headline: Headline = chatGpt.ask(headlinePrompt) as Headline
 
         val summaryPrompt =
-            promptGenerator.toSummaryKoreanQuestion(
-                headline.headline,
-                material.title!!,
-                material.description!!,
-                material.coreTextsJson!!,
+            promptGenerator.toSummaryShort(
+                headline = headline.headline,
+                title = material.title!!,
+                description = material.description!!,
+                coreTextsJson = material.coreTextsJson!!,
             )
         val summary: Summary = chatGpt.ask(summaryPrompt) as Summary
-
-        val highlightTextPrompt = promptGenerator.toKoreanHighlightText(summary.summary)
-        val highlight: HighlightText = chatGpt.ask(highlightTextPrompt) as HighlightText
 
         return Gen(
             provisioningContentsId = material.provisioningContentsId,
             completionIds = mutableListOf(headline.completionId!!, summary.completionId!!),
             headline = headline.headline,
             summary = summary.summary,
-            highlightTexts = gson.toJson(listOf(highlight.highlightText)),
-            typeCode = GenType.STRATEGY_NAME_KOREAN_QUESTION.code,
+            typeCode = GenType.STRATEGY_NAME_SHORT.code,
         )
     }
 }
