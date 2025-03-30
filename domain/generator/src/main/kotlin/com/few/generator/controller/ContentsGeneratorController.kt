@@ -3,6 +3,8 @@ package com.few.generator.controller
 import com.few.generator.controller.request.CreateGensRequest
 import com.few.generator.controller.request.WebContentsGeneratorRequest
 import com.few.generator.controller.response.*
+import com.few.generator.domain.Category
+import com.few.generator.domain.GenType
 import com.few.generator.usecase.CreateAllUseCase
 import com.few.generator.usecase.CreateGenUseCase
 import com.few.generator.usecase.CreateProvisioningUseCase
@@ -141,4 +143,22 @@ class ContentsGeneratorController(
             HttpStatus.OK,
         )
     }
+
+    @GetMapping(value = ["/contents/provisioning/categories"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun getProvisioningCategories(): ApiResponse<ApiResponse.SuccessBody<List<CodeValueResponse>>> =
+        ApiResponseGenerator.success(
+            Category.values().map {
+                CodeValueResponse(code = it.code, value = it.title)
+            },
+            HttpStatus.OK,
+        )
+
+    @GetMapping(value = ["/contents/gens/types"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun getGenTypes(): ApiResponse<ApiResponse.SuccessBody<List<CodeValueResponse>>> =
+        ApiResponseGenerator.success(
+            GenType.values().map {
+                CodeValueResponse(code = it.code, value = it.title)
+            },
+            HttpStatus.OK,
+        )
 }
