@@ -13,8 +13,8 @@ import com.google.gson.Gson
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 
-@Component(Constant.GEN.STRATEGY_NAME_KOREAN_LONG_QUESTION)
-class KoreanLongQuestionGenGenerationStrategy(
+@Component(Constant.GEN.STRATEGY_NAME_QUESTION)
+class QuestionGenGenerationStrategy(
     private val promptGenerator: PromptGenerator,
     private val chatGpt: ChatGpt,
     @Qualifier(GSON_BEAN_NAME)
@@ -22,21 +22,21 @@ class KoreanLongQuestionGenGenerationStrategy(
 ) : GenGenerationStrategy {
     override fun generate(material: Material): Gen {
         val headlinePrompt =
-            promptGenerator.toHeadlineKoreanLongQuestion(
-                material.title!!,
-                material.description!!,
-                material.headline!!,
-                material.summary!!,
+            promptGenerator.toHeadlineKoreanQuestion(
+                title = material.title!!,
+                description = material.description!!,
+                headline = material.title!!,
+                summary = material.description!!,
             )
         val headline: Headline = chatGpt.ask(headlinePrompt) as Headline
 
         val summaryPrompt =
-            promptGenerator.toSummaryKoreanLongQuestion(
-                material.title!!,
-                material.description!!,
-                material.coreTextsJson!!,
-                headline.headline,
-                material.summary!!,
+            promptGenerator.toSummaryKoreanQuestion(
+                headline = headline.headline,
+                summary = headline.headline,
+                title = material.title!!,
+                description = material.description!!,
+                coreTextsJson = material.coreTextsJson!!,
             )
         val summary: Summary = chatGpt.ask(summaryPrompt) as Summary
 
@@ -45,11 +45,11 @@ class KoreanLongQuestionGenGenerationStrategy(
 
         return Gen(
             provisioningContentsId = material.provisioningContentsId,
-            completionIds = mutableListOf(headline.completionId!!, summary.completionId!!),
+            completionIds = mutableListOf(headline.completionId!!, summary.completionId!!, highlightTexts.completionId!!),
             headline = headline.headline,
             summary = summary.summary,
             highlightTexts = gson.toJson(highlightTexts.highlightTexts),
-            typeCode = GenType.STRATEGY_NAME_KOREAN_LONG_QUESTION.code,
+            typeCode = GenType.STRATEGY_NAME_QUESTION.code,
         )
     }
 }

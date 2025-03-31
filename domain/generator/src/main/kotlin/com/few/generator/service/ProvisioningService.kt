@@ -13,6 +13,7 @@ import com.google.gson.Gson
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
+import web.handler.exception.BadRequestException
 
 @Service
 class ProvisioningService(
@@ -25,6 +26,10 @@ class ProvisioningService(
     private val log = KotlinLogging.logger {}
 
     fun create(rawContents: RawContents): ProvisioningContents {
+        provisioningContentsRepository.findByRawContentsId(rawContents.id!!)?.let {
+            throw BadRequestException("이미 생성된 프로비저닝 컨텐츠가 있습니다. ID: ${it.id}")
+        }
+
         val bodyTexts: Texts = makeBodyTexts(rawContents.title, rawContents.description, rawContents.rawTexts)
         val coreTexts: Texts = makeCoreTexts(rawContents.title, rawContents.description, bodyTexts)
         val categorySchema = makeCategory(rawContents.title, rawContents.description, coreTexts)
@@ -32,7 +37,12 @@ class ProvisioningService(
         return provisioningContentsRepository.save(
             ProvisioningContents(
                 rawContentsId = rawContents.id!!,
-                completionIds = mutableListOf(bodyTexts.completionId!!, coreTexts.completionId!!, categorySchema.completionId!!),
+                completionIds =
+                    mutableListOf(
+                        bodyTexts.completionId!!,
+                        coreTexts.completionId!!,
+                        categorySchema.completionId!!,
+                    ),
                 bodyTextsJson = gson.toJson(bodyTexts.texts), // TODO: DB 저장 타입 등 정의, 수정 필요
                 coreTextsJson = gson.toJson(coreTexts.texts),
                 category = Category.from(categorySchema.category).code,
@@ -69,4 +79,9 @@ class ProvisioningService(
         val categorySchema = chatGpt.ask(prompt) as CategorySchema
         return categorySchema
     }
+
+    fun getById(id: Long): ProvisioningContents =
+        provisioningContentsRepository
+            .findById(id)
+            .orElseThrow { BadRequestException("프로비저닝 컨텐츠가 존재하지 않습니다.") }
 }

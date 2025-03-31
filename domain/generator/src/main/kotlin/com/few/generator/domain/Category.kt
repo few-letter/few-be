@@ -1,5 +1,7 @@
 package com.few.generator.domain
 
+import web.handler.exception.BadRequestException
+
 enum class Category(
     val code: Int,
     val title: String,
@@ -26,10 +28,10 @@ enum class Category(
     companion object {
         fun from(code: Int): Category =
             Category.values().find { it.code == code }
-                ?: throw IllegalArgumentException("Invalid Category code: $code")
+                ?: throw BadRequestException("Invalid Category code: $code")
 
         fun from(title: String): Category =
             Category.values().find { it.title.equals(title, ignoreCase = true) }
-                ?: throw IllegalArgumentException("Invalid Category title: $title")
+                ?: throw BadRequestException("Invalid Category title: $title")
     }
 }

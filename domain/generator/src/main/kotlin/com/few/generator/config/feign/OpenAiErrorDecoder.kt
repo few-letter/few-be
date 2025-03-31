@@ -31,7 +31,7 @@ class OpenAiErrorDecoder(
                     ?.asInputStream()
                     ?.reader()
                     ?.readText()
-                    ?: throw RuntimeException("Empty response body")
+                    ?: throw RuntimeException("Empty response body from OpenAI API")
 
             val completion = gson.fromJson(responseBody, ChatCompletion::class.java)
             val refusal =

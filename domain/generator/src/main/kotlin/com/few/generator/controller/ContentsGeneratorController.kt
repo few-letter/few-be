@@ -1,8 +1,13 @@
 package com.few.generator.controller
 
+import com.few.generator.controller.request.CreateGensRequest
 import com.few.generator.controller.request.WebContentsGeneratorRequest
 import com.few.generator.controller.response.*
-import com.few.generator.usecase.ContentsGeneratorUseCase
+import com.few.generator.domain.Category
+import com.few.generator.domain.GenType
+import com.few.generator.usecase.CreateAllUseCase
+import com.few.generator.usecase.CreateGenUseCase
+import com.few.generator.usecase.CreateProvisioningUseCase
 import com.few.generator.usecase.RawContentsBrowseContentUseCase
 import jakarta.validation.constraints.Min
 import org.springframework.http.HttpStatus
@@ -16,18 +21,61 @@ import web.ApiResponseGenerator
 @RestController
 @RequestMapping("/api/v1")
 class ContentsGeneratorController(
-    private val contentsGeneratorUseCase: ContentsGeneratorUseCase,
+    private val createAllUseCase: CreateAllUseCase,
     private val rawContentsBrowseContentUseCase: RawContentsBrowseContentUseCase,
+    private val createProvisioningUseCase: CreateProvisioningUseCase,
+    private val createGenUseCase: CreateGenUseCase,
 ) {
     @PostMapping(
-        value = ["/generators/contents"],
+        value = ["/contents"],
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
-    fun create(
+    fun createAll(
         @RequestBody request: WebContentsGeneratorRequest,
     ): ApiResponse<ApiResponse.SuccessBody<ContentsGeneratorResponse>> {
-        val useCaseOut = contentsGeneratorUseCase.execute(request.sourceUrl)
+        val useCaseOut = createAllUseCase.execute(request.sourceUrl)
+
+        return ApiResponseGenerator.success(
+            ContentsGeneratorResponse(
+                sourceUrl = useCaseOut.sourceUrl,
+                rawContentId = useCaseOut.rawContentId,
+                provisioningContentId = useCaseOut.provisioningContentId,
+                genIds = useCaseOut.genIds,
+            ),
+            HttpStatus.CREATED,
+        )
+    }
+
+    @PostMapping(
+        value = ["/contents/provisioning"],
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
+    fun createProvisioning(
+        @RequestBody request: WebContentsGeneratorRequest,
+    ): ApiResponse<ApiResponse.SuccessBody<ContentsGeneratorResponse>> {
+        val useCaseOut = createProvisioningUseCase.execute(request.sourceUrl)
+
+        return ApiResponseGenerator.success(
+            ContentsGeneratorResponse(
+                sourceUrl = useCaseOut.sourceUrl,
+                rawContentId = useCaseOut.rawContentId,
+                provisioningContentId = useCaseOut.provisioningContentId,
+            ),
+            HttpStatus.CREATED,
+        )
+    }
+
+    @PostMapping(
+        value = ["/contents/gens"],
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
+    fun createGens(
+        @RequestBody request: CreateGensRequest,
+    ): ApiResponse<ApiResponse.SuccessBody<ContentsGeneratorResponse>> {
+        val useCaseOut = createGenUseCase.execute(request.provContentsId, request.types)
 
         return ApiResponseGenerator.success(
             ContentsGeneratorResponse(
@@ -68,7 +116,11 @@ class ContentsGeneratorController(
                         completionIds = useCaseOut.provisioningContents.completionIds,
                         bodyTextsJson = useCaseOut.provisioningContents.bodyTextsJson,
                         coreTextsJson = useCaseOut.provisioningContents.coreTextsJson,
-                        category = useCaseOut.provisioningContents.category,
+                        category =
+                            CodeValueResponse(
+                                code = useCaseOut.provisioningContents.category.code,
+                                value = useCaseOut.provisioningContents.category.value,
+                            ),
                         createdAt = useCaseOut.provisioningContents.createdAt!!,
                     ),
                 gens =
@@ -80,7 +132,11 @@ class ContentsGeneratorController(
                             headline = it.headline,
                             summary = it.summary,
                             highlightTexts = it.highlightTexts,
-                            type = it.type,
+                            type =
+                                CodeValueResponse(
+                                    code = it.type.code,
+                                    value = it.type.value,
+                                ),
                             createdAt = it.createdAt!!,
                         )
                     },
@@ -88,4 +144,22 @@ class ContentsGeneratorController(
             HttpStatus.OK,
         )
     }
+
+    @GetMapping(value = ["/contents/provisioning/categories"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun getProvisioningCategories(): ApiResponse<ApiResponse.SuccessBody<List<CodeValueResponse>>> =
+        ApiResponseGenerator.success(
+            Category.values().map {
+                CodeValueResponse(code = it.code, value = it.title)
+            },
+            HttpStatus.OK,
+        )
+
+    @GetMapping(value = ["/contents/gens/types"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun getGenTypes(): ApiResponse<ApiResponse.SuccessBody<List<CodeValueResponse>>> =
+        ApiResponseGenerator.success(
+            GenType.values().map {
+                CodeValueResponse(code = it.code, value = it.title)
+            },
+            HttpStatus.OK,
+        )
 }

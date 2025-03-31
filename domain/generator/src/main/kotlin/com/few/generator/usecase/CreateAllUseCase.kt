@@ -1,5 +1,6 @@
 package com.few.generator.usecase
 
+import com.few.generator.domain.GenType
 import com.few.generator.service.GenService
 import com.few.generator.service.ProvisioningService
 import com.few.generator.service.RawContentsService
@@ -9,7 +10,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 
 @Component
-class ContentsGeneratorUseCase(
+class CreateAllUseCase(
     private val rawContentsService: RawContentsService,
     private val provisioningService: ProvisioningService,
     private val genService: GenService,
@@ -25,7 +26,7 @@ class ContentsGeneratorUseCase(
         val provisioningContents = provisioningService.create(rawContents)
 
         // 3. gen 생성
-        val gens = genService.create(rawContents, provisioningContents)
+        val gens = genService.create(rawContents, provisioningContents, GenType.values().map { it.code }.toSet())
 
         return ContentsGeneratorUseCaseOut(
             sourceUrl = sourceUrl,
