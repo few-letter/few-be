@@ -30,10 +30,10 @@ class GenService(
                 val genType = GenType.from(typeCode)
 
                 if (!genGenerationStrategies.containsKey(genType.title)) {
-                    throw BadRequestException("지원하지 않는 gen 타입입니다.")
+                    throw BadRequestException("지원하지 않는 gen 타입입니다. Gen type code: $genType")
                 }
 
-                log.info { "Trying to Generate Gen... : ${genType.title}" }
+                log.info { "Trying to Generate Gen... : ${genType.title} (${genType.code})" }
 
                 genGenerationStrategies[genType.title]!!.generate(
                     Material(

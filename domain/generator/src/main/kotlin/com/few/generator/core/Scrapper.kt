@@ -4,6 +4,7 @@ import com.few.generator.config.JsoupConnectionFactory
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jsoup.nodes.Document
 import org.springframework.stereotype.Component
+import web.handler.exception.BadRequestException
 import java.net.URI
 import java.util.regex.Pattern
 
@@ -124,7 +125,7 @@ class Scrapper(
         val rawTexts = getTexts(allTexts.joinToString("\n"))
         val images = getImages(soup)
 
-        if (title == null || description == null) throw RuntimeException("스크래핑 실패")
+        if (title == null || description == null) throw BadRequestException("title 및 description 스크래핑 실패")
 
         return ScrappedResult(title, description, thumbnailImageUrl, rawTexts, images)
     }

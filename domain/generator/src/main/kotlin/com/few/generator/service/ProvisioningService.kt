@@ -26,8 +26,8 @@ class ProvisioningService(
     private val log = KotlinLogging.logger {}
 
     fun create(rawContents: RawContents): ProvisioningContents {
-        if (provisioningContentsRepository.findByRawContentsId(rawContents.id!!) != null) {
-            throw BadRequestException("이미 생성된 프로비저닝 컨텐츠가 있습니다.")
+        provisioningContentsRepository.findByRawContentsId(rawContents.id!!)?.let {
+            throw BadRequestException("이미 생성된 프로비저닝 컨텐츠가 있습니다. ID: ${it.id}")
         }
 
         val bodyTexts: Texts = makeBodyTexts(rawContents.title, rawContents.description, rawContents.rawTexts)
@@ -37,7 +37,12 @@ class ProvisioningService(
         return provisioningContentsRepository.save(
             ProvisioningContents(
                 rawContentsId = rawContents.id!!,
-                completionIds = mutableListOf(bodyTexts.completionId!!, coreTexts.completionId!!, categorySchema.completionId!!),
+                completionIds =
+                    mutableListOf(
+                        bodyTexts.completionId!!,
+                        coreTexts.completionId!!,
+                        categorySchema.completionId!!,
+                    ),
                 bodyTextsJson = gson.toJson(bodyTexts.texts), // TODO: DB 저장 타입 등 정의, 수정 필요
                 coreTextsJson = gson.toJson(coreTexts.texts),
                 category = Category.from(categorySchema.category).code,
