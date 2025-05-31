@@ -130,7 +130,7 @@ class Scrapper(
         return ScrappedResult(title, description, thumbnailImageUrl, rawTexts, images)
     }
 
-    fun extractUrlsByCategory(rootUrl: String): List<String> {
+    fun extractUrlsByCategory(rootUrl: String): Set<String> {
         repeat(retryCount) { attempt ->
             try {
                 return connectionFactory
@@ -149,10 +149,7 @@ class Scrapper(
                             .select("a")
                             .firstOrNull { it.text() == "기사원문" }
                             ?.attr("href")
-                    }.map {
-                        log.debug { "Origin URL: $it" }
-                        it
-                    }
+                    }.toSet()
             } catch (e: Exception) {
                 log.error { "Request failed retrying... : Cause: ${e.message}, attempt: ${attempt + 1}" }
             }
@@ -160,6 +157,6 @@ class Scrapper(
             Thread.sleep(sleepTime)
         }
 
-        return emptyList()
+        return emptySet()
     }
 }
