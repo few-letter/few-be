@@ -31,9 +31,7 @@ class ContentsGeneratorController(
     @PostMapping(
         value = ["/contents"],
     )
-    fun createAll(
-        @RequestBody request: WebContentsGeneratorRequest,
-    ): ApiResponse<ApiResponse.Success> {
+    fun createAll(): ApiResponse<ApiResponse.Success> {
         schedulingUseCase.execute()
 
         return ApiResponseGenerator.success(
