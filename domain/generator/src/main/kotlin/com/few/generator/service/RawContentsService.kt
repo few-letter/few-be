@@ -26,18 +26,23 @@ class RawContentsService(
             .associateWith { category ->
                 scrapper
                     .extractUrlsByCategory(category.rootUrl!!)
-                    .map { url -> create(url, category) }
+                    .mapNotNull { url -> create(url, category) }
             }
 
     fun create(
         sourceUrl: String,
         category: Category,
-    ): RawContents {
+    ): RawContents? {
         rawContentsRepository.findByUrl(sourceUrl)?.let {
             throw BadRequestException("이미 생성된 컨텐츠가 있습니다. ID: ${it.id}, URL: $sourceUrl")
         }
 
-        val scrappedResult = scrapper.scrape(sourceUrl) ?: throw BadRequestException("스크래핑 실패")
+        val scrappedResult =
+            scrapper.scrape(sourceUrl)
+                ?: run {
+                    log.warn { "Failed to scrape content. Skipped this contents. URL: $sourceUrl" }
+                    return null
+                }
 
         return rawContentsRepository.save(
             RawContents(

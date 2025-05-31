@@ -9,6 +9,7 @@ import com.few.generator.support.jpa.GeneratorTransactional
 import com.few.generator.usecase.out.ContentsGeneratorUseCaseOut
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
+import web.handler.exception.BadRequestException
 
 @Component
 class CreateAllUseCase(
@@ -21,7 +22,9 @@ class CreateAllUseCase(
     @GeneratorTransactional
     fun execute(sourceUrl: String): ContentsGeneratorUseCaseOut {
         // 1. 스크래핑 후 Raw 데이터 저장
-        val rawContents = rawContentsService.create(sourceUrl, Category.ETC) // TODO: remove
+        val rawContents =
+            rawContentsService.create(sourceUrl, Category.ETC)
+                ?: throw BadRequestException("Failed to create raw contents for URL: $sourceUrl")
 
         // 2. raw 데이터 기반 provisioning 생성
         val provisioningContents = provisioningService.create(rawContents)
