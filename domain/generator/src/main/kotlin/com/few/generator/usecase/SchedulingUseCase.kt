@@ -43,10 +43,10 @@ class SchedulingUseCase(
             }
 
         log.info {
-            "✅ [1단계] RawContents: ${timeOfCreatingRawContents.msToSeconds()} ms \n" +
-                "✅ [2단계] Provisionings: ${timeOfCreatingProvisionings.msToSeconds()} ms \n" +
-                "✅ [3단계] Gens: ${timeOfCreatingGens.msToSeconds()} ms \n" +
-                "-> 전체 : ${(timeOfCreatingRawContents + timeOfCreatingProvisionings + timeOfCreatingGens).msToSeconds()} ms"
+            "✅ [1단계] RawContents: ${timeOfCreatingRawContents.msToSeconds()} s \n" +
+                "✅ [2단계] Provisionings: ${timeOfCreatingProvisionings.msToSeconds()} s \n" +
+                "✅ [3단계] Gens: ${timeOfCreatingGens.msToSeconds()} s \n" +
+                "-> 전체 : ${(timeOfCreatingRawContents + timeOfCreatingProvisionings + timeOfCreatingGens).msToSeconds()} s"
         }
 
         // TODO: 스케줄링 결과 이력 저장
