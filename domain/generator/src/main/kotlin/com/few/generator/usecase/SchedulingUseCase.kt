@@ -50,6 +50,7 @@ class SchedulingUseCase(
         }
 
         // TODO: 스케줄링 결과 이력 저장
+        // TODO: 수해 결과 디스코드 알림 추가
     }
 
     private fun createProvisionings(rawContents: Map<Category, List<RawContents>>): Map<Category, List<ProvisioningContents>> =
