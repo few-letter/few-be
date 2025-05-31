@@ -36,3 +36,7 @@ jsoup:
     followRedirects: true
     ignoreHttpErrors: false
     ignoreContentType: true
+
+scheduling:
+    cron:
+        generator: "0 0 6 * * *"

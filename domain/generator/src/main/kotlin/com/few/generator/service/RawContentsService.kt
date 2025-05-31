@@ -2,6 +2,7 @@ package com.few.generator.service
 
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.core.Scrapper
+import com.few.generator.domain.Category
 import com.few.generator.domain.RawContents
 import com.few.generator.repository.RawContentsRepository
 import com.google.gson.Gson
@@ -19,7 +20,19 @@ class RawContentsService(
 ) {
     private val log = KotlinLogging.logger {}
 
-    fun create(sourceUrl: String): RawContents {
+    fun create(): Map<Category, List<RawContents>> =
+        Category.entries
+            .filter { it.rootUrl != null }
+            .associateWith { category ->
+                scrapper
+                    .extractUrlsByCategory(category.rootUrl!!)
+                    .map { url -> create(url, category) }
+            }
+
+    fun create(
+        sourceUrl: String,
+        category: Category,
+    ): RawContents {
         rawContentsRepository.findByUrl(sourceUrl)?.let {
             throw BadRequestException("이미 생성된 컨텐츠가 있습니다. ID: ${it.id}")
         }
@@ -34,6 +47,7 @@ class RawContentsService(
                 thumbnailImageUrl = scrappedResult.thumbnailImageUrl,
                 rawTexts = scrappedResult.rawTexts.joinToString("\n"),
                 imageUrls = gson.toJson(scrappedResult.images) ?: "[]",
+                category = category.code,
             )
 
         return rawContentsRepository.save(rawContents)

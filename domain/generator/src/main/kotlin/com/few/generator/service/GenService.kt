@@ -1,5 +1,6 @@
 package com.few.generator.service
 
+import com.few.generator.domain.Category
 import com.few.generator.domain.Gen
 import com.few.generator.domain.GenType
 import com.few.generator.domain.ProvisioningContents
@@ -43,6 +44,7 @@ class GenService(
                         // from provisioningContents
                         coreTextsJson = provisioningContents.coreTextsJson,
                         provisioningContentsId = provisioningContents.id!!,
+                        category = Category.from(provisioningContents.category),
                     ),
                 )
             }

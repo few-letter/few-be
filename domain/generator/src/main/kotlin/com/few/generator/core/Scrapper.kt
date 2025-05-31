@@ -129,4 +129,23 @@ class Scrapper(
 
         return ScrappedResult(title, description, thumbnailImageUrl, rawTexts, images)
     }
+
+    fun extractUrlsByCategory(rootUrl: String): List<String> {
+        repeat(retryCount) { attempt ->
+            try {
+                return connectionFactory
+                    .createConnection(rootUrl)
+                    .get()
+                    .select("a[href]")
+                    .mapNotNull { it.attr("href") }
+                    .filter { it.matches(Regex("""https://n\.news\.naver\.com/mnews/article/\d+/\d+$""")) }
+            } catch (e: Exception) {
+                log.error { "Request failed retrying... : Cause: ${e.message}, attempt: ${attempt + 1}" }
+            }
+
+            Thread.sleep(sleepTime)
+        }
+
+        return emptyList()
+    }
 }

@@ -5,14 +5,14 @@ import web.handler.exception.BadRequestException
 enum class Category(
     val code: Int,
     val title: String,
+    val rootUrl: String?,
 ) {
-    TECHNOLOGY(1 shl 1, "기술"),
-    BUSINESS(1 shl 4, "비즈니스"),
-    POLITICS(1 shl 7, "정치"),
-    ECONOMY(1 shl 9, "경제"),
-    APPLE(1 shl 12, "애플"),
-    EV(1 shl 13, "전기차"),
-    ETC(0, "기타"),
+    TECHNOLOGY(1 shl 1, "기술", "https://news.naver.com/section/105"),
+    LIFE(1 shl 2, "생활", "https://news.naver.com/section/103"),
+    POLITICS(1 shl 3, "정치", "https://news.naver.com/section/100"),
+    ECONOMY(1 shl 4, "경제", "https://news.naver.com/section/101"),
+    SOCIETY(1 shl 5, "사회", "https://news.naver.com/section/102"),
+    ETC(0, "기타", null),
 
     ;
 
