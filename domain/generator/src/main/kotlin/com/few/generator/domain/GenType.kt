@@ -7,8 +7,6 @@ enum class GenType(
     val code: Int,
     val title: String,
 ) {
-    STRATEGY_NAME_QUESTION(1 shl 0, Constant.GEN.STRATEGY_NAME_QUESTION),
-    STRATEGY_NAME_LONG(1 shl 1, Constant.GEN.STRATEGY_NAME_LONG),
     STRATEGY_NAME_SHORT(1 shl 2, Constant.GEN.STRATEGY_NAME_SHORT),
 
     ;

@@ -8,6 +8,9 @@ import com.few.generator.usecase.out.ContentsGeneratorUseCaseOut
 import org.springframework.stereotype.Component
 
 @Component
+@Deprecated(
+    "Use CreateAllUseCase instead. This use case is deprecated and will be removed in the future.",
+)
 class CreateGenUseCase(
     private val rawContentsService: RawContentsService,
     private val provisioningService: ProvisioningService,
