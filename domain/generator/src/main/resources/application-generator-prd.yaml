@@ -39,4 +39,4 @@ jsoup:
 
 scheduling:
     cron:
-        generator: "0 0 6 * * *"
+        generator: "0 0 5 * * *"
