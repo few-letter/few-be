@@ -139,6 +139,20 @@ class Scrapper(
                     .select("a[href]")
                     .mapNotNull { it.attr("href") }
                     .filter { it.matches(Regex("""https://n\.news\.naver\.com/mnews/article/\d+/\d+$""")) }
+                    .map {
+                        log.debug { "Extracted URL: $it" }
+                        it
+                    }.mapNotNull {
+                        connectionFactory
+                            .createConnection(it)
+                            .get()
+                            .select("a")
+                            .firstOrNull { it.text() == "기사원문" }
+                            ?.attr("href")
+                    }.map {
+                        log.debug { "Origin URL: $it" }
+                        it
+                    }
             } catch (e: Exception) {
                 log.error { "Request failed retrying... : Cause: ${e.message}, attempt: ${attempt + 1}" }
             }
