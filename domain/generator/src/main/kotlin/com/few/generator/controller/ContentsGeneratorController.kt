@@ -9,6 +9,7 @@ import com.few.generator.usecase.CreateAllUseCase
 import com.few.generator.usecase.CreateGenUseCase
 import com.few.generator.usecase.CreateProvisioningUseCase
 import com.few.generator.usecase.RawContentsBrowseContentUseCase
+import com.few.generator.usecase.SchedulingUseCase
 import jakarta.validation.constraints.Min
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -21,6 +22,7 @@ import web.ApiResponseGenerator
 @RestController
 @RequestMapping("/api/v1")
 class ContentsGeneratorController(
+    private val schedulingUseCase: SchedulingUseCase,
     private val createAllUseCase: CreateAllUseCase,
     private val rawContentsBrowseContentUseCase: RawContentsBrowseContentUseCase,
     private val createProvisioningUseCase: CreateProvisioningUseCase,
@@ -28,22 +30,14 @@ class ContentsGeneratorController(
 ) {
     @PostMapping(
         value = ["/contents"],
-        consumes = [MediaType.APPLICATION_JSON_VALUE],
-        produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun createAll(
         @RequestBody request: WebContentsGeneratorRequest,
-    ): ApiResponse<ApiResponse.SuccessBody<ContentsGeneratorResponse>> {
-        val useCaseOut = createAllUseCase.execute(request.sourceUrl)
+    ): ApiResponse<ApiResponse.Success> {
+        schedulingUseCase.execute()
 
         return ApiResponseGenerator.success(
-            ContentsGeneratorResponse(
-                sourceUrl = useCaseOut.sourceUrl,
-                rawContentId = useCaseOut.rawContentId,
-                provisioningContentId = useCaseOut.provisioningContentId,
-                genIds = useCaseOut.genIds,
-            ),
-            HttpStatus.CREATED,
+            HttpStatus.OK,
         )
     }
 
