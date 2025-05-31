@@ -34,12 +34,12 @@ class RawContentsService(
         category: Category,
     ): RawContents {
         rawContentsRepository.findByUrl(sourceUrl)?.let {
-            throw BadRequestException("이미 생성된 컨텐츠가 있습니다. ID: ${it.id}")
+            throw BadRequestException("이미 생성된 컨텐츠가 있습니다. ID: ${it.id}, URL: $sourceUrl")
         }
 
         val scrappedResult = scrapper.scrape(sourceUrl) ?: throw BadRequestException("스크래핑 실패")
 
-        val rawContents =
+        return rawContentsRepository.save(
             RawContents(
                 url = sourceUrl,
                 title = scrappedResult.title,
@@ -48,9 +48,8 @@ class RawContentsService(
                 rawTexts = scrappedResult.rawTexts.joinToString("\n"),
                 imageUrls = gson.toJson(scrappedResult.images) ?: "[]",
                 category = category.code,
-            )
-
-        return rawContentsRepository.save(rawContents)
+            ),
+        )
     }
 
     fun getById(id: Long): RawContents =
