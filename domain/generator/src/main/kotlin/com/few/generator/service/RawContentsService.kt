@@ -19,6 +19,7 @@ class RawContentsService(
     private val gson: Gson,
 ) {
     private val log = KotlinLogging.logger {}
+    private val countOfNewsByCategory = 20
 
     fun create(): Map<Category, List<RawContents>> =
         Category.entries
@@ -27,6 +28,7 @@ class RawContentsService(
                 scrapper
                     .extractUrlsByCategory(category.rootUrl!!)
                     .mapNotNull { url -> create(url, category) }
+                    .take(countOfNewsByCategory)
             }
 
     fun create(
