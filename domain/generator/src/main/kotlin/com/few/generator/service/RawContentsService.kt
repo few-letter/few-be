@@ -19,7 +19,7 @@ class RawContentsService(
     private val gson: Gson,
 ) {
     private val log = KotlinLogging.logger {}
-    private val countOfNewsByCategory = 20
+    private val countOfNewsByCategory = 10
 
     fun create(): Map<Category, List<RawContents>> =
         Category.entries
