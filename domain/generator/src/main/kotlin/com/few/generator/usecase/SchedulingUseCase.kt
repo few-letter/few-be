@@ -4,11 +4,13 @@ import com.few.generator.domain.Category
 import com.few.generator.domain.GenType
 import com.few.generator.domain.ProvisioningContents
 import com.few.generator.domain.RawContents
+import com.few.generator.event.dto.ContentsSchedulingEventDto
 import com.few.generator.service.GenService
 import com.few.generator.service.ProvisioningService
 import com.few.generator.service.RawContentsService
 import com.few.generator.support.jpa.GeneratorTransactional
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import kotlin.system.measureTimeMillis
@@ -18,39 +20,59 @@ class SchedulingUseCase(
     private val rawContentsService: RawContentsService,
     private val provisioningService: ProvisioningService,
     private val genService: GenService,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
     private val log = KotlinLogging.logger {}
 
     @Scheduled(cron = "\${scheduling.cron.generator}")
     @GeneratorTransactional
     fun execute() {
-        // 1. 스크래핑 후 Raw 데이터 저장
-        val (rawContents, timeOfCreatingRawContents) =
-            measureAndReturn {
-                rawContentsService.create()
-            }
+        var rawContents = emptyMap<Category, List<RawContents>>()
+        var provisionings = emptyMap<Category, List<ProvisioningContents>>()
 
-        // 2. raw 데이터 기반 provisioning 생성
-        val (provisionings, timeOfCreatingProvisionings) =
-            measureAndReturn {
-                createProvisionings(rawContents)
-            }
+        var timeOfCreatingRawContents = 0.0
+        var timeOfCreatingProvisionings = 0.0
+        var timeOfCreatingGens = 0.0
 
-        // 3. gen 생성
-        val timeOfCreatingGens =
+        runCatching {
+            measureAndReturn { rawContentsService.create() }
+                .also { (result, time) ->
+                    rawContents = result
+                    timeOfCreatingRawContents = time
+                }
+
+            measureAndReturn { createProvisionings(rawContents) }
+                .also { (result, time) ->
+                    provisionings = result
+                    timeOfCreatingProvisionings = time
+                }
+
             measureTimeMillis {
                 createGens(rawContents, provisionings)
+            }.msToSeconds().also { timeOfCreatingGens = it }
+        }.onFailure {
+            log.error(it) { "콘텐츠 스케줄링 중 오류 발생" }
+        }.also {
+            val total = timeOfCreatingRawContents + timeOfCreatingProvisionings + timeOfCreatingGens
+
+            log.info {
+                buildString {
+                    appendLine("✅ [1단계] RawContents: $timeOfCreatingRawContents s")
+                    appendLine("✅ [2단계] Provisionings: $timeOfCreatingProvisionings s")
+                    appendLine("✅ [3단계] Gens: $timeOfCreatingGens s")
+                    append("-> 전체 : $total s")
+                }
             }
 
-        log.info {
-            "✅ [1단계] RawContents: ${timeOfCreatingRawContents.msToSeconds()} s \n" +
-                "✅ [2단계] Provisionings: ${timeOfCreatingProvisionings.msToSeconds()} s \n" +
-                "✅ [3단계] Gens: ${timeOfCreatingGens.msToSeconds()} s \n" +
-                "-> 전체 : ${(timeOfCreatingRawContents + timeOfCreatingProvisionings + timeOfCreatingGens).msToSeconds()} s"
+            applicationEventPublisher.publishEvent(
+                ContentsSchedulingEventDto(
+                    timeOfCreatingRawContents = String.format("%.3f", timeOfCreatingRawContents),
+                    timeOfCreatingProvisioning = String.format("%.3f", timeOfCreatingProvisionings),
+                    timeOfCreatingGens = String.format("%.3f", timeOfCreatingGens),
+                    total = String.format("%.3f", total),
+                ),
+            )
         }
-
-        // TODO: 스케줄링 결과 이력 저장
-        // TODO: 수해 결과 디스코드 알림 추가
     }
 
     private fun createProvisionings(rawContents: Map<Category, List<RawContents>>): Map<Category, List<ProvisioningContents>> =
@@ -75,12 +97,12 @@ class SchedulingUseCase(
         }
     }
 
-    private inline fun <T> measureAndReturn(block: () -> T): Pair<T, Long> {
+    private inline fun <T> measureAndReturn(block: () -> T): Pair<T, Double> {
         val start = System.currentTimeMillis()
         val result = block()
         val elapsed = System.currentTimeMillis() - start
-        return result to elapsed
+        return result to elapsed.msToSeconds()
     }
 
-    private fun Long.msToSeconds(): String = String.format("%.3f", this / 1000.0)
+    private fun Long.msToSeconds(): Double = this / 1000.0
 }
