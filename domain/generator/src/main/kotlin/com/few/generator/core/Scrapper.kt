@@ -25,13 +25,15 @@ class Scrapper(
     private val imageExtensions = listOf(".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg")
 
     fun get(url: String): Document? {
-        repeat(retryCount) {
+        repeat(retryCount) { attempt ->
             try {
                 val response =
                     connectionFactory
                         .createConnection(url)
                         .get()
-                Thread.sleep(sleepTime)
+                if (attempt < retryCount - 1) {
+                    Thread.sleep(sleepTime)
+                }
                 return response
             } catch (e: Exception) {
                 log.error { "Request failed: ${e.message}" }
@@ -156,7 +158,9 @@ class Scrapper(
                 log.error { "Request failed retrying... : Cause: ${e.message}, attempt: ${attempt + 1}" }
             }
 
-            Thread.sleep(sleepTime)
+            if (attempt < retryCount - 1) {
+                Thread.sleep(sleepTime)
+            }
         }
 
         return emptySet()
