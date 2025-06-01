@@ -44,3 +44,7 @@ scheduling:
 urls:
     webhook:
         discord: "localhost:8080/webhook/discord/unused"
+
+generator:
+    contents:
+        countByCategory: 1

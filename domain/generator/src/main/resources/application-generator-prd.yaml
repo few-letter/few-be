@@ -44,3 +44,7 @@ scheduling:
 urls:
     webhook:
         discord: ${WEBHOOK_DISCORD}
+
+generator:
+    contents:
+        countByCategory: 10

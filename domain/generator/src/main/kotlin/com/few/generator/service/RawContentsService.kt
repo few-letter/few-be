@@ -8,6 +8,7 @@ import com.few.generator.repository.RawContentsRepository
 import com.google.gson.Gson
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import web.handler.exception.BadRequestException
 
@@ -17,9 +18,10 @@ class RawContentsService(
     private val rawContentsRepository: RawContentsRepository,
     @Qualifier(GSON_BEAN_NAME)
     private val gson: Gson,
+    @Value("\${generator.contents.countByCategory}")
+    private val contentsCountByCategory: Int,
 ) {
     private val log = KotlinLogging.logger {}
-    private val countOfNewsByCategory = 10
 
     fun create(): Map<Category, List<RawContents>> =
         Category.entries
@@ -28,7 +30,7 @@ class RawContentsService(
                 scrapper
                     .extractUrlsByCategory(category.rootUrl!!)
                     .mapNotNull { url -> create(url, category) }
-                    .take(countOfNewsByCategory)
+                    .take(contentsCountByCategory)
             }
 
     fun create(
