@@ -33,6 +33,7 @@ class SchedulingUseCase(
         var timeOfCreatingRawContents = 0.0
         var timeOfCreatingProvisionings = 0.0
         var timeOfCreatingGens = 0.0
+        var isSuccess = true
 
         runCatching {
             measureAndReturn { rawContentsService.create() }
@@ -51,12 +52,14 @@ class SchedulingUseCase(
                 createGens(rawContents, provisionings)
             }.msToSeconds().also { timeOfCreatingGens = it }
         }.onFailure {
+            isSuccess = false
             log.error(it) { "콘텐츠 스케줄링 중 오류 발생" }
         }.also {
             val total = timeOfCreatingRawContents + timeOfCreatingProvisionings + timeOfCreatingGens
 
             log.info {
                 buildString {
+                    appendLine("# isSuccess: $isSuccess")
                     appendLine("✅ [1단계] RawContents: $timeOfCreatingRawContents s")
                     appendLine("✅ [2단계] Provisionings: $timeOfCreatingProvisionings s")
                     appendLine("✅ [3단계] Gens: $timeOfCreatingGens s")
@@ -66,6 +69,7 @@ class SchedulingUseCase(
 
             applicationEventPublisher.publishEvent(
                 ContentsSchedulingEventDto(
+                    isSuccess = isSuccess,
                     timeOfCreatingRawContents = String.format("%.3f", timeOfCreatingRawContents),
                     timeOfCreatingProvisioning = String.format("%.3f", timeOfCreatingProvisionings),
                     timeOfCreatingGens = String.format("%.3f", timeOfCreatingGens),

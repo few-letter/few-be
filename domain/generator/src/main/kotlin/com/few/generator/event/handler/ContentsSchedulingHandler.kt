@@ -24,6 +24,10 @@ class ContentsSchedulingHandler(
                 embeds =
                     listOf(
                         Embed(
+                            title = "✅ isSuccess",
+                            description = event.isSuccess.toString(),
+                        ),
+                        Embed(
                             title = "1️⃣ RawContents 생성 시간",
                             description = event.timeOfCreatingRawContents,
                         ),
