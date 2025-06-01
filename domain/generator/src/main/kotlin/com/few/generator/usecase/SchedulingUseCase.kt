@@ -13,6 +13,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import java.time.LocalDateTime
 import kotlin.system.measureTimeMillis
 
 @Component
@@ -27,6 +28,7 @@ class SchedulingUseCase(
     @Scheduled(cron = "\${scheduling.cron.generator}")
     @GeneratorTransactional
     fun execute() {
+        val startTime = LocalDateTime.now()
         var rawContents = emptyMap<Category, List<RawContents>>()
         var provisionings = emptyMap<Category, List<ProvisioningContents>>()
 
@@ -56,10 +58,17 @@ class SchedulingUseCase(
             log.error(it) { "콘텐츠 스케줄링 중 오류 발생" }
         }.also {
             val total = timeOfCreatingRawContents + timeOfCreatingProvisionings + timeOfCreatingGens
+            val countByCategory =
+                rawContents.entries.joinToString(separator = "\n") { (category, rawList) ->
+                    val count = rawList.count { it != null }
+                    "[${category.title}] $count"
+                }
 
             log.info {
                 buildString {
                     appendLine("# isSuccess: $isSuccess")
+                    appendLine("# 시작 시간: $startTime")
+                    appendLine("# 카테고리 별 생성 개수: $countByCategory")
                     appendLine("✅ [1단계] RawContents: $timeOfCreatingRawContents s")
                     appendLine("✅ [2단계] Provisionings: $timeOfCreatingProvisionings s")
                     appendLine("✅ [3단계] Gens: $timeOfCreatingGens s")
@@ -70,10 +79,12 @@ class SchedulingUseCase(
             applicationEventPublisher.publishEvent(
                 ContentsSchedulingEventDto(
                     isSuccess = isSuccess,
+                    startTime = startTime,
                     timeOfCreatingRawContents = String.format("%.3f", timeOfCreatingRawContents),
                     timeOfCreatingProvisioning = String.format("%.3f", timeOfCreatingProvisionings),
                     timeOfCreatingGens = String.format("%.3f", timeOfCreatingGens),
                     total = String.format("%.3f", total),
+                    countByCategory = countByCategory,
                 ),
             )
         }

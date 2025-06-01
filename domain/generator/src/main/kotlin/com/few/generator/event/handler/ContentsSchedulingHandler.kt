@@ -28,6 +28,10 @@ class ContentsSchedulingHandler(
                             description = event.isSuccess.toString(),
                         ),
                         Embed(
+                            title = "⏰ 시작 시간",
+                            description = event.startTime.toString(),
+                        ),
+                        Embed(
                             title = "1️⃣ RawContents 생성 시간",
                             description = event.timeOfCreatingRawContents,
                         ),
@@ -40,8 +44,12 @@ class ContentsSchedulingHandler(
                             description = event.timeOfCreatingGens,
                         ),
                         Embed(
-                            title = "🧮 전체 소요 시간",
+                            title = "⌛ 전체 소요 시간",
                             description = event.total,
+                        ),
+                        Embed(
+                            title = ">> 카테고리 별 생성 컨텐츠 개수 <<",
+                            description = event.countByCategory,
                         ),
                     ),
             )
