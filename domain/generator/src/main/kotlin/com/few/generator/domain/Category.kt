@@ -5,7 +5,7 @@ import web.handler.exception.BadRequestException
 enum class Category(
     val code: Int,
     val title: String,
-    val rootUrl: String?,
+    val rootUrl: String?, // TODO: rootUrl 서비스로 분리
 ) {
     TECHNOLOGY(1 shl 1, "기술", "https://news.naver.com/section/105"),
     LIFE(1 shl 2, "생활", "https://news.naver.com/section/103"),
