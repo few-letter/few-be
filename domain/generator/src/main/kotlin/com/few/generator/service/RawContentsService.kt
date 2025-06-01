@@ -30,7 +30,9 @@ class RawContentsService(
             .associateWith { category ->
                 scrapper
                     .extractUrlsByCategory(category.rootUrl!!)
+                    .filter { rawContentsRepository.findByUrl(url = it) == null }
                     .mapNotNull { url -> create(url, category) }
+                    .filter { true }
                     .take(contentsCountByCategory)
             }
 
