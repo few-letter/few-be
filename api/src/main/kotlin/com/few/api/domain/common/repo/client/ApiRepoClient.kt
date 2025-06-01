@@ -12,7 +12,7 @@ import web.client.Embed
 
 @Service
 class ApiRepoClient(
-    private val restTemplate: RestTemplate,
+    private val apiDiscordRestTemplate: RestTemplate,
     @Value("\${webhook.discord}") private val discordWebhook: String,
 ) {
     private val log = KotlinLogging.logger {}
@@ -46,7 +46,7 @@ class ApiRepoClient(
             }
         }
 
-        restTemplate
+        apiDiscordRestTemplate
             .exchange(
                 discordWebhook,
                 HttpMethod.POST,

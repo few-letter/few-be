@@ -12,7 +12,7 @@ import web.client.Embed
 
 @Service
 class ApiSubscriptionClient(
-    private val restTemplate: RestTemplate,
+    private val apiDiscordRestTemplate: RestTemplate,
     @Value("\${webhook.discord}") private val discordWebhook: String,
 ) {
     private val log = KotlinLogging.logger {}
@@ -40,7 +40,7 @@ class ApiSubscriptionClient(
                 )
             }
 
-        restTemplate
+        apiDiscordRestTemplate
             .exchange(
                 discordWebhook,
                 HttpMethod.POST,

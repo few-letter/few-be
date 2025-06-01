@@ -4,7 +4,6 @@ import com.few.generator.config.JsoupConnectionFactory
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jsoup.nodes.Document
 import org.springframework.stereotype.Component
-import web.handler.exception.BadRequestException
 import java.net.URI
 import java.util.regex.Pattern
 
@@ -26,13 +25,15 @@ class Scrapper(
     private val imageExtensions = listOf(".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg")
 
     fun get(url: String): Document? {
-        repeat(retryCount) {
+        repeat(retryCount) { attempt ->
             try {
                 val response =
                     connectionFactory
                         .createConnection(url)
                         .get()
-                Thread.sleep(sleepTime)
+                if (attempt < retryCount - 1) {
+                    Thread.sleep(sleepTime)
+                }
                 return response
             } catch (e: Exception) {
                 log.error { "Request failed: ${e.message}" }
@@ -125,8 +126,43 @@ class Scrapper(
         val rawTexts = getTexts(allTexts.joinToString("\n"))
         val images = getImages(soup)
 
-        if (title == null || description == null) throw BadRequestException("title 및 description 스크래핑 실패")
+        if (title == null || description == null) {
+            log.error { "title 및 description 스크래핑 실패. URL: $url" }
+            return null
+        }
 
         return ScrappedResult(title, description, thumbnailImageUrl, rawTexts, images)
+    }
+
+    fun extractUrlsByCategory(rootUrl: String): Set<String> {
+        repeat(retryCount) { attempt ->
+            try {
+                return connectionFactory
+                    .createConnection(rootUrl)
+                    .get()
+                    .select("a[href]")
+                    .mapNotNull { it.attr("href") }
+                    .filter { it.matches(Regex("""https://n\.news\.naver\.com/mnews/article/\d+/\d+$""")) }
+                    .map {
+                        log.debug { "Extracted URL: $it" }
+                        it
+                    }.mapNotNull {
+                        connectionFactory
+                            .createConnection(it)
+                            .get()
+                            .select("a")
+                            .firstOrNull { it.text() == "기사원문" }
+                            ?.attr("href")
+                    }.toSet()
+            } catch (e: Exception) {
+                log.error { "Request failed retrying... : Cause: ${e.message}, attempt: ${attempt + 1}" }
+            }
+
+            if (attempt < retryCount - 1) {
+                Thread.sleep(sleepTime)
+            }
+        }
+
+        return emptySet()
     }
 }

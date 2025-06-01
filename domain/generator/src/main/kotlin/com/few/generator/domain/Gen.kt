@@ -25,6 +25,8 @@ data class Gen( // TODO: DB컬럼 타입 변경 필요
     val highlightTexts: String = "[]",
     @Column(nullable = false)
     val typeCode: Int,
+    @Column(nullable = false)
+    val category: Int,
 ) : BaseEntity() {
     protected constructor() : this( // TODO: 기본 생성자 필요?
         id = null,
@@ -34,5 +36,6 @@ data class Gen( // TODO: DB컬럼 타입 변경 필요
         summary = "",
         highlightTexts = "[]",
         typeCode = 0,
+        category = 0,
     )
 }

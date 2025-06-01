@@ -36,3 +36,15 @@ jsoup:
     followRedirects: true
     ignoreHttpErrors: false
     ignoreContentType: true
+
+scheduling:
+    cron:
+        generator: "0 0 5 * * *"
+
+urls:
+    webhook:
+        discord: ${WEBHOOK_DISCORD}
+
+generator:
+    contents:
+        countByCategory: 10

@@ -10,7 +10,7 @@ dependencies {
     implementation(project(":library:web"))
 
     /** jsoup - html parser */
-    implementation("org.jsoup:jsoup:1.15.3")
+    implementation("org.jsoup:jsoup:${DependencyVersion.JSOUP}")
 
     /** HTTP client **/
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
@@ -20,4 +20,8 @@ dependencies {
 
     /** jpa */
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+
+    /** Coroutines for Spring */
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${DependencyVersion.COROUTINES_SPRING}")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${DependencyVersion.COROUTINES_SPRING}")
 }
