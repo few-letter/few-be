@@ -26,6 +26,13 @@ spring:
                 - thread-prd
                 # domain
                 - generator-prd
+    jpa:
+        show-sql: true
+        properties:
+            hibernate:
+                format_sql: true
+                highlight_sql: true
+                use_sql_comments: true
 
 auth:
     batch: ${AUTH_BATCH:0518}
