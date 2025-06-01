@@ -6,8 +6,8 @@ data class ContentsSchedulingEventDto(
     val isSuccess: Boolean,
     val startTime: LocalDateTime,
     val timeOfCreatingRawContents: String,
-    val timeOfCreatingProvisioning: String,
+    val timeOfCreatingProvisionings: String,
     val timeOfCreatingGens: String,
-    val total: String,
+    val totalTime: String,
     val countByCategory: String,
 )

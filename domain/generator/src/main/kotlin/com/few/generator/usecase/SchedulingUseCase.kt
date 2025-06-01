@@ -57,7 +57,7 @@ class SchedulingUseCase(
             isSuccess = false
             log.error(it) { "콘텐츠 스케줄링 중 오류 발생" }
         }.also {
-            val total = timeOfCreatingRawContents + timeOfCreatingProvisionings + timeOfCreatingGens
+            val totalTime = timeOfCreatingRawContents + timeOfCreatingProvisionings + timeOfCreatingGens
             val countByCategory =
                 rawContents.entries.joinToString(separator = "\n") { (category, rawList) ->
                     val count = rawList.count { it != null }
@@ -72,7 +72,7 @@ class SchedulingUseCase(
                     appendLine("✅ [1단계] RawContents: $timeOfCreatingRawContents s")
                     appendLine("✅ [2단계] Provisionings: $timeOfCreatingProvisionings s")
                     appendLine("✅ [3단계] Gens: $timeOfCreatingGens s")
-                    append("-> 전체 : $total s")
+                    append("-> 전체 : $totalTime s")
                 }
             }
 
@@ -80,10 +80,10 @@ class SchedulingUseCase(
                 ContentsSchedulingEventDto(
                     isSuccess = isSuccess,
                     startTime = startTime,
-                    timeOfCreatingRawContents = String.format("%.3f", timeOfCreatingRawContents),
-                    timeOfCreatingProvisioning = String.format("%.3f", timeOfCreatingProvisionings),
-                    timeOfCreatingGens = String.format("%.3f", timeOfCreatingGens),
-                    total = String.format("%.3f", total),
+                    timeOfCreatingRawContents = "%.3f".format(timeOfCreatingRawContents),
+                    timeOfCreatingProvisionings = "%.3f".format(timeOfCreatingProvisionings),
+                    timeOfCreatingGens = "%.3f".format(timeOfCreatingGens),
+                    totalTime = "%.3f".format(totalTime),
                     countByCategory = countByCategory,
                 ),
             )

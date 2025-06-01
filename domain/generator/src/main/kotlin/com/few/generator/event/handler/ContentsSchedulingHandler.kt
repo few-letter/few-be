@@ -37,7 +37,7 @@ class ContentsSchedulingHandler(
                         ),
                         Embed(
                             title = "2️⃣ ProvisioningContents 생성 시간",
-                            description = event.timeOfCreatingProvisioning,
+                            description = event.timeOfCreatingProvisionings,
                         ),
                         Embed(
                             title = "3️⃣ Gens 생성 시간",
@@ -45,7 +45,7 @@ class ContentsSchedulingHandler(
                         ),
                         Embed(
                             title = "⌛ 전체 소요 시간",
-                            description = event.total,
+                            description = event.totalTime,
                         ),
                         Embed(
                             title = ">> 카테고리 별 생성 컨텐츠 개수 <<",
