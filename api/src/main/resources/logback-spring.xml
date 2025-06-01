@@ -19,10 +19,10 @@
         <logger name="com.few" level="DEBUG" additivity="false">
             <appender-ref ref="CONSOLE"/>
         </logger>
-        <logger name="org.jooq" level="DEBUG" additivity="false">
+        <logger name="org.jooq" level="INFO" additivity="false">
             <appender-ref ref="CONSOLE"/>
         </logger>
-        <logger name="com.zaxxer.hikari" level="DEBUG" additivity="false">
+        <logger name="com.zaxxer.hikari" level="INFO" additivity="false">
             <appender-ref ref="CONSOLE"/>
         </logger>
         <logger name="org.springframework" level="INFO" additivity="false">
