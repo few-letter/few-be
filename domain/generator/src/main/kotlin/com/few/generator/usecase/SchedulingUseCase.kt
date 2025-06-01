@@ -87,6 +87,10 @@ class SchedulingUseCase(
                     countByCategory = countByCategory,
                 ),
             )
+
+            if (!isSuccess) {
+                throw RuntimeException("콘텐츠 스케줄링에 실패 : $startTime")
+            }
         }
     }
 
@@ -103,10 +107,10 @@ class SchedulingUseCase(
     ) {
         val genTypes: Set<Int> = GenType.entries.map { it.code }.toSet()
 
-        rawContents.forEach { (category, rawList) ->
+        rawContents.forEach { (category, rawContentsList) ->
             val provisioningList = provisionings[category].orEmpty()
 
-            rawList.zip(provisioningList).forEach { (raw, provisioning) ->
+            rawContentsList.zip(provisioningList).forEach { (raw, provisioning) ->
                 genService.create(raw, provisioning, genTypes)
             }
         }
