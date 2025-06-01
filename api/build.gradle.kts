@@ -1,178 +1,234 @@
 
-import org.hidetake.gradle.swagger.generator.GenerateSwaggerUI
+import com.epages.restdocs.apispec.gradle.OpenApi3Task
 import org.springframework.boot.gradle.tasks.bundling.BootJar
-import java.util.Random
+import org.yaml.snakeyaml.DumperOptions
+import org.yaml.snakeyaml.Yaml
+import java.io.FileInputStream
+import java.io.FileWriter
+import java.io.InputStream
+import java.util.*
+
 
 tasks.withType(BootJar::class.java) {
     loaderImplementation = org.springframework.boot.loader.tools.LoaderImplementation.CLASSIC
 }
 
+plugins {
+    /** jooq */
+    id("org.jooq.jooq-codegen-gradle") version DependencyVersion.JOOQ
+}
+
 dependencies {
+    /** domain */
+    implementation(project(":domain:generator"))
+
     /** module */
-    implementation(project(":api-repo"))
-    implementation(project(":batch"))
-    implementation(project(":email"))
-    implementation(project(":storage"))
+    implementation(project(":library:email"))
+    implementation(project(":library:storage"))
+    implementation(project(":library:web"))
+    testImplementation(testFixtures(project(":library:web")))
 
     /** spring starter */
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-aop")
+    implementation("org.springframework.boot:spring-boot-starter-cache")
 
-    /** jwt */
-    implementation("io.jsonwebtoken:jjwt-api:${DependencyVersion.JWT}")
-    implementation("io.jsonwebtoken:jjwt-impl:${DependencyVersion.JWT}")
-    implementation("io.jsonwebtoken:jjwt-jackson:${DependencyVersion.JWT}")
+    /** Local Cache **/
+    implementation("org.ehcache:ehcache:${DependencyVersion.EHCACHE}")
 
     /** aspectj */
-    implementation("org.aspectj:aspectjweaver:1.9.5")
+    implementation("org.aspectj:aspectjweaver:${DependencyVersion.ASPECTJ}")
 
     /** scrimage */
     implementation("com.sksamuel.scrimage:scrimage-core:${DependencyVersion.SCRIMAGE}")
     /** for convert to webp */
     implementation("com.sksamuel.scrimage:scrimage-webp:${DependencyVersion.SCRIMAGE}")
 
-    /** swagger & restdocs */
-    implementation("org.springdoc:springdoc-openapi-ui:${DependencyVersion.SPRINGDOC}")
-    implementation("org.springframework.restdocs:spring-restdocs-webtestclient")
-    implementation("org.springframework.restdocs:spring-restdocs-mockmvc")
-    implementation("com.epages:restdocs-api-spec-mockmvc:${DependencyVersion.EPAGES_REST_DOCS_API_SPEC}")
-    swaggerUI("org.webjars:swagger-ui:${DependencyVersion.SWAGGER_UI}")
+    /** commonmark - markdown to html */
+    implementation("org.commonmark:commonmark:${DependencyVersion.COMMONMARK}")
 
-    /** test container */
-    implementation(platform("org.testcontainers:testcontainers-bom:${DependencyVersion.TEST_CONTAINER}"))
-    testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("org.testcontainers:mysql")
+    /** jsoup - html parser */
+    implementation("org.jsoup:jsoup:1.15.3")
+
+    /** mysql */
+    implementation("com.mysql:mysql-connector-j")
+
+    /** jooq */
+    jooqCodegen("org.jooq:jooq-meta-extensions:${DependencyVersion.JOOQ}")
+    implementation("org.springframework.boot:spring-boot-starter-jooq")
+
+    /** flyway */
+    implementation("org.flywaydb:flyway-core:${DependencyVersion.FLYWAY}")
+    implementation("org.flywaydb:flyway-mysql")
 }
 
-plugins {
-    id("org.asciidoctor.jvm.convert") version DependencyVersion.ASCIIDOCTOR
-    id("com.epages.restdocs-api-spec") version DependencyVersion.EPAGES_REST_DOCS_API_SPEC
-    id("org.hidetake.swagger.generator") version DependencyVersion.SWAGGER_GENERATOR
-}
+jooq {
+    configuration {
+        generator {
+            database {
+                name = "org.jooq.meta.extensions.ddl.DDLDatabase"
+                properties {
+                    // Specify the location of your SQL script.
+                    // You may use ant-style file matching, e.g. /path/**/to/*.sql
+                    //
+                    // Where:
+                    // - ** matches any directory subtree
+                    // - * matches any number of characters in a directory / file name
+                    // - ? matches a single character in a directory / file name
+                    property {
+                        key = "scripts"
+                        value = "src/main/resources/db/migration/**/*.sql"
+                    }
 
-val serverUrl = project.hasProperty("serverUrl").let {
-    if (it) {
-        project.property("serverUrl") as String
-    } else {
-        "http://localhost:8080"
+                    // The sort order of the scripts within a directory, where:
+                    //
+                    // - semantic: sorts versions, e.g. v-3.10.0 is after v-3.9.0 (default)
+                    // - alphanumeric: sorts strings, e.g. v-3.10.0 is before v-3.9.0
+                    // - flyway: sorts files the same way as flyway does
+                    // - none: doesn't sort directory contents after fetching them from the directory
+                    property {
+                        key = "sort"
+                        value = "flyway"
+                    }
+
+                    // The default schema for unqualified objects:
+                    //
+                    // - public: all unqualified objects are located in the PUBLIC (upper case) schema
+                    // - none: all unqualified objects are located in the default schema (default)
+                    //
+                    // This configuration can be overridden with the schema mapping feature
+                    property {
+                        key = "unqualifiedSchema"
+                        value = "none"
+                    }
+
+                    // The default name case for unquoted objects:
+                    //
+                    // - as_is: unquoted object names are kept unquoted
+                    // - upper: unquoted object names are turned into upper case (most databases)
+                    // - lower: unquoted object names are turned into lower case (e.g. PostgreSQL)
+                    property {
+                        key = "defaultNameCase"
+                        value = "as_is"
+                    }
+                }
+            }
+
+            generate {
+                isDeprecated = false
+                isRecords = true
+                isImmutablePojos = true
+                isFluentSetters = true
+                isJavaTimeTypes = true
+            }
+
+            target {
+                packageName = "jooq.jooq_dsl"
+                directory = "src/generated"
+                encoding = "UTF-8"
+            }
+        }
     }
 }
 
-/** convert snippet to swagger */
-openapi3 {
-    this.setServer(serverUrl)
-    title = project.name
-    version = project.version.toString()
-    format = "yaml"
-    snippetsDirectory = "build/generated-snippets/"
-    outputDirectory = "src/main/resources/static/"
-    outputFileNamePrefix = "openapi3"
-}
-
-/** convert snippet to postman */
-postman {
-    title = project.name
-    version = project.version.toString()
-    baseUrl = serverUrl
-    outputDirectory = "src/main/resources/static/"
-    outputFileNamePrefix = "postman"
-}
-
-/** generate swagger ui */
-swaggerSources {
-    /** generateSwaggerUIApi */
-    register("api") {
-        setInputFile(file("$projectDir/src/main/resources/static/openapi3.yaml"))
-    }
-}
-
-/**
- * generate static swagger ui <br/>
- * need snippet to generate swagger ui
- * */
-tasks.register("generateStaticSwaggerUIApi", Copy::class) {
-    /** generateSwaggerUIApi */
-    dependsOn("generateSwaggerUIApi")
-    val generateSwaggerUISampleTask = tasks.named("generateSwaggerUIApi", GenerateSwaggerUI::class).get()
-
-    /** copy */
-    from(generateSwaggerUISampleTask.outputDir)
-    into("$projectDir/src/main/resources/static/docs/swagger-ui")
+tasks.withType(OpenApi3Task::class.java) {
+    val multipartformdataPaths =
+        listOf(
+            "/api/v1/admin/utilities/conversion/image",
+            "/api/v1/admin/utilities/conversion/content",
+        )
     doLast {
-        val swaggerSpecSource = "$projectDir/src/main/resources/static/docs/swagger-ui/swagger-spec.js"
-        file(swaggerSpecSource).writeText(
-            file(swaggerSpecSource).readText().replace(
-                "operationId\" : \"PutImageApi\",",
-                "operationId\" : \"PutImageApi\",\n" +
-                    putImageRequestScriptSource
-            )
-        )
+        val input: InputStream = FileInputStream(File("$projectDir/src/main/resources/static/openapi3.yaml"))
+        val options =
+            DumperOptions().apply {
+                defaultFlowStyle = DumperOptions.FlowStyle.BLOCK
+                isPrettyFlow = true
+            }
+        val yaml = Yaml(options)
+        val yamlData = yaml.loadAll(input)
+        for (data in yamlData) {
+            val content = data as MutableMap<*, *>
+            val paths = content["paths"] as MutableMap<*, *>
+            paths.forEach { (path, _methods) ->
+                val methods = _methods as MutableMap<*, *>
+                // Add security to paths that require Authorization header
+                methods.forEach { (_, _details) ->
+                    val details = _details as MutableMap<String, Any>
+                    if (details.containsKey("parameters")) {
+                        val parameters = details["parameters"] as List<Map<String, Any>>
+                        parameters.forEach { param ->
+                            if (param["name"] == "Authorization") {
+                                details["security"] = listOf(mapOf("bearerAuth" to emptyList<String>()))
+                            }
+                        }
+                    }
+                }
 
-        file(swaggerSpecSource).writeText(
-            file(swaggerSpecSource).readText().replace(
-                "operationId\" : \"ConvertContentApi\",",
-                "operationId\" : \"ConvertContentApi\",\n" +
-                    putContentRequestScriptSource
-            )
-        )
+                // Add requestBody for multipart/form-data paths
+                if (multipartformdataPaths.contains(path)) {
+                    if (methods.containsKey("post")) {
+                        val post = methods["post"] as MutableMap<String, Any>
+                        if (!post.containsKey("requestBody")) {
+                            post["requestBody"] =
+                                mutableMapOf(
+                                    "content" to
+                                        mutableMapOf(
+                                            "multipart/form-data" to
+                                                mutableMapOf(
+                                                    "schema" to
+                                                        mutableMapOf(
+                                                            "type" to "object",
+                                                            "properties" to
+                                                                mutableMapOf(
+                                                                    "source" to
+                                                                        mutableMapOf(
+                                                                            "type" to "string",
+                                                                            "format" to "binary",
+                                                                        ),
+                                                                ),
+                                                        ),
+                                                ),
+                                        ),
+                                )
+                        }
+                    }
+                }
+            }
+            val components = content["components"] as MutableMap<String, MutableMap<String, Any>>
+            components["securitySchemes"] =
+                mutableMapOf(
+                    "bearerAuth" to
+                        mutableMapOf(
+                            "type" to "http",
+                            "scheme" to "bearer",
+                            "bearerFormat" to "JWT",
+                        ),
+                )
+            val output = File("$projectDir/src/main/resources/static/openapi3.yaml")
+            yaml.dump(content, FileWriter(output))
+        }
     }
 }
 
-val putImageRequestScriptSource = "" +
-    "        \"requestBody\" : {\n" +
-    "            \"content\" : {\n" +
-    "                \"multipart/form-data\" : {\n" +
-    "                    \"schema\" : {\n" +
-    "                        \"type\" : \"object\",\n" +
-    "                        \"properties\" : {\n" +
-    "                            \"source\" : {\n" +
-    "                                \"type\" : \"string\",\n" +
-    "                                \"format\" : \"binary\"\n" +
-    "                            }\n" +
-    "                        }\n" +
-    "\n" +
-    "                    }\n" +
-    "                }\n" +
-    "            }\n" +
-    "        },"
-
-val putContentRequestScriptSource = "" +
-    "        \"requestBody\" : {\n" +
-    "            \"content\" : {\n" +
-    "                \"multipart/form-data\" : {\n" +
-    "                    \"schema\" : {\n" +
-    "                        \"type\" : \"object\",\n" +
-    "                        \"properties\" : {\n" +
-    "                            \"content\" : {\n" +
-    "                                \"type\" : \"string\",\n" +
-    "                                \"format\" : \"binary\"\n" +
-    "                            }\n" +
-    "                        }\n" +
-    "\n" +
-    "                    }\n" +
-    "                }\n" +
-    "            }\n" +
-    "        },"
-
-val imageName = project.hasProperty("imageName").let {
-    if (it) {
-        project.property("imageName") as String
-    } else {
-        "fewletter/api"
+val imageName =
+    project.hasProperty("imageName").let {
+        if (it) {
+            project.property("imageName") as String
+        } else {
+            "fewletter/api"
+        }
     }
-}
-val releaseVersion = project.hasProperty("releaseVersion").let {
-    if (it) {
-        project.property("releaseVersion") as String
-    } else {
-        Random().nextInt(90000) + 10000
+val releaseVersion =
+    project.hasProperty("releaseVersion").let {
+        if (it) {
+            project.property("releaseVersion") as String
+        } else {
+            Random().nextInt(90000) + 10000
+        }
     }
-}
 
 tasks.register("buildDockerImage") {
-    dependsOn("bootJar")
+    dependsOn("build")
 
     doLast {
         exec {
@@ -188,23 +244,39 @@ tasks.register("buildDockerImage") {
         exec {
             workingDir(".")
             commandLine(
-                "docker", "buildx", "build", "--platform=linux/amd64,linux/arm64", "-t",
-                "$imageName:latest", "--build-arg", "RELEASE_VERSION=$releaseVersion", ".", "--push"
+                "docker",
+                "buildx",
+                "build",
+                "--platform=linux/amd64,linux/arm64",
+                "-t",
+                "$imageName:latest",
+                "--build-arg",
+                "RELEASE_VERSION=$releaseVersion",
+                ".",
+                "--push",
             )
         }
 
         exec {
             workingDir(".")
             commandLine(
-                "docker", "buildx", "build", "--platform=linux/amd64,linux/arm64", "-t",
-                "$imageName:$releaseVersion", "--build-arg", "RELEASE_VERSION=$releaseVersion", ".", "--push"
+                "docker",
+                "buildx",
+                "build",
+                "--platform=linux/amd64,linux/arm64",
+                "-t",
+                "$imageName:$releaseVersion",
+                "--build-arg",
+                "RELEASE_VERSION=$releaseVersion",
+                ".",
+                "--push",
             )
         }
     }
 }
 
 tasks.register("buildEcsDockerImage") {
-    dependsOn("bootJar")
+    dependsOn("build")
 
     doLast {
         exec {
@@ -216,14 +288,14 @@ tasks.register("buildEcsDockerImage") {
                 imageName,
                 "--build-arg",
                 "RELEASE_VERSION=$releaseVersion",
-                '.'
+                '.',
             )
         }
     }
 }
 
 tasks.register("buildPinpointEcsDockerImageDev") {
-    dependsOn("bootJar")
+    dependsOn("build")
 
     doLast {
         exec {
@@ -237,14 +309,14 @@ tasks.register("buildPinpointEcsDockerImageDev") {
                 "RELEASE_VERSION=$releaseVersion",
                 "-f",
                 "Dockerfile.dev.pinpoint",
-                '.'
+                '.',
             )
         }
     }
 }
 
 tasks.register("buildPinpointEcsDockerImagePrd") {
-    dependsOn("bootJar")
+    dependsOn("build")
 
     doLast {
         exec {
@@ -258,7 +330,7 @@ tasks.register("buildPinpointEcsDockerImagePrd") {
                 "RELEASE_VERSION=$releaseVersion",
                 "-f",
                 "Dockerfile.prd.pinpoint",
-                '.'
+                '.',
             )
         }
     }

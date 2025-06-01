@@ -1,0 +1,38 @@
+spring:
+    cloud:
+        openfeign:
+            client:
+                config:
+                    default:
+                        connectTimeout: 60000
+                        readTimeout: 60000
+                        loggerLevel: full
+                    openai:
+                        url: https://api.openai.com
+                        errorDecoder: com.few.generator.config.feign.OpenAiErrorDecoder
+                        defaultRequestHeaders:
+                            Authorization: "Bearer ${OPENAI_API_TOKEN:thisisopenai}"
+                            Content-Type: "application/json"
+                        requestInterceptors:
+                            - com.few.generator.config.feign.OpenAiRequestInterceptor
+                        encoder: com.few.generator.config.feign.OpenAiEncoder
+                        decoder: com.few.generator.config.feign.OpenAiDecoder
+    generator:
+        datasource:
+            url: ${DB_HOSTNAME}/generator?allowPublicKeyRetrieval=true&rewriteBatchedStatements=true&allowMultiQueries=true
+            username: ${DB_USERNAME}
+            password: ${DB_PASSWORD}
+            driver-class-name: com.mysql.cj.jdbc.Driver
+        jpa:
+            hibernate:
+                ddl-auto: update
+            properties:
+                hibernate:
+                    format_sql: true
+
+jsoup:
+    timeout: 120000  # 2분
+    userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
+    followRedirects: true
+    ignoreHttpErrors: false
+    ignoreContentType: true

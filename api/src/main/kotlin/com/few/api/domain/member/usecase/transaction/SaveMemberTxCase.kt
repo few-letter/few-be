@@ -1,16 +1,15 @@
 package com.few.api.domain.member.usecase.transaction
 
+import com.few.api.config.jooq.ApiTransactional
+import com.few.api.domain.common.exception.InsertException
+import com.few.api.domain.common.vo.MemberType
+import com.few.api.domain.member.repo.MemberDao
+import com.few.api.domain.member.repo.command.InsertMemberCommand
+import com.few.api.domain.member.repo.command.UpdateDeletedMemberTypeCommand
+import com.few.api.domain.member.repo.record.MemberIdAndIsDeletedRecord
 import com.few.api.domain.member.usecase.dto.SaveMemberTxCaseIn
 import com.few.api.domain.member.usecase.dto.SaveMemberTxCaseOut
-import com.few.api.exception.common.InsertException
-import com.few.api.repo.dao.member.MemberDao
-import com.few.api.repo.dao.member.command.InsertMemberCommand
-import com.few.api.repo.dao.member.command.UpdateDeletedMemberTypeCommand
-import com.few.api.repo.dao.member.record.MemberIdAndIsDeletedRecord
-import com.few.data.common.code.MemberType
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
-import java.util.*
 
 @Component
 class SaveMemberTxCase(
@@ -23,54 +22,53 @@ class SaveMemberTxCase(
         private const val SIGNUP_SUB_COMMENT = "가입하신 이메일 주소를 확인해주세요."
     }
 
-    @Transactional
-    fun execute(dto: SaveMemberTxCaseIn): SaveMemberTxCaseOut {
-        return dto.record?.let { signUpBeforeMember ->
+    @ApiTransactional
+    fun execute(dto: SaveMemberTxCaseIn): SaveMemberTxCaseOut =
+        dto.record?.let { signUpBeforeMember ->
             signUpBeforeMember.takeIf { it.isDeleted }?.let {
                 ifDeletedMember(it.memberId)
             } ?: ifMember(signUpBeforeMember)
         } ?: ifNewMember(dto.email)
-    }
 
     private fun ifDeletedMember(memberId: Long): SaveMemberTxCaseOut {
-        memberDao.updateMemberType(
-            UpdateDeletedMemberTypeCommand(
-                id = memberId,
-                memberType = MemberType.PREAUTH
-            )
-        ).also {
-            if (it != 1L) {
-                throw InsertException("member.updatefail.record")
+        memberDao
+            .updateMemberType(
+                UpdateDeletedMemberTypeCommand(
+                    id = memberId,
+                    memberType = MemberType.PREAUTH,
+                ),
+            ).also {
+                if (it != 1L) {
+                    throw InsertException("member.updatefail.record")
+                }
             }
-        }
 
         return SaveMemberTxCaseOut(
             headComment = AUTH_HEAD_COMMENT,
             subComment = AUTH_SUB_COMMENT,
-            memberId = memberId
+            memberId = memberId,
         )
     }
 
-    private fun ifMember(signUpBeforeMember: MemberIdAndIsDeletedRecord): SaveMemberTxCaseOut {
-        return SaveMemberTxCaseOut(
+    private fun ifMember(signUpBeforeMember: MemberIdAndIsDeletedRecord): SaveMemberTxCaseOut =
+        SaveMemberTxCaseOut(
             headComment = AUTH_HEAD_COMMENT,
             subComment = AUTH_SUB_COMMENT,
-            memberId = signUpBeforeMember.memberId
+            memberId = signUpBeforeMember.memberId,
         )
-    }
 
-    private fun ifNewMember(email: String): SaveMemberTxCaseOut {
-        return memberDao.insertMember(
-            InsertMemberCommand(
-                email = email,
-                memberType = MemberType.PREAUTH
-            )
-        )?.let {
-            SaveMemberTxCaseOut(
-                headComment = SIGNUP_HEAD_COMMENT,
-                subComment = SIGNUP_SUB_COMMENT,
-                memberId = it
-            )
-        } ?: throw InsertException("member.insertfail.record")
-    }
+    private fun ifNewMember(email: String): SaveMemberTxCaseOut =
+        memberDao
+            .insertMember(
+                InsertMemberCommand(
+                    email = email,
+                    memberType = MemberType.PREAUTH,
+                ),
+            )?.let {
+                SaveMemberTxCaseOut(
+                    headComment = SIGNUP_HEAD_COMMENT,
+                    subComment = SIGNUP_SUB_COMMENT,
+                    memberId = it,
+                )
+            } ?: throw InsertException("member.insertfail.record")
 }

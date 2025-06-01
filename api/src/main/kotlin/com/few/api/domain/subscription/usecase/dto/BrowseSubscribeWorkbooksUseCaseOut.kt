@@ -1,8 +1,8 @@
 package com.few.api.domain.subscription.usecase.dto
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import com.few.api.web.support.DayCode
-import com.few.api.web.support.WorkBookStatus
+import com.few.api.domain.common.vo.DayCode
+import com.few.api.domain.common.vo.WorkBookStatus
 import java.time.LocalTime
 
 data class BrowseSubscribeWorkbooksUseCaseOut(
@@ -36,14 +36,14 @@ class MainCardSubscribeWorkbookDetail(
     subscription: Subscription,
     val articleInfo: String = "{}",
 ) : SubscribeWorkbookDetail(
-    workbookId = workbookId,
-    isActiveSub = isActiveSub,
-    currentDay = currentDay,
-    totalDay = totalDay,
-    rank = rank,
-    totalSubscriber = totalSubscriber,
-    subscription = subscription
-)
+        workbookId = workbookId,
+        isActiveSub = isActiveSub,
+        currentDay = currentDay,
+        totalDay = totalDay,
+        rank = rank,
+        totalSubscriber = totalSubscriber,
+        subscription = subscription,
+    )
 
 class MyPageSubscribeWorkbookDetail(
     workbookId: Long,
@@ -55,11 +55,11 @@ class MyPageSubscribeWorkbookDetail(
     subscription: Subscription,
     val workbookInfo: String = "{}",
 ) : SubscribeWorkbookDetail(
-    workbookId = workbookId,
-    isActiveSub = isActiveSub,
-    currentDay = currentDay,
-    totalDay = totalDay,
-    rank = rank,
-    totalSubscriber = totalSubscriber,
-    subscription = subscription
-)
+        workbookId = workbookId,
+        isActiveSub = isActiveSub,
+        currentDay = currentDay,
+        totalDay = totalDay,
+        rank = rank,
+        totalSubscriber = totalSubscriber,
+        subscription = subscription,
+    )

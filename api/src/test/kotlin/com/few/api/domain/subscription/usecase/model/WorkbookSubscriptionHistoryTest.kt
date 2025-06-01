@@ -1,22 +1,26 @@
 package com.few.api.domain.subscription.usecase.model
 
+import io.qameta.allure.Epic
+import io.qameta.allure.Feature
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
+@Epic("V1.0 Model")
+@Feature("WorkbookSubscriptionHistory")
 class WorkbookSubscriptionHistoryTest {
-
     @Test
     fun `새로 생성된 구독인데 구독 상태가 존재하는 경우`() {
         // given & when & then
         assertThrows(IllegalArgumentException::class.java) {
             WorkbookSubscriptionHistory(
                 isNew = true,
-                workbookSubscriptionStatus = WorkbookSubscriptionStatus(
-                    workbookId = 1,
-                    isActiveSub = true,
-                    day = 1
-                )
+                workbookSubscriptionStatus =
+                    WorkbookSubscriptionStatus(
+                        workbookId = 1,
+                        isActiveSub = true,
+                        day = 1,
+                    ),
             )
         }
     }
@@ -26,7 +30,7 @@ class WorkbookSubscriptionHistoryTest {
         // given & when & then
         assertThrows(IllegalArgumentException::class.java) {
             WorkbookSubscriptionHistory(
-                isNew = false
+                isNew = false,
             )
         }
     }
@@ -34,14 +38,16 @@ class WorkbookSubscriptionHistoryTest {
     @Test
     fun `새로 생성된 구독이 아니고 구독 상태가 취소된 경우`() {
         // given
-        val workbookSubscriptionHistory = WorkbookSubscriptionHistory(
-            isNew = false,
-            workbookSubscriptionStatus = WorkbookSubscriptionStatus(
-                workbookId = 1,
-                isActiveSub = false,
-                day = 1
+        val workbookSubscriptionHistory =
+            WorkbookSubscriptionHistory(
+                isNew = false,
+                workbookSubscriptionStatus =
+                    WorkbookSubscriptionStatus(
+                        workbookId = 1,
+                        isActiveSub = false,
+                        day = 1,
+                    ),
             )
-        )
 
         // when
         val isCancel = workbookSubscriptionHistory.isCancelSub
@@ -53,14 +59,16 @@ class WorkbookSubscriptionHistoryTest {
     @Test
     fun `새로 생성된 구독이 아니고 구독 상태가 취소되지 않은 경우`() {
         // given
-        val workbookSubscriptionHistory = WorkbookSubscriptionHistory(
-            isNew = false,
-            workbookSubscriptionStatus = WorkbookSubscriptionStatus(
-                workbookId = 1,
-                isActiveSub = true,
-                day = 1
+        val workbookSubscriptionHistory =
+            WorkbookSubscriptionHistory(
+                isNew = false,
+                workbookSubscriptionStatus =
+                    WorkbookSubscriptionStatus(
+                        workbookId = 1,
+                        isActiveSub = true,
+                        day = 1,
+                    ),
             )
-        )
 
         // when
         val isCancel = workbookSubscriptionHistory.isCancelSub
@@ -72,9 +80,10 @@ class WorkbookSubscriptionHistoryTest {
     @Test
     fun `새로 생성된 구독인 경우 구독 날짜`() {
         // given
-        val workbookSubscriptionHistory = WorkbookSubscriptionHistory(
-            isNew = true
-        )
+        val workbookSubscriptionHistory =
+            WorkbookSubscriptionHistory(
+                isNew = true,
+            )
 
         // when
         val subDay = workbookSubscriptionHistory.subDay
@@ -86,14 +95,16 @@ class WorkbookSubscriptionHistoryTest {
     @Test
     fun `새로 생성된 구독이 아닌 경우 구독 날짜`() {
         // given
-        val workbookSubscriptionHistory = WorkbookSubscriptionHistory(
-            isNew = false,
-            workbookSubscriptionStatus = WorkbookSubscriptionStatus(
-                workbookId = 1,
-                isActiveSub = true,
-                day = 2
+        val workbookSubscriptionHistory =
+            WorkbookSubscriptionHistory(
+                isNew = false,
+                workbookSubscriptionStatus =
+                    WorkbookSubscriptionStatus(
+                        workbookId = 1,
+                        isActiveSub = true,
+                        day = 2,
+                    ),
             )
-        )
 
         // when
         val subDay = workbookSubscriptionHistory.subDay
@@ -104,18 +115,19 @@ class WorkbookSubscriptionHistoryTest {
 
     @Nested
     inner class CancelledWorkbookSubscriptionHistoryTest {
-
         @Test
         fun `구독 취소된 히스토리가 취소되지 않은 구독 히스토리로 생성되는 경우`() {
             // given
-            val workbookSubscriptionHistory = WorkbookSubscriptionHistory(
-                isNew = false,
-                workbookSubscriptionStatus = WorkbookSubscriptionStatus(
-                    workbookId = 1,
-                    isActiveSub = true,
-                    day = 1
+            val workbookSubscriptionHistory =
+                WorkbookSubscriptionHistory(
+                    isNew = false,
+                    workbookSubscriptionStatus =
+                        WorkbookSubscriptionStatus(
+                            workbookId = 1,
+                            isActiveSub = true,
+                            day = 1,
+                        ),
                 )
-            )
 
             // when & then
             assertThrows(IllegalArgumentException::class.java) {
@@ -126,9 +138,10 @@ class WorkbookSubscriptionHistoryTest {
         @Test
         fun `구독 취소된 히스토리가 새로운 구독 히스토리로 생성되는 경우`() {
             // given
-            val workbookSubscriptionHistory = WorkbookSubscriptionHistory(
-                isNew = true
-            )
+            val workbookSubscriptionHistory =
+                WorkbookSubscriptionHistory(
+                    isNew = true,
+                )
 
             // when & then
             assertThrows(IllegalArgumentException::class.java) {
@@ -139,14 +152,16 @@ class WorkbookSubscriptionHistoryTest {
         @Test
         fun `구독 취소된 히스토리가 종료된 경우`() {
             // given
-            val workbookSubscriptionHistory = WorkbookSubscriptionHistory(
-                isNew = false,
-                workbookSubscriptionStatus = WorkbookSubscriptionStatus(
-                    workbookId = 1,
-                    isActiveSub = false,
-                    day = 1
+            val workbookSubscriptionHistory =
+                WorkbookSubscriptionHistory(
+                    isNew = false,
+                    workbookSubscriptionStatus =
+                        WorkbookSubscriptionStatus(
+                            workbookId = 1,
+                            isActiveSub = false,
+                            day = 1,
+                        ),
                 )
-            )
 
             // when
             val cancelledWorkbookSubscriptionHistory = CancelledWorkbookSubscriptionHistory(workbookSubscriptionHistory)
@@ -159,14 +174,16 @@ class WorkbookSubscriptionHistoryTest {
         @Test
         fun `구독 취소된 히스토리가 종료되지 않은 경우`() {
             // given
-            val workbookSubscriptionHistory = WorkbookSubscriptionHistory(
-                isNew = false,
-                workbookSubscriptionStatus = WorkbookSubscriptionStatus(
-                    workbookId = 1,
-                    isActiveSub = false,
-                    day = 1
+            val workbookSubscriptionHistory =
+                WorkbookSubscriptionHistory(
+                    isNew = false,
+                    workbookSubscriptionStatus =
+                        WorkbookSubscriptionStatus(
+                            workbookId = 1,
+                            isActiveSub = false,
+                            day = 1,
+                        ),
                 )
-            )
 
             // when
             val cancelledWorkbookSubscriptionHistory = CancelledWorkbookSubscriptionHistory(workbookSubscriptionHistory)

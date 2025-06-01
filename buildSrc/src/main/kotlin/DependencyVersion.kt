@@ -4,12 +4,19 @@ object DependencyVersion {
 
     /** ktlint */
     const val KTLINT = "11.6.1"
+    const val PINTEREST_KTLINT = "1.5.0"
 
     /** springBootVersion */
     const val SPRING_BOOT = "3.2.5"
 
     /** springDependencyManagementVersion */
     const val SPRING_DEPENDENCY_MANAGEMENT = "1.1.5"
+
+    /** springModulith */
+    const val SPRING_MODULITH = "1.3.1"
+
+    /** jmolecules */
+    const val JMOLECULES = "0.24.1"
 
     /** jwt */
     const val JWT = "0.11.5"
@@ -26,9 +33,11 @@ object DependencyVersion {
     /** test */
     const val MOCKK = "1.13.9"
     const val KOTEST = "5.8.0"
-    const val KOTEST_EXTENSION = "1.1.3"
+    const val KOTEST_EXTENSION = "1.3.0"
     const val COROUTINE_TEST = "1.8.0"
     const val TEST_CONTAINER = "1.19.8"
+    const val ARCH_UNIT_JUNIT5 = "0.22.0"
+    const val ALLURE_JUNIT5 = "2.29.1"
 
     /** docs */
     const val ASCIIDOCTOR = "3.3.2"
@@ -42,8 +51,10 @@ object DependencyVersion {
     /** minio */
     const val MINIO = "8.5.5"
 
-    /** aws-sdk */
+    /** aws */
     const val AWS_SDK = "1.12.220"
+    const val AWS_SES = "1.12.765"
+    const val AWS_SQS = "3.0.1"
 
     /** commonmark */
     const val COMMONMARK = "0.22.0"
@@ -53,4 +64,16 @@ object DependencyVersion {
 
     /** Local Cache **/
     const val EHCACHE = "3.10.0"
+
+    /** Apache Commons **/
+    const val COMMONS_LANG3 = "3.13.0"
+
+    /** AspectJ **/
+    const val ASPECTJ = "1.9.5"
+
+    /** Vaadin **/
+    const val VAADIN = "24.5.9"
+
+    /** Gson **/
+    const val GSON = "2.10.1"
 }
