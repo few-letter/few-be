@@ -2,10 +2,10 @@ package com.few.generator.core
 
 import com.few.generator.config.JsoupConnectionFactory
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.apache.coyote.BadRequestException
 import org.jsoup.nodes.Document
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import web.handler.exception.BadRequestException
 import java.net.URI
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
@@ -151,6 +151,7 @@ class Scrapper(
                         (response.header("Retry-After")?.toLongOrNull() ?: defaultRetryAfter),
                         defaultRetryAfter,
                     )
+                log.error { "URL($url) Response 429. retryAfter : $retryAfter, attempt: $attempt" }
                 TimeUnit.SECONDS.sleep(retryAfter + 1)
                 attempt++
                 continue
