@@ -20,8 +20,6 @@ data class ScrappedResult(
 
 @Component
 class Scrapper(
-    private val retryCount: Int = 3,
-    private val sleepTime: Long = 200,
     private val connectionFactory: JsoupConnectionFactory,
     @Value("\${generator.scraping.maxRetries}")
     private val maxRetries: Int,
