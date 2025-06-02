@@ -39,7 +39,7 @@ jsoup:
 
 scheduling:
     cron:
-        generator: "0 0 5 * * *"
+        generator: "0 0 4 * * *"
 
 urls:
     webhook:
