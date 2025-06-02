@@ -31,24 +31,6 @@ class Scrapper(
     private val log = KotlinLogging.logger {}
     private val imageExtensions = listOf(".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg")
 
-    fun get(url: String): Document? {
-        repeat(retryCount) { attempt ->
-            try {
-                val response =
-                    connectionFactory
-                        .createConnection(url)
-                        .get()
-                if (attempt < retryCount - 1) {
-                    Thread.sleep(sleepTime)
-                }
-                return response
-            } catch (e: Exception) {
-                log.error { "Request failed: ${e.message}" }
-            }
-        }
-        return null
-    }
-
     fun isValidSentence(sentence: String): Boolean {
         val text = sentence.trim()
         return text.split("\\s+".toRegex()).size >= 4 && text.any { it.isLetterOrDigit() }
@@ -114,7 +96,7 @@ class Scrapper(
     }
 
     fun scrape(url: String): ScrappedResult? {
-        val soup = get(url) ?: return null
+        val soup = getWithRetry(url)
 
         soup.select("script, style, nav, footer, header").forEach { it.remove() }
 
