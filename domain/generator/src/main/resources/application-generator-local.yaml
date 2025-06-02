@@ -46,5 +46,8 @@ urls:
         discord: "localhost:8080/webhook/discord/unused"
 
 generator:
+    scraping:
+        maxRetries: 5
+        defaultRetryAfter: 60
     contents:
         countByCategory: 1
