@@ -3,8 +3,11 @@ package com.few.generator.core
 import com.few.generator.config.JsoupConnectionFactory
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jsoup.nodes.Document
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import web.handler.exception.BadRequestException
 import java.net.URI
+import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 
 data class ScrappedResult(
@@ -17,30 +20,14 @@ data class ScrappedResult(
 
 @Component
 class Scrapper(
-    private val retryCount: Int = 3,
-    private val sleepTime: Long = 200,
     private val connectionFactory: JsoupConnectionFactory,
+    @Value("\${generator.scraping.maxRetries}")
+    private val maxRetries: Int,
+    @Value("\${generator.scraping.defaultRetryAfter}")
+    private val defaultRetryAfter: Long,
 ) {
     private val log = KotlinLogging.logger {}
     private val imageExtensions = listOf(".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg")
-
-    fun get(url: String): Document? {
-        repeat(retryCount) { attempt ->
-            try {
-                val response =
-                    connectionFactory
-                        .createConnection(url)
-                        .get()
-                if (attempt < retryCount - 1) {
-                    Thread.sleep(sleepTime)
-                }
-                return response
-            } catch (e: Exception) {
-                log.error { "Request failed: ${e.message}" }
-            }
-        }
-        return null
-    }
 
     fun isValidSentence(sentence: String): Boolean {
         val text = sentence.trim()
@@ -107,7 +94,7 @@ class Scrapper(
     }
 
     fun scrape(url: String): ScrappedResult? {
-        val soup = get(url) ?: return null
+        val soup = getWithRetry(url)
 
         soup.select("script, style, nav, footer, header").forEach { it.remove() }
 
@@ -134,35 +121,45 @@ class Scrapper(
         return ScrappedResult(title, description, thumbnailImageUrl, rawTexts, images)
     }
 
-    fun extractUrlsByCategory(rootUrl: String): Set<String> {
-        repeat(retryCount) { attempt ->
-            try {
-                return connectionFactory
-                    .createConnection(rootUrl)
-                    .get()
-                    .select("a[href]")
-                    .mapNotNull { it.attr("href") }
-                    .filter { it.matches(Regex("""https://n\.news\.naver\.com/mnews/article/\d+/\d+$""")) }
-                    .map {
-                        log.debug { "Extracted URL: $it" }
-                        it
-                    }.mapNotNull {
-                        connectionFactory
-                            .createConnection(it)
-                            .get()
-                            .select("a")
-                            .firstOrNull { it.text() == "기사원문" }
-                            ?.attr("href")
-                    }.toSet()
-            } catch (e: Exception) {
-                log.error { "Request failed retrying... : Cause: ${e.message}, attempt: ${attempt + 1}" }
+    fun extractUrlsByCategory(rootUrl: String): Set<String> =
+        getWithRetry(rootUrl)
+            .select("a[href]")
+            .mapNotNull { it.attr("href") }
+            .filter { it.matches(Regex("""https://n\.news\.naver\.com/mnews/article/\d+/\d+$""")) }
+            .map {
+                log.debug { "Extracted URL: $it" }
+                it
+            }.mapNotNull {
+                getWithRetry(it)
+                    .select("a")
+                    .firstOrNull { it.text() == "기사원문" }
+                    ?.attr("href")
+            }.toSet()
+
+    private fun getWithRetry(url: String): Document {
+        var attempt = 0
+
+        while (attempt < maxRetries) {
+            val response =
+                connectionFactory
+                    .createConnection(url)
+                    .execute()
+
+            if (response.statusCode() == 429) {
+                val retryAfter =
+                    Math.min(
+                        (response.header("Retry-After")?.toLongOrNull() ?: defaultRetryAfter),
+                        defaultRetryAfter,
+                    )
+                log.error { "URL($url) Response 429. retryAfter : $retryAfter, attempt: $attempt" }
+                TimeUnit.SECONDS.sleep(retryAfter + 1)
+                attempt++
+                continue
             }
 
-            if (attempt < retryCount - 1) {
-                Thread.sleep(sleepTime)
-            }
+            return response.parse()
         }
 
-        return emptySet()
+        throw BadRequestException("Failed to fetch document after $maxRetries attempts for URL: $url")
     }
 }

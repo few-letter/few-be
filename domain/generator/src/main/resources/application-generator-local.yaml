@@ -39,12 +39,15 @@ jsoup:
 
 scheduling:
     cron:
-        generator: "0 0 5 * * *"
+        generator: "0 0 4 * * *"
 
 urls:
     webhook:
         discord: "localhost:8080/webhook/discord/unused"
 
 generator:
+    scraping:
+        maxRetries: 5
+        defaultRetryAfter: 60
     contents:
         countByCategory: 1

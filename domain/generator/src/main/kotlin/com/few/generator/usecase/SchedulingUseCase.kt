@@ -13,6 +13,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import web.handler.exception.BadRequestException
 import java.time.LocalDateTime
 import kotlin.system.measureTimeMillis
 
@@ -89,7 +90,7 @@ class SchedulingUseCase(
             )
 
             if (!isSuccess) {
-                throw RuntimeException("콘텐츠 스케줄링에 실패 : $startTime")
+                throw BadRequestException("콘텐츠 스케줄링에 실패 : $startTime")
             }
         }
     }
