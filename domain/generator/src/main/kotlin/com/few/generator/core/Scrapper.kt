@@ -2,6 +2,7 @@ package com.few.generator.core
 
 import com.few.generator.config.JsoupConnectionFactory
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.jsoup.HttpStatusException
 import org.jsoup.nodes.Document
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -140,24 +141,23 @@ class Scrapper(
         var attempt = 0
 
         while (attempt < maxRetries) {
-            val response =
-                connectionFactory
+            try {
+                return connectionFactory
                     .createConnection(url)
                     .execute()
-
-            if (response.statusCode() == 429) {
-                val retryAfter =
-                    Math.min(
-                        (response.header("Retry-After")?.toLongOrNull() ?: defaultRetryAfter),
-                        defaultRetryAfter,
-                    )
-                log.error { "URL($url) Response 429. retryAfter : $retryAfter, attempt: $attempt" }
-                TimeUnit.SECONDS.sleep(retryAfter + 1)
-                attempt++
-                continue
+                    .parse()
+            } catch (e: Exception) {
+                when (e) {
+                    is HttpStatusException -> {
+                        if (e.statusCode != 429) throw e
+                        log.error { "URL($url) Response 429, attempt: $attempt" }
+                        TimeUnit.SECONDS.sleep(defaultRetryAfter + attempt + 1)
+                        attempt++
+                        continue
+                    }
+                    else -> throw e
+                }
             }
-
-            return response.parse()
         }
 
         throw BadRequestException("Failed to fetch document after $maxRetries attempts for URL: $url")
