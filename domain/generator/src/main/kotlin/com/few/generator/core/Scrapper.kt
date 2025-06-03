@@ -151,7 +151,7 @@ class Scrapper(
                     is HttpStatusException -> {
                         if (e.statusCode != 429) throw e
                         log.error { "URL($url) Response 429, attempt: $attempt" }
-                        TimeUnit.SECONDS.sleep(defaultRetryAfter + attempt + 1)
+                        TimeUnit.SECONDS.sleep(defaultRetryAfter + attempt + (1..10).random())
                         attempt++
                         continue
                     }
