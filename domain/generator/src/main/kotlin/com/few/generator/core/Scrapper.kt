@@ -142,6 +142,7 @@ class Scrapper(
 
         while (attempt < maxRetries) {
             try {
+                TimeUnit.SECONDS.sleep((1..5).random().toLong())
                 return connectionFactory
                     .createConnection(url)
                     .execute()
