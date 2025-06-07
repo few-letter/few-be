@@ -4,7 +4,7 @@ spring:
             client:
                 config:
                     default:
-                        connectTimeout: 60000
+                        connectTimeout: 10000
                         readTimeout: 60000
                         loggerLevel: full
                     openai:
