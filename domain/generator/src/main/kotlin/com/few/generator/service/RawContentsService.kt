@@ -5,7 +5,6 @@ import com.few.generator.core.Scrapper
 import com.few.generator.domain.Category
 import com.few.generator.domain.RawContents
 import com.few.generator.repository.RawContentsRepository
-import com.few.generator.support.utils.CompressUtils
 import com.google.gson.Gson
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
@@ -57,7 +56,7 @@ class RawContentsService(
                 title = scrappedResult.title,
                 description = scrappedResult.description,
                 thumbnailImageUrl = scrappedResult.thumbnailImageUrl,
-                rawTexts = CompressUtils.compress(scrappedResult.rawTexts.joinToString("\n")),
+                rawTexts = scrappedResult.rawTexts.joinToString("\n"),
                 imageUrls = gson.toJson(scrappedResult.images) ?: "[]",
                 category = category.code,
             ),

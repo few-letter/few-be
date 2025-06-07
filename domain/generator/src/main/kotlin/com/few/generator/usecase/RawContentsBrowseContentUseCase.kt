@@ -6,7 +6,6 @@ import com.few.generator.repository.GenRepository
 import com.few.generator.repository.ProvisioningContentsRepository
 import com.few.generator.repository.RawContentsRepository
 import com.few.generator.support.jpa.GeneratorTransactional
-import com.few.generator.support.utils.CompressUtils
 import com.few.generator.usecase.out.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -42,7 +41,7 @@ class RawContentsBrowseContentUseCase(
                     title = rawContents.title,
                     description = rawContents.description,
                     thumbnailImageUrl = rawContents.thumbnailImageUrl,
-                    rawTexts = CompressUtils.decompress(rawContents.rawTexts),
+                    rawTexts = rawContents.rawTexts,
                     imageUrls = gson.fromJson(rawContents.imageUrls, object : TypeToken<List<String>>() {}.type),
                     createdAt = rawContents.createdAt!!,
                 ),
