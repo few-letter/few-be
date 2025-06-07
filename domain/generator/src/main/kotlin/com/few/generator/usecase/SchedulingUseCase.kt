@@ -15,6 +15,7 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import web.handler.exception.BadRequestException
 import java.time.LocalDateTime
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
 
 @Component
@@ -25,10 +26,23 @@ class SchedulingUseCase(
     private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
     private val log = KotlinLogging.logger {}
+    private val isRunning = AtomicBoolean(false)
 
     @Scheduled(cron = "\${scheduling.cron.generator}")
     @GeneratorTransactional
     fun execute() {
+        if (!isRunning.compareAndSet(false, true)) {
+            throw BadRequestException("Contents scheduling is already running. Please try again later.")
+        }
+
+        try {
+            doExecute()
+        } finally {
+            isRunning.set(false)
+        }
+    }
+
+    private fun doExecute() {
         val startTime = LocalDateTime.now()
         var rawContents = emptyMap<Category, List<RawContents>>()
         var provisionings = emptyMap<Category, List<ProvisioningContents>>()
