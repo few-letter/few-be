@@ -82,4 +82,7 @@ object DependencyVersion {
 
     /** Coroutines for Spring */
     const val COROUTINES_SPRING = "1.6.4"
+
+    /** Sonar */
+    const val SONAR = "6.2.0.5505"
 }
