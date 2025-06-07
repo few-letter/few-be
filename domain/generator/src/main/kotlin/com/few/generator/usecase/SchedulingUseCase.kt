@@ -42,7 +42,7 @@ class SchedulingUseCase(
         }
     }
 
-    fun doExecute() {
+    private fun doExecute() {
         val startTime = LocalDateTime.now()
         var rawContents = emptyMap<Category, List<RawContents>>()
         var provisionings = emptyMap<Category, List<ProvisioningContents>>()
