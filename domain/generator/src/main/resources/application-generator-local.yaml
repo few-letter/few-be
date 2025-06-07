@@ -7,7 +7,6 @@ spring:
                         connectTimeout: 10000
                         readTimeout: 60000
                         loggerLevel: full
-                    retryer: com.few.generator.config.GeneratorFeignConfig
                     openai:
                         url: https://api.openai.com
                         errorDecoder: com.few.generator.config.feign.OpenAiErrorDecoder
