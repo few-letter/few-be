@@ -130,12 +130,13 @@ class Scrapper(
             .map {
                 log.debug { "Extracted URL: $it" }
                 it
-            }.mapNotNull {
-                getWithRetry(it)
-                    .select("a")
-                    .firstOrNull { it.text() == "기사원문" }
-                    ?.attr("href")
             }.toSet()
+
+    fun extractOriginUrl(url: String): String? =
+        getWithRetry(url)
+            .select("a")
+            .firstOrNull { it.text() == "기사원문" }
+            ?.attr("href")
 
     private fun getWithRetry(url: String): Document {
         var attempt = 0
@@ -156,6 +157,7 @@ class Scrapper(
                         attempt++
                         continue
                     }
+
                     else -> throw e
                 }
             }

@@ -23,17 +23,37 @@ class RawContentsService(
 ) {
     private val log = KotlinLogging.logger {}
 
-    fun create(): Map<Category, List<RawContents>> =
-        Category.entries
-            .filter { it.rootUrl != null }
-            .associateWith { category ->
-                scrapper
-                    .extractUrlsByCategory(category.rootUrl!!)
-                    .filter { rawContentsRepository.findByUrl(url = it) == null }
-                    .mapNotNull { url -> create(url, category) }
-                    .filter { true }
-                    .take(contentsCountByCategory)
+    fun create(): Map<Category, List<RawContents>> {
+        val result = mutableMapOf<Category, List<RawContents>>()
+
+        for (category in Category.entries) {
+            if (category.rootUrl != null) {
+                val urls = scrapper.extractUrlsByCategory(category.rootUrl)
+                val rawContents = mutableListOf<RawContents>()
+
+                for (url in urls) {
+                    val originUrl = scrapper.extractOriginUrl(url)
+                    if (originUrl == null || rawContentsRepository.findByUrl(originUrl) != null) {
+                        continue
+                    }
+
+                    val content = create(originUrl, category)
+                    if (content == null) {
+                        continue
+                    }
+
+                    rawContents.add(content)
+                    if (rawContents.size >= contentsCountByCategory) {
+                        break
+                    }
+                }
+
+                result[category] = rawContents
             }
+        }
+
+        return result
+    }
 
     fun create(
         sourceUrl: String,
