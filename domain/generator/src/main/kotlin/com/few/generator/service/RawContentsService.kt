@@ -27,29 +27,31 @@ class RawContentsService(
         val result = mutableMapOf<Category, List<RawContents>>()
 
         for (category in Category.entries) {
-            if (category.rootUrl != null) {
-                val urls = scrapper.extractUrlsByCategory(category.rootUrl)
-                val rawContents = mutableListOf<RawContents>()
+            if (category.rootUrl == null) {
+                continue
+            }
 
-                for (url in urls) {
-                    val originUrl = scrapper.extractOriginUrl(url)
-                    if (originUrl == null || rawContentsRepository.findByUrl(originUrl) != null) {
-                        continue
-                    }
+            val urls = scrapper.extractUrlsByCategory(category.rootUrl)
+            val rawContents = mutableListOf<RawContents>()
 
-                    val content = create(originUrl, category)
-                    if (content == null) {
-                        continue
-                    }
-
-                    rawContents.add(content)
-                    if (rawContents.size >= contentsCountByCategory) {
-                        break
-                    }
+            for (url in urls) {
+                val originUrl = scrapper.extractOriginUrl(url)
+                if (originUrl == null || rawContentsRepository.findByUrl(originUrl) != null) {
+                    continue
                 }
 
-                result[category] = rawContents
+                val rawContent = create(originUrl, category)
+                if (rawContent == null) {
+                    continue
+                }
+
+                rawContents.add(rawContent)
+                if (rawContents.size >= contentsCountByCategory) {
+                    break
+                }
             }
+
+            result[category] = rawContents
         }
 
         return result
