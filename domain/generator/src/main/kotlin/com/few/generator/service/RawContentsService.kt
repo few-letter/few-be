@@ -89,4 +89,6 @@ class RawContentsService(
         rawContentsRepository
             .findById(id)
             .orElseThrow { BadRequestException("Raw 컨텐츠가 존재하지 않습니다.") }
+
+    fun exists(url: String): Boolean = rawContentsRepository.findByUrl(url) != null
 }
