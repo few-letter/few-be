@@ -97,13 +97,13 @@ class SchedulingUseCase(
             var successCntByCategory = 0
 
             for (url in urls) {
-                val originUrl =
-                    scrapper
-                        .extractOriginUrl(url)
-                        ?.takeUnless { rawContentsService.exists(it) } ?: continue
-
                 try {
-                    val rawContent = rawContentsService.create(originUrl, category) ?: continue
+                    val originUrl =
+                        scrapper
+                            .extractOriginUrl(url)
+                            ?.takeUnless { rawContentsService.exists(it) } ?: throw RuntimeException("이미 생성된 URL입니다: $url")
+
+                    val rawContent = rawContentsService.create(originUrl, category)
                     val provisioningContent = provisioningService.create(rawContent)
                     genService.create(rawContent, provisioningContent)
 
