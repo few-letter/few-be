@@ -1,7 +1,6 @@
 package com.few.generator.usecase
 
 import com.few.generator.core.Scrapper
-import com.few.generator.domain.GenType
 import com.few.generator.event.dto.ContentsSchedulingEventDto
 import com.few.generator.service.GenService
 import com.few.generator.service.ProvisioningService
@@ -106,9 +105,7 @@ class SchedulingUseCase(
                 try {
                     val rawContent = rawContentsService.create(originUrl, category) ?: continue
                     val provisioningContent = provisioningService.create(rawContent)
-
-                    val genTypes = GenType.entries.map { it.code }.toSet()
-                    genService.create(rawContent, provisioningContent, genTypes)
+                    genService.create(rawContent, provisioningContent)
 
                     successCntByCategory++
                     successCnt++
