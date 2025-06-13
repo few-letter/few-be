@@ -65,8 +65,8 @@ class SchedulingUseCase(
                     appendLine("✅ isSuccess: $isSuccess")
                     appendLine("✅ 시작 시간: $startTime")
                     appendLine("✅ 소요 시간: $creationTimeSec")
-                    appendLine("✅ ${exception?.cause?.message}")
-                    append("✅ 생성(${result.first}) / 스킵(${result.second})")
+                    appendLine("✅ message: ${exception?.cause?.message}")
+                    append("✅ result: 생성(${result.first}) / 스킵(${result.second})")
                 }
             }
 
