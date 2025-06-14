@@ -1,15 +1,13 @@
 package com.few.generator.usecase
 
-import com.few.generator.domain.Category
-import com.few.generator.domain.GenType
-import com.few.generator.domain.ProvisioningContents
-import com.few.generator.domain.RawContents
+import com.few.generator.core.Scrapper
 import com.few.generator.event.dto.ContentsSchedulingEventDto
 import com.few.generator.service.GenService
 import com.few.generator.service.ProvisioningService
 import com.few.generator.service.RawContentsService
 import com.few.generator.support.jpa.GeneratorTransactional
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -24,6 +22,9 @@ class SchedulingUseCase(
     private val provisioningService: ProvisioningService,
     private val genService: GenService,
     private val applicationEventPublisher: ApplicationEventPublisher,
+    private val scrapper: Scrapper,
+    @Value("\${generator.contents.countByCategory}")
+    private val contentsCountByCategory: Int,
 ) {
     private val log = KotlinLogging.logger {}
     private val isRunning = AtomicBoolean(false)
@@ -44,50 +45,28 @@ class SchedulingUseCase(
 
     private fun doExecute() {
         val startTime = LocalDateTime.now()
-        var rawContents = emptyMap<Category, List<RawContents>>()
-        var provisionings = emptyMap<Category, List<ProvisioningContents>>()
-
-        var timeOfCreatingRawContents = 0.0
-        var timeOfCreatingProvisionings = 0.0
-        var timeOfCreatingGens = 0.0
         var isSuccess = true
+        var creationTimeSec = 0.0
+        var exception: Throwable? = null
+        var result: Pair<Int, Int> = Pair(0, 0)
 
         runCatching {
-            measureAndReturn { rawContentsService.create() }
-                .also { (result, time) ->
-                    rawContents = result
-                    timeOfCreatingRawContents = time
-                }
-
-            measureAndReturn { createProvisionings(rawContents) }
-                .also { (result, time) ->
-                    provisionings = result
-                    timeOfCreatingProvisionings = time
-                }
-
-            measureTimeMillis {
-                createGens(rawContents, provisionings)
-            }.msToSeconds().also { timeOfCreatingGens = it }
-        }.onFailure {
+            creationTimeSec =
+                measureTimeMillis {
+                    result = create()
+                }.msToSeconds()
+        }.onFailure { ex ->
             isSuccess = false
-            log.error(it) { "콘텐츠 스케줄링 중 오류 발생" }
+            log.error(ex) { "콘텐츠 스케줄링 중 오류 발생" }
+            exception = ex
         }.also {
-            val totalTime = timeOfCreatingRawContents + timeOfCreatingProvisionings + timeOfCreatingGens
-            val countByCategory =
-                rawContents.entries.joinToString(separator = "\n") { (category, rawList) ->
-                    val count = rawList.count { it != null }
-                    "[${category.title}] $count"
-                }
-
             log.info {
                 buildString {
-                    appendLine("# isSuccess: $isSuccess")
-                    appendLine("# 시작 시간: $startTime")
-                    appendLine("# 카테고리 별 생성 개수: $countByCategory")
-                    appendLine("✅ [1단계] RawContents: $timeOfCreatingRawContents s")
-                    appendLine("✅ [2단계] Provisionings: $timeOfCreatingProvisionings s")
-                    appendLine("✅ [3단계] Gens: $timeOfCreatingGens s")
-                    append("-> 전체 : $totalTime s")
+                    appendLine("✅ isSuccess: $isSuccess")
+                    appendLine("✅ 시작 시간: $startTime")
+                    appendLine("✅ 소요 시간: $creationTimeSec")
+                    appendLine("✅ message: ${exception?.cause?.message}")
+                    append("✅ result: 생성(${result.first}) / 스킵(${result.second})")
                 }
             }
 
@@ -95,47 +74,53 @@ class SchedulingUseCase(
                 ContentsSchedulingEventDto(
                     isSuccess = isSuccess,
                     startTime = startTime,
-                    timeOfCreatingRawContents = "%.3f".format(timeOfCreatingRawContents),
-                    timeOfCreatingProvisionings = "%.3f".format(timeOfCreatingProvisionings),
-                    timeOfCreatingGens = "%.3f".format(timeOfCreatingGens),
-                    totalTime = "%.3f".format(totalTime),
-                    countByCategory = countByCategory,
+                    totalTime = "%.3f".format(creationTimeSec),
+                    message = if (isSuccess) "None" else exception?.cause?.message ?: "Unknown error",
+                    result = if (isSuccess) "생성(${result.first}) / 스킵(${result.second})" else "None",
                 ),
             )
 
             if (!isSuccess) {
-                throw BadRequestException("콘텐츠 스케줄링에 실패 : $startTime")
+                throw BadRequestException("콘텐츠 스케줄링에 실패 : ${exception?.cause?.message}")
             }
         }
     }
 
-    private fun createProvisionings(rawContents: Map<Category, List<RawContents>>): Map<Category, List<ProvisioningContents>> =
-        rawContents.mapValues { (_, rawContents) ->
-            rawContents.map { rawContent ->
-                provisioningService.create(rawContent)
+    private fun create(): Pair<Int, Int> {
+        val urlsByCategories = scrapper.extractUrlsByCategories()
+
+        var successCnt = 0
+        var failCnt = 0
+
+        urlsByCategories.forEach { (category, urls) ->
+            val urls = urls ?: return@forEach
+            var successCntByCategory = 0
+
+            for (url in urls) {
+                try {
+                    val originUrl =
+                        scrapper
+                            .extractOriginUrl(url)
+                            ?.takeUnless { rawContentsService.exists(it) } ?: throw RuntimeException("이미 생성된 URL입니다: $url")
+
+                    val rawContent = rawContentsService.create(originUrl, category)
+                    val provisioningContent = provisioningService.create(rawContent)
+                    genService.create(rawContent, provisioningContent)
+
+                    successCntByCategory++
+                    successCnt++
+
+                    if (successCntByCategory >= contentsCountByCategory) break
+                } catch (e: Exception) {
+                    failCnt++
+                    log.error(e) {
+                        "콘텐츠 생성 중 오류 발생하여 Skip 처리. URL: $url, 카테고리: ${category.title}"
+                    }
+                }
             }
         }
 
-    private fun createGens(
-        rawContents: Map<Category, List<RawContents>>,
-        provisionings: Map<Category, List<ProvisioningContents>>,
-    ) {
-        val genTypes: Set<Int> = GenType.entries.map { it.code }.toSet()
-
-        rawContents.forEach { (category, rawContentsList) ->
-            val provisioningList = provisionings[category].orEmpty()
-
-            rawContentsList.zip(provisioningList).forEach { (raw, provisioning) ->
-                genService.create(raw, provisioning, genTypes)
-            }
-        }
-    }
-
-    private inline fun <T> measureAndReturn(block: () -> T): Pair<T, Double> {
-        val start = System.currentTimeMillis()
-        val result = block()
-        val elapsed = System.currentTimeMillis() - start
-        return result to elapsed.msToSeconds()
+        return successCnt to failCnt
     }
 
     private fun Long.msToSeconds(): Double = this / 1000.0

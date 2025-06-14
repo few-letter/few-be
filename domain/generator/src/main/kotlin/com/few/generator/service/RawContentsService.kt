@@ -23,54 +23,17 @@ class RawContentsService(
 ) {
     private val log = KotlinLogging.logger {}
 
-    fun create(): Map<Category, List<RawContents>> {
-        val result = mutableMapOf<Category, List<RawContents>>()
-
-        for (category in Category.entries) {
-            if (category.rootUrl == null) {
-                continue
-            }
-
-            val urls = scrapper.extractUrlsByCategory(category.rootUrl)
-            val rawContents = mutableListOf<RawContents>()
-
-            for (url in urls) {
-                val originUrl = scrapper.extractOriginUrl(url)
-                if (originUrl == null || rawContentsRepository.findByUrl(originUrl) != null) {
-                    continue
-                }
-
-                val rawContent = create(originUrl, category)
-                if (rawContent == null) {
-                    continue
-                }
-
-                rawContents.add(rawContent)
-                if (rawContents.size >= contentsCountByCategory) {
-                    break
-                }
-            }
-
-            result[category] = rawContents
-        }
-
-        return result
-    }
-
     fun create(
         sourceUrl: String,
         category: Category,
-    ): RawContents? {
+    ): RawContents {
         rawContentsRepository.findByUrl(sourceUrl)?.let {
             throw BadRequestException("이미 생성된 컨텐츠가 있습니다. ID: ${it.id}, URL: $sourceUrl")
         }
 
         val scrappedResult =
             scrapper.scrape(sourceUrl)
-                ?: run {
-                    log.warn { "Failed to scrape content. Skipped this contents. URL: $sourceUrl" }
-                    return null
-                }
+                ?: throw BadRequestException("URL에서 컨텐츠를 스크랩할 수 없습니다. URL: $sourceUrl")
 
         return rawContentsRepository.save(
             RawContents(
@@ -89,4 +52,6 @@ class RawContentsService(
         rawContentsRepository
             .findById(id)
             .orElseThrow { BadRequestException("Raw 컨텐츠가 존재하지 않습니다.") }
+
+    fun exists(url: String): Boolean = rawContentsRepository.findByUrl(url) != null
 }

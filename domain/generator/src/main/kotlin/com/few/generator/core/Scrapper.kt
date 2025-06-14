@@ -1,6 +1,7 @@
 package com.few.generator.core
 
 import com.few.generator.config.JsoupConnectionFactory
+import com.few.generator.domain.Category
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jsoup.HttpStatusException
 import org.jsoup.nodes.Document
@@ -29,6 +30,13 @@ class Scrapper(
 ) {
     private val log = KotlinLogging.logger {}
     private val imageExtensions = listOf(".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg")
+
+    fun extractUrlsByCategories(): Map<Category, Set<String>> =
+        Category.entries
+            .filter { it.rootUrl != null }
+            .associateWith { category ->
+                extractUrlsByCategory(category.rootUrl!!)
+            }
 
     fun isValidSentence(sentence: String): Boolean {
         val text = sentence.trim()
