@@ -5,25 +5,9 @@ spring:
     profiles:
         group:
             local:
-                # module
-                - security-local
-                - web-local
-                - email-local
-                - storage-local
-                - api-repo-local
-                # api
-                - thread-local
                 # domain
                 - generator-local
             prd:
-                # module
-                - security-prd
-                - web-prd
-                - email-prd
-                - storage-prd
-                - api-repo-prd
-                # api
-                - thread-prd
                 # domain
                 - generator-prd
     jpa:
@@ -33,10 +17,3 @@ spring:
                 format_sql: true
                 highlight_sql: true
                 use_sql_comments: true
-
-auth:
-    batch: ${AUTH_BATCH:0518}
-
-log:
-    file:
-        path: ${LOGS_ABSOLUTE_PATH:./var/log/api}

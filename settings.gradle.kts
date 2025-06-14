@@ -6,6 +6,7 @@ include("domain")
 include("domain:generator")
 
 include("library")
+include("library:common")
 include("library:email")
 include("library:storage")
 include("library:web")
