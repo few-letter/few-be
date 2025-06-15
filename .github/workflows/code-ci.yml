@@ -40,7 +40,7 @@ jobs:
 
             - name: Generate OpenAPI3
               run: |
-                  ./gradlew api:openapi3 -PserverUrl=https://api.fewletter.site
+                  ./gradlew api:openapi3 -PserverUrl=https://api.fewletter.store
 
             - name: Generate Swagger
               run: |
