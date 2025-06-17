@@ -4,7 +4,7 @@ spring:
             client:
                 config:
                     default:
-                        connectTimeout: 60000
+                        connectTimeout: 10000
                         readTimeout: 60000
                         loggerLevel: full
                     openai:
@@ -36,3 +36,18 @@ jsoup:
     followRedirects: true
     ignoreHttpErrors: false
     ignoreContentType: true
+
+scheduling:
+    cron:
+        generator: "0 0 4 * * *"
+
+urls:
+    webhook:
+        discord: ${WEBHOOK_DISCORD}
+
+generator:
+    scraping:
+        maxRetries: 5
+        defaultRetryAfter: 60
+    contents:
+        countByCategory: 10

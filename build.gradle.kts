@@ -15,6 +15,9 @@ plugins {
     id("org.asciidoctor.jvm.convert") version DependencyVersion.ASCIIDOCTOR
     id("com.epages.restdocs-api-spec") version DependencyVersion.EPAGES_REST_DOCS_API_SPEC
     id("org.hidetake.swagger.generator") version DependencyVersion.SWAGGER_GENERATOR
+
+    /** sonar */
+    id("org.sonarqube") version DependencyVersion.SONAR
 }
 
 java.sourceCompatibility = JavaVersion.VERSION_18
@@ -267,4 +270,12 @@ tasks.named("gitExecutableHooks").configure {
 
 tasks.named("clean").configure {
     dependsOn("gitExecutableHooks")
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "few-letter_few-be")
+        property("sonar.organization", "few-letter")
+        property("sonar.host.url", "https://sonarcloud.io")
+    }
 }

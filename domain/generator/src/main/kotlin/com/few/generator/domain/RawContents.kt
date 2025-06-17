@@ -1,5 +1,6 @@
 package com.few.generator.domain
 
+import com.few.generator.config.jpa.CompressedBase64Converter
 import jakarta.persistence.*
 
 @Entity
@@ -17,9 +18,12 @@ data class RawContents(
     @Column(nullable = true)
     val thumbnailImageUrl: String? = null,
     @Column(nullable = true, columnDefinition = "TEXT")
+    @Convert(converter = CompressedBase64Converter::class)
     val rawTexts: String,
     @Column(nullable = true, columnDefinition = "TEXT")
     val imageUrls: String = "[]",
+    @Column(nullable = false)
+    val category: Int,
 ) : BaseEntity() {
     protected constructor() : this( // TODO: 기본 생성자 필요?
         id = null,
@@ -29,5 +33,6 @@ data class RawContents(
         thumbnailImageUrl = null,
         rawTexts = "",
         imageUrls = "[]",
+        category = 0,
     )
 }

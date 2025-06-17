@@ -43,6 +43,7 @@ class ShortGenGenerationStrategy(
             headline = headline.headline,
             summary = summary.summary,
             typeCode = GenType.STRATEGY_NAME_SHORT.code,
+            category = material.category.code,
         )
     }
 }

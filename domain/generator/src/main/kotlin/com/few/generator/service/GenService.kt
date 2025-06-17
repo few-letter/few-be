@@ -1,5 +1,6 @@
 package com.few.generator.service
 
+import com.few.generator.domain.Category
 import com.few.generator.domain.Gen
 import com.few.generator.domain.GenType
 import com.few.generator.domain.ProvisioningContents
@@ -19,8 +20,8 @@ class GenService(
     private val log = KotlinLogging.logger {}
 
     fun create(
-        rawContents: RawContents,
-        provisioningContents: ProvisioningContents,
+        rawContent: RawContents,
+        provisioningContent: ProvisioningContents,
         typeCodes: Set<Int>,
     ): List<Gen> {
         log.info { "Trying to Generate ${typeCodes.size} Gen Types..." }
@@ -38,11 +39,12 @@ class GenService(
                 genGenerationStrategies[genType.title]!!.generate(
                     Material(
                         // from rawContents
-                        title = rawContents.title,
-                        description = rawContents.description,
+                        title = rawContent.title,
+                        description = rawContent.description,
                         // from provisioningContents
-                        coreTextsJson = provisioningContents.coreTextsJson,
-                        provisioningContentsId = provisioningContents.id!!,
+                        coreTextsJson = provisioningContent.coreTextsJson,
+                        provisioningContentsId = provisioningContent.id!!,
+                        category = Category.from(provisioningContent.category),
                     ),
                 )
             }
@@ -51,6 +53,27 @@ class GenService(
          * bulk insert
          */
         return genRepository.saveAll(generatedResults)
+    }
+
+    fun create(
+        rawContent: RawContents,
+        provisioningContent: ProvisioningContents,
+    ): Gen {
+        log.info { "Craete GEN with default gen type(STRATEGY_NAME_SHORT)..." }
+
+        return genRepository.save(
+            genGenerationStrategies[GenType.STRATEGY_NAME_SHORT.title]!!.generate(
+                Material(
+                    // from rawContents
+                    title = rawContent.title,
+                    description = rawContent.description,
+                    // from provisioningContents
+                    coreTextsJson = provisioningContent.coreTextsJson,
+                    provisioningContentsId = provisioningContent.id!!,
+                    category = Category.from(provisioningContent.category),
+                ),
+            ),
+        )
     }
 
     fun getByProvisioningContentsId(provisioningContentsId: Long): Set<Gen> =

@@ -76,4 +76,13 @@ object DependencyVersion {
 
     /** Gson **/
     const val GSON = "2.10.1"
+
+    /** jsoup **/
+    const val JSOUP = "1.15.3"
+
+    /** Coroutines for Spring */
+    const val COROUTINES_SPRING = "1.6.4"
+
+    /** Sonar */
+    const val SONAR = "6.2.0.5505"
 }
