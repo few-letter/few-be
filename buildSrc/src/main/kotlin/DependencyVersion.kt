@@ -11,9 +11,6 @@ object DependencyVersion {
     /** springDependencyManagementVersion */
     const val SPRING_DEPENDENCY_MANAGEMENT = "1.1.5"
 
-    /** springModulith */
-    const val SPRING_MODULITH = "1.3.1"
-
     /** jwt */
     const val JWT = "0.11.5"
 
@@ -25,8 +22,6 @@ object DependencyVersion {
     const val KOTEST = "5.8.0"
     const val KOTEST_EXTENSION = "1.3.0"
     const val COROUTINE_TEST = "1.8.0"
-    const val ARCH_UNIT_JUNIT5 = "0.22.0"
-    const val ALLURE_JUNIT5 = "2.29.1"
 
     /** aws */
     const val AWS_SDK = "1.12.220"

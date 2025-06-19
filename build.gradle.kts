@@ -106,9 +106,6 @@ subprojects {
         /** test **/
         testImplementation("org.springframework.boot:spring-boot-starter-test")
         testImplementation("io.mockk:mockk:${DependencyVersion.MOCKK}")
-        testImplementation("com.tngtech.archunit:archunit-junit5:${DependencyVersion.ARCH_UNIT_JUNIT5}")
-        testImplementation("org.springframework.modulith:spring-modulith-starter-test")
-        testImplementation("io.qameta.allure:allure-junit5:${DependencyVersion.ALLURE_JUNIT5}")
 
         /** kotest */
         testImplementation("io.kotest:kotest-runner-junit5:${DependencyVersion.KOTEST}")
