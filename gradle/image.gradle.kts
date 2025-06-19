@@ -8,6 +8,7 @@ val imageName =
             "fewletter/api"
         }
     }
+
 val releaseVersion =
     project.hasProperty("releaseVersion").let {
         if (it) {
@@ -18,6 +19,8 @@ val releaseVersion =
     }
 
 tasks.register("buildDockerImage") {
+    group = "image"
+
     dependsOn("build")
 
     doLast {
@@ -66,6 +69,8 @@ tasks.register("buildDockerImage") {
 }
 
 tasks.register("buildEcsDockerImage") {
+    group = "image"
+
     dependsOn("build")
 
     doLast {
@@ -85,6 +90,8 @@ tasks.register("buildEcsDockerImage") {
 }
 
 tasks.register("buildPinpointEcsDockerImageDev") {
+    group = "image"
+
     dependsOn("build")
 
     doLast {
@@ -106,6 +113,8 @@ tasks.register("buildPinpointEcsDockerImageDev") {
 }
 
 tasks.register("buildPinpointEcsDockerImagePrd") {
+    group = "image"
+
     dependsOn("build")
 
     doLast {

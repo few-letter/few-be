@@ -16,7 +16,6 @@ plugins {
 
 /** apply custom gradle scripts */
 apply(from = "$rootDir/gradle/lint.gradle.kts")
-apply(from = "$rootDir/gradle/report.gradle.kts")
 
 /** sonar properties */
 sonar {
@@ -85,17 +84,15 @@ subprojects {
              *  */
             dependency("org.jooq:jooq:${DependencyVersion.JOOQ}")
             imports {
-                mavenBom("org.springframework.modulith:spring-modulith-bom:${DependencyVersion.SPRING_MODULITH}")
                 mavenBom("org.springframework.cloud:spring-cloud-dependencies:2023.0.4")
             }
         }
     }
 
     dependencies {
-        /** spring starter */
+        /** starter */
         implementation("org.springframework.boot:spring-boot-starter-validation")
         implementation("org.springframework.boot:spring-boot-starter-web")
-        implementation("org.springframework.modulith:spring-modulith-starter-core")
         kapt("org.springframework.boot:spring-boot-configuration-processor")
 
         /** kotlin */
@@ -121,7 +118,7 @@ subprojects {
         testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${DependencyVersion.COROUTINE_TEST}")
         testImplementation("io.kotest.extensions:kotest-extensions-allure:${DependencyVersion.KOTEST_EXTENSION}")
 
-        /** Kotlin Logger **/
+        /** kotlin logger **/
         implementation("io.github.oshai:kotlin-logging-jvm:${DependencyVersion.KOTLIN_LOGGING}")
     }
 

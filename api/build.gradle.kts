@@ -7,6 +7,8 @@ tasks.withType(BootJar::class.java) {
 apply(from = "$rootDir/gradle/image.gradle.kts")
 
 dependencies {
+    /** library */
+    implementation(project(":library:common"))
     /** domain */
     implementation(project(":domain:generator"))
 }

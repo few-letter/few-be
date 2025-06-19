@@ -7,18 +7,15 @@ tasks.getByName("jar") {
 }
 
 dependencies {
-    implementation(project(":library:common"))
     implementation(project(":library:web"))
 
-    /** jpa */
+    /** starter */
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
 
     /** jsoup - html parser */
     implementation("org.jsoup:jsoup:${DependencyVersion.JSOUP}")
 
     /** gson **/
     implementation("com.google.code.gson:gson:${DependencyVersion.GSON}")
-
-    /** HTTP client **/
-    implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
 }

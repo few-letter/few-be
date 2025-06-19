@@ -9,7 +9,7 @@ dependencies {
 }
 
 val ktlintCheck by tasks.registering(JavaExec::class) {
-    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    group = "lint"
     description = "Check Kotlin code style"
     classpath = ktlint
     mainClass.set("com.pinterest.ktlint.Main")
@@ -17,7 +17,7 @@ val ktlintCheck by tasks.registering(JavaExec::class) {
 }
 
 tasks.register<JavaExec>("ktlintFormat") {
-    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    group = "lint"
     description = "Check Kotlin code style and format"
     classpath = ktlint
     mainClass.set("com.pinterest.ktlint.Main")

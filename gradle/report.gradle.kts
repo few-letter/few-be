@@ -7,7 +7,7 @@ tasks.named<Test>("test") {
 }
 
 tasks.register<Copy>("allureReport") {
-    group = "documentation"
+    group = "report"
     from("$projectDir/build/allure-results")
     into("$rootDir/allure-results")
 }
