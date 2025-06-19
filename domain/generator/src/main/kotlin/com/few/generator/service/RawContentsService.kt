@@ -23,32 +23,17 @@ class RawContentsService(
 ) {
     private val log = KotlinLogging.logger {}
 
-    fun create(): Map<Category, List<RawContents>> =
-        Category.entries
-            .filter { it.rootUrl != null }
-            .associateWith { category ->
-                scrapper
-                    .extractUrlsByCategory(category.rootUrl!!)
-                    .filter { rawContentsRepository.findByUrl(url = it) == null }
-                    .mapNotNull { url -> create(url, category) }
-                    .filter { true }
-                    .take(contentsCountByCategory)
-            }
-
     fun create(
         sourceUrl: String,
         category: Category,
-    ): RawContents? {
+    ): RawContents {
         rawContentsRepository.findByUrl(sourceUrl)?.let {
             throw BadRequestException("이미 생성된 컨텐츠가 있습니다. ID: ${it.id}, URL: $sourceUrl")
         }
 
         val scrappedResult =
             scrapper.scrape(sourceUrl)
-                ?: run {
-                    log.warn { "Failed to scrape content. Skipped this contents. URL: $sourceUrl" }
-                    return null
-                }
+                ?: throw BadRequestException("URL에서 컨텐츠를 스크랩할 수 없습니다. URL: $sourceUrl")
 
         return rawContentsRepository.save(
             RawContents(
@@ -67,4 +52,6 @@ class RawContentsService(
         rawContentsRepository
             .findById(id)
             .orElseThrow { BadRequestException("Raw 컨텐츠가 존재하지 않습니다.") }
+
+    fun exists(url: String): Boolean = rawContentsRepository.findByUrl(url) != null
 }
