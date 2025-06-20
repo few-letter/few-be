@@ -11,4 +11,7 @@ dependencies {
     implementation(project(":library:common"))
     /** domain */
     implementation(project(":domain:generator"))
+
+    /** starter */
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
 }

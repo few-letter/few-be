@@ -5,9 +5,19 @@ spring:
     profiles:
         group:
             local:
+                # library
+                - email-local
+                - security-local
+                - storage-local
+                - web-local
                 # domain
                 - generator-local
             prd:
+                # library
+                - email-prd
+                - security-prd
+                - storage-prd
+                - web-prd
                 # domain
                 - generator-prd
     jpa:
