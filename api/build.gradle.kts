@@ -15,3 +15,9 @@ dependencies {
     /** starter */
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 }
+
+openApi {
+    customBootRun {
+        jvmArgs.set(listOf("-Dspring.profiles.active=local,new"))
+    }
+}

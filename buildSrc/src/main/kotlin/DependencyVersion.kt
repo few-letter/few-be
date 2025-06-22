@@ -41,4 +41,8 @@ object DependencyVersion {
 
     /** Sonar */
     const val SONAR = "6.2.0.5505"
+
+    /** SpringDoc */
+    const val SPRINGDOC_OPENAPI = "2.5.0"
+    const val SPRINGDOC_OPENAPI_GRADLE = "1.9.0"
 }
