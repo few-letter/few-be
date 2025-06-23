@@ -5,6 +5,7 @@ import com.few.generator.controller.request.WebContentsGeneratorRequest
 import com.few.generator.controller.response.*
 import com.few.generator.domain.Category
 import com.few.generator.domain.GenType
+import com.few.generator.usecase.BrowseContentsUseCase
 import com.few.generator.usecase.CreateAllUseCase
 import com.few.generator.usecase.CreateGenUseCase
 import com.few.generator.usecase.CreateProvisioningUseCase
@@ -27,6 +28,7 @@ class ContentsGeneratorController(
     private val rawContentsBrowseContentUseCase: RawContentsBrowseContentUseCase,
     private val createProvisioningUseCase: CreateProvisioningUseCase,
     private val createGenUseCase: CreateGenUseCase,
+    private val browseContentsUseCase: BrowseContentsUseCase,
 ) {
     @PostMapping(
         value = ["/contents"],
@@ -78,6 +80,37 @@ class ContentsGeneratorController(
             ),
             HttpStatus.CREATED,
         )
+    }
+
+    @GetMapping
+    fun readContents(
+        @RequestParam(
+            required = false,
+            defaultValue = "-1",
+        ) prevContentId: Long,
+    ): ApiResponse<ApiResponse.SuccessBody<BrowseContentResponses>> {
+        val ucOuts = browseContentsUseCase.execute(prevContentId)
+
+        val response =
+            BrowseContentResponses(
+                contents =
+                    ucOuts.contents.map {
+                        BrowseContentResponse(
+                            id = it.id,
+                            url = it.url,
+                            thumbnailImageUrl = it.thumbnailImageUrl,
+                            mediaType = CodeValueResponse(code = it.mediaType.code, value = it.mediaType.title),
+                            headline = it.headline,
+                            summary = it.summary,
+                            highlightTexts = it.highlightTexts,
+                            createdAt = it.createdAt,
+                            category = CodeValueResponse(code = it.category.code, value = it.category.title),
+                        )
+                    },
+                isLast = ucOuts.isLast,
+            )
+
+        return ApiResponseGenerator.success(response, HttpStatus.OK)
     }
 
     @GetMapping(value = ["/rawcontents/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])
