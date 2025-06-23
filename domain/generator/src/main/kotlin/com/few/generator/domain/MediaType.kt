@@ -29,8 +29,8 @@ enum class MediaType(
     ZDNET(20, "ZDNET", listOf("zdnet")),
     DAILIAN(21, "데일리안", listOf("dailian")),
     JOONGANG(22, "중앙일보", listOf("joongang")),
-    KOOKMIN(22, "국민일보", listOf("kmib.co.kr")),
-    CHANNEL_A(22, "채널A", listOf("channela")),
+    KOOKMIN(23, "국민일보", listOf("kmib.co.kr")),
+    CHANNEL_A(24, "채널A", listOf("channela")),
     ETC(0, "ETC", emptyList()),
 
     ;
