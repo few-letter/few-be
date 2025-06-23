@@ -9,4 +9,7 @@ tasks.getByName("jar") {
 dependencies {
     /** apache common */
     implementation("org.apache.commons:commons-lang3:${DependencyVersion.COMMONS_LANG3}")
+
+    /** swagger */
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${DependencyVersion.SPRINGDOC_OPENAPI}")
 }
