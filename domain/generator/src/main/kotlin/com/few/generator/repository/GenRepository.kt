@@ -24,12 +24,20 @@ interface GenRepository : JpaRepository<Gen, Long> {
         WHERE sub.id = :targetId
     )
     ORDER BY rn
-    LIMIT :pageSize
+    LIMIT :limitSize
     """,
         nativeQuery = true,
     )
-    fun findNext20After(
+    fun findNextLimitAfter(
         @Param("targetId") targetId: Long,
-        @Param("pageSize") pageSize: Int,
+        @Param("limitSize") limitSize: Int,
+    ): List<Gen>
+
+    @Query(
+        "SELECT * FROM gen ORDER BY id DESC LIMIT :limitSize",
+        nativeQuery = true,
+    )
+    fun findFirstLimitAfter(
+        @Param("limitSize") limitSize: Int,
     ): List<Gen>
 }
