@@ -27,3 +27,13 @@ spring:
                 format_sql: true
                 highlight_sql: true
                 use_sql_comments: true
+
+# Configuration for springdoc-openapi
+springdoc:
+    api-docs:
+        enabled: true  # Enable OpenAPI documentation at /v3/api-docs
+    swagger-ui:
+        groups-order: DESC       # Sort API groups in descending order
+        doc-expansion: none      # Collapse all sections by default
+        tags-sorter: alpha       # Sort tags alphabetically
+        operationsSorter: method # Sort API operations by HTTP method

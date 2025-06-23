@@ -10,6 +10,9 @@ plugins {
     id("org.springframework.boot") version DependencyVersion.SPRING_BOOT
     id("io.spring.dependency-management") version DependencyVersion.SPRING_DEPENDENCY_MANAGEMENT
 
+    /** springdoc */
+    id("org.springdoc.openapi-gradle-plugin") version DependencyVersion.SPRINGDOC_OPENAPI_GRADLE
+
     /** sonar */
     id("org.sonarqube") version DependencyVersion.SONAR
 }
@@ -60,6 +63,7 @@ tasks.getByName("bootJar") {
 subprojects {
     apply(plugin = "org.springframework.boot")
     apply(plugin = "io.spring.dependency-management")
+    apply(plugin = "org.springdoc.openapi-gradle-plugin")
     apply(plugin = "org.jetbrains.kotlin.plugin.allopen")
     apply(plugin = "org.jetbrains.kotlin.kapt")
 
