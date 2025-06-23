@@ -15,6 +15,7 @@ class GeneratorOpenApiConfig {
     fun generatorApi(): GroupedOpenApi =
         GroupedOpenApi
             .builder()
-            .group("generator")
+            .group("Generator API")
+            .packagesToScan(GeneratorConfig.BASE_PACKAGE)
             .build()
 }
