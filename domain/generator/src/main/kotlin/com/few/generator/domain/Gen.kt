@@ -6,7 +6,10 @@ import jakarta.persistence.*
 @Entity
 @Table(
     name = "gen",
-    indexes = [Index(name = "idx_gen_1", columnList = "provisioning_contents_id", unique = false)],
+    indexes = [
+        Index(name = "idx_gen_1", columnList = "provisioning_contents_id", unique = false),
+        Index(name = "idx_gen_2", columnList = "created_at DESC"),
+    ],
 )
 data class Gen( // TODO: DB컬럼 타입 변경 필요
     @Id
