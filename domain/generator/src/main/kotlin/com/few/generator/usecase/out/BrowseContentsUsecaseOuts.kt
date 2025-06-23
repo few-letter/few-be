@@ -10,7 +10,7 @@ data class BrowseContentsUsecaseOuts(
 )
 
 data class ContentsUsecaseOut(
-    val id: Int,
+    val id: Long,
     val url: String,
     val thumbnailImageUrl: String?,
     val mediaType: MediaType,

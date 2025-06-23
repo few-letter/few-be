@@ -9,7 +9,7 @@ data class BrowseContentResponses(
 )
 
 data class BrowseContentResponse(
-    val id: Int,
+    val id: Long,
     val url: String,
     val thumbnailImageUrl: String?,
     val mediaType: CodeValueResponse,
