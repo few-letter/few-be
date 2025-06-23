@@ -3,6 +3,7 @@ package com.few.generator.service
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.core.Scrapper
 import com.few.generator.domain.Category
+import com.few.generator.domain.MediaType
 import com.few.generator.domain.RawContents
 import com.few.generator.repository.RawContentsRepository
 import com.google.gson.Gson
@@ -44,6 +45,7 @@ class RawContentsService(
                 rawTexts = scrappedResult.rawTexts.joinToString("\n"),
                 imageUrls = gson.toJson(scrappedResult.images) ?: "[]",
                 category = category.code,
+                mediaType = MediaType.find(sourceUrl).code,
             ),
         )
     }
