@@ -82,7 +82,9 @@ class ContentsGeneratorController(
         )
     }
 
-    @GetMapping
+    @GetMapping(
+        value = ["/contents"],
+    )
     fun readContents(
         @RequestParam(
             required = false,
