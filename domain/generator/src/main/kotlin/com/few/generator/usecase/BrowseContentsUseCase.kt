@@ -32,9 +32,9 @@ data class BrowseContentsUseCase(
     fun execute(prevContentId: Long): BrowseContentsUsecaseOuts {
         val gens =
             if (prevContentId == -1L) {
-                genRepository.findFirstLimitAfter(pageSize)
+                genRepository.findFirstLimit(pageSize)
             } else {
-                genRepository.findNextLimitAfter(prevContentId, pageSize)
+                genRepository.findNextLimit(prevContentId, pageSize)
             }
 
         if (gens.isEmpty()) {

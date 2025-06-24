@@ -28,7 +28,7 @@ interface GenRepository : JpaRepository<Gen, Long> {
     """,
         nativeQuery = true,
     )
-    fun findNextLimitAfter(
+    fun findNextLimit(
         @Param("targetId") targetId: Long,
         @Param("limitSize") limitSize: Int,
     ): List<Gen>
@@ -37,7 +37,7 @@ interface GenRepository : JpaRepository<Gen, Long> {
         "SELECT * FROM gen ORDER BY created_at DESC LIMIT :limitSize",
         nativeQuery = true,
     )
-    fun findFirstLimitAfter(
+    fun findFirstLimit(
         @Param("limitSize") limitSize: Int,
     ): List<Gen>
 }
