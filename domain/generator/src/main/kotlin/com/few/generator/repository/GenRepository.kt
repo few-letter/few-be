@@ -17,7 +17,7 @@ interface GenRepository : JpaRepository<Gen, Long> {
             SELECT created_at FROM gen WHERE id = :targetId
         )
         ORDER BY g.created_at DESC
-        LIMIT :pageSize
+        LIMIT :limitSize
         """,
         nativeQuery = true,
     )
