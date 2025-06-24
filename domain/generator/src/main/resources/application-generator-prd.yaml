@@ -51,3 +51,4 @@ generator:
         defaultRetryAfter: 60
     contents:
         countByCategory: 10
+        pageSize: 20
