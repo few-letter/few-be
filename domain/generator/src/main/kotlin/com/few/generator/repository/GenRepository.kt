@@ -12,20 +12,13 @@ interface GenRepository : JpaRepository<Gen, Long> {
 
     @Query(
         """
-    SELECT * FROM (
-        SELECT *, ROW_NUMBER() OVER (ORDER BY created_at DESC) AS rn
-        FROM gen
-    ) ranked
-    WHERE rn > (
-        SELECT target_rn FROM (
-            SELECT id, ROW_NUMBER() OVER (ORDER BY created_at DESC) AS target_rn
-            FROM gen
-        ) sub
-        WHERE sub.id = :targetId
-    )
-    ORDER BY rn
-    LIMIT :limitSize
-    """,
+        SELECT g.* FROM gen g
+        WHERE g.created_at < (
+            SELECT created_at FROM gen WHERE id = :targetId
+        )
+        ORDER BY g.created_at DESC
+        LIMIT :pageSize
+        """,
         nativeQuery = true,
     )
     fun findNextLimit(
