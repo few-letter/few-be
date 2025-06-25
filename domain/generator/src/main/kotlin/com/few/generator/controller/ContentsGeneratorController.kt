@@ -65,13 +65,13 @@ class ContentsGeneratorController(
         return ApiResponseGenerator.success(response, HttpStatus.OK)
     }
 
-    @GetMapping(value = ["/rawcontents/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping(value = ["/contents/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getByRawContents(
         @PathVariable(value = "id")
         @Min(value = 1, message = "{min.id}")
-        rawContentsId: Long,
+        genId: Long,
     ): ApiResponse<ApiResponse.SuccessBody<BrowseContentsResponse>> {
-        val useCaseOut = rawContentsBrowseContentUseCase.execute(rawContentsId)
+        val useCaseOut = rawContentsBrowseContentUseCase.execute(genId)
 
         return ApiResponseGenerator.success(
             BrowseContentsResponse(
@@ -84,39 +84,37 @@ class ContentsGeneratorController(
                         thumbnailImageUrl = useCaseOut.rawContents.thumbnailImageUrl,
                         rawTexts = useCaseOut.rawContents.rawTexts,
                         imageUrls = useCaseOut.rawContents.imageUrls,
-                        createdAt = useCaseOut.rawContents.createdAt!!,
+                        mediaType =
+                            CodeValueResponse(
+                                code = useCaseOut.rawContents.mediaType.code,
+                                value = useCaseOut.rawContents.mediaType.title,
+                            ),
+                        createdAt = useCaseOut.rawContents.createdAt,
                     ),
                 provisioningContents =
                     BrowseProvisioningContentsResponse(
-                        id = useCaseOut.provisioningContents.id!!,
+                        id = useCaseOut.provisioningContents.id,
                         rawContentsId = useCaseOut.provisioningContents.rawContentsId,
                         completionIds = useCaseOut.provisioningContents.completionIds,
                         bodyTextsJson = useCaseOut.provisioningContents.bodyTextsJson,
                         coreTextsJson = useCaseOut.provisioningContents.coreTextsJson,
+                        createdAt = useCaseOut.provisioningContents.createdAt,
+                    ),
+                gen =
+                    BrowseGenResponse(
+                        id = useCaseOut.gen.id,
+                        provisioningContentsId = useCaseOut.gen.provisioningContentsId,
+                        completionIds = useCaseOut.gen.completionIds,
+                        headline = useCaseOut.gen.headline,
+                        summary = useCaseOut.gen.summary,
+                        highlightTexts = useCaseOut.gen.highlightTexts,
                         category =
                             CodeValueResponse(
-                                code = useCaseOut.provisioningContents.category.code,
-                                value = useCaseOut.provisioningContents.category.value,
+                                code = useCaseOut.gen.category.code,
+                                value = useCaseOut.gen.category.title,
                             ),
-                        createdAt = useCaseOut.provisioningContents.createdAt!!,
+                        createdAt = useCaseOut.gen.createdAt,
                     ),
-                gens =
-                    useCaseOut.gens.map {
-                        BrowseGenResponse(
-                            id = it.id!!,
-                            provisioningContentsId = it.provisioningContentsId,
-                            completionIds = it.completionIds,
-                            headline = it.headline,
-                            summary = it.summary,
-                            highlightTexts = it.highlightTexts,
-                            type =
-                                CodeValueResponse(
-                                    code = it.type.code,
-                                    value = it.type.value,
-                                ),
-                            createdAt = it.createdAt!!,
-                        )
-                    },
             ),
             HttpStatus.OK,
         )
