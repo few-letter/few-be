@@ -1,7 +1,7 @@
 package com.few.generator.service
 
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
-import com.few.generator.core.Scrapper
+import com.few.generator.core.scrapper.Scrapper
 import com.few.generator.domain.Category
 import com.few.generator.domain.MediaType
 import com.few.generator.domain.RawContents

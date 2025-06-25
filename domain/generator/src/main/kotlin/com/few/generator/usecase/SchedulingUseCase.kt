@@ -1,6 +1,6 @@
 package com.few.generator.usecase
 
-import com.few.generator.core.Scrapper
+import com.few.generator.core.scrapper.Scrapper
 import com.few.generator.event.dto.ContentsSchedulingEventDto
 import com.few.generator.service.GenService
 import com.few.generator.service.ProvisioningService
@@ -93,7 +93,6 @@ class SchedulingUseCase(
         var failCnt = 0
 
         urlsByCategories.forEach { (category, urls) ->
-            val urls = urls ?: return@forEach
             var successCntByCategory = 0
 
             for (url in urls) {
