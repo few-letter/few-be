@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 data class BrowseContentsResponse(
     val rawContents: BrowseRawContentsResponse,
     val provisioningContents: BrowseProvisioningContentsResponse,
-    val gens: List<BrowseGenResponse>,
+    val gen: BrowseGenResponse,
 )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -18,6 +18,7 @@ data class BrowseRawContentsResponse(
     val title: String,
     val description: String,
     val thumbnailImageUrl: String? = null,
+    val mediaType: CodeValueResponse,
     val rawTexts: String,
     val imageUrls: List<String>,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
@@ -31,7 +32,6 @@ data class BrowseProvisioningContentsResponse(
     val completionIds: List<String>,
     val bodyTextsJson: List<String>,
     val coreTextsJson: List<String>,
-    val category: CodeValueResponse,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     val createdAt: LocalDateTime,
 )
@@ -44,7 +44,7 @@ data class BrowseGenResponse(
     val headline: String,
     val summary: String,
     val highlightTexts: List<String>,
-    val type: CodeValueResponse,
+    val category: CodeValueResponse,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     val createdAt: LocalDateTime,
 )

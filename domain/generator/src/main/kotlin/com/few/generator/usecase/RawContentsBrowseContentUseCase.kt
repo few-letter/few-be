@@ -21,17 +21,21 @@ class RawContentsBrowseContentUseCase(
     private val gson: Gson,
 ) {
     @GeneratorTransactional(readOnly = true)
-    fun execute(rawContentsId: Long): BrowseContentsUsecaseOut {
-        val rawContents: RawContents =
-            rawContentsRepository
-                .findById(rawContentsId)
-                .orElseThrow { RuntimeException("컨텐츠가 존재하지 않습니다.") }
+    fun execute(genId: Long): BrowseContentsUsecaseOut {
+        val gen: Gen =
+            genRepository
+                .findById(genId)
+                .orElseThrow { RuntimeException("Gen 컨텐츠가 존재하지 않습니다.") }
 
         val provContents: ProvisioningContents =
-            provisioningContentsRepository.findByRawContentsId(rawContents.id!!)
-                ?: throw RuntimeException("프로비저닝 컨텐츠가 존재하지 않습니다.")
+            provisioningContentsRepository
+                .findById(gen.provisioningContentsId)
+                .orElseThrow { RuntimeException("프로비저닝 컨텐츠가 존재하지 않습니다.") }
 
-        val gens: List<Gen> = genRepository.findByProvisioningContentsId(provContents.id!!)
+        val rawContents: RawContents =
+            rawContentsRepository
+                .findById(provContents.rawContentsId)
+                .orElseThrow { RuntimeException("Raw 컨텐츠가 존재하지 않습니다.") }
 
         return BrowseContentsUsecaseOut(
             rawContents =
@@ -41,6 +45,7 @@ class RawContentsBrowseContentUseCase(
                     title = rawContents.title,
                     description = rawContents.description,
                     thumbnailImageUrl = rawContents.thumbnailImageUrl,
+                    mediaType = MediaType.from(rawContents.mediaType),
                     rawTexts = rawContents.rawTexts,
                     imageUrls = gson.fromJson(rawContents.imageUrls, object : TypeToken<List<String>>() {}.type),
                     createdAt = rawContents.createdAt!!,
@@ -60,30 +65,19 @@ class RawContentsBrowseContentUseCase(
                             provContents.coreTextsJson,
                             object : TypeToken<List<String>>() {}.type,
                         ),
-                    category =
-                        CodeValue(
-                            code = Category.from(provContents.category).code,
-                            value = Category.from(provContents.category).name,
-                        ),
                     createdAt = provContents.createdAt!!,
                 ),
-            gens =
-                gens.map {
-                    BrowseGenUsecaseOut(
-                        id = it.id!!,
-                        provisioningContentsId = it.provisioningContentsId,
-                        completionIds = it.completionIds,
-                        headline = it.headline,
-                        summary = it.summary,
-                        highlightTexts = gson.fromJson(it.highlightTexts, object : TypeToken<List<String>>() {}.type),
-                        type =
-                            CodeValue(
-                                code = GenType.from(it.typeCode).code,
-                                value = GenType.from(it.typeCode).title,
-                            ),
-                        createdAt = it.createdAt!!,
-                    )
-                },
+            gen =
+                BrowseGenUsecaseOut(
+                    id = gen.id!!,
+                    provisioningContentsId = gen.provisioningContentsId,
+                    completionIds = gen.completionIds,
+                    headline = gen.headline,
+                    summary = gen.summary,
+                    highlightTexts = gson.fromJson(gen.highlightTexts, object : TypeToken<List<String>>() {}.type),
+                    category = Category.from(gen.category),
+                    createdAt = gen.createdAt!!,
+                ),
         )
     }
 }

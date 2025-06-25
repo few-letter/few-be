@@ -8,8 +8,6 @@ import org.springframework.data.repository.query.Param
 interface GenRepository : JpaRepository<Gen, Long> {
     fun findByProvisioningContentsId(provisioningContentsId: Long): List<Gen>
 
-    fun existsByProvisioningContentsId(provisioningContentsId: Long): Boolean
-
     @Query(
         """
         SELECT g.* FROM gen g

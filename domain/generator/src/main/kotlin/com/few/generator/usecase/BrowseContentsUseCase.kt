@@ -29,12 +29,12 @@ data class BrowseContentsUseCase(
     private val pageSize: Int,
 ) {
     @GeneratorTransactional(readOnly = true)
-    fun execute(prevContentId: Long): BrowseContentsUsecaseOuts {
+    fun execute(prevGenId: Long): BrowseContentsUsecaseOuts {
         val gens =
-            if (prevContentId == -1L) {
+            if (prevGenId == -1L) {
                 genRepository.findFirstLimit(pageSize)
             } else {
-                genRepository.findNextLimit(prevContentId, pageSize)
+                genRepository.findNextLimit(prevGenId, pageSize)
             }
 
         if (gens.isEmpty()) {
