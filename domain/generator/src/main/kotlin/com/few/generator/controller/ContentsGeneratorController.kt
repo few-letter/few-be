@@ -37,11 +37,12 @@ class ContentsGeneratorController(
     )
     fun readContents(
         @RequestParam(
+            value = "prevContentId",
             required = false,
             defaultValue = "-1",
-        ) prevContentId: Long,
+        ) prevGenId: Long,
     ): ApiResponse<ApiResponse.SuccessBody<BrowseContentResponses>> {
-        val ucOuts = browseContentsUseCase.execute(prevContentId)
+        val ucOuts = browseContentsUseCase.execute(prevGenId)
 
         val response =
             BrowseContentResponses(
