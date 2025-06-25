@@ -22,7 +22,7 @@ class ContentsGeneratorController(
     private val browseContentsUseCase: BrowseContentsUseCase,
 ) {
     @PostMapping(
-        value = ["/contents/scheduling"],
+        value = ["/contents/schedule"],
     )
     fun createAll(): ApiResponse<ApiResponse.Success> {
         schedulingUseCase.execute()
