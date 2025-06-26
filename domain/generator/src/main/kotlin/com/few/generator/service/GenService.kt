@@ -24,8 +24,6 @@ class GenService(
         rawContent: RawContents,
         provisioningContent: ProvisioningContents,
     ): Gen {
-        log.info { "Craete GEN with default gen type(STRATEGY_NAME_SHORT)..." }
-
         val headlinePrompt =
             promptGenerator.toHeadlineShort(
                 title = rawContent.title!!,
