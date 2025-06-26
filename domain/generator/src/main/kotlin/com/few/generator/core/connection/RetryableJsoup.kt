@@ -10,7 +10,7 @@ import web.handler.exception.BadRequestException
 import java.util.concurrent.TimeUnit
 
 @Service
-class RetryAbleJsoup(
+class RetryableJsoup(
     private val connectionFactory: JsoupConnectionFactory,
     @Value("\${generator.scraping.maxRetries}")
     private val maxRetries: Int,

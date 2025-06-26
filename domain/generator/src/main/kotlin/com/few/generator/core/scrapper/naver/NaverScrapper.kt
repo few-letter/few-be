@@ -1,6 +1,6 @@
 package com.few.generator.core.scrapper.naver
 
-import com.few.generator.core.connection.RetryAbleJsoup
+import com.few.generator.core.connection.RetryableJsoup
 import com.few.generator.core.scrapper.ScrappedResult
 import com.few.generator.domain.Category
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class NaverScrapper(
-    private val retryAbleJsoup: RetryAbleJsoup,
+    private val retryAbleJsoup: RetryableJsoup,
 ) {
     private val log = KotlinLogging.logger { }
 

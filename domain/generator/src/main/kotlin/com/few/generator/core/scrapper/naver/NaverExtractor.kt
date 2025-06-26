@@ -75,4 +75,12 @@ object NaverExtractor {
                 false
             }
     }
+
+    object Url {
+        fun extractOrigin(document: Document): String? =
+            document
+                .select("a")
+                .firstOrNull { it.text() == "기사원문" }
+                ?.attr("href")
+    }
 }

@@ -1,6 +1,7 @@
 package com.few.generator.core.scrapper
 
-import com.few.generator.core.connection.RetryAbleJsoup
+import com.few.generator.core.connection.RetryableJsoup
+import com.few.generator.core.scrapper.naver.NaverExtractor
 import com.few.generator.core.scrapper.naver.NaverScrapper
 import com.few.generator.domain.Category
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -16,16 +17,16 @@ data class ScrappedResult(
 
 @Component
 class Scrapper(
-    private val scrappingSupporter: NaverScrapper,
-    private val retryAbleJsoup: RetryAbleJsoup,
+    private val naverScrapper: NaverScrapper,
+    private val retryAbleJsoup: RetryableJsoup,
 ) {
     private val log = KotlinLogging.logger {}
 
     fun extractUrlsByCategories(): Map<Category, Set<String>> =
-        scrappingSupporter
+        naverScrapper
             .getRootUrlsByCategory(Category.entries)
             .mapValues { (_, rootUrl) ->
-                scrappingSupporter.extractUrlsByCategory(rootUrl)
+                naverScrapper.extractUrlsByCategory(rootUrl)
             }
 
     fun scrape(url: String): ScrappedResult? {
@@ -36,14 +37,13 @@ class Scrapper(
                     log.warn { "Document title is blank for URL: $url" }
                     return null
                 }
-                return scrappingSupporter.parseDocument(document)
+                return naverScrapper.parseDocument(document)
             }
     }
 
     fun extractOriginUrl(url: String): String? =
-        retryAbleJsoup
-            .connect(url) { (1..5).random().toLong() }
-            .select("a")
-            .firstOrNull { it.text() == "기사원문" }
-            ?.attr("href")
+        NaverExtractor.Url.extractOrigin(
+            retryAbleJsoup
+                .connect(url) { (1..5).random().toLong() },
+        )
 }
