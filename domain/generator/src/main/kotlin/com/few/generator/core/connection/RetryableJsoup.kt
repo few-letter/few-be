@@ -19,14 +19,10 @@ class RetryableJsoup(
 ) {
     private val log = KotlinLogging.logger {}
 
-    fun connect(
-        url: String,
-        sleepTimeProvider: () -> Long,
-    ): Document {
+    fun connect(url: String): Document {
         var attempt = 0
         while (attempt < maxRetries) {
             try {
-                Thread.sleep(sleepTimeProvider())
                 return connectionFactory
                     .createConnection(url)
                     .execute()

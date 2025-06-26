@@ -18,14 +18,17 @@ class NaverScrapper(
             .filter { it in NaverConstants.ROOT_URL_MAP }
             .associateWith { NaverConstants.ROOT_URL_MAP[it]!! }
 
-    fun extractUrlsByCategory(rootUrl: String): Set<String> =
-        retryableJsoup
-            .connect(rootUrl) { (1..5).random().toLong() }
+    fun extractUrlsByCategory(rootUrl: String): Set<String> {
+        // Introduce a random sleep time to avoid hitting the server too quickly
+        Thread.sleep((1..5).random().toLong())
+        return retryableJsoup
+            .connect(rootUrl)
             .select("a[href]")
             .mapNotNull { it.attr("href") }
             .filter { it.matches(NaverConstants.NEWS_URL_REGEX) }
             .map { it.replace("amp;", "") }
             .toSet()
+    }
 
     fun parseDocument(document: Document): ScrappedResult? {
         removeUnnecessaryTags(document)

@@ -22,10 +22,6 @@ class Scrapper(
 ) {
     private val log = KotlinLogging.logger {}
 
-    companion object {
-        private val randomSleepTimeProvider: () -> Long = { (1..5).random().toLong() }
-    }
-
     fun extractUrlsByCategories(): Map<Category, Set<String>> =
         naverScrapper
             .getRootUrlsByCategory(Category.entries)
@@ -34,8 +30,10 @@ class Scrapper(
             }
 
     fun scrape(url: String): ScrappedResult? {
+        // Introduce a random sleep time to avoid hitting the server too quickly
+        Thread.sleep((1..5).random().toLong())
         retryableJsoup
-            .connect(url, randomSleepTimeProvider)
+            .connect(url)
             .let { document ->
                 if (document.title().isBlank()) {
                     log.warn { "Document title is blank for URL: $url" }
@@ -45,9 +43,13 @@ class Scrapper(
             }
     }
 
-    fun extractOriginUrl(url: String): String? =
-        NaverExtractor.Url.extractOrigin(
-            retryableJsoup
-                .connect(url, randomSleepTimeProvider),
-        )
+    fun extractOriginUrl(url: String): String? {
+        // Introduce a random sleep time to avoid hitting the server too quickly
+        Thread.sleep((1..5).random().toLong())
+        return retryableJsoup
+            .connect(url)
+            .let {
+                NaverExtractor.Url.extractOrigin(it)
+            }
+    }
 }
