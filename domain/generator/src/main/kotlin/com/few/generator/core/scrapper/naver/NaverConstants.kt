@@ -13,7 +13,7 @@ object NaverConstants {
             Category.ECONOMY to "https://news.naver.com/section/101",
             Category.SOCIETY to "https://news.naver.com/section/102",
         )
-    val NEWS_URL_REGEX = Regex("""https://n\\.news\\.naver\\.com/mnews/article/\\d+/\\d+$""", RegexOption.IGNORE_CASE)
-    val IMAGE_URL_REGEX = Regex("""(https?://[^\\s'"]+\\.(?:jpg|jpeg|png|gif|webp|svg))(?:\\?[^)\\s'"]+)?""", RegexOption.IGNORE_CASE)
+    val NEWS_URL_REGEX = Regex("""https://n\.news\.naver\.com/mnews/article/\d+/\d+$""", RegexOption.IGNORE_CASE)
+    val IMAGE_URL_REGEX = Regex("(https?://[^\\s'\"]+\\.(?:jpg|jpeg|png|gif|webp|svg))(?:\\?[^)\\s'\"]+)?", RegexOption.IGNORE_CASE)
     val SENTENCE_SEPARATORS = listOf("... ", ". ", "? ", "! ", "; ", "。", "？", "！")
 }
