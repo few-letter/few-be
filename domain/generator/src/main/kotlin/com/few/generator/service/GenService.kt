@@ -26,17 +26,17 @@ class GenService(
     ): Gen {
         val headlinePrompt =
             promptGenerator.toHeadlineShort(
-                title = rawContent.title!!,
-                description = rawContent.description!!,
-                coreTextsJson = provisioningContent.coreTextsJson!!,
+                title = rawContent.title,
+                description = rawContent.description,
+                coreTextsJson = provisioningContent.coreTextsJson,
             )
         val headline: Headline = chatGpt.ask(headlinePrompt) as Headline
 
         val summaryPrompt =
             promptGenerator.toSummaryShort(
                 headline = headline.headline,
-                title = rawContent.title!!,
-                description = rawContent.description!!,
+                title = rawContent.title,
+                description = rawContent.description,
                 coreTextsJson = provisioningContent.coreTextsJson!!,
             )
         val summary: Summary = chatGpt.ask(summaryPrompt) as Summary
