@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class NaverScrapper(
-    private val retryAbleJsoup: RetryableJsoup,
+    private val retryableJsoup: RetryableJsoup,
 ) {
     private val log = KotlinLogging.logger { }
 
@@ -19,7 +19,7 @@ class NaverScrapper(
             .associateWith { NaverConstants.ROOT_URL_MAP[it]!! }
 
     fun extractUrlsByCategory(rootUrl: String): Set<String> =
-        retryAbleJsoup
+        retryableJsoup
             .connect(rootUrl) { (1..5).random().toLong() }
             .select("a[href]")
             .mapNotNull { it.attr("href") }
