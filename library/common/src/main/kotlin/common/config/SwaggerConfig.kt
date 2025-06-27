@@ -20,14 +20,13 @@ class SwaggerConfig(
 
     @Bean
     fun getOpenApi(): OpenAPI {
-        val profiles = environment.activeProfiles.contentToString()
-        val url = if (profiles.contains("local")) "http://localhost:8080" else "https://api.fewletter.store"
-
         val securityRequirement = SecurityRequirement().addList(AUTH_TOKEN_KEY)
         return OpenAPI()
             .components(authSetting())
             .security(listOf(securityRequirement))
-            .addServersItem(Server().url(url))
+            .addServersItem(Server().url("http://localhost:8080"))
+            .addServersItem(Server().url("https://api.fewletter.store"))
+            .addServersItem(Server().url("https://api.fewletter.site"))
             .info(
                 Info()
                     .version("2.0.0")
