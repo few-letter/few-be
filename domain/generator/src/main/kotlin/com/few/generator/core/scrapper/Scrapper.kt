@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 data class ScrappedResult(
     val title: String = "",
     val description: String = "",
-    val thumbnailImageUrl: String = "",
+    val thumbnailImageUrl: String? = null,
     val rawTexts: List<String> = emptyList(),
     val images: List<String> = emptyList(),
 )
