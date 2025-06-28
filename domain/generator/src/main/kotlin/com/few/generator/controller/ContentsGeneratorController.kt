@@ -3,17 +3,20 @@ package com.few.generator.controller
 import com.few.generator.controller.response.*
 import com.few.generator.domain.Category
 import com.few.generator.usecase.BrowseContentsUseCase
+import com.few.generator.usecase.GroupGenBrowseUseCase
 import com.few.generator.usecase.GroupSchedulingUseCase
 import com.few.generator.usecase.RawContentsBrowseContentUseCase
 import com.few.generator.usecase.SchedulingUseCase
 import com.few.generator.usecase.input.BrowseContentsUseCaseIn
 import jakarta.validation.constraints.Min
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import web.ApiResponse
 import web.ApiResponseGenerator
+import java.time.LocalDate
 
 @Validated
 @RestController
@@ -23,6 +26,7 @@ class ContentsGeneratorController(
     private val rawContentsBrowseContentUseCase: RawContentsBrowseContentUseCase,
     private val browseContentsUseCase: BrowseContentsUseCase,
     private val groupSchedulingUseCase: GroupSchedulingUseCase,
+    private val groupGenBrowseUseCase: GroupGenBrowseUseCase,
 ) {
     @PostMapping(
         value = ["/contents/schedule"],
@@ -89,6 +93,16 @@ class ContentsGeneratorController(
         return ApiResponseGenerator.success(response, HttpStatus.OK)
     }
 
+    @GetMapping("/contents/group", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun readGroupGen(
+        @RequestParam("date")
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+        date: LocalDate?,
+    ): ApiResponse<ApiResponse.SuccessBody<BrowseGroupGenResponses>> {
+        val response = groupGenBrowseUseCase.execute(date)
+        return ApiResponseGenerator.success(response, HttpStatus.OK)
+    }
+
     @GetMapping(value = ["/contents/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getByRawContents(
         @PathVariable(value = "id")
@@ -101,7 +115,7 @@ class ContentsGeneratorController(
             BrowseContentsResponse(
                 rawContents =
                     BrowseRawContentsResponse(
-                        id = useCaseOut.rawContents.id!!,
+                        id = useCaseOut.rawContents.id,
                         url = useCaseOut.rawContents.url,
                         title = useCaseOut.rawContents.title,
                         description = useCaseOut.rawContents.description,

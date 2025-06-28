@@ -1,0 +1,62 @@
+package com.few.generator.usecase
+
+import com.few.generator.config.GeneratorGsonConfig
+import com.few.generator.controller.response.BrowseGroupGenResponse
+import com.few.generator.controller.response.BrowseGroupGenResponses
+import com.few.generator.controller.response.GroupSourceHeadlineData
+import com.few.generator.repository.GroupGenRepository
+import com.google.gson.Gson
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.stereotype.Component
+import java.time.LocalDate
+import java.time.LocalTime
+
+@Component
+data class GroupGenBrowseUseCase(
+    private val groupGenRepository: GroupGenRepository,
+    @Qualifier(GeneratorGsonConfig.GSON_BEAN_NAME)
+    private val gson: Gson,
+) {
+    fun execute(date: LocalDate?): BrowseGroupGenResponses {
+        val targetDate = date ?: LocalDate.now()
+        val start = targetDate.atStartOfDay()
+        val end = targetDate.atTime(LocalTime.MAX)
+        val groupGens =
+            groupGenRepository
+                .findAllByCreatedAtBetween(start, end)
+                .sortedByDescending { it.createdAt }
+        return BrowseGroupGenResponses(
+            groups =
+                groupGens.map { it ->
+                    BrowseGroupGenResponse(
+                        id = it.id!!,
+                        category = it.category,
+                        groupIndices = it.groupIndices,
+                        headline = it.headline,
+                        summary = it.summary,
+                        highlightTexts =
+                            it.highlightTexts.let { raw ->
+                                if (raw.isBlank()) {
+                                    emptyList()
+                                } else {
+                                    raw
+                                        .removePrefix("[")
+                                        .removeSuffix("]")
+                                        .split(",")
+                                        .map { it.trim().removeSurrounding("\"") }
+                                        .filter { it.isNotBlank() }
+                                }
+                            },
+                        groupSourceHeadlines =
+                            it.groupSourceHeadlines.map {
+                                GroupSourceHeadlineData(
+                                    headline = it.headline,
+                                    url = it.url,
+                                )
+                            },
+                        createdAt = it.createdAt!!,
+                    )
+                },
+        )
+    }
+}
