@@ -3,6 +3,7 @@ package com.few.generator.core.scrapper.naver
 import com.few.generator.core.connection.RetryableJsoup
 import com.few.generator.core.scrapper.ScrappedResult
 import com.few.generator.domain.Category
+import com.few.generator.domain.MediaType
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jsoup.nodes.Document
 import org.springframework.stereotype.Service
@@ -33,8 +34,16 @@ class NaverScrapper(
     fun parseDocument(document: Document): ScrappedResult? {
         removeUnnecessaryTags(document)
         val mainContent = document.selectFirst("main, article, div.content") ?: document
-        val title = document.selectFirst("title")?.text()?.trim()
+        val title = removeMediaTypeTitleSuffix(document.selectFirst("title")?.text())
+        if (title.isNullOrBlank()) {
+            throw RuntimeException("Title is null or blank. URL: ${document.location()}")
+        }
+
         val description = document.selectFirst("meta[name=description]")?.attr("content")?.trim()
+        if (description.isNullOrBlank()) {
+            throw RuntimeException("Description is null or blank. URL: ${document.location()}")
+        }
+
         val thumbnailImageUrl: String? =
             document
                 .selectFirst("meta[property=og:image]")
@@ -44,14 +53,23 @@ class NaverScrapper(
         val rawTexts = NaverExtractor.Text.extract(mainContent)
         val images = NaverExtractor.Image.extract(document)
 
-        if (title.isNullOrBlank() || description.isNullOrBlank()) {
-            log.error { "title 및 description 스크래핑 실패. URL: ${document.location()}" }
-            return null
-        }
         return ScrappedResult(title, description, thumbnailImageUrl, rawTexts, images)
     }
 
     private fun removeUnnecessaryTags(document: Document) {
         document.select("script, style, nav, footer, header").forEach { it.remove() }
+    }
+
+    private fun removeMediaTypeTitleSuffix(title: String?): String? {
+        if (title == null) return null
+
+        val trimmedtitle = title.trim()
+        for (mediaType in MediaType.entries) {
+            if (trimmedtitle.endsWith(mediaType.title)) {
+                return trimmedtitle.removeSuffix(mediaType.title).trim()
+            }
+        }
+
+        return trimmedtitle
     }
 }
