@@ -35,12 +35,12 @@ class NaverScrapper(
         val mainContent = document.selectFirst("main, article, div.content") ?: document
         val title = document.selectFirst("title")?.text()?.trim()
         val description = document.selectFirst("meta[name=description]")?.attr("content")?.trim()
-        val thumbnailImageUrl =
+        val thumbnailImageUrl: String? =
             document
                 .selectFirst("meta[property=og:image]")
                 ?.attr("content")
                 ?.trim()
-                .orEmpty()
+                ?.takeIf { it.startsWith("https://") || it.startsWith("http://") }
         val rawTexts = NaverExtractor.Text.extract(mainContent)
         val images = NaverExtractor.Image.extract(document)
 
