@@ -7,6 +7,7 @@ import com.few.generator.repository.GenRepository
 import com.few.generator.repository.ProvisioningContentsRepository
 import com.few.generator.repository.RawContentsRepository
 import com.few.generator.support.jpa.GeneratorTransactional
+import com.few.generator.usecase.`in`.BrowseContentsUseCaseIn
 import com.few.generator.usecase.out.BrowseContentsUsecaseOuts
 import com.few.generator.usecase.out.ContentsUsecaseOut
 import com.google.gson.Gson
@@ -29,12 +30,23 @@ data class BrowseContentsUseCase(
     private val pageSize: Int,
 ) {
     @GeneratorTransactional(readOnly = true)
-    fun execute(prevGenId: Long): BrowseContentsUsecaseOuts {
+    fun execute(input: BrowseContentsUseCaseIn): BrowseContentsUsecaseOuts {
         val gens =
-            if (prevGenId == -1L) {
-                genRepository.findFirstLimit(pageSize)
-            } else {
-                genRepository.findNextLimit(prevGenId, pageSize)
+            when {
+                input.categoryCode != null -> {
+                    if (input.prevGenId == -1L) {
+                        genRepository.findFirstLimitByCategory(input.categoryCode, pageSize)
+                    } else {
+                        genRepository.findNextLimitByCategory(input.prevGenId, input.categoryCode, pageSize)
+                    }
+                }
+                else -> {
+                    if (input.prevGenId == -1L) {
+                        genRepository.findFirstLimit(pageSize)
+                    } else {
+                        genRepository.findNextLimit(input.prevGenId, pageSize)
+                    }
+                }
             }
 
         if (gens.isEmpty()) {
@@ -64,7 +76,7 @@ data class BrowseContentsUseCase(
                         summary = gen.summary,
                         highlightTexts = gson.fromJson(gen.highlightTexts, object : TypeToken<List<String>>() {}.type),
                         createdAt = gen.createdAt ?: LocalDateTime.MIN,
-                        category = Category.from(raw.category),
+                        category = Category.from(gen.category),
                     )
                 },
             isLast = gens.size < pageSize,
