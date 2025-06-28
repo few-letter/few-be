@@ -31,4 +31,31 @@ interface GenRepository : JpaRepository<Gen, Long> {
     fun findFirstLimit(
         @Param("limitSize") limitSize: Int,
     ): List<Gen>
+
+    @Query(
+        """
+        SELECT g.* FROM gen g
+        WHERE g.category = :category
+        AND g.created_at < (
+            SELECT created_at FROM gen WHERE id = :targetId
+        )
+        ORDER BY g.created_at DESC
+        LIMIT :limitSize
+        """,
+        nativeQuery = true,
+    )
+    fun findNextLimitByCategory(
+        @Param("targetId") targetId: Long,
+        @Param("category") category: Int,
+        @Param("limitSize") limitSize: Int,
+    ): List<Gen>
+
+    @Query(
+        "SELECT * FROM gen WHERE category = :category ORDER BY created_at DESC LIMIT :limitSize",
+        nativeQuery = true,
+    )
+    fun findFirstLimitByCategory(
+        @Param("category") category: Int,
+        @Param("limitSize") limitSize: Int,
+    ): List<Gen>
 }

@@ -5,6 +5,7 @@ import com.few.generator.domain.Category
 import com.few.generator.usecase.BrowseContentsUseCase
 import com.few.generator.usecase.RawContentsBrowseContentUseCase
 import com.few.generator.usecase.SchedulingUseCase
+import com.few.generator.usecase.`in`.BrowseContentsUseCaseIn
 import jakarta.validation.constraints.Min
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -40,9 +41,16 @@ class ContentsGeneratorController(
             value = "prevContentId",
             required = false,
             defaultValue = "-1",
-        ) prevGenId: Long,
+        )
+        prevGenId: Long,
+        @RequestParam(
+            value = "category",
+            required = false,
+        )
+        categoryCode: Int?,
     ): ApiResponse<ApiResponse.SuccessBody<BrowseContentResponses>> {
-        val ucOuts = browseContentsUseCase.execute(prevGenId)
+        val input = BrowseContentsUseCaseIn(prevGenId, categoryCode)
+        val ucOuts = browseContentsUseCase.execute(input)
 
         val response =
             BrowseContentResponses(
@@ -52,12 +60,20 @@ class ContentsGeneratorController(
                             id = it.id,
                             url = it.url,
                             thumbnailImageUrl = it.thumbnailImageUrl,
-                            mediaType = CodeValueResponse(code = it.mediaType.code, value = it.mediaType.title),
+                            mediaType =
+                                CodeValueResponse(
+                                    code = it.mediaType.code,
+                                    value = it.mediaType.title,
+                                ),
                             headline = it.headline,
                             summary = it.summary,
                             highlightTexts = it.highlightTexts,
                             createdAt = it.createdAt,
-                            category = CodeValueResponse(code = it.category.code, value = it.category.title),
+                            category =
+                                CodeValueResponse(
+                                    code = it.category.code,
+                                    value = it.category.title,
+                                ),
                         )
                     },
                 isLast = ucOuts.isLast,
@@ -68,9 +84,7 @@ class ContentsGeneratorController(
 
     @GetMapping(value = ["/contents/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getByRawContents(
-        @PathVariable(value = "id")
-        @Min(value = 1, message = "{min.id}")
-        genId: Long,
+        @PathVariable(value = "id") @Min(value = 1, message = "{min.id}") genId: Long,
     ): ApiResponse<ApiResponse.SuccessBody<BrowseContentsResponse>> {
         val useCaseOut = rawContentsBrowseContentUseCase.execute(genId)
 
@@ -82,29 +96,43 @@ class ContentsGeneratorController(
                         url = useCaseOut.rawContents.url,
                         title = useCaseOut.rawContents.title,
                         description = useCaseOut.rawContents.description,
-                        thumbnailImageUrl = useCaseOut.rawContents.thumbnailImageUrl,
+                        thumbnailImageUrl =
+                            useCaseOut.rawContents.thumbnailImageUrl,
                         rawTexts = useCaseOut.rawContents.rawTexts,
                         imageUrls = useCaseOut.rawContents.imageUrls,
                         mediaType =
                             CodeValueResponse(
-                                code = useCaseOut.rawContents.mediaType.code,
-                                value = useCaseOut.rawContents.mediaType.title,
+                                code =
+                                    useCaseOut
+                                        .rawContents
+                                        .mediaType
+                                        .code,
+                                value =
+                                    useCaseOut
+                                        .rawContents
+                                        .mediaType
+                                        .title,
                             ),
                         createdAt = useCaseOut.rawContents.createdAt,
                     ),
                 provisioningContents =
                     BrowseProvisioningContentsResponse(
                         id = useCaseOut.provisioningContents.id,
-                        rawContentsId = useCaseOut.provisioningContents.rawContentsId,
-                        completionIds = useCaseOut.provisioningContents.completionIds,
-                        bodyTextsJson = useCaseOut.provisioningContents.bodyTextsJson,
-                        coreTextsJson = useCaseOut.provisioningContents.coreTextsJson,
+                        rawContentsId =
+                            useCaseOut.provisioningContents.rawContentsId,
+                        completionIds =
+                            useCaseOut.provisioningContents.completionIds,
+                        bodyTextsJson =
+                            useCaseOut.provisioningContents.bodyTextsJson,
+                        coreTextsJson =
+                            useCaseOut.provisioningContents.coreTextsJson,
                         createdAt = useCaseOut.provisioningContents.createdAt,
                     ),
                 gen =
                     BrowseGenResponse(
                         id = useCaseOut.gen.id,
-                        provisioningContentsId = useCaseOut.gen.provisioningContentsId,
+                        provisioningContentsId =
+                            useCaseOut.gen.provisioningContentsId,
                         completionIds = useCaseOut.gen.completionIds,
                         headline = useCaseOut.gen.headline,
                         summary = useCaseOut.gen.summary,
@@ -124,9 +152,7 @@ class ContentsGeneratorController(
     @GetMapping(value = ["/contents/categories"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getProvisioningCategories(): ApiResponse<ApiResponse.SuccessBody<List<CodeValueResponse>>> =
         ApiResponseGenerator.success(
-            Category.entries.map {
-                CodeValueResponse(code = it.code, value = it.title)
-            },
+            Category.entries.map { CodeValueResponse(code = it.code, value = it.title) },
             HttpStatus.OK,
         )
 }
