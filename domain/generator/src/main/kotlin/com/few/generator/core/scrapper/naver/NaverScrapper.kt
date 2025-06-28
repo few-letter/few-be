@@ -65,6 +65,7 @@ class NaverScrapper(
 
         val trimmedtitle = title.trim()
         for (mediaType in MediaType.entries) {
+            if (mediaType == MediaType.ETC) continue
             if (trimmedtitle.endsWith(mediaType.title)) {
                 return trimmedtitle.removeSuffix(mediaType.title).trim()
             }
