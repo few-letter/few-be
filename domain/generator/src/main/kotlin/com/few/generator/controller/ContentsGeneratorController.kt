@@ -3,6 +3,7 @@ package com.few.generator.controller
 import com.few.generator.controller.response.*
 import com.few.generator.domain.Category
 import com.few.generator.usecase.BrowseContentsUseCase
+import com.few.generator.usecase.GroupSchedulingUseCase
 import com.few.generator.usecase.RawContentsBrowseContentUseCase
 import com.few.generator.usecase.SchedulingUseCase
 import com.few.generator.usecase.`in`.BrowseContentsUseCaseIn
@@ -21,16 +22,22 @@ class ContentsGeneratorController(
     private val schedulingUseCase: SchedulingUseCase,
     private val rawContentsBrowseContentUseCase: RawContentsBrowseContentUseCase,
     private val browseContentsUseCase: BrowseContentsUseCase,
+    private val groupSchedulingUseCase: GroupSchedulingUseCase,
 ) {
     @PostMapping(
         value = ["/contents/schedule"],
     )
     fun createAll(): ApiResponse<ApiResponse.Success> {
         schedulingUseCase.execute()
+        return ApiResponseGenerator.success(HttpStatus.OK)
+    }
 
-        return ApiResponseGenerator.success(
-            HttpStatus.OK,
-        )
+    @PostMapping(
+        value = ["/contents/schedule/group"],
+    )
+    fun createGroupAll(): ApiResponse<ApiResponse.Success> {
+        groupSchedulingUseCase.execute()
+        return ApiResponseGenerator.success(HttpStatus.OK)
     }
 
     @GetMapping(
