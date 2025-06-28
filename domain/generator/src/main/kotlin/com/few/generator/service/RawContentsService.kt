@@ -40,7 +40,7 @@ class RawContentsService(
                 description = scrappedResult.description,
                 thumbnailImageUrl = scrappedResult.thumbnailImageUrl,
                 rawTexts = scrappedResult.rawTexts.joinToString("\n"),
-                imageUrls = gson.toJson(scrappedResult.images) ?: "[]",
+                imageUrls = gson.toJson(scrappedResult.images),
                 category = category.code,
                 mediaType = MediaType.find(sourceUrl).code,
             ),
