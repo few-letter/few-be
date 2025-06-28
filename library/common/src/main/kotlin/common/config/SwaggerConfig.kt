@@ -26,7 +26,7 @@ class SwaggerConfig(
             .security(listOf(securityRequirement))
             .addServersItem(Server().url("http://localhost:8080"))
             .addServersItem(Server().url("https://api.fewletter.store"))
-            .addServersItem(Server().url("https://api.fewletter.site"))
+            .addServersItem(Server().url("https://api.fewletter.shop"))
             .info(
                 Info()
                     .version("2.0.0")
