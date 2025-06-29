@@ -51,6 +51,9 @@ class NaverScrapper(
                 ?.trim()
                 ?.takeIf { it.startsWith("https://") || it.startsWith("http://") }
         val rawTexts = NaverExtractor.Text.extract(mainContent)
+        if (rawTexts.isEmpty()) {
+            throw RuntimeException("No valid raw texts found in the document. URL: ${document.location()}")
+        }
         val images = NaverExtractor.Image.extract(document)
 
         return ScrappedResult(title, description, thumbnailImageUrl, rawTexts, images)
