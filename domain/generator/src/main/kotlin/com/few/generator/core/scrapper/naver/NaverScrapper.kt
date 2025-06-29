@@ -63,11 +63,16 @@ class NaverScrapper(
     private fun removeMediaTypeTitleSuffix(title: String?): String? {
         if (title == null) return null
 
-        val trimmedtitle = title.trim()
+        var trimmedtitle = title.trim()
         for (mediaType in MediaType.entries) {
             if (mediaType == MediaType.ETC) continue
             if (trimmedtitle.endsWith(mediaType.title)) {
-                return trimmedtitle.removeSuffix(mediaType.title).trim()
+                trimmedtitle = trimmedtitle.removeSuffix(mediaType.title).trim()
+                return if (trimmedtitle.endsWith("|") || trimmedtitle.endsWith("-")) {
+                    trimmedtitle.dropLast(1)
+                } else {
+                    trimmedtitle
+                }
             }
         }
 
