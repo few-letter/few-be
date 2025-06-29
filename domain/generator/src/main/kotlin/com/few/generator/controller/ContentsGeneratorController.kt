@@ -84,7 +84,9 @@ class ContentsGeneratorController(
 
     @GetMapping(value = ["/contents/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getByRawContents(
-        @PathVariable(value = "id") @Min(value = 1, message = "{min.id}") genId: Long,
+        @PathVariable(value = "id")
+        @Min(value = 1, message = "{min.id}")
+        genId: Long,
     ): ApiResponse<ApiResponse.SuccessBody<BrowseContentsResponse>> {
         val useCaseOut = rawContentsBrowseContentUseCase.execute(genId)
 
@@ -150,7 +152,7 @@ class ContentsGeneratorController(
     }
 
     @GetMapping(value = ["/contents/categories"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getProvisioningCategories(): ApiResponse<ApiResponse.SuccessBody<List<CodeValueResponse>>> =
+    fun getCategories(): ApiResponse<ApiResponse.SuccessBody<List<CodeValueResponse>>> =
         ApiResponseGenerator.success(
             Category.entries.map { CodeValueResponse(code = it.code, value = it.title) },
             HttpStatus.OK,
