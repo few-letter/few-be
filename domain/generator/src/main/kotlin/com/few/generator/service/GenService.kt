@@ -56,7 +56,7 @@ class GenService(
                 completionIds = mutableListOf(headline.completionId!!, summary.completionId!!, highlightText.completionId!!),
                 headline = headline.headline,
                 summary = summary.summary,
-                highlightTexts = "[${highlightText.highlightText}]",
+                highlightTexts = gson.toJson(listOf(highlightText.highlightText)),
                 category = Category.from(provisioningContent.category).code,
             ),
         )
