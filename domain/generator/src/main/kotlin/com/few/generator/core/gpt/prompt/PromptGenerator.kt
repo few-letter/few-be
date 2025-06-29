@@ -37,7 +37,11 @@ class PromptGenerator(
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat = ResponseFormat(jsonSchema = JsonSchema(Texts.name, Texts.schema), responseClassType = Texts::class.java),
+            responseFormat =
+                ResponseFormat(
+                    jsonSchema = JsonSchema(Texts.name, Texts.schema),
+                    responseClassType = Texts::class.java,
+                ),
         )
     }
 
@@ -67,7 +71,11 @@ class PromptGenerator(
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat = ResponseFormat(jsonSchema = JsonSchema(Texts.name, Texts.schema), responseClassType = Texts::class.java),
+            responseFormat =
+                ResponseFormat(
+                    jsonSchema = JsonSchema(Texts.name, Texts.schema),
+                    responseClassType = Texts::class.java,
+                ),
         )
     }
 
@@ -131,7 +139,38 @@ class PromptGenerator(
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat = ResponseFormat(jsonSchema = JsonSchema(Summary.name, Summary.schema), responseClassType = Summary::class.java),
+            responseFormat =
+                ResponseFormat(
+                    jsonSchema = JsonSchema(Summary.name, Summary.schema),
+                    responseClassType = Summary::class.java,
+                ),
+        )
+    }
+
+    fun toKoreanHighlightText(summary: String): Prompt {
+        val systemPrompt =
+            """
+            당신은 월드 최고의 뉴스레터 기사 작성 전문가입니다. 원본 기사 제목, 요약, 중요한 문장들, AI로 생성된 헤드라인과 요약을 분석하여 하이라이트 텍스트를 추출합니다. 반드시 두 번 이상 검토하고 수정하여 제출해야 합니다.
+            """.trimIndent()
+
+        val userPrompt =
+            """
+            ## Instructions
+            1. Input에 있는 [] 괄호 안에 들어있는 요약 내용 중에서 강조하고 싶은 하이라이트 텍스트를 추출해주세요.
+            2. 하이라이트 텍스트는 한 문장으로 작성하되, 너무 길면(10자 이상) 문장의 일부를 발췌해서 추출해주세요.
+            3. 본문에 있는 문장과 정확하게 일치해야 합니다.
+
+            ## Input
+            [$summary] 중에서 강조하고 싶은 하이라이트 텍스트를 1개 추출해주세요.
+            """.trimIndent()
+
+        return Prompt(
+            messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
+            responseFormat =
+                ResponseFormat(
+                    jsonSchema = JsonSchema(HighlightText.name, HighlightText.schema),
+                    responseClassType = HighlightText::class.java,
+                ),
         )
     }
 }
