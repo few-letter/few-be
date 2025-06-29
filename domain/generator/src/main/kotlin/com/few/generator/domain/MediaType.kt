@@ -11,7 +11,7 @@ enum class MediaType(
     KHAN(2, "경향신문", listOf("khan")),
     SBS(3, "SBS", listOf("sbs")),
     HANKYUNG(4, "한국경제", listOf("hankyung")),
-    YONHAPNEWS(5, "연합뉴스TV", listOf("yonhapnews", "yna.co.kr")),
+    YONHAPNEWS_TV(5, "연합뉴스TV", listOf("yonhapnews", "yna.co.kr")),
     DONGA(6, "동아일보", listOf("donga")),
     I_NEWS(7, "아이뉴스", listOf("inews")),
     FN_NEWS(8, "파이낸셜뉴스", listOf("fnnews")),
@@ -43,6 +43,9 @@ enum class MediaType(
     MK(34, "매일경제", listOf("mk.co.kr")),
     BLOTTER(35, "블로터", listOf("bloter.net")),
     ETNEWS(36, "전자신문", listOf("etnews.com")),
+    YONHAPNEWS(37, "연합뉴스", listOf("yonhapnews", "yna.co.kr")),
+    MAEIL(38, "매일신문", listOf("imaeil.com")),
+    JOSEILBO(39, "조세일보", listOf("joseilbo.com")),
     ETC(0, "ETC", emptyList()),
 
     ;

@@ -65,6 +65,7 @@ object NaverExtractor {
                 regexMatches.group(1)?.takeIf { isValidImageUrl(it) }?.let { imageUrls.add(it) }
             }
             return imageUrls
+                .filter { true }
                 .filter { it.startsWith("http://") || it.startsWith("https://") }
                 .toList()
         }
