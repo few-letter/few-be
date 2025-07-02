@@ -1,28 +1,17 @@
 package com.few.generator.service
 
-import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
-import com.few.generator.core.gpt.ChatGpt
-import com.few.generator.core.gpt.prompt.PromptGenerator
-import com.few.generator.core.gpt.prompt.schema.Headline
-import com.few.generator.core.gpt.prompt.schema.HighlightText
-import com.few.generator.core.gpt.prompt.schema.Summary
 import com.few.generator.domain.Category
 import com.few.generator.domain.Gen
 import com.few.generator.domain.ProvisioningContents
 import com.few.generator.domain.RawContents
 import com.few.generator.repository.GenRepository
-import com.google.gson.Gson
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
 @Service
 class GenService(
-    private val promptGenerator: PromptGenerator,
-    private val chatGpt: ChatGpt,
+    private val contentGenerationService: ContentGenerationService,
     private val genRepository: GenRepository,
-    @Qualifier(GSON_BEAN_NAME)
-    private val gson: Gson,
 ) {
     private val log = KotlinLogging.logger {}
 
@@ -30,35 +19,27 @@ class GenService(
         rawContent: RawContents,
         provisioningContent: ProvisioningContents,
     ): Gen {
-        val headlinePrompt =
-            promptGenerator.toHeadlineShort(
-                title = rawContent.title,
-                description = rawContent.description,
-                coreTextsJson = provisioningContent.coreTextsJson,
-            )
-        val headline: Headline = chatGpt.ask(headlinePrompt) as Headline
+        log.info { "Gen 생성 시작: provisioningContentId=${provisioningContent.id}" }
 
-        val summaryPrompt =
-            promptGenerator.toSummaryShort(
-                headline = headline.headline,
-                title = rawContent.title,
-                description = rawContent.description,
-                coreTextsJson = provisioningContent.coreTextsJson!!,
-            )
-        val summary: Summary = chatGpt.ask(summaryPrompt) as Summary
+        val generatedContent = contentGenerationService.generateContent(rawContent, provisioningContent)
 
-        val highlightTextPrompt = promptGenerator.toKoreanHighlightText(summary.summary)
-        val highlightText: HighlightText = chatGpt.ask(highlightTextPrompt) as HighlightText
+        val gen = createGenEntity(provisioningContent, generatedContent)
+        val savedGen = genRepository.save(gen)
 
-        return genRepository.save(
-            Gen(
-                provisioningContentsId = provisioningContent.id!!,
-                completionIds = mutableListOf(headline.completionId!!, summary.completionId!!, highlightText.completionId!!),
-                headline = headline.headline,
-                summary = summary.summary,
-                highlightTexts = gson.toJson(listOf(highlightText.highlightText)),
-                category = Category.from(provisioningContent.category).code,
-            ),
-        )
+        log.info { "Gen 생성 완료: id=${savedGen.id}, headline=${savedGen.headline}" }
+        return savedGen
     }
+
+    private fun createGenEntity(
+        provisioningContent: ProvisioningContents,
+        generatedContent: GeneratedContent,
+    ): Gen =
+        Gen(
+            provisioningContentsId = provisioningContent.id!!,
+            completionIds = generatedContent.completionIds.toMutableList(),
+            headline = generatedContent.headline.headline,
+            summary = generatedContent.summary.summary,
+            highlightTexts = generatedContent.highlightTexts,
+            category = Category.from(provisioningContent.category).code,
+        )
 }
