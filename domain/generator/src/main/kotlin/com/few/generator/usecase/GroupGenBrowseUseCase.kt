@@ -1,62 +1,26 @@
 package com.few.generator.usecase
 
-import com.few.generator.config.GeneratorGsonConfig
-import com.few.generator.controller.response.BrowseGroupGenResponse
 import com.few.generator.controller.response.BrowseGroupGenResponses
-import com.few.generator.controller.response.GroupSourceHeadlineData
-import com.few.generator.repository.GroupGenRepository
-import com.google.gson.Gson
-import org.springframework.beans.factory.annotation.Qualifier
+import com.few.generator.service.GroupGenBrowseService
+import com.few.generator.service.GroupGenResponseMappingService
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 import java.time.LocalDate
-import java.time.LocalTime
 
 @Component
-data class GroupGenBrowseUseCase(
-    private val groupGenRepository: GroupGenRepository,
-    @Qualifier(GeneratorGsonConfig.GSON_BEAN_NAME)
-    private val gson: Gson,
+class GroupGenBrowseUseCase(
+    private val groupGenBrowseService: GroupGenBrowseService,
+    private val groupGenResponseMappingService: GroupGenResponseMappingService,
 ) {
+    private val log = KotlinLogging.logger {}
+
     fun execute(date: LocalDate?): BrowseGroupGenResponses {
-        val targetDate = date ?: LocalDate.now()
-        val start = targetDate.atStartOfDay()
-        val end = targetDate.atTime(LocalTime.MAX)
-        val groupGens =
-            groupGenRepository
-                .findAllByCreatedAtBetween(start, end)
-                .sortedByDescending { it.createdAt }
-        return BrowseGroupGenResponses(
-            groups =
-                groupGens.map { it ->
-                    BrowseGroupGenResponse(
-                        id = it.id!!,
-                        category = it.category,
-                        groupIndices = it.groupIndices,
-                        headline = it.headline,
-                        summary = it.summary,
-                        highlightTexts =
-                            it.highlightTexts.let { raw ->
-                                if (raw.isBlank()) {
-                                    emptyList()
-                                } else {
-                                    raw
-                                        .removePrefix("[")
-                                        .removeSuffix("]")
-                                        .split(",")
-                                        .map { it.trim().removeSurrounding("\"") }
-                                        .filter { it.isNotBlank() }
-                                }
-                            },
-                        groupSourceHeadlines =
-                            it.groupSourceHeadlines.map {
-                                GroupSourceHeadlineData(
-                                    headline = it.headline,
-                                    url = it.url,
-                                )
-                            },
-                        createdAt = it.createdAt!!,
-                    )
-                },
-        )
+        log.info { "GroupGen 목록 조회 시작: date=$date" }
+
+        val groupGens = groupGenBrowseService.findGroupGensByDate(date)
+        val response = groupGenResponseMappingService.mapToResponses(groupGens)
+
+        log.info { "GroupGen 목록 조회 완료: ${response.groups.size}개" }
+        return response
     }
 }
