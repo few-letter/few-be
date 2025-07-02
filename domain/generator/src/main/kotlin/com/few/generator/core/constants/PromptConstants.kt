@@ -28,4 +28,12 @@ object PromptConstants {
         const val LOGICAL_ORDER = "논리적인 순서로 정보 배열"
         const val COMPLETE_SENTENCE_WITH_PERIOD = "완전한 문장 (마침표 포함)"
     }
+
+    object JsonParsing {
+        const val ARRAY_START_BRACKET = "["
+        const val ARRAY_END_BRACKET = "]"
+        const val COMMA_SEPARATOR = ","
+        const val QUOTE_CHAR = "\""
+        const val EMPTY_JSON_ARRAY = "[]"
+    }
 }
