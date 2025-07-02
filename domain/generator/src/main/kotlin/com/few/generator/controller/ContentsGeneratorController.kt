@@ -6,7 +6,7 @@ import com.few.generator.usecase.BrowseContentsUseCase
 import com.few.generator.usecase.GroupSchedulingUseCase
 import com.few.generator.usecase.RawContentsBrowseContentUseCase
 import com.few.generator.usecase.SchedulingUseCase
-import com.few.generator.usecase.`in`.BrowseContentsUseCaseIn
+import com.few.generator.usecase.input.BrowseContentsUseCaseIn
 import jakarta.validation.constraints.Min
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
