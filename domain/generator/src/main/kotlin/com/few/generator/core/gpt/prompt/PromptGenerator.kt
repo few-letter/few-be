@@ -170,9 +170,9 @@ class PromptGenerator(
     fun toKoreanHighlightText(summary: String): Prompt = contentPromptGenerator.generateHighlightTextPrompt(summary)
 
     fun toCombinedGroupingPrompt(
-        webGenDetails: List<Pair<String, String>>,
+        genDetails: List<Pair<String, String>>, // headline and keyWords
         targetPercentage: Int = 30,
-    ): Prompt = groupPromptGenerator.generateCombinedGroupingPrompt(webGenDetails, targetPercentage)
+    ): Prompt = groupPromptGenerator.generateCombinedGroupingPrompt(genDetails, targetPercentage)
 
     fun toGroupHeadlineOnlyPrompt(headlines: List<String>): Prompt = groupPromptGenerator.generateGroupHeadlinePrompt(headlines)
 

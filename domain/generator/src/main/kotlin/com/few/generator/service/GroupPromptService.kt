@@ -13,11 +13,11 @@ class GroupPromptService(
     private val promptGenerator: PromptGenerator,
     private val chatGpt: ChatGpt,
 ) {
-    fun groupWebGen(
-        webGenDetails: List<Pair<String, String>>,
+    fun groupGen(
+        genDetails: List<Pair<String, String>>, // headline and keyWords
         targetPercentage: Int = 30,
     ): Group {
-        val prompt = promptGenerator.toCombinedGroupingPrompt(webGenDetails, targetPercentage)
+        val prompt = promptGenerator.toCombinedGroupingPrompt(genDetails, targetPercentage)
         return chatGpt.ask(prompt) as Group
     }
 
