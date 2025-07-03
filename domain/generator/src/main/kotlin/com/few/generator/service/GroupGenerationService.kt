@@ -71,7 +71,7 @@ class GroupGenerationService(
 
         // 선택된 Gen들을 이용하여 이후 그룹 헤드라인, 요약, 하이라이트 생성
         val selectedGenIndex = group.map { it - 1 }.toSet()
-        val selectedGens = selectedGenIndex.map { index -> gens[index - 1] }
+        val selectedGens = selectedGenIndex.map { index -> gens[index] }
         val selectedGenHeadlines = selectedGens.map { it.headline }
         val selectedGenSummaries = selectedGens.map { it.summary }
 

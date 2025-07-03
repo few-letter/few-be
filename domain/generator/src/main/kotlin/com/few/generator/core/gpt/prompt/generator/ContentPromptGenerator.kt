@@ -1,14 +1,20 @@
 package com.few.generator.core.gpt.prompt.generator
 
+import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.core.constants.PromptConstants
 import com.few.generator.core.gpt.prompt.Prompt
 import com.few.generator.core.gpt.prompt.base.BasePromptGenerator
 import com.few.generator.core.gpt.prompt.schema.*
 import com.few.generator.domain.Category
+import com.google.gson.Gson
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 
 @Component
-class ContentPromptGenerator : BasePromptGenerator() {
+class ContentPromptGenerator(
+    @Qualifier(GSON_BEAN_NAME)
+    private val gson: Gson,
+) : BasePromptGenerator() {
     fun generateHeadlinePrompt(
         title: String,
         description: String,
@@ -21,7 +27,7 @@ class ContentPromptGenerator : BasePromptGenerator() {
                 additionalContext = "원본 기사 제목, 요약, 중요한 문장들, AI로 생성된 헤드라인과 요약을 분석하여 뉴스레터용 한글 헤드라인을 작성합니다.",
             )
 
-        val rawTextsJson = rawTexts.joinToString(", ") { "\"$it\"" }
+        val rawTextsJson = gson.toJson(rawTexts)
         val userPrompt =
             """
             ## Instructions
@@ -52,8 +58,8 @@ class ContentPromptGenerator : BasePromptGenerator() {
                 additionalContext = "원본 기사 제목, 요약, 중요한 문장들을 분석하여 뉴스레터용 한글 요약문을 작성합니다.",
             )
 
-        val rawTextsJson = rawTexts.joinToString(", ") { "\"$it\"" }
-        val coreTextsJson = coreTexts.joinToString(", ") { "\"$it\"" }
+        val rawTextsJson = gson.toJson(rawTexts)
+        val coreTextsJson = gson.toJson(coreTexts)
 
         val userPrompt =
             """
