@@ -16,7 +16,7 @@ class SchedulingManagementService(
     private val log = KotlinLogging.logger {}
     private val isRunning = AtomicBoolean(false)
 
-    fun executeWithConcurrencyControl(operation: () -> List<GroupPromptResult>): List<GroupPromptResult> {
+    fun executeWithConcurrencyControl(operation: () -> List<GroupContentResult>): List<GroupContentResult> {
         if (!isRunning.compareAndSet(false, true)) {
             throw BadRequestException("Group scheduling is already running. Please try again later.")
         }
@@ -28,12 +28,12 @@ class SchedulingManagementService(
         }
     }
 
-    private fun executeScheduling(operation: () -> List<GroupPromptResult>): List<GroupPromptResult> {
+    private fun executeScheduling(operation: () -> List<GroupContentResult>): List<GroupContentResult> {
         val startTime = LocalDateTime.now()
         var isSuccess = true
         var creationTimeSec = 0.0
         var exception: Throwable? = null
-        var groupResults = emptyList<GroupPromptResult>()
+        var groupResults = emptyList<GroupContentResult>()
 
         runCatching {
             creationTimeSec =
@@ -57,14 +57,14 @@ class SchedulingManagementService(
         startTime: LocalDateTime,
         creationTimeSec: Double,
         exception: Throwable?,
-        groupResults: List<GroupPromptResult>,
+        groupResults: List<GroupContentResult>,
     ) {
         log.info {
             buildString {
                 appendLine("✅ isSuccess: $isSuccess")
                 appendLine("✅ 시작 시간: $startTime")
                 appendLine("✅ 소요 시간: $creationTimeSec")
-                appendLine("✅ message: ${exception?.cause?.message}")
+                appendLine("✅ message: ${exception?.message}")
                 appendLine("✅ groupResult: $groupResults")
             }
         }
@@ -75,7 +75,7 @@ class SchedulingManagementService(
         startTime: LocalDateTime,
         creationTimeSec: Double,
         exception: Throwable?,
-        groupResults: List<GroupPromptResult>,
+        groupResults: List<GroupContentResult>,
     ) {
         applicationEventPublisher.publishEvent(
             ContentsSchedulingEventDto(

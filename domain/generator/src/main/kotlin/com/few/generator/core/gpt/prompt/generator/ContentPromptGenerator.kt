@@ -95,4 +95,39 @@ class ContentPromptGenerator : BasePromptGenerator() {
 
         return createPrompt<HighlightText>(systemPrompt, userPrompt, HighlightText.name, HighlightText.schema)
     }
+
+    fun generateKeyWordsPrompt(coreTexts: String): Prompt {
+        val systemPrompt =
+            buildSystemPrompt(
+                expertRole = PromptConstants.Roles.NEWSLETTER_EXPERT,
+                additionalContext = "텍스트에서 핵심 키워드를 추출하는 전문가입니다. 텍스트에 나타나는 형태 그대로 키워드를 정확히 추출합니다.",
+            )
+
+        val userPrompt =
+            """
+            ## Instructions
+            1. 주어진 텍스트에서 5-10개의 핵심 키워드를 추출해주세요.
+            2. 키워드 추출 기준:
+            - 핵심 주제를 가장 잘 나타내는 명사와 용어에 집중
+            - 고유명사, 기술용어, 수치값 포함
+            - 텍스트에 나타나는 형태 그대로 정확히 추출
+            - 일반적이거나 의미가 약한 단어는 제외
+            3. 중요: 개별 단어나 매우 짧은 구문(최대 2-3단어)만 추출
+            4. 새로운 단어를 만들거나 추출한 용어를 수정하지 마세요
+            5. 원본 텍스트의 정확한 철자, 대소문자, 형태를 보존해주세요
+            
+            ## Input Text
+            $coreTexts
+            
+            ## Output Format
+            JSON 형식으로 키워드 목록을 반환해주세요.
+            
+            Example output:
+            {
+            "keywords": ["인공지능", "빅데이터", "머신러닝", "자율주행", "알고리즘"]
+            }
+            """.trimIndent()
+
+        return createPrompt<Keywords>(systemPrompt, userPrompt, Keywords.name, Keywords.schema)
+    }
 }

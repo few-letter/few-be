@@ -183,4 +183,6 @@ class PromptGenerator(
     ): Prompt = groupPromptGenerator.generateGroupSummaryPrompt(groupHeadline, headlines, summaries)
 
     fun toGroupHighlightPrompt(groupSummary: String): Prompt = groupPromptGenerator.generateGroupHighlightPrompt(groupSummary)
+
+    fun toKoreanKeyWords(coreTextsJson: String): Prompt = contentPromptGenerator.generateKeyWordsPrompt(coreTextsJson)
 }
