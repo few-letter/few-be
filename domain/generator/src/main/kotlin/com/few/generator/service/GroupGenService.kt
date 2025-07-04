@@ -53,13 +53,18 @@ class GroupGenService(
 
         log.info { "카테고리 ${category.title}에서 ${gens.size}개 Gen 발견, 키워드 추출 시작" }
 
+        // 배치로 ProvisioningContents 조회하여 N+1 쿼리 방지
+        val provisioningContentsIds = gens.map { it.provisioningContentsId }
+        val provisioningContentsMap =
+            provisioningContentsRepository
+                .findAllByIdIn(provisioningContentsIds)
+                .associateBy { it.id!! }
+
         // 각 Gen에 대해 키워드 추출
         val genDetails =
             gens.map { gen ->
                 val coreTexts =
-                    provisioningContentsRepository
-                        .findById(gen.provisioningContentsId)
-                        .orElse(null)
+                    provisioningContentsMap[gen.provisioningContentsId]
                         ?.coreTextsJson ?: "키워드 없음"
 
                 val keyWords = keyWordsService.generateKeyWords(coreTexts)
@@ -151,26 +156,41 @@ class GroupGenService(
             ),
         )
 
-    private fun createGroupSourceHeadlines(selectedGens: List<Gen>): List<GroupSourceHeadline> =
-        selectedGens.mapNotNull { gen ->
-            try {
-                val provisioningContent =
-                    provisioningContentsRepository
-                        .findById(gen.provisioningContentsId)
-                        .orElse(null) ?: return@mapNotNull null
+    private fun createGroupSourceHeadlines(selectedGens: List<Gen>): List<GroupSourceHeadline> {
+        if (selectedGens.isEmpty()) return emptyList()
 
-                val rawContent =
-                    rawContentsRepository
-                        .findById(provisioningContent.rawContentsId)
-                        .orElse(null) ?: return@mapNotNull null
+        try {
+            // 배치로 ProvisioningContents 조회
+            val provisioningContentsIds = selectedGens.map { it.provisioningContentsId }
+            val provisioningContentsMap =
+                provisioningContentsRepository
+                    .findAllByIdIn(provisioningContentsIds)
+                    .associateBy { it.id!! }
 
-                GroupSourceHeadline(
-                    headline = gen.headline,
-                    url = rawContent.url,
-                )
-            } catch (e: Exception) {
-                log.warn(e) { "GroupSourceHeadline 생성 실패: Gen ID ${gen.id}" }
-                null
+            // 배치로 RawContents 조회
+            val rawContentsIds = provisioningContentsMap.values.map { it.rawContentsId }
+            val rawContentsMap =
+                rawContentsRepository
+                    .findAllByIdIn(rawContentsIds)
+                    .associateBy { it.id!! }
+
+            return selectedGens.mapNotNull { gen ->
+                try {
+                    val provisioningContent = provisioningContentsMap[gen.provisioningContentsId] ?: return@mapNotNull null
+                    val rawContent = rawContentsMap[provisioningContent.rawContentsId] ?: return@mapNotNull null
+
+                    GroupSourceHeadline(
+                        headline = gen.headline,
+                        url = rawContent.url,
+                    )
+                } catch (e: Exception) {
+                    log.warn(e) { "GroupSourceHeadline 생성 실패: Gen ID ${gen.id}" }
+                    null
+                }
             }
+        } catch (e: Exception) {
+            log.error(e) { "GroupSourceHeadlines 배치 생성 실패" }
+            return emptyList()
         }
+    }
 }
