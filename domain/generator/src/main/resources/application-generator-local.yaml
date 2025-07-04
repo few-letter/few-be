@@ -53,3 +53,8 @@ generator:
     contents:
         countByCategory: 1
         pageSize: 20
+    grouping:
+        targetPercentage: 30
+        minGroupSize: 3
+        maxGroupSize: 10
+        similarityThreshold: 0.7

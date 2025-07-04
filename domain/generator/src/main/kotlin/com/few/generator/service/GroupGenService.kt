@@ -1,6 +1,7 @@
 package com.few.generator.service
 
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
+import com.few.generator.config.GroupingProperties
 import com.few.generator.core.gpt.ChatGpt
 import com.few.generator.core.gpt.prompt.PromptGenerator
 import com.few.generator.core.gpt.prompt.schema.Group
@@ -31,6 +32,7 @@ class GroupGenService(
     private val provisioningContentsRepository: ProvisioningContentsRepository,
     private val rawContentsRepository: RawContentsRepository,
     private val keyWordsService: KeyWordsService,
+    private val groupingProperties: GroupingProperties,
     @Qualifier(GSON_BEAN_NAME)
     private val gson: Gson,
 ) {
@@ -49,6 +51,11 @@ class GroupGenService(
 
         if (gens.isEmpty()) {
             log.warn { "카테고리 ${category.title}에 대한 Gen이 없습니다." }
+            return createEmptyGroupGen(category)
+        }
+
+        if (gens.size < groupingProperties.minGroupSize) {
+            log.warn { "카테고리 ${category.title}의 Gen 개수(${gens.size})가 최소 그룹 크기(${groupingProperties.minGroupSize})보다 작습니다." }
             return createEmptyGroupGen(category)
         }
 
@@ -82,8 +89,8 @@ class GroupGenService(
 
         log.info { "키워드 추출 완료, 그룹화 시작" }
 
-        // 그룹화 수행
-        val groupPrompt = promptGenerator.toCombinedGroupingPrompt(genDetails, 30)
+        // 그룹화 수행 (설정에서 타겟 비율 사용)
+        val groupPrompt = promptGenerator.toCombinedGroupingPrompt(genDetails, groupingProperties.targetPercentage)
         val group: Group = chatGpt.ask(groupPrompt) as Group
 
         if (group.group.isEmpty()) {
@@ -91,8 +98,30 @@ class GroupGenService(
             return createEmptyGroupGen(category)
         }
 
-        log.info { "그룹화 완료: ${group.group.size}개 뉴스 선택됨" }
+        if (group.group.size < groupingProperties.minGroupSize) {
+            log.warn { "그룹화 결과(${group.group.size}개)가 최소 그룹 크기(${groupingProperties.minGroupSize})보다 작습니다" }
+            return createEmptyGroupGen(category)
+        }
 
+        if (group.group.size > groupingProperties.maxGroupSize) {
+            log.warn { "그룹화 결과(${group.group.size}개)가 최대 그룹 크기(${groupingProperties.maxGroupSize})를 초과하여 잘라냅니다" }
+            val trimmedGroup = Group(group.group.take(groupingProperties.maxGroupSize))
+            log.info { "그룹화 완료: ${trimmedGroup.group.size}개 뉴스 선택됨 (${group.group.size}개에서 조정)" }
+
+            // 잘린 그룹으로 계속 진행
+            return generateGroupContent(category, gens, trimmedGroup, provisioningContentsMap)
+        }
+
+        log.info { "그룹화 완료: ${group.group.size}개 뉴스 선택됨" }
+        return generateGroupContent(category, gens, group, provisioningContentsMap)
+    }
+
+    private fun generateGroupContent(
+        category: Category,
+        gens: List<Gen>,
+        group: Group,
+        provisioningContentsMap: Map<Long, ProvisioningContents>,
+    ): GroupGen {
         // 선택된 Gen들을 이용하여 그룹 헤드라인, 요약, 하이라이트 생성
         val selectedGenIndices = group.group.map { it - 1 }.toSet()
         val selectedGens = selectedGenIndices.map { index -> gens[index] }
@@ -120,6 +149,8 @@ class GroupGenService(
         val groupSourceHeadlines = createGroupSourceHeadlines(selectedGens, provisioningContentsMap)
 
         log.info { "그룹 콘텐츠 생성 완료" }
+
+        // 카테고리 정보는 파라미터로 전달받음
 
         val groupGen =
             GroupGen(
