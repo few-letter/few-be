@@ -3,11 +3,18 @@ package com.few.generator.service
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.core.gpt.ChatGpt
 import com.few.generator.core.gpt.prompt.PromptGenerator
+import com.few.generator.core.gpt.prompt.schema.Group
+import com.few.generator.core.gpt.prompt.schema.Headline
+import com.few.generator.core.gpt.prompt.schema.HighlightTexts
+import com.few.generator.core.gpt.prompt.schema.Summary
 import com.few.generator.domain.Category
+import com.few.generator.domain.Gen
 import com.few.generator.domain.GroupGen
+import com.few.generator.domain.vo.GroupSourceHeadline
 import com.few.generator.repository.GenRepository
 import com.few.generator.repository.GroupGenRepository
 import com.few.generator.repository.ProvisioningContentsRepository
+import com.few.generator.repository.RawContentsRepository
 import com.google.gson.Gson
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
@@ -21,6 +28,7 @@ class GroupGenService(
     private val genRepository: GenRepository,
     private val groupGenRepository: GroupGenRepository,
     private val provisioningContentsRepository: ProvisioningContentsRepository,
+    private val rawContentsRepository: RawContentsRepository,
     private val keyWordsService: KeyWordsService,
     @Qualifier(GSON_BEAN_NAME)
     private val gson: Gson,
@@ -60,18 +68,55 @@ class GroupGenService(
                 gen.headline to keyWords
             }
 
-        log.info { "키워드 추출 완료, 그룹화 로직 구현 예정" }
-        // TODO: 그룹화 로직 구현
-        // TODO: 헤드라인, 요약, 하이라이트 생성 로직 구현
+        log.info { "키워드 추출 완료, 그룹화 시작" }
+
+        // 그룹화 수행
+        val groupPrompt = promptGenerator.toCombinedGroupingPrompt(genDetails, 30)
+        val group: Group = chatGpt.ask(groupPrompt) as Group
+
+        if (group.group.isEmpty()) {
+            log.warn { "그룹화 결과가 비어있습니다" }
+            return createEmptyGroupGen(category)
+        }
+
+        log.info { "그룹화 완료: ${group.group.size}개 뉴스 선택됨" }
+
+        // 선택된 Gen들을 이용하여 그룹 헤드라인, 요약, 하이라이트 생성
+        val selectedGenIndices = group.group.map { it - 1 }.toSet()
+        val selectedGens = selectedGenIndices.map { index -> gens[index] }
+        val selectedGenHeadlines = selectedGens.map { it.headline }
+        val selectedGenSummaries = selectedGens.map { it.summary }
+
+        // 그룹 헤드라인 생성
+        val groupHeadlinePrompt = promptGenerator.toGroupHeadlineOnlyPrompt(selectedGenHeadlines)
+        val groupHeadline: Headline = chatGpt.ask(groupHeadlinePrompt) as Headline
+
+        // 그룹 요약 생성
+        val groupSummaryPrompt =
+            promptGenerator.toGroupSummaryWithHeadlinesPrompt(
+                groupHeadline.headline,
+                selectedGenHeadlines,
+                selectedGenSummaries,
+            )
+        val groupSummary: Summary = chatGpt.ask(groupSummaryPrompt) as Summary
+
+        // 그룹 하이라이트 생성
+        val groupHighlightPrompt = promptGenerator.toGroupHighlightPrompt(groupSummary.summary)
+        val groupHighlights: HighlightTexts = chatGpt.ask(groupHighlightPrompt) as HighlightTexts
+
+        // 소스 헤드라인 생성 (원본 Gen들의 헤드라인과 URL)
+        val groupSourceHeadlines = createGroupSourceHeadlines(selectedGens)
+
+        log.info { "그룹 콘텐츠 생성 완료" }
 
         val groupGen =
             GroupGen(
                 category = category.code,
-                groupIndices = gson.toJson(emptyList<Int>()),
-                headline = "",
-                summary = "",
-                highlightTexts = gson.toJson(emptyList<String>()),
-                groupSourceHeadlines = gson.toJson(emptyList<String>()),
+                groupIndices = gson.toJson(group.group),
+                headline = groupHeadline.headline,
+                summary = groupSummary.summary,
+                highlightTexts = gson.toJson(groupHighlights.highlightTexts),
+                groupSourceHeadlines = gson.toJson(groupSourceHeadlines),
             )
 
         return groupGenRepository.save(groupGen)
@@ -102,7 +147,30 @@ class GroupGenService(
                 headline = "",
                 summary = "",
                 highlightTexts = gson.toJson(emptyList<String>()),
-                groupSourceHeadlines = gson.toJson(emptyList<String>()),
+                groupSourceHeadlines = gson.toJson(emptyList<GroupSourceHeadline>()),
             ),
         )
+
+    private fun createGroupSourceHeadlines(selectedGens: List<Gen>): List<GroupSourceHeadline> =
+        selectedGens.mapNotNull { gen ->
+            try {
+                val provisioningContent =
+                    provisioningContentsRepository
+                        .findById(gen.provisioningContentsId)
+                        .orElse(null) ?: return@mapNotNull null
+
+                val rawContent =
+                    rawContentsRepository
+                        .findById(provisioningContent.rawContentsId)
+                        .orElse(null) ?: return@mapNotNull null
+
+                GroupSourceHeadline(
+                    headline = gen.headline,
+                    url = rawContent.url,
+                )
+            } catch (e: Exception) {
+                log.warn(e) { "GroupSourceHeadline 생성 실패: Gen ID ${gen.id}" }
+                null
+            }
+        }
 }
