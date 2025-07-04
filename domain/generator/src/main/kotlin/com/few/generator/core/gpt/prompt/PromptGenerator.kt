@@ -227,7 +227,7 @@ class PromptGenerator(
             ## Instructions
             1. 주어진 뉴스들 중에서 유사한 주제나 관련성이 높은 뉴스들을 그룹화하세요.
             2. 그룹에 포함될 뉴스의 번호를 배열로 반환하세요.
-            3. 목표: 전체 ${genDetails.size}개 중 약 $targetPercentage%인 $targetCount개 정도를 하나의 그룹으로 선택하세요.
+            3. 목표: 전체 ${genDetails.size}개 중 약 $targetPercentage%인 ${targetCount}개 정도를 하나의 그룹으로 선택하세요.
             4. 헤드라인과 키워드를 모두 고려하여 가장 관련성이 높은 뉴스들을 선택하세요.
             5. 만약 충분히 유사한 뉴스가 없다면 빈 배열을 반환하세요.
 
