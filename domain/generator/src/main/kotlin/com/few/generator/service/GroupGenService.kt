@@ -10,6 +10,7 @@ import com.few.generator.core.gpt.prompt.schema.Summary
 import com.few.generator.domain.Category
 import com.few.generator.domain.Gen
 import com.few.generator.domain.GroupGen
+import com.few.generator.domain.ProvisioningContents
 import com.few.generator.domain.vo.GroupSourceHeadline
 import com.few.generator.repository.GenRepository
 import com.few.generator.repository.GroupGenRepository
@@ -115,8 +116,8 @@ class GroupGenService(
         val groupHighlightPrompt = promptGenerator.toGroupHighlightPrompt(groupSummary.summary)
         val groupHighlights: HighlightTexts = chatGpt.ask(groupHighlightPrompt) as HighlightTexts
 
-        // 소스 헤드라인 생성 (원본 Gen들의 헤드라인과 URL)
-        val groupSourceHeadlines = createGroupSourceHeadlines(selectedGens)
+        // 소스 헤드라인 생성 (이미 조회한 데이터 재사용)
+        val groupSourceHeadlines = createGroupSourceHeadlines(selectedGens, provisioningContentsMap)
 
         log.info { "그룹 콘텐츠 생성 완료" }
 
@@ -162,19 +163,21 @@ class GroupGenService(
             ),
         )
 
-    private fun createGroupSourceHeadlines(selectedGens: List<Gen>): List<GroupSourceHeadline> {
+    private fun createGroupSourceHeadlines(
+        selectedGens: List<Gen>,
+        provisioningContentsMap: Map<Long, ProvisioningContents>,
+    ): List<GroupSourceHeadline> {
         if (selectedGens.isEmpty()) return emptyList()
 
         try {
-            // 배치로 ProvisioningContents 조회
-            val provisioningContentsIds = selectedGens.map { it.provisioningContentsId }
-            val provisioningContentsMap =
-                provisioningContentsRepository
-                    .findAllByIdIn(provisioningContentsIds)
-                    .associateBy { it.id!! }
+            // 이미 조회된 ProvisioningContents에서 RawContents ID 추출
+            val rawContentsIds =
+                selectedGens
+                    .mapNotNull { gen ->
+                        provisioningContentsMap[gen.provisioningContentsId]?.rawContentsId
+                    }.distinct()
 
-            // 배치로 RawContents 조회
-            val rawContentsIds = provisioningContentsMap.values.map { it.rawContentsId }
+            // RawContents만 배치 조회
             val rawContentsMap =
                 rawContentsRepository
                     .findAllByIdIn(rawContentsIds)
@@ -195,7 +198,7 @@ class GroupGenService(
                 }
             }
         } catch (e: Exception) {
-            log.error(e) { "GroupSourceHeadlines 배치 생성 실패" }
+            log.error(e) { "GroupSourceHeadlines 생성 실패, 캐시된 데이터 사용" }
             return emptyList()
         }
     }
