@@ -173,4 +173,35 @@ class PromptGenerator(
                 ),
         )
     }
+
+    fun toKoreanKeyWords(coreTexts: String): Prompt {
+        val systemPrompt =
+            """
+            당신은 월드 최고의 키워드 추출 전문가입니다. 주어진 텍스트에서 핵심 키워드를 추출합니다.
+            """.trimIndent()
+
+        val userPrompt =
+            """
+            ## Instructions
+            1. 주어진 텍스트에서 5-10개의 핵심 키워드를 추출해주세요.
+            2. 핵심 주제를 가장 잘 나타내는 명사와 용어를 선택하세요.
+            3. 고유명사, 기술용어, 수치값을 우선적으로 포함하세요.
+            4. 텍스트에 나타나는 형태 그대로 정확히 추출하세요.
+            5. 일반적이거나 의미가 약한 단어는 제외하세요.
+            6. 개별 단어나 매우 짧은 구문(최대 2-3단어)으로 추출하세요.
+            7. 원본 텍스트의 정확한 철자, 대소문자, 형태를 보존하세요.
+
+            ## Input
+            텍스트: $coreTexts
+            """.trimIndent()
+
+        return Prompt(
+            messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
+            responseFormat =
+                ResponseFormat(
+                    jsonSchema = JsonSchema(Keywords.name, Keywords.schema),
+                    responseClassType = Keywords::class.java,
+                ),
+        )
+    }
 }

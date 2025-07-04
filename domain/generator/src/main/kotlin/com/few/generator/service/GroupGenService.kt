@@ -21,6 +21,7 @@ class GroupGenService(
     private val genRepository: GenRepository,
     private val groupGenRepository: GroupGenRepository,
     private val provisioningContentsRepository: ProvisioningContentsRepository,
+    private val keyWordsService: KeyWordsService,
     @Qualifier(GSON_BEAN_NAME)
     private val gson: Gson,
 ) {
@@ -42,7 +43,25 @@ class GroupGenService(
             return createEmptyGroupGen(category)
         }
 
-        // TODO: 키워드 추출 및 그룹화 로직 구현
+        log.info { "카테고리 ${category.title}에서 ${gens.size}개 Gen 발견, 키워드 추출 시작" }
+
+        // 각 Gen에 대해 키워드 추출
+        val genDetails =
+            gens.map { gen ->
+                val coreTexts =
+                    provisioningContentsRepository
+                        .findById(gen.provisioningContentsId)
+                        .orElse(null)
+                        ?.coreTextsJson ?: "키워드 없음"
+
+                val keyWords = keyWordsService.generateKeyWords(coreTexts)
+                log.debug { "Gen ${gen.id} 키워드 추출 완료: $keyWords" }
+
+                gen.headline to keyWords
+            }
+
+        log.info { "키워드 추출 완료, 그룹화 로직 구현 예정" }
+        // TODO: 그룹화 로직 구현
         // TODO: 헤드라인, 요약, 하이라이트 생성 로직 구현
 
         val groupGen =
