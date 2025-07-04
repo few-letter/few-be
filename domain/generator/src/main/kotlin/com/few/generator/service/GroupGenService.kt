@@ -60,14 +60,20 @@ class GroupGenService(
                 .findAllByIdIn(provisioningContentsIds)
                 .associateBy { it.id!! }
 
-        // 각 Gen에 대해 키워드 추출
-        val genDetails =
+        // 비동기로 키워드 추출 시작
+        val keyWordsFutures =
             gens.map { gen ->
                 val coreTexts =
                     provisioningContentsMap[gen.provisioningContentsId]
                         ?.coreTextsJson ?: "키워드 없음"
 
-                val keyWords = keyWordsService.generateKeyWords(coreTexts)
+                gen to keyWordsService.generateKeyWordsAsync(coreTexts)
+            }
+
+        // 모든 비동기 키워드 추출 완료 대기
+        val genDetails =
+            keyWordsFutures.map { (gen, future) ->
+                val keyWords = future.get() // 비동기 결과 대기
                 log.debug { "Gen ${gen.id} 키워드 추출 완료: $keyWords" }
 
                 gen.headline to keyWords
