@@ -71,7 +71,7 @@ class GroupContentGenerationService(
         val groupGen =
             GroupGen(
                 category = category.code,
-                groupIndices = gson.toJson(group.group),
+                selectedGroupIds = gson.toJson(selectedGens.map { it.id }),
                 headline = groupHeadline.headline,
                 summary = groupSummary.summary,
                 highlightTexts = gson.toJson(groupHighlights.highlightTexts),
@@ -85,7 +85,7 @@ class GroupContentGenerationService(
         groupGenRepository.save(
             GroupGen(
                 category = category.code,
-                groupIndices = gson.toJson(emptyList<Int>()),
+                selectedGroupIds = gson.toJson(emptyList<Int>()),
                 headline = "",
                 summary = "",
                 highlightTexts = gson.toJson(emptyList<String>()),

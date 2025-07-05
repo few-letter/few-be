@@ -143,9 +143,9 @@ class GroupGenService(
             // GroupGen에서 선택된 Gen 개수 추출
             val groupIndices =
                 try {
-                    gson.fromJson(groupGen.groupIndices, Array<Int>::class.java)?.toList() ?: emptyList()
+                    gson.fromJson(groupGen.selectedGroupIds, Array<Int>::class.java)?.toList() ?: emptyList()
                 } catch (e: Exception) {
-                    log.warn(e) { "GroupIndices JSON 파싱 실패: ${groupGen.groupIndices}" }
+                    log.warn(e) { "GroupIndices JSON 파싱 실패: ${groupGen.selectedGroupIds}" }
                     emptyList()
                 }
 

@@ -17,7 +17,7 @@ data class GroupGen(
     @Column(nullable = false)
     val category: Int,
     @Column(columnDefinition = "TEXT", nullable = false)
-    val groupIndices: String,
+    val selectedGroupIds: String,
     @Column(columnDefinition = "TEXT", nullable = false)
     val headline: String,
     @Column(columnDefinition = "TEXT", nullable = false)
@@ -30,7 +30,7 @@ data class GroupGen(
     protected constructor() : this(
         id = null,
         category = 0,
-        groupIndices = "[]",
+        selectedGroupIds = "[]",
         headline = "",
         summary = "",
         highlightTexts = "[]",
