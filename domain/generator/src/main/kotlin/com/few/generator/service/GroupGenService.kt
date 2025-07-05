@@ -8,6 +8,7 @@ import com.few.generator.domain.vo.GenDetail
 import com.few.generator.domain.vo.GroupGenProcessingResult
 import com.few.generator.repository.GenRepository
 import com.few.generator.repository.ProvisioningContentsRepository
+import com.few.generator.support.jpa.GeneratorTransactional
 import com.google.gson.Gson
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.runBlocking
@@ -139,5 +140,27 @@ class GroupGenService(
         } catch (e: Exception) {
             log.warn(e) { "성공 메트릭 기록 실패" }
         }
+    }
+
+    @GeneratorTransactional
+    fun createAllGroupGen(): List<GroupGen> {
+        log.info { "전체 카테고리 그룹 생성 시작" }
+
+        val results = mutableListOf<GroupGen>()
+        val categories = Category.groupGenEntries()
+
+        categories.forEach { category ->
+            try {
+                val groupGen = createGroupGen(category)
+                results.add(groupGen)
+                log.info { "카테고리 ${category.title} 그룹 생성 완료" }
+            } catch (e: Exception) {
+                log.error(e) { "카테고리 ${category.title} 그룹 생성 실패" }
+                throw e // 트랜잭션 롤백을 위해 예외 재던짐
+            }
+        }
+
+        log.info { "전체 카테고리 그룹 생성 완료: ${results.size}개" }
+        return results
     }
 }

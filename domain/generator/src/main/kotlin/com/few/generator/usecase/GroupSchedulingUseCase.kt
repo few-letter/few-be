@@ -1,6 +1,5 @@
 package com.few.generator.usecase
 
-import com.few.generator.domain.Category
 import com.few.generator.service.GroupGenService
 import com.few.generator.support.jpa.GeneratorTransactional
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -67,21 +66,8 @@ class GroupSchedulingUseCase(
     }
 
     private fun createGroupGensForAllCategories(): Int {
-        var successCnt = 0
-
-        Category.groupGenEntries().forEach { category ->
-            try {
-                log.info { "카테고리 ${category.title} 그룹 생성 시작" }
-                groupGenService.createGroupGen(category)
-                successCnt++
-                log.info { "카테고리 ${category.title} 그룹 생성 완료" }
-            } catch (e: Exception) {
-                log.error(e) { "카테고리 ${category.title} 그룹 생성 중 오류 발생" }
-                throw e
-            }
-        }
-
-        return successCnt
+        val results = groupGenService.createAllGroupGen()
+        return results.size
     }
 
     private fun Long.msToSeconds(): Double = this / 1000.0
