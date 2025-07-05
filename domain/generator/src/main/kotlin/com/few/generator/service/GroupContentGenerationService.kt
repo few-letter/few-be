@@ -85,7 +85,8 @@ class GroupContentGenerationService(
 
     private fun generateGroupHeadline(selectedGenHeadlines: List<String>): Headline {
         val groupHeadlinePrompt = promptGenerator.toGroupHeadlineOnlyPrompt(selectedGenHeadlines)
-        return chatGpt.ask(groupHeadlinePrompt) as Headline
+        return chatGpt.ask(groupHeadlinePrompt) as? Headline
+            ?: throw IllegalStateException("ChatGPT 응답을 Headline으로 변환할 수 없습니다")
     }
 
     private fun generateGroupSummary(
@@ -99,12 +100,14 @@ class GroupContentGenerationService(
                 selectedGenHeadlines,
                 selectedGenSummaries,
             )
-        return chatGpt.ask(groupSummaryPrompt) as Summary
+        return chatGpt.ask(groupSummaryPrompt) as? Summary
+            ?: throw IllegalStateException("ChatGPT 응답을 Summary로 변환할 수 없습니다")
     }
 
     private fun generateGroupHighlights(groupSummary: String): HighlightTexts {
         val groupHighlightPrompt = promptGenerator.toGroupHighlightPrompt(groupSummary)
-        return chatGpt.ask(groupHighlightPrompt) as HighlightTexts
+        return chatGpt.ask(groupHighlightPrompt) as? HighlightTexts
+            ?: throw IllegalStateException("ChatGPT 응답을 HighlightTexts로 변환할 수 없습니다")
     }
 
     private fun createGroupSourceHeadlines(

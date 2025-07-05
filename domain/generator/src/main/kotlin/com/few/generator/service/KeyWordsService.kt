@@ -21,7 +21,9 @@ class KeyWordsService(
         log.debug { "키워드 생성 시작: coreTexts 길이=${coreTexts.length}" }
 
         val prompt = promptGenerator.toKoreanKeyWords(coreTexts)
-        val keywords: Keywords = chatGpt.ask(prompt) as Keywords
+        val keywords: Keywords =
+            chatGpt.ask(prompt) as? Keywords
+                ?: throw IllegalStateException("ChatGPT 응답을 Keywords로 변환할 수 없습니다")
 
         log.debug { "키워드 생성 완료: ${keywords.keywords.size}개" }
         return keywords.keywords.joinToString(", ")
@@ -33,7 +35,9 @@ class KeyWordsService(
 
         return try {
             val prompt = promptGenerator.toKoreanKeyWords(coreTexts)
-            val keywords: Keywords = chatGpt.ask(prompt) as Keywords
+            val keywords: Keywords =
+                chatGpt.ask(prompt) as? Keywords
+                    ?: throw IllegalStateException("ChatGPT 응답을 Keywords로 변환할 수 없습니다")
             val result = keywords.keywords.joinToString(", ")
 
             log.debug { "비동기 키워드 생성 완료: ${keywords.keywords.size}개" }
@@ -50,7 +54,9 @@ class KeyWordsService(
         return withContext(Dispatchers.IO) {
             try {
                 val prompt = promptGenerator.toKoreanKeyWords(coreTexts)
-                val keywords: Keywords = chatGpt.ask(prompt) as Keywords
+                val keywords: Keywords =
+                    chatGpt.ask(prompt) as? Keywords
+                        ?: throw IllegalStateException("ChatGPT 응답을 Keywords로 변환할 수 없습니다")
                 val result = keywords.keywords.joinToString(", ")
 
                 log.debug { "코루틴 키워드 생성 완료: ${keywords.keywords.size}개" }

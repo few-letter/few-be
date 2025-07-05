@@ -25,7 +25,9 @@ class GroupingService(
 
         // 그룹화 수행 (설정에서 타겟 비율 사용)
         val groupPrompt = promptGenerator.toCombinedGroupingPrompt(genDetails, groupingProperties.targetPercentage)
-        val group: Group = chatGpt.ask(groupPrompt) as Group
+        val group: Group =
+            chatGpt.ask(groupPrompt) as? Group
+                ?: throw IllegalStateException("ChatGPT 응답을 Group으로 변환할 수 없습니다")
 
         validateGroupResult(group, category)
         return group
