@@ -36,7 +36,7 @@ class ContentsGeneratorController(
     }
 
     @PostMapping(
-        value = ["/contents/schedule/group"],
+        value = ["/contents/groups/schedule"],
     )
     fun createAllGroupGen(): ApiResponse<ApiResponse.Success> {
         groupGenService.createAllGroupGen()
