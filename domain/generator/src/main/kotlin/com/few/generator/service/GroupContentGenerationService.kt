@@ -39,8 +39,15 @@ class GroupContentGenerationService(
         log.info { "그룹 콘텐츠 생성 시작: ${group.group.size}개 뉴스" }
 
         // 선택된 Gen들을 이용하여 그룹 헤드라인, 요약, 하이라이트 생성
-        val selectedGenIndices = group.group.map { it - 1 }.toSet()
-        val selectedGens = selectedGenIndices.map { index -> gens[index] }
+        // 1-based index를 0-based index로 변환 (AI 모델이 1부터 시작하는 인덱스를 반환)
+        val selectedGenIndices = group.group.map { aiIndex -> aiIndex - 1 }.toSet()
+
+        // 인덱스 유효성 검사
+        val validIndices = selectedGenIndices.filter { it >= 0 && it < gens.size }
+        if (validIndices.size != selectedGenIndices.size) {
+            log.warn { "유효하지 않은 인덱스 발견: 전체=${selectedGenIndices.size}, 유효=${validIndices.size}" }
+        }
+        val selectedGens = validIndices.map { index -> gens[index] }
         val selectedGenHeadlines = selectedGens.map { it.headline }
         val selectedGenSummaries = selectedGens.map { it.summary }
 

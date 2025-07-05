@@ -11,6 +11,9 @@ import com.few.generator.repository.ProvisioningContentsRepository
 import com.few.generator.support.jpa.GeneratorTransactional
 import com.google.gson.Gson
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
@@ -31,6 +34,9 @@ class GroupGenService(
 ) {
     private val log = KotlinLogging.logger {}
 
+    // 그룹 생성 전용 코루틴 스코프 (부분 실패 허용)
+    private val groupGenScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     fun createGroupGen(category: Category): GroupGen {
         log.info { "그룹 생성 시작: category=${category.title}" }
 
@@ -41,21 +47,26 @@ class GroupGenService(
             measureTimeMillis {
                 try {
                     val internalResult =
-                        runBlocking {
+                        runBlocking(groupGenScope.coroutineContext) {
                             createGroupGenInternalWithMetrics(category)
                         }
                     result = internalResult.groupGen
                     keywordExtractionTime = internalResult.keywordExtractionTime
                     totalGens = internalResult.totalGens
                 } catch (e: Exception) {
-                    log.error(e) { "그룹 생성 중 오류 발생: category=${category.title}" }
+                    log.error(e) { "그룹 생성 중 오류 발생: category=${category.title}, 전체 Gen 수: $totalGens" }
                     result = groupContentGenerationService.createEmptyGroupGen(category)
+                    // 에러 메트릭 기록
+                    groupGenMetricsService.recordGroupGenError(category, e.message ?: "Unknown error", totalProcessingTime)
                 }
             }
 
         // 전체 처리 시간이 측정된 후 메트릭 기록
         val finalResult = result
         if (finalResult == null || (finalResult.headline.isEmpty() && finalResult.summary.isEmpty())) {
+            log.warn {
+                "그룹 생성 실패 또는 빈 결과: category=${category.title}, headline=${finalResult?.headline?.isNotEmpty()}, summary=${finalResult?.summary?.isNotEmpty()}"
+            }
             groupGenMetricsService.recordGroupGenError(category, "GroupGen creation failed", totalProcessingTime)
         } else {
             // 성공 시 전체 처리 시간 포함한 메트릭 업데이트
