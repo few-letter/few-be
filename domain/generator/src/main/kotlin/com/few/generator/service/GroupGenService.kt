@@ -12,6 +12,7 @@ import com.few.generator.domain.Category
 import com.few.generator.domain.Gen
 import com.few.generator.domain.GroupGen
 import com.few.generator.domain.ProvisioningContents
+import com.few.generator.domain.vo.AsyncKeywordExtraction
 import com.few.generator.domain.vo.DateTimeRange
 import com.few.generator.domain.vo.GenDetail
 import com.few.generator.domain.vo.GroupSourceHeadline
@@ -118,17 +119,20 @@ class GroupGenService(
                             provisioningContentsMap[gen.provisioningContentsId]
                                 ?.coreTextsJson ?: "키워드 없음"
 
-                        gen to keyWordsService.generateKeyWordsAsync(coreTexts)
+                        AsyncKeywordExtraction(
+                            gen = gen,
+                            keywordFuture = keyWordsService.generateKeyWordsAsync(coreTexts),
+                        )
                     }
 
                 // 모든 비동기 키워드 추출 완료 대기
                 genDetails =
-                    keyWordsFutures.map { (gen, future) ->
-                        val keyWords = future.get() // 비동기 결과 대기
-                        log.debug { "Gen ${gen.id} 키워드 추출 완료: $keyWords" }
+                    keyWordsFutures.map { extraction ->
+                        val keyWords = extraction.keywordFuture.get() // 비동기 결과 대기
+                        log.debug { "Gen ${extraction.gen.id} 키워드 추출 완료: $keyWords" }
 
                         GenDetail(
-                            headline = gen.headline,
+                            headline = extraction.gen.headline,
                             keywords = keyWords,
                         )
                     }
