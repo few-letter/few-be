@@ -12,6 +12,7 @@ import com.few.generator.domain.Category
 import com.few.generator.domain.Gen
 import com.few.generator.domain.GroupGen
 import com.few.generator.domain.ProvisioningContents
+import com.few.generator.domain.vo.DateTimeRange
 import com.few.generator.domain.vo.GenDetail
 import com.few.generator.domain.vo.GroupSourceHeadline
 import com.few.generator.repository.GenRepository
@@ -82,8 +83,8 @@ class GroupGenService(
         val timeRange = getTodayTimeRange()
         val gens =
             genRepository.findAllByCreatedAtBetweenAndCategory(
-                timeRange.first,
-                timeRange.second,
+                timeRange.startTime,
+                timeRange.endTime,
                 category.code,
             )
 
@@ -244,7 +245,7 @@ class GroupGenService(
         return savedGroupGen
     }
 
-    private fun getTodayTimeRange(): Pair<LocalDateTime, LocalDateTime> {
+    private fun getTodayTimeRange(): DateTimeRange {
         val start =
             LocalDateTime
                 .now()
@@ -258,7 +259,7 @@ class GroupGenService(
                 .withHour(0)
                 .withMinute(0)
                 .withSecond(0)
-        return start to end
+        return DateTimeRange(startTime = start, endTime = end)
     }
 
     private fun createEmptyGroupGen(category: Category): GroupGen =
