@@ -43,6 +43,8 @@ class GroupGenService(
         var result: GroupGen? = null
         var keywordExtractionTime: Long = 0
         var totalGens: Int = 0
+        var processingError: Exception? = null
+
         val totalProcessingTime =
             measureTimeMillis {
                 try {
@@ -56,10 +58,14 @@ class GroupGenService(
                 } catch (e: Exception) {
                     log.error(e) { "그룹 생성 중 오류 발생: category=${category.title}, 전체 Gen 수: $totalGens" }
                     result = groupContentGenerationService.createEmptyGroupGen(category)
-                    // 에러 메트릭 기록
-                    groupGenMetricsService.recordGroupGenError(category, e.message ?: "Unknown error", totalProcessingTime)
+                    processingError = e // 에러를 나중에 처리하기 위해 저장
                 }
             }
+
+        // 처리 중 에러가 발생한 경우 메트릭 기록
+        processingError?.let { error ->
+            groupGenMetricsService.recordGroupGenError(category, error.message ?: "Unknown error", totalProcessingTime)
+        }
 
         // 전체 처리 시간이 측정된 후 메트릭 기록
         val finalResult = result
