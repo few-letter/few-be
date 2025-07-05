@@ -12,6 +12,7 @@ import com.few.generator.domain.Category
 import com.few.generator.domain.Gen
 import com.few.generator.domain.GroupGen
 import com.few.generator.domain.ProvisioningContents
+import com.few.generator.domain.vo.GenDetail
 import com.few.generator.domain.vo.GroupSourceHeadline
 import com.few.generator.repository.GenRepository
 import com.few.generator.repository.GroupGenRepository
@@ -106,7 +107,7 @@ class GroupGenService(
                 .associateBy { it.id!! }
 
         // 키워드 추출 시간 측정 및 실행
-        val genDetails: List<Pair<String, String>>
+        val genDetails: List<GenDetail>
         val keywordExtractionTime =
             measureTimeMillis {
                 // 비동기로 키워드 추출 시작
@@ -125,7 +126,10 @@ class GroupGenService(
                         val keyWords = future.get() // 비동기 결과 대기
                         log.debug { "Gen ${gen.id} 키워드 추출 완료: $keyWords" }
 
-                        gen.headline to keyWords
+                        GenDetail(
+                            headline = gen.headline,
+                            keywords = keyWords,
+                        )
                     }
             }
 

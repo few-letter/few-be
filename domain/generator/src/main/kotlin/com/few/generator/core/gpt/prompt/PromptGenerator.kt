@@ -2,6 +2,7 @@ package com.few.generator.core.gpt.prompt
 
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.core.gpt.prompt.schema.*
+import com.few.generator.domain.vo.GenDetail
 import com.google.gson.Gson
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
@@ -206,7 +207,7 @@ class PromptGenerator(
     }
 
     fun toCombinedGroupingPrompt(
-        genDetails: List<Pair<String, String>>,
+        genDetails: List<GenDetail>,
         targetPercentage: Int = 30,
     ): Prompt {
         val systemPrompt =
@@ -216,8 +217,8 @@ class PromptGenerator(
 
         val genList =
             genDetails
-                .mapIndexed { index, (headline, keywords) ->
-                    "${index + 1}. 헤드라인: \"$headline\", 키워드: \"$keywords\""
+                .mapIndexed { index, genDetail ->
+                    "${index + 1}. 헤드라인: \"${genDetail.headline}\", 키워드: \"${genDetail.keywords}\""
                 }.joinToString("\n")
 
         val targetCount = (genDetails.size * targetPercentage / 100).coerceAtLeast(1)
