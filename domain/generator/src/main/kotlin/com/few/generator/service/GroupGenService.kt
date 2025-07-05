@@ -12,7 +12,7 @@ import com.few.generator.domain.Category
 import com.few.generator.domain.Gen
 import com.few.generator.domain.GroupGen
 import com.few.generator.domain.ProvisioningContents
-import com.few.generator.domain.vo.AsyncKeywordExtraction
+import com.few.generator.domain.vo.AsyncKeywordJob
 import com.few.generator.domain.vo.DateTimeRange
 import com.few.generator.domain.vo.GenDetail
 import com.few.generator.domain.vo.GroupGenProcessingResult
@@ -23,6 +23,9 @@ import com.few.generator.repository.ProvisioningContentsRepository
 import com.few.generator.repository.RawContentsRepository
 import com.google.gson.Gson
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -103,33 +106,37 @@ class GroupGenService(
                 .findAllByIdIn(provisioningContentsIds)
                 .associateBy { it.id!! }
 
-        // 키워드 추출 시간 측정 및 실행
+        // 키워드 추출 시간 측정 및 실행 (코루틴 버전)
         val genDetails: List<GenDetail>
         val keywordExtractionTime =
             measureTimeMillis {
-                // 비동기로 키워드 추출 시작
-                val keyWordsFutures =
-                    gens.map { gen ->
-                        val coreTexts =
-                            provisioningContentsMap[gen.provisioningContentsId]
-                                ?.coreTextsJson ?: "키워드 없음"
-
-                        AsyncKeywordExtraction(
-                            gen = gen,
-                            keywordFuture = keyWordsService.generateKeyWordsAsync(coreTexts),
-                        )
-                    }
-
-                // 모든 비동기 키워드 추출 완료 대기
                 genDetails =
-                    keyWordsFutures.map { extraction ->
-                        val keyWords = extraction.keywordFuture.get() // 비동기 결과 대기
-                        log.debug { "Gen ${extraction.gen.id} 키워드 추출 완료: $keyWords" }
+                    runBlocking {
+                        coroutineScope {
+                            // 비동기로 키워드 추출 시작
+                            val keywordJobs =
+                                gens.map { gen ->
+                                    val coreTexts =
+                                        provisioningContentsMap[gen.provisioningContentsId]
+                                            ?.coreTextsJson ?: "키워드 없음"
 
-                        GenDetail(
-                            headline = extraction.gen.headline,
-                            keywords = keyWords,
-                        )
+                                    AsyncKeywordJob(
+                                        gen = gen,
+                                        keywordDeferred = async { keyWordsService.generateKeyWordsWithCoroutine(coreTexts) },
+                                    )
+                                }
+
+                            // 모든 키워드 추출 완료 대기
+                            keywordJobs.map { job ->
+                                val keywords = job.keywordDeferred.await()
+                                log.debug { "Gen ${job.gen.id} 키워드 추출 완료: $keywords" }
+
+                                GenDetail(
+                                    headline = job.gen.headline,
+                                    keywords = keywords,
+                                )
+                            }
+                        }
                     }
             }
 
