@@ -4,6 +4,7 @@ import com.few.generator.domain.Gen
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
+import java.time.LocalDateTime
 
 interface GenRepository : JpaRepository<Gen, Long> {
     fun findByProvisioningContentsId(provisioningContentsId: Long): List<Gen>
@@ -57,5 +58,11 @@ interface GenRepository : JpaRepository<Gen, Long> {
     fun findFirstLimitByCategory(
         @Param("category") category: Int,
         @Param("limitSize") limitSize: Int,
+    ): List<Gen>
+
+    fun findAllByCreatedAtBetweenAndCategory(
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
+        category: Int,
     ): List<Gen>
 }
