@@ -45,7 +45,10 @@ class GroupContentGenerationService(
         // 인덱스 유효성 검사
         val validIndices = selectedGenIndices.filter { it >= 0 && it < gens.size }
         if (validIndices.size != selectedGenIndices.size) {
-            log.warn { "유효하지 않은 인덱스 발견: 전체=${selectedGenIndices.size}, 유효=${validIndices.size}" }
+            val invalidIndices = selectedGenIndices - validIndices.toSet()
+            log.warn { "유효하지 않은 인덱스 발견: $invalidIndices, 전체=${selectedGenIndices.size}, 유효=${validIndices.size}" }
+            // 데이터 일관성을 위해 예외 처리 고려 가능
+            // throw IllegalArgumentException("유효하지 않은 인덱스가 포함되어 있습니다: $invalidIndices")
         }
         val selectedGens = validIndices.map { index -> gens[index] }
         val selectedGenHeadlines = selectedGens.map { it.headline }
@@ -134,7 +137,7 @@ class GroupContentGenerationService(
             val result =
                 chatGpt.ask(groupHighlightPrompt) as? HighlightTexts
                     ?: throw IllegalStateException("ChatGPT 응답을 HighlightTexts로 변환할 수 없습니다")
-            log.debug { "그룹 하이라이트 생성 완룼: ${result.highlightTexts.size}개" }
+            log.debug { "그룹 하이라이트 생성 완료: ${result.highlightTexts.size}개" }
             result
         } catch (e: Exception) {
             log.error(e) { "그룹 하이라이트 생성 실패" }
