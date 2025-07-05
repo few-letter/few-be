@@ -25,7 +25,6 @@ class GeneratorGsonConfig {
             .registerTypeAdapter(MODEL::class.java, ModelDeserializer()) // 추가
             .setLenient()
             .disableHtmlEscaping()
-            .setPrettyPrinting()
             .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeAdapter())
             .create()
 }
