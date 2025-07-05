@@ -15,6 +15,7 @@ import com.few.generator.domain.ProvisioningContents
 import com.few.generator.domain.vo.AsyncKeywordExtraction
 import com.few.generator.domain.vo.DateTimeRange
 import com.few.generator.domain.vo.GenDetail
+import com.few.generator.domain.vo.GroupGenProcessingResult
 import com.few.generator.domain.vo.GroupSourceHeadline
 import com.few.generator.repository.GenRepository
 import com.few.generator.repository.GroupGenRepository
@@ -74,13 +75,7 @@ class GroupGenService(
         return result ?: createEmptyGroupGen(category)
     }
 
-    private data class GroupGenInternalResult(
-        val groupGen: GroupGen,
-        val keywordExtractionTime: Long,
-        val totalGens: Int,
-    )
-
-    private fun createGroupGenInternalWithMetrics(category: Category): GroupGenInternalResult {
+    private fun createGroupGenInternalWithMetrics(category: Category): GroupGenProcessingResult {
         val timeRange = getTodayTimeRange()
         val gens =
             genRepository.findAllByCreatedAtBetweenAndCategory(
@@ -91,12 +86,12 @@ class GroupGenService(
 
         if (gens.isEmpty()) {
             log.warn { "카테고리 ${category.title}에 대한 Gen이 없습니다." }
-            return GroupGenInternalResult(createEmptyGroupGen(category), 0, 0)
+            return GroupGenProcessingResult(createEmptyGroupGen(category), 0, 0)
         }
 
         if (gens.size < groupingProperties.minGroupSize) {
             log.warn { "카테고리 ${category.title}의 Gen 개수(${gens.size})가 최소 그룹 크기(${groupingProperties.minGroupSize})보다 작습니다." }
-            return GroupGenInternalResult(createEmptyGroupGen(category), 0, gens.size)
+            return GroupGenProcessingResult(createEmptyGroupGen(category), 0, gens.size)
         }
 
         log.info { "카테고리 ${category.title}에서 ${gens.size}개 Gen 발견, 키워드 추출 시작" }
@@ -146,12 +141,12 @@ class GroupGenService(
 
         if (group.group.isEmpty()) {
             log.warn { "그룹화 결과가 비어있습니다" }
-            return GroupGenInternalResult(createEmptyGroupGen(category), keywordExtractionTime, gens.size)
+            return GroupGenProcessingResult(createEmptyGroupGen(category), keywordExtractionTime, gens.size)
         }
 
         if (group.group.size < groupingProperties.minGroupSize) {
             log.warn { "그룹화 결과(${group.group.size}개)가 최소 그룹 크기(${groupingProperties.minGroupSize})보다 작습니다" }
-            return GroupGenInternalResult(createEmptyGroupGen(category), keywordExtractionTime, gens.size)
+            return GroupGenProcessingResult(createEmptyGroupGen(category), keywordExtractionTime, gens.size)
         }
 
         if (group.group.size > groupingProperties.maxGroupSize) {
@@ -161,12 +156,12 @@ class GroupGenService(
 
             // 잘린 그룹으로 계속 진행
             val result = generateGroupContent(category, gens, trimmedGroup, provisioningContentsMap)
-            return GroupGenInternalResult(result, keywordExtractionTime, gens.size)
+            return GroupGenProcessingResult(result, keywordExtractionTime, gens.size)
         }
 
         log.info { "그룹화 완료: ${group.group.size}개 뉴스 선택됨" }
         val result = generateGroupContent(category, gens, group, provisioningContentsMap)
-        return GroupGenInternalResult(result, keywordExtractionTime, gens.size)
+        return GroupGenProcessingResult(result, keywordExtractionTime, gens.size)
     }
 
     private fun updateSuccessMetrics(
