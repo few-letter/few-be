@@ -23,5 +23,7 @@ enum class Category(
         fun from(title: String): Category =
             Category.entries.find { it.title.equals(title, ignoreCase = true) }
                 ?: throw BadRequestException("Invalid Category title: $title")
+
+        fun groupGenEntries(): List<Category> = Category.entries.filter { it.code != Category.ETC.code }
     }
 }

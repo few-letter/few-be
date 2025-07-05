@@ -69,7 +69,7 @@ class GroupSchedulingUseCase(
     private fun createGroupGensForAllCategories(): Int {
         var successCnt = 0
 
-        Category.entries.forEach { category ->
+        Category.groupGenEntries().forEach { category ->
             try {
                 log.info { "카테고리 ${category.title} 그룹 생성 시작" }
                 groupGenService.createGroupGen(category)

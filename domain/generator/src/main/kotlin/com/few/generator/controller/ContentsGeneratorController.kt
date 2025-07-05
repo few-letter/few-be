@@ -39,7 +39,7 @@ class ContentsGeneratorController(
         value = ["/contents/schedule/group"],
     )
     fun createAllGroupGen(): ApiResponse<ApiResponse.Success> {
-        Category.entries.forEach { category ->
+        Category.groupGenEntries().forEach { category ->
             groupGenService.createGroupGen(category)
         }
 
