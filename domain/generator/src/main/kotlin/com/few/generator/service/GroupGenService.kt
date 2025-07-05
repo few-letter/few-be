@@ -40,35 +40,41 @@ class GroupGenService(
 ) {
     private val log = KotlinLogging.logger {}
 
-    private data class ProcessingResult(
-        val groupGen: GroupGen,
-        val keywordExtractionTime: Long,
-        val totalProcessingTime: Long,
-    )
-
     fun createGroupGen(category: Category): GroupGen {
         log.info { "그룹 생성 시작: category=${category.title}" }
 
         var result: GroupGen? = null
+        var keywordExtractionTime: Long = 0
         val totalProcessingTime =
             measureTimeMillis {
                 try {
-                    result = createGroupGenInternal(category)
+                    val internalResult = createGroupGenInternalWithMetrics(category)
+                    result = internalResult.groupGen
+                    keywordExtractionTime = internalResult.keywordExtractionTime
                 } catch (e: Exception) {
                     log.error(e) { "그룹 생성 중 오류 발생: category=${category.title}" }
                     result = createEmptyGroupGen(category)
                 }
             }
 
-        // 전체 처리 시간이 측정된 후 에러 메트릭 기록
-        if (result == null || (result!!.headline.isEmpty() && result!!.summary.isEmpty())) {
+        // 전체 처리 시간이 측정된 후 메트릭 기록
+        val finalResult = result
+        if (finalResult == null || (finalResult.headline.isEmpty() && finalResult.summary.isEmpty())) {
             groupGenMetricsService.recordGroupGenError(category, "GroupGen creation failed", totalProcessingTime)
+        } else {
+            // 성공 시 전체 처리 시간 포함한 메트릭 업데이트
+            updateSuccessMetrics(category, finalResult, keywordExtractionTime, totalProcessingTime)
         }
 
         return result ?: createEmptyGroupGen(category)
     }
 
-    private fun createGroupGenInternal(category: Category): GroupGen {
+    private data class GroupGenInternalResult(
+        val groupGen: GroupGen,
+        val keywordExtractionTime: Long,
+    )
+
+    private fun createGroupGenInternalWithMetrics(category: Category): GroupGenInternalResult {
         val timeRange = getTodayTimeRange()
         val gens =
             genRepository.findAllByCreatedAtBetweenAndCategory(
@@ -79,34 +85,12 @@ class GroupGenService(
 
         if (gens.isEmpty()) {
             log.warn { "카테고리 ${category.title}에 대한 Gen이 없습니다." }
-            groupGenMetricsService.recordGroupGenMetrics(
-                GroupGenMetricsService.GroupGenMetrics(
-                    category = category,
-                    totalGens = 0,
-                    selectedGens = 0,
-                    groupingSuccessful = false,
-                    keywordExtractionTimeMs = 0,
-                    totalProcessingTimeMs = 0,
-                    errorMessage = "No Gens available",
-                ),
-            )
-            return createEmptyGroupGen(category)
+            return GroupGenInternalResult(createEmptyGroupGen(category), 0)
         }
 
         if (gens.size < groupingProperties.minGroupSize) {
             log.warn { "카테고리 ${category.title}의 Gen 개수(${gens.size})가 최소 그룹 크기(${groupingProperties.minGroupSize})보다 작습니다." }
-            groupGenMetricsService.recordGroupGenMetrics(
-                GroupGenMetricsService.GroupGenMetrics(
-                    category = category,
-                    totalGens = gens.size,
-                    selectedGens = 0,
-                    groupingSuccessful = false,
-                    keywordExtractionTimeMs = 0,
-                    totalProcessingTimeMs = 0,
-                    errorMessage = "Insufficient Gens for grouping",
-                ),
-            )
-            return createEmptyGroupGen(category)
+            return GroupGenInternalResult(createEmptyGroupGen(category), 0)
         }
 
         log.info { "카테고리 ${category.title}에서 ${gens.size}개 Gen 발견, 키워드 추출 시작" }
@@ -150,34 +134,12 @@ class GroupGenService(
 
         if (group.group.isEmpty()) {
             log.warn { "그룹화 결과가 비어있습니다" }
-            groupGenMetricsService.recordGroupGenMetrics(
-                GroupGenMetricsService.GroupGenMetrics(
-                    category = category,
-                    totalGens = gens.size,
-                    selectedGens = 0,
-                    groupingSuccessful = false,
-                    keywordExtractionTimeMs = keywordExtractionTime,
-                    totalProcessingTimeMs = 0,
-                    errorMessage = "Empty grouping result",
-                ),
-            )
-            return createEmptyGroupGen(category)
+            return GroupGenInternalResult(createEmptyGroupGen(category), keywordExtractionTime)
         }
 
         if (group.group.size < groupingProperties.minGroupSize) {
             log.warn { "그룹화 결과(${group.group.size}개)가 최소 그룹 크기(${groupingProperties.minGroupSize})보다 작습니다" }
-            groupGenMetricsService.recordGroupGenMetrics(
-                GroupGenMetricsService.GroupGenMetrics(
-                    category = category,
-                    totalGens = gens.size,
-                    selectedGens = group.group.size,
-                    groupingSuccessful = false,
-                    keywordExtractionTimeMs = keywordExtractionTime,
-                    totalProcessingTimeMs = 0,
-                    errorMessage = "Insufficient group size",
-                ),
-            )
-            return createEmptyGroupGen(category)
+            return GroupGenInternalResult(createEmptyGroupGen(category), keywordExtractionTime)
         }
 
         if (group.group.size > groupingProperties.maxGroupSize) {
@@ -186,11 +148,39 @@ class GroupGenService(
             log.info { "그룹화 완료: ${trimmedGroup.group.size}개 뉴스 선택됨 (${group.group.size}개에서 조정)" }
 
             // 잘린 그룹으로 계속 진행
-            return generateGroupContent(category, gens, trimmedGroup, provisioningContentsMap, keywordExtractionTime, 0)
+            val result = generateGroupContent(category, gens, trimmedGroup, provisioningContentsMap)
+            return GroupGenInternalResult(result, keywordExtractionTime)
         }
 
         log.info { "그룹화 완료: ${group.group.size}개 뉴스 선택됨" }
-        return generateGroupContent(category, gens, group, provisioningContentsMap, keywordExtractionTime, 0)
+        val result = generateGroupContent(category, gens, group, provisioningContentsMap)
+        return GroupGenInternalResult(result, keywordExtractionTime)
+    }
+
+    private fun updateSuccessMetrics(
+        category: Category,
+        groupGen: GroupGen,
+        keywordExtractionTime: Long,
+        totalProcessingTime: Long,
+    ) {
+        try {
+            // GroupGen에서 선택된 Gen 개수 추출
+            val groupIndices = gson.fromJson(groupGen.groupIndices, Array<Int>::class.java)?.toList() ?: emptyList()
+
+            groupGenMetricsService.recordGroupGenMetrics(
+                GroupGenMetricsService.GroupGenMetrics(
+                    category = category,
+                    totalGens = 0, // 이 정보는 createGroupGenInternalWithMetrics에서만 알 수 있음
+                    selectedGens = groupIndices.size,
+                    groupingSuccessful = true,
+                    keywordExtractionTimeMs = keywordExtractionTime,
+                    totalProcessingTimeMs = totalProcessingTime,
+                    errorMessage = null,
+                ),
+            )
+        } catch (e: Exception) {
+            log.warn(e) { "성공 메트릭 기록 실패" }
+        }
     }
 
     private fun generateGroupContent(
@@ -198,8 +188,6 @@ class GroupGenService(
         gens: List<Gen>,
         group: Group,
         provisioningContentsMap: Map<Long, ProvisioningContents>,
-        keywordExtractionTime: Long,
-        totalProcessingTime: Long,
     ): GroupGen {
         // 선택된 Gen들을 이용하여 그룹 헤드라인, 요약, 하이라이트 생성
         val selectedGenIndices = group.group.map { it - 1 }.toSet()
@@ -243,18 +231,7 @@ class GroupGenService(
 
         val savedGroupGen = groupGenRepository.save(groupGen)
 
-        // 성공 메트릭 기록
-        groupGenMetricsService.recordGroupGenMetrics(
-            GroupGenMetricsService.GroupGenMetrics(
-                category = category,
-                totalGens = gens.size,
-                selectedGens = selectedGens.size,
-                groupingSuccessful = true,
-                keywordExtractionTimeMs = keywordExtractionTime,
-                totalProcessingTimeMs = totalProcessingTime,
-                errorMessage = null,
-            ),
-        )
+        // 성공 메트릭은 상위 메서드 updateSuccessMetrics에서 처리
 
         return savedGroupGen
     }
