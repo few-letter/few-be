@@ -4,16 +4,19 @@ import com.few.generator.controller.response.*
 import com.few.generator.domain.Category
 import com.few.generator.service.GroupGenService
 import com.few.generator.usecase.BrowseContentsUseCase
+import com.few.generator.usecase.GroupGenBrowseUseCase
 import com.few.generator.usecase.RawContentsBrowseContentUseCase
 import com.few.generator.usecase.SchedulingUseCase
 import com.few.generator.usecase.`in`.BrowseContentsUseCaseIn
 import jakarta.validation.constraints.Min
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import web.ApiResponse
 import web.ApiResponseGenerator
+import java.time.LocalDate
 
 @Validated
 @RestController
@@ -23,6 +26,7 @@ class ContentsGeneratorController(
     private val rawContentsBrowseContentUseCase: RawContentsBrowseContentUseCase,
     private val browseContentsUseCase: BrowseContentsUseCase,
     private val groupGenService: GroupGenService,
+    private val groupGenBrowseUseCase: GroupGenBrowseUseCase,
 ) {
     @PostMapping(
         value = ["/contents/schedule"],
@@ -170,4 +174,17 @@ class ContentsGeneratorController(
             Category.entries.map { CodeValueResponse(code = it.code, value = it.title) },
             HttpStatus.OK,
         )
+
+    @GetMapping(value = ["/contents/groups"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun getGroupGens(
+        @RequestParam(
+            value = "date",
+            required = false,
+        )
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+        date: LocalDate?,
+    ): ApiResponse<ApiResponse.SuccessBody<BrowseGroupGenResponses>> {
+        val response = groupGenBrowseUseCase.execute(date)
+        return ApiResponseGenerator.success(response, HttpStatus.OK)
+    }
 }
