@@ -83,32 +83,56 @@ class GroupContentGenerationService(
             ),
         )
 
-    private fun generateGroupHeadline(selectedGenHeadlines: List<String>): Headline {
-        val groupHeadlinePrompt = promptGenerator.toGroupHeadlineOnlyPrompt(selectedGenHeadlines)
-        return chatGpt.ask(groupHeadlinePrompt) as? Headline
-            ?: throw IllegalStateException("ChatGPT 응답을 Headline으로 변환할 수 없습니다")
-    }
+    private fun generateGroupHeadline(selectedGenHeadlines: List<String>): Headline =
+        try {
+            log.debug { "그룹 헤드라인 생성 시작: ${selectedGenHeadlines.size}개 헤드라인" }
+            val groupHeadlinePrompt = promptGenerator.toGroupHeadlineOnlyPrompt(selectedGenHeadlines)
+            val result =
+                chatGpt.ask(groupHeadlinePrompt) as? Headline
+                    ?: throw IllegalStateException("ChatGPT 응답을 Headline으로 변환할 수 없습니다")
+            log.debug { "그룹 헤드라인 생성 완료: ${result.headline}" }
+            result
+        } catch (e: Exception) {
+            log.error(e) { "그룹 헤드라인 생성 실패" }
+            throw e
+        }
 
     private fun generateGroupSummary(
         groupHeadline: String,
         selectedGenHeadlines: List<String>,
         selectedGenSummaries: List<String>,
-    ): Summary {
-        val groupSummaryPrompt =
-            promptGenerator.toGroupSummaryWithHeadlinesPrompt(
-                groupHeadline,
-                selectedGenHeadlines,
-                selectedGenSummaries,
-            )
-        return chatGpt.ask(groupSummaryPrompt) as? Summary
-            ?: throw IllegalStateException("ChatGPT 응답을 Summary로 변환할 수 없습니다")
-    }
+    ): Summary =
+        try {
+            log.debug { "그룹 요약 생성 시작: ${selectedGenSummaries.size}개 요약" }
+            val groupSummaryPrompt =
+                promptGenerator.toGroupSummaryWithHeadlinesPrompt(
+                    groupHeadline,
+                    selectedGenHeadlines,
+                    selectedGenSummaries,
+                )
+            val result =
+                chatGpt.ask(groupSummaryPrompt) as? Summary
+                    ?: throw IllegalStateException("ChatGPT 응답을 Summary로 변환할 수 없습니다")
+            log.debug { "그룹 요약 생성 완료" }
+            result
+        } catch (e: Exception) {
+            log.error(e) { "그룹 요약 생성 실패" }
+            throw e
+        }
 
-    private fun generateGroupHighlights(groupSummary: String): HighlightTexts {
-        val groupHighlightPrompt = promptGenerator.toGroupHighlightPrompt(groupSummary)
-        return chatGpt.ask(groupHighlightPrompt) as? HighlightTexts
-            ?: throw IllegalStateException("ChatGPT 응답을 HighlightTexts로 변환할 수 없습니다")
-    }
+    private fun generateGroupHighlights(groupSummary: String): HighlightTexts =
+        try {
+            log.debug { "그룹 하이라이트 생성 시작" }
+            val groupHighlightPrompt = promptGenerator.toGroupHighlightPrompt(groupSummary)
+            val result =
+                chatGpt.ask(groupHighlightPrompt) as? HighlightTexts
+                    ?: throw IllegalStateException("ChatGPT 응답을 HighlightTexts로 변환할 수 없습니다")
+            log.debug { "그룹 하이라이트 생성 완룼: ${result.highlightTexts.size}개" }
+            result
+        } catch (e: Exception) {
+            log.error(e) { "그룹 하이라이트 생성 실패" }
+            throw e
+        }
 
     private fun createGroupSourceHeadlines(
         selectedGens: List<Gen>,

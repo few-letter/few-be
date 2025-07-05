@@ -23,14 +23,19 @@ class GroupingService(
     ): Group {
         log.info { "그룹화 시작: ${genDetails.size}개 GenDetail 처리" }
 
-        // 그룹화 수행 (설정에서 타겟 비율 사용)
-        val groupPrompt = promptGenerator.toCombinedGroupingPrompt(genDetails, groupingProperties.targetPercentage)
-        val group: Group =
-            chatGpt.ask(groupPrompt) as? Group
-                ?: throw IllegalStateException("ChatGPT 응답을 Group으로 변환할 수 없습니다")
+        return try {
+            // 그룹화 수행 (설정에서 타겟 비율 사용)
+            val groupPrompt = promptGenerator.toCombinedGroupingPrompt(genDetails, groupingProperties.targetPercentage)
+            val group: Group =
+                chatGpt.ask(groupPrompt) as? Group
+                    ?: throw IllegalStateException("ChatGPT 응답을 Group으로 변환할 수 없습니다")
 
-        validateGroupResult(group, category)
-        return group
+            validateGroupResult(group, category)
+            group
+        } catch (e: Exception) {
+            log.error(e) { "그룹화 처리 중 오류 발생: category=${category.title}" }
+            throw e
+        }
     }
 
     fun validateGroupSize(group: Group): Group? {

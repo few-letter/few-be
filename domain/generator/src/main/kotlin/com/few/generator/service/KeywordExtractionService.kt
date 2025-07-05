@@ -35,15 +35,20 @@ class KeywordExtractionService(
                     )
                 }
 
-            // 모든 키워드 추출 완료 대기
-            keywordJobs.map { job ->
-                val keywords = job.keywordDeferred.await()
-                log.debug { "Gen ${job.gen.id} 키워드 추출 완료: $keywords" }
+            // 모든 키워드 추출 완료 대기 및 에러 처리
+            keywordJobs.mapNotNull { job ->
+                try {
+                    val keywords = job.keywordDeferred.await()
+                    log.debug { "Gen ${job.gen.id} 키워드 추출 완료: $keywords" }
 
-                GenDetail(
-                    headline = job.gen.headline,
-                    keywords = keywords,
-                )
+                    GenDetail(
+                        headline = job.gen.headline,
+                        keywords = keywords,
+                    )
+                } catch (e: Exception) {
+                    log.warn(e) { "Gen ${job.gen.id} 키워드 추출 실패, 스킵합니다" }
+                    null // 실패한 항목은 제외
+                }
             }
         }
     }
