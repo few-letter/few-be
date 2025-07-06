@@ -1,8 +1,10 @@
 package com.few.generator.usecase
 
+import com.few.generator.event.dto.ContentsSchedulingEventDto
 import com.few.generator.service.GroupGenService
 import com.few.generator.support.jpa.GeneratorTransactional
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import web.handler.exception.BadRequestException
@@ -13,6 +15,7 @@ import kotlin.system.measureTimeMillis
 @Component
 class GroupSchedulingUseCase(
     private val groupGenService: GroupGenService,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
     private val log = KotlinLogging.logger {}
     private val isRunning = AtomicBoolean(false)
@@ -58,6 +61,16 @@ class GroupSchedulingUseCase(
                     append("✅ result: 생성된 그룹 수: $successCnt")
                 }
             }
+
+            applicationEventPublisher.publishEvent(
+                ContentsSchedulingEventDto(
+                    isSuccess = isSuccess,
+                    startTime = startTime,
+                    totalTime = "%.3f".format(creationTimeSec),
+                    message = if (isSuccess) "None" else exception?.cause?.message ?: "Unknown error",
+                    result = if (isSuccess) "생성($successCnt)" else "None",
+                ),
+            )
 
             if (!isSuccess) {
                 throw BadRequestException("그룹 스케줄링에 실패 : ${exception?.cause?.message}")
