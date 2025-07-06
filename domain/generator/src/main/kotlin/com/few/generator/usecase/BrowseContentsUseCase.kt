@@ -7,7 +7,7 @@ import com.few.generator.repository.GenRepository
 import com.few.generator.repository.ProvisioningContentsRepository
 import com.few.generator.repository.RawContentsRepository
 import com.few.generator.support.jpa.GeneratorTransactional
-import com.few.generator.usecase.`in`.BrowseContentsUseCaseIn
+import com.few.generator.usecase.input.BrowseContentsUseCaseIn
 import com.few.generator.usecase.out.BrowseContentsUsecaseOuts
 import com.few.generator.usecase.out.ContentsUsecaseOut
 import com.google.gson.Gson

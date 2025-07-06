@@ -7,7 +7,7 @@ import com.few.generator.usecase.BrowseContentsUseCase
 import com.few.generator.usecase.GroupGenBrowseUseCase
 import com.few.generator.usecase.RawContentsBrowseContentUseCase
 import com.few.generator.usecase.SchedulingUseCase
-import com.few.generator.usecase.`in`.BrowseContentsUseCaseIn
+import com.few.generator.usecase.input.BrowseContentsUseCaseIn
 import jakarta.validation.constraints.Min
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus

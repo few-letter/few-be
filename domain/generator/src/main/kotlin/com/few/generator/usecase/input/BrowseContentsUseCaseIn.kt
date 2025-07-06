@@ -1,4 +1,4 @@
-package com.few.generator.usecase.`in`
+package com.few.generator.usecase.input
 
 import com.few.generator.domain.Category
 import web.handler.exception.BadRequestException
