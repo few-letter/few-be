@@ -1,0 +1,61 @@
+spring:
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 5000
+            readTimeout: 30000
+            loggerLevel: basic
+          openai:
+            url: http://localhost:8080/mock-openai
+            errorDecoder: com.few.generator.config.feign.OpenAiErrorDecoder
+            defaultRequestHeaders:
+              Authorization: "Bearer test-token"
+              Content-Type: "application/json"
+            requestInterceptors:
+              - com.few.generator.config.feign.OpenAiRequestInterceptor
+            encoder: com.few.generator.config.feign.OpenAiEncoder
+            decoder: com.few.generator.config.feign.OpenAiDecoder
+  generator:
+    datasource:
+      url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+      username: sa
+      password: 
+      driver-class-name: org.h2.Driver
+    jpa:
+      hibernate:
+        ddl-auto: create-drop
+      properties:
+        hibernate:
+          format_sql: true
+          show_sql: true
+
+jsoup:
+  timeout: 5000
+  userAgent: "Test Agent"
+  followRedirects: true
+  ignoreHttpErrors: true
+  ignoreContentType: true
+
+scheduling:
+  cron:
+    generator: "0 0 4 * * *"
+    group: "0 0 5 * * *"
+
+urls:
+  webhook:
+    discord: "http://localhost:8080/webhook/discord/test"
+
+generator:
+  scraping:
+    maxRetries: 3
+    defaultRetryAfter: 1
+  contents:
+    countByCategory: 1
+    pageSize: 10
+  grouping:
+    targetPercentage: 30
+    minGroupSize: 2
+    maxGroupSize: 5
+    similarityThreshold: 0.5
