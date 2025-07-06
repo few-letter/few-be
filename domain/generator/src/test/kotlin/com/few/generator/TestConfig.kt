@@ -1,0 +1,9 @@
+package com.few.generator
+
+import io.kotest.core.config.AbstractProjectConfig
+import io.kotest.core.extensions.Extension
+import io.kotest.extensions.spring.SpringExtension
+
+class TestConfig : AbstractProjectConfig() {
+    override fun extensions(): List<Extension> = listOf(SpringExtension)
+}
