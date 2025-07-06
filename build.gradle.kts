@@ -15,6 +15,9 @@ plugins {
 
     /** sonar */
     id("org.sonarqube") version DependencyVersion.SONAR
+
+    /** jacoco */
+    jacoco
 }
 
 /** apply custom gradle scripts */
@@ -66,6 +69,7 @@ subprojects {
     apply(plugin = "org.springdoc.openapi-gradle-plugin")
     apply(plugin = "org.jetbrains.kotlin.plugin.allopen")
     apply(plugin = "org.jetbrains.kotlin.kapt")
+    apply(plugin = "jacoco")
 
     /**
      * https://kotlinlang.org/docs/reference/compiler-plugins.html#spring-support
@@ -115,6 +119,7 @@ subprojects {
         testImplementation("io.kotest:kotest-runner-junit5:${DependencyVersion.KOTEST}")
         testImplementation("io.kotest:kotest-assertions-core:${DependencyVersion.KOTEST}")
         testImplementation("io.kotest:kotest-framework-api:${DependencyVersion.KOTEST}")
+        testImplementation("io.kotest:kotest-framework-datatest:${DependencyVersion.KOTEST}")
         testImplementation("io.kotest.extensions:kotest-extensions-spring:${DependencyVersion.KOTEST_EXTENSION}")
         testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${DependencyVersion.COROUTINE_TEST}")
         testImplementation("io.kotest.extensions:kotest-extensions-allure:${DependencyVersion.KOTEST_EXTENSION}")
@@ -128,4 +133,52 @@ subprojects {
     }
 
     defaultTasks("bootRun")
+
+    jacoco {
+        toolVersion = "0.8.12"
+    }
+
+    tasks.jacocoTestReport {
+        dependsOn(tasks.test)
+        reports {
+            xml.required.set(true)
+            csv.required.set(false)
+            html.required.set(true)
+        }
+        finalizedBy(tasks.jacocoTestCoverageVerification)
+    }
+
+    tasks.jacocoTestCoverageVerification {
+        violationRules {
+            rule {
+                enabled = true
+                element = "CLASS"
+                limit {
+                    counter = "LINE"
+                    value = "COVEREDRATIO"
+                    minimum = "0.70".toBigDecimal()
+                }
+                excludes =
+                    listOf(
+                        "*.config.*",
+                        "*.*Application*",
+                        "*.domain.*",
+                        "*.dto.*",
+                        "*.entity.*",
+                        "*.exception.*",
+                        "*.fixture.*",
+                        "*.request.*",
+                        "*.response.*",
+                        "*.TestConstants*",
+                        "*.*Test*",
+                        "*.*Fixture*",
+                        "*.*TestData*",
+                    )
+            }
+        }
+    }
+
+    tasks.test {
+        finalizedBy(tasks.jacocoTestReport)
+    }
 }
