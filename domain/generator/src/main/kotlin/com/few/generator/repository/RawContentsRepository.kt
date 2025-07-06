@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface RawContentsRepository : JpaRepository<RawContents, Long> {
     fun findByUrl(url: String): RawContents?
+
+    fun findAllByIdIn(ids: List<Long>): List<RawContents>
 }

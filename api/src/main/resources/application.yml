@@ -5,25 +5,19 @@ spring:
     profiles:
         group:
             local:
-                # module
-                - security-local
-                - web-local
+                # library
                 - email-local
+                - security-local
                 - storage-local
-                - api-repo-local
-                # api
-                - thread-local
+                - web-local
                 # domain
                 - generator-local
             prd:
-                # module
-                - security-prd
-                - web-prd
+                # library
                 - email-prd
+                - security-prd
                 - storage-prd
-                - api-repo-prd
-                # api
-                - thread-prd
+                - web-prd
                 # domain
                 - generator-prd
     jpa:
@@ -34,9 +28,12 @@ spring:
                 highlight_sql: true
                 use_sql_comments: true
 
-auth:
-    batch: ${AUTH_BATCH:0518}
-
-log:
-    file:
-        path: ${LOGS_ABSOLUTE_PATH:./var/log/api}
+# Configuration for springdoc-openapi
+springdoc:
+    api-docs:
+        enabled: true  # Enable OpenAPI documentation at /v3/api-docs
+    swagger-ui:
+        groups-order: DESC       # Sort API groups in descending order
+        doc-expansion: none      # Collapse all sections by default
+        tags-sorter: alpha       # Sort tags alphabetically
+        operationsSorter: method # Sort API operations by HTTP method

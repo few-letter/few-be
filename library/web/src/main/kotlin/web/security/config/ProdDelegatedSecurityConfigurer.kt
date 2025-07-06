@@ -111,6 +111,12 @@ class ProdDelegatedSecurityConfigurer(
                      * TODO: view는 우선 시큐리티 미적용
                      * */
                     AntPathRequestMatcher("/view/**"),
+                    /**
+                     * generator
+                     */
+                    AntPathRequestMatcher("/api/v1/contents"),
+                    AntPathRequestMatcher("/api/v1/contents/**"),
+                    AntPathRequestMatcher("/api/v1/rawcontents/**"),
                 )
         }
 }

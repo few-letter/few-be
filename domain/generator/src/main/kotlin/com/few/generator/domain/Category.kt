@@ -5,24 +5,25 @@ import web.handler.exception.BadRequestException
 enum class Category(
     val code: Int,
     val title: String,
-    val rootUrl: String?, // TODO: rootUrl 서비스로 분리
 ) {
-    TECHNOLOGY(1 shl 1, "기술", "https://news.naver.com/section/105"),
-    LIFE(1 shl 2, "생활", "https://news.naver.com/section/103"),
-    POLITICS(1 shl 3, "정치", "https://news.naver.com/section/100"),
-    ECONOMY(1 shl 4, "경제", "https://news.naver.com/section/101"),
-    SOCIETY(1 shl 5, "사회", "https://news.naver.com/section/102"),
-    ETC(0, "기타", null),
+    TECHNOLOGY(1 shl 1, "기술"),
+    LIFE(1 shl 2, "생활"),
+    POLITICS(1 shl 3, "정치"),
+    ECONOMY(1 shl 4, "경제"),
+    SOCIETY(1 shl 5, "사회"),
+    ETC(0, "기타"),
 
     ;
 
     companion object {
         fun from(code: Int): Category =
-            Category.values().find { it.code == code }
+            Category.entries.find { it.code == code }
                 ?: throw BadRequestException("Invalid Category code: $code")
 
         fun from(title: String): Category =
-            Category.values().find { it.title.equals(title, ignoreCase = true) }
+            Category.entries.find { it.title.equals(title, ignoreCase = true) }
                 ?: throw BadRequestException("Invalid Category title: $title")
+
+        fun groupGenEntries(): List<Category> = Category.entries.filter { it.code != Category.ETC.code }
     }
 }

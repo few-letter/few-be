@@ -3,7 +3,6 @@ package com.few.generator.service
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.core.gpt.ChatGpt
 import com.few.generator.core.gpt.prompt.PromptGenerator
-import com.few.generator.core.gpt.prompt.schema.CategorySchema
 import com.few.generator.core.gpt.prompt.schema.Texts
 import com.few.generator.domain.ProvisioningContents
 import com.few.generator.domain.RawContents
@@ -31,7 +30,6 @@ class ProvisioningService(
 
         val bodyTexts: Texts = makeBodyTexts(rawContents.title, rawContents.description, rawContents.rawTexts)
         val coreTexts: Texts = makeCoreTexts(rawContents.title, rawContents.description, bodyTexts)
-//        val categorySchema = makeCategory(rawContents.title, rawContents.description, coreTexts)
 
         return provisioningContentsRepository.save(
             ProvisioningContents(
@@ -40,7 +38,6 @@ class ProvisioningService(
                     mutableListOf(
                         bodyTexts.completionId!!,
                         coreTexts.completionId!!,
-//                        categorySchema.completionId!!,
                     ),
                 bodyTextsJson = gson.toJson(bodyTexts.texts), // TODO: DB 저장 타입 등 정의, 수정 필요
                 coreTextsJson = gson.toJson(coreTexts.texts),
@@ -68,19 +65,4 @@ class ProvisioningService(
         val texts = chatGpt.ask(prompt) as Texts
         return texts
     }
-
-    private fun makeCategory(
-        title: String,
-        description: String,
-        coreTexts: Texts,
-    ): CategorySchema {
-        val prompt = promptGenerator.toCategory(title, description, coreTexts)
-        val categorySchema = chatGpt.ask(prompt) as CategorySchema
-        return categorySchema
-    }
-
-    fun getById(id: Long): ProvisioningContents =
-        provisioningContentsRepository
-            .findById(id)
-            .orElseThrow { BadRequestException("프로비저닝 컨텐츠가 존재하지 않습니다.") }
 }

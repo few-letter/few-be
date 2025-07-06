@@ -24,6 +24,8 @@ data class RawContents(
     val imageUrls: String = "[]",
     @Column(nullable = false)
     val category: Int,
+    @Column(nullable = false)
+    val mediaType: Int,
 ) : BaseEntity() {
     protected constructor() : this( // TODO: 기본 생성자 필요?
         id = null,
@@ -34,5 +36,6 @@ data class RawContents(
         rawTexts = "",
         imageUrls = "[]",
         category = 0,
+        mediaType = 0,
     )
 }

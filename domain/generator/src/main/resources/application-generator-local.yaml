@@ -40,6 +40,7 @@ jsoup:
 scheduling:
     cron:
         generator: "0 0 4 * * *"
+        group: "0 0 5 * * *"
 
 urls:
     webhook:
@@ -51,3 +52,9 @@ generator:
         defaultRetryAfter: 60
     contents:
         countByCategory: 1
+        pageSize: 20
+    grouping:
+        targetPercentage: 30
+        minGroupSize: 3
+        maxGroupSize: 10
+        similarityThreshold: 0.7

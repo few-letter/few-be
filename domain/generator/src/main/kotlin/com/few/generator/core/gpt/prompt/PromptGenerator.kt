@@ -2,7 +2,7 @@ package com.few.generator.core.gpt.prompt
 
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.core.gpt.prompt.schema.*
-import com.few.generator.domain.Category
+import com.few.generator.domain.vo.GenDetail
 import com.google.gson.Gson
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
@@ -12,134 +12,6 @@ class PromptGenerator(
     @Qualifier(GSON_BEAN_NAME)
     private val gson: Gson,
 ) {
-    fun toHeadlineKorean(
-        title: String,
-        description: String,
-        headline: String,
-        summary: String,
-    ): Prompt {
-        val systemPrompt =
-            """
-            당신은 월드 최고의 뉴스레터 기사 작성 전문가입니다. 웹페이지 제목, 요약, 내용을 분석하여 헤드라인을 추출합니다. 반드시 두 번 이상 검토하고 수정하여 제출해야 합니다. 제목은 35자 이내로 작성해주세요.
-            """.trimIndent()
-
-        val userPrompt =
-            """
-            ## Instructions
-            1. 35자 이내로 작성해주세요.
-            2. 헤드라인을 자연스러운 한국어 문장으로 작성해주세요.
-            3. 구체적이고 수치적으로 중요한 내용은 포함하고, 헤드라인만 읽어도 내용이 충분히 이해가 될 수 있도록 작성해주세요.
-
-            ## Input
-            1. 원본 기사 제목: $title
-            2. 원본 기사 요약: $description
-            3. AI로 생성된 헤드라인: $headline
-            4. AI로 생성된 요약: $summary
-            """.trimIndent()
-
-        return Prompt(
-            messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat =
-                ResponseFormat(
-                    jsonSchema = JsonSchema(Headline.name, Headline.schema),
-                    responseClassType = Headline::class.java,
-                ),
-        )
-    }
-
-    fun toHeadlineDefault(
-        title: String,
-        description: String,
-        coreTexts: String,
-    ): Prompt {
-        val systemPrompt =
-            """
-            You are a world-renowned newsletter article writing expert tasked with analyzing webpage title, summary, and content to extract headlines. Always review and revise your response at least twice before submitting.
-            """.trimIndent()
-
-        val userPrompt =
-            """
-            ## Instructions
-            1. Reflect specific and important content from the input, naturally incorporating relevant keywords and core concepts into the title.
-            2. The title should not be a mere summary but should be specific and in-depth enough for readers to grasp the core content just by reading the title.
-
-            ## Input
-            1. Webpage Title: $title
-            2. Webpage Summary: $description
-            3. Webpage Content: $coreTexts
-            """.trimIndent()
-
-        return Prompt(
-            messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat =
-                ResponseFormat(
-                    jsonSchema = JsonSchema(Headline.name, Headline.schema),
-                    responseClassType = Headline::class.java,
-                ),
-        )
-    }
-
-    fun toSummaryKorean(
-        title: String,
-        description: String,
-        coreTexts: String,
-        headline: String,
-        summary: String,
-    ): Prompt {
-        val systemPrompt =
-            """
-            당신은 월드 최고의 뉴스레터 기사 작성 전문가입니다. 원본 기사 제목, 요약, 중요한 문장들, AI로 생성된 헤드라인과 요약을 분석하여 요약을 작성합니다. 2개의 문단으로 작성하고 각 문단은 70자 이내의 문장으로 작성해주고 문단은 줄내림으로 구분해주세요. 문장은 자연스러운 한국어 격식체로 작성해주세요. (~했습니다, ~입니다 등으로 끝맺고 구어체를 배제하며 자연스럽게 표현) 반드시 두 번 이상 검토하고 수정하여 제출해야 합니다. 
-            """.trimIndent()
-
-        val userPrompt =
-            """
-            ## Instructions
-            1. 두개의 문단으로 작성해주세요. 각 문단은 70자이내의 문장으로 작성해주고 문단은 줄내림으로 구분해주세요.
-            2. 구체적이고 수치적으로 중요한 내용은 포함하고, 요약만 읽어도 내용이 충분히 이해가 될 수 있도록 작성해주세요.
-            3. 통계적이고 객관적이고 수치적으로 올바른 문장들을 중요한 문장들에 근거하여 간결하게 작성해주세요.
-
-            ## Input
-            1. 원본 기사 제목: $title
-            2. 원본 기사 요약: $description
-            3. AI로 생성된 헤드라인: $headline
-            4. AI로 생성된 요약: $summary
-            5. (참고용) 중요한 문장들: $coreTexts
-            """.trimIndent()
-
-        return Prompt(
-            messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat = ResponseFormat(jsonSchema = JsonSchema(Summary.name, Summary.schema), responseClassType = Summary::class.java),
-        )
-    }
-
-    fun toSummaryDefault(
-        title: String,
-        description: String,
-        coreTexts: String,
-    ): Prompt {
-        val systemPrompt =
-            """
-            You are tasked with analyzing webpage title, summary, and content to create a summary. Always review and revise your response at least twice before submitting.
-            """.trimIndent()
-
-        val userPrompt =
-            """
-            ## Instructions
-            1. Reflect specific and important content from the input, naturally incorporating relevant keywords and core concepts into the summary.
-            2. Write the summary in natural sentence form, using only basic punctuation marks like commas and periods, avoiding special characters like exclamation marks and question marks.
-
-            ## Input
-            1. Webpage Title: $title
-            2. Webpage Summary: $description
-            3. Webpage Content: $coreTexts
-            """.trimIndent()
-
-        return Prompt(
-            messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat = ResponseFormat(jsonSchema = JsonSchema(Summary.name, Summary.schema), responseClassType = Summary::class.java),
-        )
-    }
-
     fun toBodyTexts(
         title: String,
         description: String,
@@ -166,7 +38,11 @@ class PromptGenerator(
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat = ResponseFormat(jsonSchema = JsonSchema(Texts.name, Texts.schema), responseClassType = Texts::class.java),
+            responseFormat =
+                ResponseFormat(
+                    jsonSchema = JsonSchema(Texts.name, Texts.schema),
+                    responseClassType = Texts::class.java,
+                ),
         )
     }
 
@@ -196,138 +72,11 @@ class PromptGenerator(
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat = ResponseFormat(jsonSchema = JsonSchema(Texts.name, Texts.schema), responseClassType = Texts::class.java),
-        )
-    }
-
-    fun toHeadlineKoreanQuestion(
-        title: String,
-        description: String,
-        headline: String,
-        summary: String,
-    ): Prompt {
-        val systemPrompt =
-            """
-            당신은 월드 최고의 뉴스레터 기사 작성 전문가입니다. 웹페이지 제목, 요약, 내용을 분석하여 헤드라인을 추출합니다. 반드시 두 번 이상 검토하고 수정하여 제출해야 합니다. 제목은 35자 이내로 작성해주세요.
-            """.trimIndent()
-
-        val userPrompt =
-            """
-            ## Instructions
-            1. 35자 이내로 작성해주세요.
-            2. 헤드라인을 자연스러운 한국어 문장으로 작성해주세요.
-            3. 구체적이고 수치적으로 중요한 내용은 포함하고, 헤드라인만 읽어도 내용이 충분히 이해가 될 수 있도록 작성해주세요.
-
-            ## Input
-            1. 원본 기사 제목: $title
-            2. 원본 기사 요약: $description
-            3. AI로 생성된 헤드라인: $headline
-            4. AI로 생성된 요약: $summary
-            """.trimIndent()
-
-        return Prompt(
-            messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
             responseFormat =
                 ResponseFormat(
-                    jsonSchema = JsonSchema(Headline.name, Headline.schema),
-                    responseClassType = Headline::class.java,
+                    jsonSchema = JsonSchema(Texts.name, Texts.schema),
+                    responseClassType = Texts::class.java,
                 ),
-        )
-    }
-
-    fun toSummaryKoreanQuestion(
-        headline: String,
-        summary: String,
-        title: String,
-        description: String,
-        coreTextsJson: String,
-    ): Prompt {
-        val systemPrompt =
-            """
-            당신은 월드 최고의 뉴스레터 기사 작성 전문가입니다. 원본 기사 제목, 요약, 중요한 문장들, AI로 생성된 헤드라인과 요약을 분석하여 요약을 작성합니다. 3개의 문단으로 작성하고 각 문단은 70자 이내의 문장으로 작성해주고 문단은 줄내림으로 구분해주세요. 문장은 자연스러운 한국어 격식체로 작성해주세요. (~했습니다, ~입니다 등으로 끝맺고 구어체를 배제하며 자연스럽게 표현) 반드시 두 번 이상 검토하고 수정하여 제출해야 합니다. 
-            """.trimIndent()
-
-        val userPrompt =
-            """
-            ## Instructions
-            1. 3개의 문단으로 작성해주세요. 각 문단은 70자이내의 문장으로 작성해주고 문단은 줄내림으로 구분해주세요.
-            2. 구체적이고 수치적으로 중요한 내용은 포함하고, 요약만 읽어도 내용이 충분히 이해가 될 수 있도록 작성해주세요.
-            3. 통계적이고 객관적이고 수치적으로 올바른 문장들을 중요한 문장들에 근거하여 간결하게 작성해주세요.
-
-            ## Input
-            1. 원본 기사 제목: $title
-            2. 원본 기사 요약: $description
-            3. AI로 생성된 헤드라인: $headline
-            4. AI로 생성된 요약: $summary
-            5. (참고용) 중요한 문장들: $coreTextsJson
-            """.trimIndent()
-
-        return Prompt(
-            messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat = ResponseFormat(jsonSchema = JsonSchema(Summary.name, Summary.schema), responseClassType = Summary::class.java),
-        )
-    }
-
-    fun toHeadlineLong(
-        title: String,
-        description: String,
-        coreTextsJson: String,
-    ): Prompt {
-        val systemPrompt =
-            """
-            당신은 월드 최고의 뉴스레터 기사 작성 전문가입니다. 웹페이지 제목, 요약, 내용을 분석하여 헤드라인을 추출합니다. 반드시 두 번 이상 검토하고 수정하여 제출해야 합니다. 제목은 35자 이내로 작성해주세요.
-            """.trimIndent()
-
-        val userPrompt =
-            """
-            ## Instructions
-            1. 20자 이상 35자 이내로 작성해주세요.
-            2. 헤드라인을 자연스러운 한국어 문장으로 격식체로 작성해주세요.
-            3. 구체적이고 수치적으로 중요한 내용은 포함하고, 헤드라인만 읽어도 내용이 충분히 이해가 될 수 있도록 작성해주세요.
-
-            ## Input
-            1. 원본 기사 제목: $title
-            2. 원본 기사 요약: $description
-            3. 중요한 문장들: $coreTextsJson
-            """.trimIndent()
-
-        return Prompt(
-            messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat =
-                ResponseFormat(
-                    jsonSchema = JsonSchema(Headline.name, Headline.schema),
-                    responseClassType = Headline::class.java,
-                ),
-        )
-    }
-
-    fun toSummaryLong(
-        title: String,
-        description: String,
-        summary: String,
-    ): Prompt {
-        val systemPrompt =
-            """
-            당신은 월드 최고의 뉴스레터 기사 작성 전문가입니다. 원본 기사 제목, 요약, 중요한 문장들, AI로 생성된 헤드라인과 요약을 분석하여 본문을 작성합니다. 반드시 두 번 이상 검토하고 수정하여 제출해야 합니다. 
-            """.trimIndent()
-
-        val userPrompt =
-            """
-            ## Instructions
-            1. 반드시 430자 이내의 본문을 작성해주세요. 두개의 문단을 줄내림으로 구분지어주세요.
-            2. 문장은 자연스러운 한국어 격식체로 작성해주세요. (~했습니다, ~입니다 등으로 끝맺고 구어체를 배제하며 자연스럽게 표현)
-            3. 구체적이고 수치적으로 중요한 내용은 포함하고 사실에 근거하여 작성해주세요.
-            
-
-            ## Input
-            1. 원본 기사 제목: $title
-            2. 원본 기사 요약: $description
-            3. 생성된 요약: $summary
-            """.trimIndent()
-
-        return Prompt(
-            messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat = ResponseFormat(jsonSchema = JsonSchema(Summary.name, Summary.schema), responseClassType = Summary::class.java),
         )
     }
 
@@ -391,7 +140,11 @@ class PromptGenerator(
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat = ResponseFormat(jsonSchema = JsonSchema(Summary.name, Summary.schema), responseClassType = Summary::class.java),
+            responseFormat =
+                ResponseFormat(
+                    jsonSchema = JsonSchema(Summary.name, Summary.schema),
+                    responseClassType = Summary::class.java,
+                ),
         )
     }
 
@@ -422,28 +175,98 @@ class PromptGenerator(
         )
     }
 
-    fun toHeadlineKoreanLongQuestion(
-        title: String,
-        description: String,
-        headline: String,
-        summary: String,
-    ): Prompt {
+    fun toKoreanKeyWords(coreTexts: String): Prompt {
         val systemPrompt =
             """
-            당신은 월드 최고의 뉴스레터 기사 작성 전문가입니다. 웹페이지 제목, 요약, 내용을 분석하여 헤드라인을 추출합니다. 반드시 두 번 이상 검토하고 수정하여 제출해야 합니다. 제목은 35자 이내로 작성해주세요.
+            당신은 월드 최고의 키워드 추출 전문가입니다. 주어진 텍스트에서 핵심 키워드를 추출합니다.
             """.trimIndent()
 
         val userPrompt =
             """
             ## Instructions
-            1. 20자 이상 35자 이내로 작성해주세요.
-            2. 헤드라인을 자연스러운 한국어 문장으로 격식체로 작성해주세요.
-            3. 구체적이고 수치적으로 중요한 내용은 포함하고, 헤드라인만 읽어도 내용이 충분히 이해가 될 수 있도록 작성해주세요.
+            1. 주어진 텍스트에서 5-10개의 핵심 키워드를 추출해주세요.
+            2. 핵심 주제를 가장 잘 나타내는 명사와 용어를 선택하세요.
+            3. 고유명사, 기술용어, 수치값을 우선적으로 포함하세요.
+            4. 텍스트에 나타나는 형태 그대로 정확히 추출하세요.
+            5. 일반적이거나 의미가 약한 단어는 제외하세요.
+            6. 개별 단어나 매우 짧은 구문(최대 2-3단어)으로 추출하세요.
+            7. 원본 텍스트의 정확한 철자, 대소문자, 형태를 보존하세요.
 
             ## Input
-            1. 원본 기사 제목: $title
-            2. 원본 기사 요약: $description
-            3. AI로 생성된 요약: $summary
+            텍스트: $coreTexts
+            """.trimIndent()
+
+        return Prompt(
+            messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
+            responseFormat =
+                ResponseFormat(
+                    jsonSchema = JsonSchema(Keywords.name, Keywords.schema),
+                    responseClassType = Keywords::class.java,
+                ),
+        )
+    }
+
+    fun toCombinedGroupingPrompt(
+        genDetails: List<GenDetail>,
+        targetPercentage: Int = 30,
+    ): Prompt {
+        val systemPrompt =
+            """
+            당신은 월드 최고의 뉴스 그룹화 전문가입니다. 주어진 헤드라인과 키워드를 분석하여 유사한 주제의 뉴스들을 그룹화합니다.
+            """.trimIndent()
+
+        val genList =
+            genDetails
+                .mapIndexed { index, genDetail ->
+                    "${index + 1}. 헤드라인: \"${genDetail.headline}\", 키워드: \"${genDetail.keywords}\""
+                }.joinToString("\n")
+
+        val targetCount = (genDetails.size * targetPercentage / 100).coerceAtLeast(1)
+
+        val userPrompt =
+            """
+            ## Instructions
+            1. 주어진 뉴스들 중에서 유사한 주제나 관련성이 높은 뉴스들을 그룹화하세요.
+            2. 그룹에 포함될 뉴스의 번호를 배열로 반환하세요.
+            3. 목표: 전체 ${genDetails.size}개 중 약 $targetPercentage%인 ${targetCount}개 정도를 하나의 그룹으로 선택하세요.
+            4. 헤드라인과 키워드를 모두 고려하여 가장 관련성이 높은 뉴스들을 선택하세요.
+            5. 만약 충분히 유사한 뉴스가 없다면 빈 배열을 반환하세요.
+
+            ## 뉴스 목록
+            $genList
+
+            ## 출력 형식
+            선택된 뉴스 번호들을 배열로 반환하세요.
+            """.trimIndent()
+
+        return Prompt(
+            messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
+            responseFormat =
+                ResponseFormat(
+                    jsonSchema = JsonSchema(Group.name, Group.schema),
+                    responseClassType = Group::class.java,
+                ),
+        )
+    }
+
+    fun toGroupHeadlineOnlyPrompt(headlines: List<String>): Prompt {
+        val systemPrompt =
+            """
+            당신은 월드 최고의 뉴스 헤드라인 작성 전문가입니다. 여러 관련 뉴스의 헤드라인을 종합하여 하나의 통합 헤드라인을 작성합니다.
+            """.trimIndent()
+
+        val headlineList = headlines.joinToString("\n") { "- $it" }
+
+        val userPrompt =
+            """
+            ## Instructions
+            1. 주어진 헤드라인들의 공통 주제를 파악하세요.
+            2. 모든 헤드라인의 핵심 내용을 포괄하는 통합 헤드라인을 작성하세요.
+            3. 간결하고 명확하며 흥미를 끄는 헤드라인으로 작성하세요.
+            4. 한국어로 작성하고, 30자 이내로 제한하세요.
+
+            ## 헤드라인 목록
+            $headlineList
             """.trimIndent()
 
         return Prompt(
@@ -456,53 +279,61 @@ class PromptGenerator(
         )
     }
 
-    fun toSummaryKoreanLongQuestion(
-        title: String,
-        description: String,
-        coreTextsJson: String,
-        headline: String,
-        summary: String,
+    fun toGroupSummaryWithHeadlinesPrompt(
+        groupHeadline: String,
+        headlines: List<String>,
+        summaries: List<String>,
     ): Prompt {
         val systemPrompt =
             """
-            당신은 월드 최고의 뉴스레터 기사 작성 전문가입니다. 원본 기사 제목, 요약, 중요한 문장들, AI로 생성된 헤드라인과 요약을 분석하여 본문을 작성합니다. 반드시 두 번 이상 검토하고 수정하여 제출해야 합니다. 
+            당신은 월드 최고의 뉴스 요약 전문가입니다. 여러 관련 뉴스의 내용을 종합하여 하나의 통합 요약을 작성합니다.
             """.trimIndent()
+
+        val contentList =
+            headlines
+                .zip(summaries) { headline, summary ->
+                    "제목: $headline\n내용: $summary"
+                }.joinToString("\n\n")
 
         val userPrompt =
             """
             ## Instructions
-            1. 반드시 430자 이내의 본문을 작성해주세요. 두개의 문단을 줄내림으로 구분지어주세요.
-            2. 문장은 자연스러운 한국어 격식체로 작성해주세요. (~했습니다, ~입니다 등으로 끝맺고 구어체를 배제하며 자연스럽게 표현)
-            3. 구체적이고 수치적으로 중요한 내용은 포함하고 사실에 근거하여 작성해주세요.
+            1. 주어진 여러 뉴스의 내용을 종합하여 하나의 통합 요약을 작성하세요.
+            2. 그룹 헤드라인: "$groupHeadline"에 맞는 내용으로 작성하세요.
+            3. 중복되는 내용은 제거하고 핵심 정보만 포함하세요.
+            4. 논리적 순서로 구성하고 완성된 문단 형태로 작성하세요.
+            5. 100-150자 내외로 작성하세요.
 
-            ## Input
-            1. 원본 기사 제목: $title
-            2. 원본 기사 요약: $description
-            3. 생성된 요약: $summary
+            ## 뉴스 내용
+            $contentList
             """.trimIndent()
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat = ResponseFormat(jsonSchema = JsonSchema(Summary.name, Summary.schema), responseClassType = Summary::class.java),
+            responseFormat =
+                ResponseFormat(
+                    jsonSchema = JsonSchema(Summary.name, Summary.schema),
+                    responseClassType = Summary::class.java,
+                ),
         )
     }
 
-    fun toKoreanHighlightTexts(summary: String): Prompt {
+    fun toGroupHighlightPrompt(groupSummary: String): Prompt {
         val systemPrompt =
             """
-            당신은 월드 최고의 뉴스레터 기사 작성 전문가입니다. 기사 요약을 분석하여 독자들이 이 내용을 접했을 때 가질 수 있는 질문을 생성합니다. 반드시 두 번 이상 검토하고 수정하여 제출해야 합니다.
+            당신은 월드 최고의 뉴스레터 기사 작성 전문가입니다. 그룹 요약에서 하이라이트 텍스트들을 추출합니다.
             """.trimIndent()
 
         val userPrompt =
             """
             ## Instructions
-            1. 독자들이 이 기사를 읽고 가질 수 있는 질문을 작성해주세요.
-            2. 간결하고 명확한 질문을 생성해주세요.
-            3. 질문은 한국어로 작성해주세요.
-            4. 질문은 물음표로 끝나야 합니다.
+            1. 주어진 그룹 요약에서 강조하고 싶은 하이라이트 텍스트들을 추출해주세요.
+            2. 각 하이라이트는 한 문장 또는 핵심 구문으로 작성하세요.
+            3. 2-4개의 하이라이트를 추출하세요.
+            4. 요약 내용과 정확하게 일치하는 텍스트를 사용하세요.
 
-            ## Input
-            1. 요약: [$summary]
+            ## 그룹 요약
+            $groupSummary
             """.trimIndent()
 
         return Prompt(
@@ -511,70 +342,6 @@ class PromptGenerator(
                 ResponseFormat(
                     jsonSchema = JsonSchema(HighlightTexts.name, HighlightTexts.schema),
                     responseClassType = HighlightTexts::class.java,
-                ),
-        )
-    }
-
-    fun toHighlightTextsLong(summary: String): Prompt {
-        val systemPrompt =
-            """
-            당신은 월드 최고의 뉴스레터 기사 작성 전문가입니다. 원본 기사 제목, 요약, 중요한 문장들, AI로 생성된 헤드라인과 요약을 분석하여 하이라이트 텍스트를 추출합니다. 반드시 두 번 이상 검토하고 수정하여 제출해야 합니다.
-            """.trimIndent()
-
-        val userPrompt =
-            """
-            ## Instructions
-            1. Input에 있는 [] 괄호 안에 들어있는 요약 내용 중에서 강조하고 싶은 하이라이트 텍스트를 추출해주세요.
-            2. 하이라이트 텍스트는 한 문장으로 작성하되, 너무 길면(10자 이상) 문장의 일부를 발췌해서 추출해주세요.
-            3. 줄내림으로 구분되어있는 각 문단별로 한 문장씩 추출해서 총 두개의 문장을 추출해주세요.
-            4. 본문에 있는 문장과 정확하게 일치해야합니다.
-
-            ## Input
-            [$summary] 중에서 강조하고 싶은 하이라이트 텍스트를 2개 추출해주세요.
-            """.trimIndent()
-
-        return Prompt(
-            messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat =
-                ResponseFormat(
-                    jsonSchema = JsonSchema(HighlightTexts.name, HighlightTexts.schema),
-                    responseClassType = HighlightTexts::class.java,
-                ),
-        )
-    }
-
-    fun toCategory(
-        title: String,
-        description: String,
-        coreTexts: Texts,
-    ): Prompt {
-        val systemPrompt =
-            """
-            웹페이지 콘텐츠 분석 전문가로서, 제공된 제목, 요약 및 본문을 분석하여 가장 적절한 카테고리를 선택하는 작업을 수행합니다.
-            """.trimIndent()
-
-        val categories = gson.toJson(Category.values().map { it.title })
-
-        val userPrompt =
-            """
-            ## 분석할 웹페이지 정보
-            - 제목: $title
-            - 요약: $description
-            - 본문: $coreTexts
-
-            ## 지시사항
-            1. 제목, 요약 및 본문을 검토하여 주요 주제와 내용을 파악하세요.
-            2. 아래 카테고리 목록에서 가장 적합한 항목을 선택하세요:
-               $categories
-            3. 주어진 카테고리 중 적합한 것이 없는 경우에만 'etc' 카테고리를 선택하세요.
-            """.trimIndent()
-
-        return Prompt(
-            messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
-            responseFormat =
-                ResponseFormat(
-                    jsonSchema = JsonSchema(CategorySchema.name, CategorySchema.schema),
-                    responseClassType = CategorySchema::class.java,
                 ),
         )
     }
