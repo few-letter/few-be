@@ -132,10 +132,16 @@ subprojects {
 
 tasks.register<Copy>("installGitHooks") {
     val scriptDir = "${rootProject.rootDir}/scripts"
+    val hooksDir = file("${rootProject.rootDir}/.git/hooks")
+
+    doFirst {
+        hooksDir.mkdirs()
+    }
+
     from("$scriptDir/pre-commit")
-    into("${rootProject.rootDir}/.git/hooks")
+    into(hooksDir)
 
     doLast {
-        file("${rootProject.rootDir}/.git/hooks/pre-commit").setExecutable(true)
+        file("$hooksDir/pre-commit").setExecutable(true)
     }
 }
