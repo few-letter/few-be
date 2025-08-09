@@ -1,13 +1,13 @@
 package com.few.generator.controller
 
 import com.few.generator.controller.response.*
-import com.few.generator.domain.Category
 import com.few.generator.service.GroupGenService
 import com.few.generator.usecase.BrowseContentsUseCase
 import com.few.generator.usecase.GroupGenBrowseUseCase
 import com.few.generator.usecase.RawContentsBrowseContentUseCase
 import com.few.generator.usecase.SchedulingUseCase
 import com.few.generator.usecase.input.BrowseContentsUseCaseIn
+import common.domain.Category
 import jakarta.validation.constraints.Min
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus

@@ -1,12 +1,12 @@
 package com.few.generator.core.connection
 
 import com.few.generator.config.JsoupConnectionFactory
+import common.exception.BadRequestException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jsoup.HttpStatusException
 import org.jsoup.nodes.Document
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import web.handler.exception.BadRequestException
 import java.util.concurrent.TimeUnit
 
 @Service

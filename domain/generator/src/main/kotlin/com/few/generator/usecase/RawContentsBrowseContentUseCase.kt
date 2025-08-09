@@ -9,6 +9,8 @@ import com.few.generator.support.jpa.GeneratorTransactional
 import com.few.generator.usecase.out.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import common.domain.Category
+import common.domain.MediaType
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 

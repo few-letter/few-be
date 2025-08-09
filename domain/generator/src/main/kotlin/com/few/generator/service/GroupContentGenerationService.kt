@@ -7,7 +7,6 @@ import com.few.generator.core.gpt.prompt.schema.Group
 import com.few.generator.core.gpt.prompt.schema.Headline
 import com.few.generator.core.gpt.prompt.schema.HighlightTexts
 import com.few.generator.core.gpt.prompt.schema.Summary
-import com.few.generator.domain.Category
 import com.few.generator.domain.Gen
 import com.few.generator.domain.GroupGen
 import com.few.generator.domain.ProvisioningContents
@@ -15,6 +14,7 @@ import com.few.generator.domain.vo.GroupSourceHeadline
 import com.few.generator.repository.GroupGenRepository
 import com.few.generator.repository.RawContentsRepository
 import com.google.gson.Gson
+import common.domain.Category
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service

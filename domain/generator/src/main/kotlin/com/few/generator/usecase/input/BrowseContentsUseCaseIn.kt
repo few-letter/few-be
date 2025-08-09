@@ -1,7 +1,7 @@
 package com.few.generator.usecase.input
 
-import com.few.generator.domain.Category
-import web.handler.exception.BadRequestException
+import common.domain.Category
+import common.exception.BadRequestException
 
 data class BrowseContentsUseCaseIn(
     val prevGenId: Long,

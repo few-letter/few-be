@@ -3,11 +3,11 @@ package com.few.generator.usecase
 import com.few.generator.event.dto.ContentsSchedulingEventDto
 import com.few.generator.service.GroupGenService
 import com.few.generator.support.jpa.GeneratorTransactional
+import common.exception.BadRequestException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
-import web.handler.exception.BadRequestException
 import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis

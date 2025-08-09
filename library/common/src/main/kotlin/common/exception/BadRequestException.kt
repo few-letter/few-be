@@ -1,4 +1,4 @@
-package web.handler.exception
+package common.exception
 
 class BadRequestException(
     message: String,

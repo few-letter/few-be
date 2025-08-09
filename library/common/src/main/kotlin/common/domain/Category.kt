@@ -1,6 +1,6 @@
-package com.few.generator.domain
+package common.domain
 
-import web.handler.exception.BadRequestException
+import common.exception.BadRequestException
 
 enum class Category(
     val code: Int,

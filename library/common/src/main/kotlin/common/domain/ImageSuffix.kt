@@ -1,4 +1,4 @@
-package com.few.generator.domain
+package common.domain
 
 enum class ImageSuffix(
     val extension: String,
