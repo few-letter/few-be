@@ -7,6 +7,7 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.apache.commons.lang3.RandomStringUtils
 import org.slf4j.MDC
 import org.springframework.http.HttpHeaders
@@ -23,6 +24,10 @@ class MDCLogFilter(
     ) {
         val requestStartTime = System.currentTimeMillis()
         val traceId = RandomStringUtils.randomAlphanumeric(10)
+
+        val httpResponse = response as HttpServletResponse
+        httpResponse.setHeader("X-Trace-Id", traceId)
+
         MDC.put("Type", "Request MDC Info")
         MDC.put("RequestId", request!!.requestId)
         MDC.put("Request-Remote-Address", request.remoteAddr)
