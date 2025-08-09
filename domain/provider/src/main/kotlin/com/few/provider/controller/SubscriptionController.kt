@@ -1,6 +1,7 @@
 package com.few.provider.controller
 
 import com.few.provider.controller.request.EnrollSubscriptionRequest
+import com.few.provider.controller.response.CodeValueResponse
 import com.few.provider.controller.response.EnrollSubscriptionResponse
 import com.few.provider.usecase.EnrollSubscriptionUseCase
 import com.few.provider.usecase.input.EnrollSubscriptionUseCaseIn
@@ -28,6 +29,12 @@ class SubscriptionController(
                 ),
             )
 
-        return ApiResponseGenerator.success(EnrollSubscriptionResponse(ucOuts.existingCategories, ucOuts.newCategories), HttpStatus.CREATED)
+        return ApiResponseGenerator.success(
+            EnrollSubscriptionResponse(
+                ucOuts.existingCategories.map { CodeValueResponse(it.code, it.title) },
+                ucOuts.newCategories.map { CodeValueResponse(it.code, it.title) },
+            ),
+            HttpStatus.CREATED,
+        )
     }
 }

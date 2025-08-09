@@ -20,15 +20,15 @@ data class EnrollSubscriptionUseCase(
     fun execute(input: EnrollSubscriptionUseCaseIn): EnrollSubscriptionUseCaseOut {
         val categories = input.categoryCodes.map { code -> Category.from(code) }
 
-        val existingCategories = mutableListOf<Int>()
-        val newCategories = mutableListOf<Int>()
+        val existingCategories = mutableListOf<Category>()
+        val newCategories = mutableListOf<Category>()
 
         categories.forEach { category ->
             val existingSubscription =
                 subscriptionRepository.findByEmailAndCategory(input.email, category.code)
 
             if (existingSubscription != null) {
-                existingCategories.add(category.code)
+                existingCategories.add(Category.from(category.code))
             } else {
                 subscriptionRepository.save(
                     Subscription(
@@ -45,7 +45,7 @@ data class EnrollSubscriptionUseCase(
                     ),
                 )
 
-                newCategories.add(category.code)
+                newCategories.add(Category.from(category.code))
             }
         }
 
