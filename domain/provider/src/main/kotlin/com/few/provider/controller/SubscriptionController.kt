@@ -1,5 +1,9 @@
 package com.few.provider.controller
 
+import com.few.provider.controller.request.EnrollSubscriptionRequest
+import com.few.provider.controller.response.EnrollSubscriptionResponse
+import com.few.provider.usecase.EnrollSubscriptionUseCase
+import com.few.provider.usecase.input.EnrollSubscriptionUseCaseIn
 import org.springframework.http.HttpStatus
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
@@ -9,12 +13,21 @@ import web.ApiResponseGenerator
 @Validated
 @RestController
 @RequestMapping("/api/v1")
-class SubscriptionController {
-    @PostMapping(
-        value = ["/subscriptions"],
-    )
-    fun example(): ApiResponse<ApiResponse.Success> =
-        ApiResponseGenerator.success(
-            HttpStatus.OK,
-        )
+class SubscriptionController(
+    private val enrollSubscriptionUseCase: EnrollSubscriptionUseCase,
+) {
+    @PostMapping("/subscriptions")
+    fun enrollSubscription(
+        @Validated @RequestBody request: EnrollSubscriptionRequest,
+    ): ApiResponse<ApiResponse.SuccessBody<EnrollSubscriptionResponse>> {
+        val ucOuts =
+            enrollSubscriptionUseCase.execute(
+                EnrollSubscriptionUseCaseIn(
+                    email = request.email,
+                    categoryCodes = request.categoryCodes,
+                ),
+            )
+
+        return ApiResponseGenerator.success(EnrollSubscriptionResponse(ucOuts.existingCategories, ucOuts.newCategories), HttpStatus.CREATED)
+    }
 }
