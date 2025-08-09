@@ -7,15 +7,11 @@ import jakarta.persistence.*
     name = "subscription",
     indexes =
         [
-            Index(
-                name = "idx_subscription_email_category",
-                columnList = "email, category_code",
-            ),
-            Index(name = "idx_subscription_email", columnList = "email"),
+            Index(name = "idx_subscription_email", columnList = "email", unique = true),
         ],
 )
 class Subscription(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long? = null,
-    @Column(unique = true) var email: String,
-    @Column var category: Int,
+    @Column(unique = true, length = 100) var email: String,
+    @Column(name = "categories", length = 100) var categories: String,
 ) : BaseEntity()

@@ -6,8 +6,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface SubscriptionRepository : JpaRepository<Subscription, Long> {
-    fun findByEmailAndCategory(
-        email: String,
-        categoryCode: Int,
-    ): Subscription?
+    fun findByEmail(email: String): Subscription?
 }
