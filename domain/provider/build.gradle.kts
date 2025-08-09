@@ -8,6 +8,7 @@ tasks.getByName("jar") {
 
 dependencies {
     implementation(project(":library:web"))
+    implementation(project(":library:common"))
 
     /** starter **/
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
