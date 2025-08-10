@@ -1,5 +1,5 @@
 package com.few.provider.controller.response
 
-class EnrollSubscriptionResponse(
+class BrowseSubscriptionResponse(
     val subscribedCategories: List<CodeValueResponse>,
 )

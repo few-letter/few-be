@@ -1,8 +1,8 @@
 package com.few.provider.controller
 
 import com.few.provider.controller.request.EnrollSubscriptionRequest
+import com.few.provider.controller.response.BrowseSubscriptionResponse
 import com.few.provider.controller.response.CodeValueResponse
-import com.few.provider.controller.response.EnrollSubscriptionResponse
 import com.few.provider.usecase.BrowseSubscriptionUseCase
 import com.few.provider.usecase.EnrollSubscriptionUseCase
 import com.few.provider.usecase.input.BrowseSubscriptionUseCaseIn
@@ -23,7 +23,7 @@ class SubscriptionController(
     @PostMapping("/subscriptions")
     fun enrollSubscription(
         @Validated @RequestBody request: EnrollSubscriptionRequest,
-    ): ApiResponse<ApiResponse.SuccessBody<EnrollSubscriptionResponse>> {
+    ): ApiResponse<ApiResponse.SuccessBody<BrowseSubscriptionResponse>> {
         val ucOuts =
             enrollSubscriptionUseCase.execute(
                 EnrollSubscriptionUseCaseIn(
@@ -33,7 +33,7 @@ class SubscriptionController(
             )
 
         return ApiResponseGenerator.success(
-            EnrollSubscriptionResponse(
+            BrowseSubscriptionResponse(
                 ucOuts.subscribedCategories.map { CodeValueResponse(it.code, it.title) },
             ),
             HttpStatus.CREATED,
@@ -43,7 +43,7 @@ class SubscriptionController(
     @GetMapping("/subscriptions")
     fun browseSubscription(
         @RequestHeader("email") email: String, // TODO: auth 적용
-    ): ApiResponse<ApiResponse.SuccessBody<EnrollSubscriptionResponse>> {
+    ): ApiResponse<ApiResponse.SuccessBody<BrowseSubscriptionResponse>> {
         val ucOuts =
             browseSubscriptionUseCase.execute(
                 BrowseSubscriptionUseCaseIn(
@@ -52,7 +52,7 @@ class SubscriptionController(
             )
 
         return ApiResponseGenerator.success(
-            EnrollSubscriptionResponse(
+            BrowseSubscriptionResponse(
                 ucOuts.subscribedCategories.map { CodeValueResponse(it.code, it.title) },
             ),
             HttpStatus.OK,
