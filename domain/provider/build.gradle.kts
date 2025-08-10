@@ -6,6 +6,10 @@ tasks.getByName("jar") {
     enabled = true
 }
 
+plugins {
+    kotlin("plugin.jpa") version "1.9.0"
+}
+
 dependencies {
     implementation(project(":library:web"))
     implementation(project(":library:common"))
