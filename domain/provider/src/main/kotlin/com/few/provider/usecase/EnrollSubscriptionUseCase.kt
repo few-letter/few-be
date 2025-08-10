@@ -20,7 +20,7 @@ data class EnrollSubscriptionUseCase(
     fun execute(input: EnrollSubscriptionUseCaseIn): BrowseSubscriptionUseCaseOut {
         val existing = subscriptionRepository.findByEmail(input.email)
 
-        val joinedCategories = input.categoryCodes.joinToString(",") { it.toString() }
+        val joinedCategories = input.categoryCodes.distinct().joinToString(",") { it.toString() }
         val categories = input.categoryCodes.map { Category.from(it) }.toSet()
 
         subscriptionHisRepository.save(
