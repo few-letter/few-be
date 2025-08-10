@@ -26,16 +26,4 @@ data class RawContents(
     val category: Int,
     @Column(nullable = false)
     val mediaType: Int,
-) : BaseEntity() {
-    protected constructor() : this( // TODO: 기본 생성자 필요?
-        id = null,
-        url = "",
-        title = "",
-        description = "",
-        thumbnailImageUrl = null,
-        rawTexts = "",
-        imageUrls = "[]",
-        category = 0,
-        mediaType = 0,
-    )
-}
+) : BaseEntity()

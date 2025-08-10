@@ -26,14 +26,4 @@ data class GroupGen(
     val highlightTexts: String = "[]",
     @Column(columnDefinition = "TEXT", nullable = false)
     val groupSourceHeadlines: String = "[]",
-) : BaseEntity() {
-    protected constructor() : this(
-        id = null,
-        category = 0,
-        selectedGroupIds = "[]",
-        headline = "",
-        summary = "",
-        highlightTexts = "[]",
-        groupSourceHeadlines = "[]",
-    )
-}
+) : BaseEntity()

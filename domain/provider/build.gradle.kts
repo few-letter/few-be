@@ -7,7 +7,7 @@ tasks.getByName("jar") {
 }
 
 plugins {
-    kotlin("plugin.jpa") version "1.9.0"
+    kotlin("plugin.jpa") version DependencyVersion.JPA_PLUGIN
 }
 
 dependencies {

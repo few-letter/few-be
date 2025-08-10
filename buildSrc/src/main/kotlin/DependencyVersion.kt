@@ -45,4 +45,6 @@ object DependencyVersion {
     /** SpringDoc */
     const val SPRINGDOC_OPENAPI = "2.5.0"
     const val SPRINGDOC_OPENAPI_GRADLE = "1.9.0"
+
+    const val JPA_PLUGIN = "1.9.0"
 }
