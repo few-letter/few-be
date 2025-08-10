@@ -18,7 +18,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 )
 class WebConfig {
     companion object {
-        const val BASE_PACKAGE = "web"
+        const val BASE_PACKAGE = "com.few.web"
         const val BEAN_NAME_PREFIX = "web"
         const val WEB_CONFIGURER = BEAN_NAME_PREFIX + "Configurer"
         const val MDC_LOG_FILTER = BEAN_NAME_PREFIX + "MdcLogFilter"

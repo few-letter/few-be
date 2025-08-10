@@ -1,5 +1,6 @@
 package com.few.generator.config
 
+import com.few.common.config.CommonConfig
 import com.few.security.config.SecurityConfig
 import com.few.web.config.WebConfig
 import org.springframework.context.annotation.ComponentScan
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Import
 @ComponentScan(basePackages = [GeneratorConfig.BASE_PACKAGE])
 @Import(
     value = [
+        CommonConfig::class,
         WebConfig::class,
         SecurityConfig::class,
     ],

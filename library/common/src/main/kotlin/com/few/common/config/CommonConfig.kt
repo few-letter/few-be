@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration
 @ComponentScan(basePackages = [CommonConfig.BASE_PACKAGE])
 class CommonConfig {
     companion object {
-        const val BASE_PACKAGE = "common"
+        const val BASE_PACKAGE = "com.few.common"
         const val BEAN_NAME_PREFIX = "common"
     }
 }
