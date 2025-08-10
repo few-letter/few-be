@@ -12,6 +12,6 @@ import jakarta.persistence.*
 )
 class Subscription(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long? = null,
-    @Column(unique = true, length = 100) var email: String,
+    @Column(length = 100) var email: String,
     @Column(name = "categories", length = 100) var categories: String,
 ) : BaseEntity()
