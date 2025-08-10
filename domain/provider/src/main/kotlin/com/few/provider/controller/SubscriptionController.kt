@@ -5,8 +5,10 @@ import com.few.provider.controller.response.BrowseSubscriptionResponse
 import com.few.provider.controller.response.CodeValueResponse
 import com.few.provider.usecase.BrowseSubscriptionUseCase
 import com.few.provider.usecase.EnrollSubscriptionUseCase
+import com.few.provider.usecase.UnsubscribeUseCase
 import com.few.provider.usecase.input.BrowseSubscriptionUseCaseIn
 import com.few.provider.usecase.input.EnrollSubscriptionUseCaseIn
+import com.few.provider.usecase.input.UnsubscribeUseCaseIn
 import com.few.web.ApiResponse
 import com.few.web.ApiResponseGenerator
 import org.springframework.http.HttpStatus
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*
 class SubscriptionController(
     private val enrollSubscriptionUseCase: EnrollSubscriptionUseCase,
     private val browseSubscriptionUseCase: BrowseSubscriptionUseCase,
+    private val unsubscribeUseCase: UnsubscribeUseCase,
 ) {
     @PostMapping("/subscriptions")
     fun enrollSubscription(
@@ -56,6 +59,20 @@ class SubscriptionController(
                 ucOuts.subscribedCategories.map { CodeValueResponse(it.code, it.title) },
             ),
             HttpStatus.OK,
+        )
+    }
+
+    @DeleteMapping("/subscriptions")
+    fun unsubscribe(
+        @RequestHeader("email") email: String, // TODO: auth 적용
+    ): ApiResponse<ApiResponse.SuccessBody<Unit>> {
+        unsubscribeUseCase.execute(
+            UnsubscribeUseCaseIn(email),
+        )
+
+        return ApiResponseGenerator.success(
+            Unit,
+            HttpStatus.NO_CONTENT,
         )
     }
 }
