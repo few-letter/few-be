@@ -1,7 +1,7 @@
 package com.few.generator.core.connection
 
+import com.few.common.exception.BadRequestException
 import com.few.generator.config.JsoupConnectionFactory
-import common.exception.BadRequestException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jsoup.HttpStatusException
 import org.jsoup.nodes.Document

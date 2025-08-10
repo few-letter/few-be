@@ -1,5 +1,6 @@
 package com.few.generator.service
 
+import com.few.common.exception.BadRequestException
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.core.gpt.ChatGpt
 import com.few.generator.core.gpt.prompt.PromptGenerator
@@ -8,7 +9,6 @@ import com.few.generator.domain.ProvisioningContents
 import com.few.generator.domain.RawContents
 import com.few.generator.repository.ProvisioningContentsRepository
 import com.google.gson.Gson
-import common.exception.BadRequestException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service

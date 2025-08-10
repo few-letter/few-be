@@ -7,11 +7,11 @@ import com.few.provider.usecase.BrowseSubscriptionUseCase
 import com.few.provider.usecase.EnrollSubscriptionUseCase
 import com.few.provider.usecase.input.BrowseSubscriptionUseCaseIn
 import com.few.provider.usecase.input.EnrollSubscriptionUseCaseIn
+import com.few.web.ApiResponse
+import com.few.web.ApiResponseGenerator
 import org.springframework.http.HttpStatus
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
-import web.ApiResponse
-import web.ApiResponseGenerator
 
 @Validated
 @RestController

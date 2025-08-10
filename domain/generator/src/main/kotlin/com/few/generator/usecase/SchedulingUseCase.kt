@@ -1,12 +1,12 @@
 package com.few.generator.usecase
 
+import com.few.common.exception.BadRequestException
 import com.few.generator.core.scrapper.Scrapper
 import com.few.generator.event.dto.ContentsSchedulingEventDto
 import com.few.generator.service.GenService
 import com.few.generator.service.ProvisioningService
 import com.few.generator.service.RawContentsService
 import com.few.generator.support.jpa.GeneratorTransactional
-import common.exception.BadRequestException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher

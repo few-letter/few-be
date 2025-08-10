@@ -1,5 +1,6 @@
 package com.few.generator.service
 
+import com.few.common.domain.Category
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.config.GroupingProperties
 import com.few.generator.domain.GroupGen
@@ -9,7 +10,6 @@ import com.few.generator.repository.GenRepository
 import com.few.generator.repository.ProvisioningContentsRepository
 import com.few.generator.support.jpa.GeneratorTransactional
 import com.google.gson.Gson
-import common.domain.Category
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
