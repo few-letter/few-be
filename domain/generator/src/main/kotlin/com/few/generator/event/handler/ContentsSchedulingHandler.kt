@@ -1,14 +1,14 @@
 package com.few.generator.event.handler
 
 import com.few.generator.event.dto.ContentsSchedulingEventDto
+import com.few.web.client.DiscordBodyProperty
+import com.few.web.client.Embed
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
-import web.client.DiscordBodyProperty
-import web.client.Embed
 
 @Component
 class ContentsSchedulingHandler(

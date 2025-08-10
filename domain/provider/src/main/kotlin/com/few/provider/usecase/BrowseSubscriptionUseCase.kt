@@ -1,10 +1,10 @@
 package com.few.provider.usecase
 
+import com.few.common.domain.Category
 import com.few.provider.repository.SubscriptionRepository
 import com.few.provider.support.jpa.ProviderTransactional
 import com.few.provider.usecase.input.BrowseSubscriptionUseCaseIn
 import com.few.provider.usecase.out.BrowseSubscriptionUseCaseOut
-import common.domain.Category
 import org.springframework.stereotype.Component
 
 @Component

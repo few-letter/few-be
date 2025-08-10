@@ -1,9 +1,9 @@
 package com.few.generator.core.scrapper.naver
 
+import com.few.common.domain.Category
+import com.few.common.domain.MediaType
 import com.few.generator.core.connection.RetryableJsoup
 import com.few.generator.core.scrapper.ScrappedResult
-import common.domain.Category
-import common.domain.MediaType
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jsoup.nodes.Document
 import org.springframework.stereotype.Service

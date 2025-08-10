@@ -1,13 +1,13 @@
 package com.few.generator.service
 
+import com.few.common.domain.Category
+import com.few.common.domain.MediaType
+import com.few.common.exception.BadRequestException
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.core.scrapper.Scrapper
 import com.few.generator.domain.RawContents
 import com.few.generator.repository.RawContentsRepository
 import com.google.gson.Gson
-import common.domain.Category
-import common.domain.MediaType
-import common.exception.BadRequestException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service

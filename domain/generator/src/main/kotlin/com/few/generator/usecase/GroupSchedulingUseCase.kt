@@ -1,9 +1,9 @@
 package com.few.generator.usecase
 
+import com.few.common.exception.BadRequestException
 import com.few.generator.event.dto.ContentsSchedulingEventDto
 import com.few.generator.service.GroupGenService
 import com.few.generator.support.jpa.GeneratorTransactional
-import common.exception.BadRequestException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Scheduled

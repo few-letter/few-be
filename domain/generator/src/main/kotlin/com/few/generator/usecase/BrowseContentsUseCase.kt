@@ -1,5 +1,7 @@
 package com.few.generator.usecase
 
+import com.few.common.domain.Category
+import com.few.common.domain.MediaType
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.repository.GenRepository
 import com.few.generator.repository.ProvisioningContentsRepository
@@ -10,8 +12,6 @@ import com.few.generator.usecase.out.BrowseContentsUsecaseOuts
 import com.few.generator.usecase.out.ContentsUsecaseOut
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import common.domain.Category
-import common.domain.MediaType
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
