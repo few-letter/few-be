@@ -1,5 +1,6 @@
 package web.handler
 
+import common.exception.BadRequestException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.ConstraintViolationException
 import org.springframework.beans.TypeMismatchException
@@ -16,7 +17,6 @@ import org.springframework.web.server.ServerWebInputException
 import web.ApiResponse
 import web.ApiResponseGenerator
 import web.ExceptionMessage
-import web.handler.exception.BadRequestException
 import java.nio.file.AccessDeniedException
 
 @RestControllerAdvice

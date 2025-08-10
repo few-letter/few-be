@@ -6,12 +6,12 @@ import com.few.generator.service.GenService
 import com.few.generator.service.ProvisioningService
 import com.few.generator.service.RawContentsService
 import com.few.generator.support.jpa.GeneratorTransactional
+import common.exception.BadRequestException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
-import web.handler.exception.BadRequestException
 import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis

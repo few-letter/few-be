@@ -1,11 +1,13 @@
 package com.few.generator.usecase
 
+import com.few.generator.config.GeneratorGsonConfig
 import com.few.generator.controller.response.BrowseGroupGenResponse
 import com.few.generator.controller.response.BrowseGroupGenResponses
 import com.few.generator.controller.response.GroupSourceHeadlineData
 import com.few.generator.repository.GroupGenRepository
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.LocalTime
@@ -13,6 +15,7 @@ import java.time.LocalTime
 @Component
 data class GroupGenBrowseUseCase(
     private val groupGenRepository: GroupGenRepository,
+    @Qualifier(GeneratorGsonConfig.GSON_BEAN_NAME)
     private val gson: Gson,
 ) {
     fun execute(date: LocalDate?): BrowseGroupGenResponses {

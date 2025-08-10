@@ -114,6 +114,10 @@ class LocalDelegatedSecurityConfigurer(
                     AntPathRequestMatcher("/api/v1/contents"),
                     AntPathRequestMatcher("/api/v1/contents/**"),
                     AntPathRequestMatcher("/api/v1/rawcontents/**"),
+                    /**
+                     * provider
+                     */
+                    AntPathRequestMatcher("/api/v1/subscriptions"),
                 )
         }
 

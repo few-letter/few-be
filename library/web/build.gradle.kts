@@ -8,6 +8,7 @@ tasks.getByName("jar") {
 
 dependencies {
     api(project(":library:security"))
+    api(project(":library:common"))
 
     /** starter */
     api("org.springframework.boot:spring-boot-starter-web")

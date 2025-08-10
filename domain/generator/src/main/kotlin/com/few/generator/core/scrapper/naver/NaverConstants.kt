@@ -1,7 +1,7 @@
 package com.few.generator.core.scrapper.naver
 
-import com.few.generator.domain.Category
-import com.few.generator.domain.ImageSuffix
+import common.domain.Category
+import common.domain.ImageSuffix
 
 object NaverConstants {
     val SUPPORT_IMAGE_SUFFIX = ImageSuffix.entries.map { it.extension.lowercase() }
