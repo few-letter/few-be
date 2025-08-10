@@ -3,7 +3,7 @@ package com.few.provider.usecase
 import com.few.provider.repository.SubscriptionRepository
 import com.few.provider.support.jpa.ProviderTransactional
 import com.few.provider.usecase.input.BrowseSubscriptionUseCaseIn
-import com.few.provider.usecase.out.EnrollSubscriptionUseCaseOut
+import com.few.provider.usecase.out.BrowseSubscriptionUseCaseOut
 import common.domain.Category
 import org.springframework.stereotype.Component
 
@@ -12,7 +12,7 @@ data class BrowseSubscriptionUseCase(
     private val subscriptionRepository: SubscriptionRepository,
 ) {
     @ProviderTransactional(readOnly = true)
-    fun execute(input: BrowseSubscriptionUseCaseIn): EnrollSubscriptionUseCaseOut {
+    fun execute(input: BrowseSubscriptionUseCaseIn): BrowseSubscriptionUseCaseOut {
         val existing = subscriptionRepository.findByEmail(input.email)
 
         return if (existing != null) {
@@ -24,9 +24,9 @@ data class BrowseSubscriptionUseCase(
                         Category.from(it.toInt())
                     }.toSet()
 
-            EnrollSubscriptionUseCaseOut(categories)
+            BrowseSubscriptionUseCaseOut(categories)
         } else {
-            EnrollSubscriptionUseCaseOut(emptySet())
+            BrowseSubscriptionUseCaseOut(emptySet())
         }
     }
 }
