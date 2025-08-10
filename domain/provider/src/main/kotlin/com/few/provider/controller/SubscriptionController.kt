@@ -31,8 +31,7 @@ class SubscriptionController(
 
         return ApiResponseGenerator.success(
             EnrollSubscriptionResponse(
-                ucOuts.existingCategories.map { CodeValueResponse(it.code, it.title) },
-                ucOuts.newCategories.map { CodeValueResponse(it.code, it.title) },
+                ucOuts.subscribedCategories.map { CodeValueResponse(it.code, it.title) },
             ),
             HttpStatus.CREATED,
         )
