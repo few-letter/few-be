@@ -23,6 +23,9 @@ class AwsSendEmailServiceProvider(
         subject: String,
         message: String,
     ): String {
+        // ddasd
+        // dsdsd
+        println("Sending email from: $from to: $to with subject: $subject")
         val destination = Destination().withToAddresses(to)
         val sendMessage =
             Message()
