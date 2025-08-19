@@ -111,6 +111,3 @@ storage/**/*.sql
 
 # build files
 **/target/
-
-# Claude Code local settings
-.claude/
