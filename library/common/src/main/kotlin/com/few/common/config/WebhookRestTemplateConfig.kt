@@ -6,9 +6,9 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory
 import org.springframework.web.client.RestTemplate
 
 @Configuration
-class DiscordRestTemplateConfig {
+class WebhookRestTemplateConfig {
     @Bean
-    fun discordRestTemplate(): RestTemplate {
+    fun webhookRestTemplate(): RestTemplate {
         val requestFactory =
             SimpleClientHttpRequestFactory().apply {
                 setConnectTimeout(5_000)
