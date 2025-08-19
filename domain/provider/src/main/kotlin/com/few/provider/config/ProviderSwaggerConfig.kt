@@ -1,21 +1,21 @@
-package com.few.generator.config
+package com.few.provider.config
 
-import com.few.generator.config.GeneratorConfig.Companion.BEAN_NAME_PREFIX
+import com.few.provider.config.ProviderConfig.Companion.BEAN_NAME_PREFIX
 import org.springdoc.core.models.GroupedOpenApi
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class GeneratorOpenApiConfig {
+class ProviderSwaggerConfig {
     companion object {
         const val OPEN_API_BEAN_NAME = BEAN_NAME_PREFIX + "OpenApi"
     }
 
     @Bean(name = [OPEN_API_BEAN_NAME])
-    fun generatorApi(): GroupedOpenApi =
+    fun providerApi(): GroupedOpenApi =
         GroupedOpenApi
             .builder()
-            .group("Generator API")
-            .packagesToScan(GeneratorConfig.BASE_PACKAGE)
+            .group("Provider API")
+            .packagesToScan(ProviderConfig.BASE_PACKAGE)
             .build()
 }
