@@ -45,7 +45,7 @@ scheduling:
 urls:
     webhook:
         discord: ${WEBHOOK_DISCORD}
-        slack: ${SLACK_DISCORD}
+        slack: ${WEBHOOK_SLACK}
 
 generator:
     scraping:
