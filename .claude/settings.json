@@ -1,0 +1,40 @@
+{
+    "permissions": {
+        "allow": [
+            "Bash(mv:*)",
+            "Bash(rmdir:*)",
+            "Bash(mkdir:*)",
+            "Bash(find:*)",
+            "Bash(git branch:*)",
+            "Bash(git switch:*)",
+            "Bash(git add:*)",
+            "Bash(git commit:*)",
+            "Bash(git push:*)",
+            "Bash(claude-code config set brave true)",
+            "Bash(./gradlew:*)"
+        ],
+        "deny": []
+    },
+    "brave": true,
+    "codeStyle": {
+        "language": "kotlin",
+        "framework": "spring",
+        "buildTool": "gradle"
+    },
+    "commitMessageFormat": {
+        "template": "{type}: {description}",
+        "types": {
+            "feat": "신규 기능 추가",
+            "fix": "오류 수정",
+            "refactor": "리팩토링",
+            "test": "테스트 코드 작성",
+            "config": "설정 변경 및 추가"
+        },
+        "example": "feat: 구독 취소하기 신규 API 추가"
+    },
+    "instructions": [
+        "커밋 메시지는 'feat:', 'fix:', 'refactor:', 'test:' 중 하나로 시작",
+        "커밋 메시지는 한국어로 작성",
+        "테스트 코드 포함"
+    ]
+}
