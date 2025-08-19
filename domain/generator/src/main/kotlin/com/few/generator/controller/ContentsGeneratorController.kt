@@ -1,21 +1,21 @@
 package com.few.generator.controller
 
+import com.few.common.domain.Category
 import com.few.generator.controller.response.*
-import com.few.generator.domain.Category
 import com.few.generator.service.GroupGenService
 import com.few.generator.usecase.BrowseContentsUseCase
 import com.few.generator.usecase.GroupGenBrowseUseCase
 import com.few.generator.usecase.RawContentsBrowseContentUseCase
 import com.few.generator.usecase.SchedulingUseCase
 import com.few.generator.usecase.input.BrowseContentsUseCaseIn
+import com.few.web.ApiResponse
+import com.few.web.ApiResponseGenerator
 import jakarta.validation.constraints.Min
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
-import web.ApiResponse
-import web.ApiResponseGenerator
 import java.time.LocalDate
 
 @Validated

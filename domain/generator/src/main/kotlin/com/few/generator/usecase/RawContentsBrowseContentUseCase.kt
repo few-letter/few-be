@@ -1,5 +1,7 @@
 package com.few.generator.usecase
 
+import com.few.common.domain.Category
+import com.few.common.domain.MediaType
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.domain.*
 import com.few.generator.repository.GenRepository

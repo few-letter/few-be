@@ -1,5 +1,6 @@
 package com.few.generator.usecase
 
+import com.few.common.exception.BadRequestException
 import com.few.generator.core.scrapper.Scrapper
 import com.few.generator.event.dto.ContentsSchedulingEventDto
 import com.few.generator.service.GenService
@@ -11,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
-import web.handler.exception.BadRequestException
 import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis

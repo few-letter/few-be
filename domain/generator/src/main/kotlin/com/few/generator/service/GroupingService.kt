@@ -1,10 +1,10 @@
 package com.few.generator.service
 
+import com.few.common.domain.Category
 import com.few.generator.config.GroupingProperties
 import com.few.generator.core.gpt.ChatGpt
 import com.few.generator.core.gpt.prompt.PromptGenerator
 import com.few.generator.core.gpt.prompt.schema.Group
-import com.few.generator.domain.Category
 import com.few.generator.domain.vo.GenDetail
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service

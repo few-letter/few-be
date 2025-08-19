@@ -12,6 +12,7 @@ spring:
                 - web-local
                 # domain
                 - generator-local
+                - provider-local
             prd:
                 # library
                 - email-prd
@@ -20,6 +21,7 @@ spring:
                 - web-prd
                 # domain
                 - generator-prd
+                - provider-prd
     jpa:
         show-sql: true
         properties:

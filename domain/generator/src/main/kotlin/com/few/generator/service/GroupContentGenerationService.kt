@@ -1,5 +1,6 @@
 package com.few.generator.service
 
+import com.few.common.domain.Category
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.core.gpt.ChatGpt
 import com.few.generator.core.gpt.prompt.PromptGenerator
@@ -7,7 +8,6 @@ import com.few.generator.core.gpt.prompt.schema.Group
 import com.few.generator.core.gpt.prompt.schema.Headline
 import com.few.generator.core.gpt.prompt.schema.HighlightTexts
 import com.few.generator.core.gpt.prompt.schema.Summary
-import com.few.generator.domain.Category
 import com.few.generator.domain.Gen
 import com.few.generator.domain.GroupGen
 import com.few.generator.domain.ProvisioningContents

@@ -1,6 +1,6 @@
 package com.few.generator.service
 
-import com.few.generator.domain.Category
+import com.few.common.domain.Category
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 

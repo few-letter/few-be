@@ -1,7 +1,7 @@
 package com.few.generator.usecase.out
 
-import com.few.generator.domain.Category
-import com.few.generator.domain.MediaType
+import com.few.common.domain.Category
+import com.few.common.domain.MediaType
 import java.time.LocalDateTime
 
 data class BrowseContentsUsecaseOuts(
