@@ -3,11 +3,6 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/few-letter/few-be/actions/workflows/ecs-dev-cd.yml">
-    <img src="https://github.com/few-letter/few-be/actions/workflows/ecs-dev-cd.yml/badge.svg" alt="deploy-dev" />
-  </a>
-</p>
-<p align="center">
   <a href="https://github.com/few-letter/few-be/actions/workflows/ecs-cd.yml">
     <img src="https://github.com/few-letter/few-be/actions/workflows/ecs-cd.yml/badge.svg" alt="deploy-prd" />
   </a>
