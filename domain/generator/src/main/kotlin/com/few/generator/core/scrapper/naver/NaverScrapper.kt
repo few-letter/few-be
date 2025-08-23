@@ -27,15 +27,14 @@ class NaverScrapper(
         log.debug { "[NAVER Category] URLs 추출 시작: $rootUrl" }
 
         val request = Request.Builder().url(rootUrl).build()
-        val response = scrapperHttpClient.newCall(request).execute()
-
-        if (!response.isSuccessful) {
-            throw RuntimeException("[NAVER Category] HTTP ${response.code} error for URL: $rootUrl")
-        }
-
         val html =
-            response.body?.string()
-                ?: throw RuntimeException("[NAVER Category] Empty response body for URL: $rootUrl")
+            scrapperHttpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    throw RuntimeException("[NAVER Category] HTTP ${response.code} ${response.message} for URL: $rootUrl")
+                }
+                response.body?.string()
+                    ?: throw RuntimeException("[NAVER Category] Empty response body for URL: $rootUrl")
+            }
 
         val extractedUrls =
             Jsoup
