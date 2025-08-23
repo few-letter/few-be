@@ -55,8 +55,6 @@ class NaverScrapper(
             Jsoup
                 .parse(html)
 
-        removeUnnecessaryTags(document)
-
         val sourceUrl = NaverExtractor.Url.extractOrigin(document) ?: url
         val extractTitle = removeMediaTypeTitleSuffix(NaverExtractor.Text.extractTitle(document))
         val extractContents = NaverExtractor.Text.extractContent(document)
@@ -81,6 +79,7 @@ class NaverScrapper(
                 ?: throw RuntimeException("[NAVER] Empty response body for URL: ${request.url}")
         }
 
+    @Deprecated("Not used anymore")
     private fun removeUnnecessaryTags(document: Document) {
         document.select("script, style, nav, footer, header").forEach { it.remove() }
     }
