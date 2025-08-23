@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit
 
+@Deprecated("Use ScrapperOkHttpFactory instead")
 @Service
 class RetryableJsoup(
     private val connectionFactory: JsoupConnectionFactory,

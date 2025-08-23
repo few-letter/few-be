@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
+@Deprecated("Use ScrapperOkHttpFactory instead")
 @Configuration
 @EnableConfigurationProperties(JsoupProperties::class)
 class JsoupConfig(
