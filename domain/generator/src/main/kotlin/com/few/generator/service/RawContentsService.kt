@@ -25,9 +25,7 @@ class RawContentsService(
         url: String,
         category: Category,
     ): RawContents {
-        val scrappedResult =
-            scrapper.scrape(url)
-                ?: throw BadRequestException("URL에서 컨텐츠를 스크랩할 수 없습니다. URL: $url")
+        val scrappedResult = scrapper.scrape(url)
 
         rawContentsRepository.findByUrl(scrappedResult.sourceUrl)?.let {
             throw BadRequestException("이미 생성된 컨텐츠가 있습니다. ID: ${it.id}, URL: $scrappedResult.sourceUrl")
@@ -37,7 +35,6 @@ class RawContentsService(
             RawContents(
                 url = scrappedResult.sourceUrl,
                 title = scrappedResult.title,
-                description = scrappedResult.description,
                 thumbnailImageUrl = scrappedResult.thumbnailImageUrl,
                 rawTexts = scrappedResult.rawTexts.joinToString("\n"),
                 imageUrls = gson.toJson(scrappedResult.images),

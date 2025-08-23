@@ -16,7 +16,6 @@ data class BrowseRawContentsResponse(
     val id: Long,
     val url: String,
     val title: String,
-    val description: String,
     val thumbnailImageUrl: String? = null,
     val mediaType: CodeValueResponse,
     val rawTexts: String,

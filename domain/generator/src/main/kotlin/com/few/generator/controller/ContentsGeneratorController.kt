@@ -114,7 +114,6 @@ class ContentsGeneratorController(
                         id = useCaseOut.rawContents.id!!,
                         url = useCaseOut.rawContents.url,
                         title = useCaseOut.rawContents.title,
-                        description = useCaseOut.rawContents.description,
                         thumbnailImageUrl =
                             useCaseOut.rawContents.thumbnailImageUrl,
                         rawTexts = useCaseOut.rawContents.rawTexts,
