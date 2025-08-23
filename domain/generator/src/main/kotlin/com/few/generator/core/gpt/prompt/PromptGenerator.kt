@@ -63,7 +63,7 @@ class PromptGenerator(
 
             ## Input
             1. Webpage Title: $title
-            2. Target Sentences to Extract: ${bodyTexts.texts.joinToString(", ")}
+            2. Target Sentences to Extract (JSON Array): ${gson.toJson(bodyTexts.texts)}
             """.trimIndent()
 
         return Prompt(

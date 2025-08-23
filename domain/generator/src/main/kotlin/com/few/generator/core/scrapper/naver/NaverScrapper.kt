@@ -98,6 +98,12 @@ class NaverScrapper(
         if (trimmedtitle.startsWith("[AI픽]")) {
             trimmedtitle = trimmedtitle.removePrefix("[AI픽]")
         }
+        if (trimmedtitle.endsWith("(종합)")) {
+            trimmedtitle = trimmedtitle.removeSuffix("(종합)")
+        }
+        if (trimmedtitle.startsWith("[뉴스in뉴스]")) {
+            trimmedtitle = trimmedtitle.removeSuffix("[뉴스in뉴스]")
+        }
 
         for (mediaType in MediaType.entries) {
             if (mediaType == MediaType.ETC) continue
