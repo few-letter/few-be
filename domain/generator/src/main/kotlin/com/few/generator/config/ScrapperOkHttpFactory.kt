@@ -3,11 +3,15 @@ package com.few.generator.config
 import io.github.oshai.kotlinlogging.KotlinLogging
 import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
+import okhttp3.ResponseBody.Companion.toResponseBody
 import okhttp3.brotli.BrotliInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpHeaders
 import java.util.concurrent.TimeUnit
+import java.util.zip.GZIPInputStream
+import java.util.zip.InflaterInputStream
 
 /**
  * 스크래퍼용 OkHttp 팩토리 설정
@@ -59,20 +63,20 @@ class ScrapperOkHttpFactory {
                         .newBuilder()
                         // 🤖 봇 탐지 우회 - 가장 중요!
                         .addHeader(
-                            "User-Agent",
+                            HttpHeaders.USER_AGENT,
                             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
                         )
                         // 📄 브라우저처럼 HTML 요청
                         .addHeader(
-                            "Accept",
+                            HttpHeaders.ACCEPT,
                             "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
                         )
                         // 🌐 한국어 우선, 다국어 지원
-                        .addHeader("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7")
+                        .addHeader(HttpHeaders.ACCEPT_LANGUAGE, "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7")
                         // 🗜️ 압축 허용으로 전송 속도 향상
-                        .addHeader("Accept-Encoding", "gzip, deflate, br")
+                        .addHeader(HttpHeaders.ACCEPT_ENCODING, "gzip, deflate, br")
                         // 🔄 캐시 제어 - 최신 데이터 보장
-                        .addHeader("Cache-Control", "no-cache")
+                        .addHeader(HttpHeaders.CACHE_CONTROL, "no-cache")
                         // 🔗 브라우저 업그레이드 요청 차단
                         .addHeader("Upgrade-Insecure-Requests", "1")
                         // 📱 같은 사이트 요청임을 알림 (CSRF 방어 우회)
@@ -81,7 +85,7 @@ class ScrapperOkHttpFactory {
                         .addHeader("Sec-Fetch-Site", "none")
                         .addHeader("Sec-Fetch-User", "?1")
                         // 🏃‍♂️ Keep-Alive 명시적 설정
-                        .addHeader("Connection", "keep-alive")
+                        .addHeader(HttpHeaders.CONNECTION, "keep-alive")
                         .build()
                 chain.proceed(request)
             }.addNetworkInterceptor { chain ->
@@ -97,8 +101,8 @@ class ScrapperOkHttpFactory {
                 val response = chain.proceed(chain.request())
 
                 // 압축된 응답 자동 해제
-                val contentEncoding = response.header("Content-Encoding")
-                val contentType = response.header("Content-Type")
+                val contentEncoding = response.header(HttpHeaders.CONTENT_ENCODING)
+                val contentType = response.header(HttpHeaders.CONTENT_TYPE)
 
                 if (contentEncoding == null || response.body == null) {
                     return@addNetworkInterceptor response
@@ -109,30 +113,24 @@ class ScrapperOkHttpFactory {
                 when (contentEncoding.lowercase()) {
                     "gzip" -> {
                         val decompressedBody =
-                            okhttp3.ResponseBody.create(
-                                response.body!!.contentType(),
-                                java.util.zip
-                                    .GZIPInputStream(response.body!!.byteStream())
-                                    .readBytes(),
-                            )
+                            GZIPInputStream(response.body!!.byteStream())
+                                .readBytes()
+                                .toResponseBody(response.body!!.contentType())
                         return@addNetworkInterceptor response
                             .newBuilder()
-                            .removeHeader("Content-Encoding")
+                            .removeHeader(HttpHeaders.CONTENT_ENCODING)
                             .body(decompressedBody)
                             .build()
                     }
 
                     "deflate" -> {
                         val decompressedBody =
-                            okhttp3.ResponseBody.create(
-                                response.body!!.contentType(),
-                                java.util.zip
-                                    .InflaterInputStream(response.body!!.byteStream())
-                                    .readBytes(),
-                            )
+                            InflaterInputStream(response.body!!.byteStream())
+                                .readBytes()
+                                .toResponseBody(response.body!!.contentType())
                         return@addNetworkInterceptor response
                             .newBuilder()
-                            .removeHeader("Content-Encoding")
+                            .removeHeader(HttpHeaders.CONTENT_ENCODING)
                             .body(decompressedBody)
                             .build()
                     }
