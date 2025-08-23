@@ -1,4 +1,4 @@
-package com.few.generator.config
+package com.few.generator.config.scrapper
 
 import com.few.generator.config.properties.JsoupProperties
 import org.jsoup.Connection
