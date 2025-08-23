@@ -59,3 +59,11 @@ generator:
         minGroupSize: 3
         maxGroupSize: 10
         similarityThreshold: 0.7
+
+app:
+    http:
+        connect-timeout: 10
+        read-timeout: 15
+        write-timeout: 15
+        max-idle-connections: 1
+        keep-alive-duration: 60

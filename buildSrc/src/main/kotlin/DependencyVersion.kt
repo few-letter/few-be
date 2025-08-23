@@ -46,5 +46,9 @@ object DependencyVersion {
     const val SPRINGDOC_OPENAPI = "2.5.0"
     const val SPRINGDOC_OPENAPI_GRADLE = "1.9.0"
 
+    /** JPA_PLUGIN **/
     const val JPA_PLUGIN = "1.9.0"
+
+    /** OKHTTP **/
+    const val OKHTTP = "4.12.0"
 }
