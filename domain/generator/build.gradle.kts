@@ -29,4 +29,10 @@ dependencies {
 
     /** gson **/
     implementation("com.google.code.gson:gson:${DependencyVersion.GSON}")
+
+    /** okhttp **/
+    implementation("com.squareup.okhttp3:okhttp:${DependencyVersion.OKHTTP}")
+
+    /** okhttp - Brotli compression **/
+    implementation("com.squareup.okhttp3:okhttp-brotli:${DependencyVersion.OKHTTP}")
 }
