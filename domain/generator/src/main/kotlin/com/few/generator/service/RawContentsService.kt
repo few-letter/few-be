@@ -28,7 +28,7 @@ class RawContentsService(
         val scrappedResult = scrapper.scrape(url)
 
         rawContentsRepository.findByUrl(scrappedResult.sourceUrl)?.let {
-            throw BadRequestException("이미 생성된 컨텐츠가 있습니다. ID: ${it.id}, URL: $scrappedResult.sourceUrl")
+            throw BadRequestException("이미 생성된 컨텐츠가 있습니다. ID: ${it.id}, URL: ${scrappedResult.sourceUrl}")
         }
 
         return rawContentsRepository.save(
@@ -43,6 +43,4 @@ class RawContentsService(
             ),
         )
     }
-
-    fun exists(url: String): Boolean = rawContentsRepository.findByUrl(url) != null
 }
