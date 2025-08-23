@@ -44,11 +44,24 @@ object NaverExtractor {
                 document.selectFirst("#dic_area")
                     ?: throw RuntimeException("Content element with id 'dic_area' not found")
 
-            return contentElement
-                .html()
-                .split("<br>", "<br/>", "<br />")
-                .map { it.replace(Regex("<[^>]*>"), "").trim() }
-                .filter { it.isNotEmpty() }
+            // 문단성 블록 위주로 안전 추출 + 공백 정리
+            val blocks =
+                contentElement
+                    .select("p, li, blockquote, h2, h3, figcaption, pre")
+                    .eachText()
+                    .map { it.replace("\u00A0", " ").trim() }
+                    .filter { it.isNotEmpty() }
+
+            // <br>로 단락만 분리되는 케이스 보조 처리
+            val brSplit =
+                contentElement
+                    .select("br")
+                    .mapNotNull { it.previousSibling()?.outerHtml() }
+                    .flatMap { it.split("\n") }
+                    .map { it.replace(Regex("\\s+"), " ").trim() }
+                    .filter { it.isNotEmpty() }
+
+            return (blocks + brSplit).distinct()
         }
     }
 
@@ -58,7 +71,7 @@ object NaverExtractor {
             document.select("img").forEach { img ->
                 img.attr("src").takeIf { isValidImageUrl(it) }?.let { imageUrls.add(it) }
                 img.attr("srcset").split(",").map { it.trim().split(" ")[0] }.forEach {
-                    if (isValidImageUrl(it)) imageUrls.add(it)
+                    if (isValidImageUrl(it)) imageUrls.add(it.trim())
                 }
                 img.attr("data-src").takeIf { isValidImageUrl(it) }?.let { imageUrls.add(it) }
             }

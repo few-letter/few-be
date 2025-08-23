@@ -18,7 +18,7 @@ class Scrapper(
                 naverScrapper.extractUrlsByCategory(rootUrl)
             }
 
-    fun scrape(url: String): ScrappedResult? {
+    fun scrape(url: String): ScrappedResult {
         Thread.sleep((1..5).random().toLong())
 
         if (url.contains("naver.com")) {

@@ -55,8 +55,10 @@ class NaverScrapper(
             Jsoup
                 .parse(html)
 
+        removeUnnecessaryTags(document)
+
         val sourceUrl = NaverExtractor.Url.extractOrigin(document) ?: url
-        val extractTitle = NaverExtractor.Text.extractTitle(document)
+        val extractTitle = removeMediaTypeTitleSuffix(NaverExtractor.Text.extractTitle(document))
         val extractContents = NaverExtractor.Text.extractContent(document)
         val extractImgs = NaverExtractor.Image.extractContentImages(document)
         val extractThumbnailImageUrl = NaverExtractor.Image.extractThumbnailImageUrl(document)
@@ -79,42 +81,24 @@ class NaverScrapper(
                 ?: throw RuntimeException("[NAVER] Empty response body for URL: ${request.url}")
         }
 
-    fun parseDocument(document: Document): ScrappedResult? {
-        removeUnnecessaryTags(document)
-        val mainContent = document.selectFirst("main, article, div.content") ?: document
-        val title = removeMediaTypeTitleSuffix(document.selectFirst("title")?.text())
-        if (title.isNullOrBlank()) {
-            throw RuntimeException("Title is null or blank. URL: ${document.location()}")
-        }
-
-        val description = document.selectFirst("meta[name=description]")?.attr("content")?.trim()
-        if (description.isNullOrBlank()) {
-            throw RuntimeException("Description is null or blank. URL: ${document.location()}")
-        }
-
-        val thumbnailImageUrl: String? =
-            document
-                .selectFirst("meta[property=og:image]")
-                ?.attr("content")
-                ?.trim()
-                ?.takeIf { it.startsWith("https://") || it.startsWith("http://") }
-        val rawTexts = NaverExtractor.Text.extract(mainContent)
-        if (rawTexts.isEmpty()) {
-            throw RuntimeException("No valid raw texts found in the document. URL: ${document.location()}")
-        }
-        val images = NaverExtractor.Image.extract(document)
-
-        return ScrappedResult("", title, description, thumbnailImageUrl, rawTexts, images)
-    }
-
     private fun removeUnnecessaryTags(document: Document) {
         document.select("script, style, nav, footer, header").forEach { it.remove() }
     }
 
-    private fun removeMediaTypeTitleSuffix(title: String?): String? {
-        if (title == null) return null
+    private fun removeMediaTypeTitleSuffix(title: String?): String {
+        if (title == null) {
+            throw RuntimeException("Title is null")
+        }
 
         var trimmedtitle = title.trim()
+
+        if (trimmedtitle.startsWith("[속보]")) {
+            trimmedtitle = trimmedtitle.removePrefix("[속보]")
+        }
+        if (trimmedtitle.startsWith("[AI픽]")) {
+            trimmedtitle = trimmedtitle.removePrefix("[AI픽]")
+        }
+
         for (mediaType in MediaType.entries) {
             if (mediaType == MediaType.ETC) continue
             if (trimmedtitle.endsWith(mediaType.title)) {
