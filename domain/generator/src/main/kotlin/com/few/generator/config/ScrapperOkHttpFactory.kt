@@ -3,6 +3,7 @@ package com.few.generator.config
 import io.github.oshai.kotlinlogging.KotlinLogging
 import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
+import okhttp3.brotli.BrotliInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -120,6 +121,7 @@ class ScrapperOkHttpFactory {
                             .body(decompressedBody)
                             .build()
                     }
+
                     "deflate" -> {
                         val decompressedBody =
                             okhttp3.ResponseBody.create(
@@ -134,16 +136,22 @@ class ScrapperOkHttpFactory {
                             .body(decompressedBody)
                             .build()
                     }
+
                     "br" -> {
-                        log.error { "⚠️ Brotli 압축은 지원하지 않음 - 원본 응답 반환" }
+                        log.debug { "⚠️ Brotli 압축은 BrotliInterceptor 에서 처리" }
+                        return@addNetworkInterceptor response
                     }
+
                     "identity" -> {
                         return@addNetworkInterceptor response
                     }
-                }
 
-                response
-            }.build()
+                    else -> {
+                        response
+                    }
+                }
+            }.addInterceptor(BrotliInterceptor)
+            .build()
             .also {
                 log.info {
                     "✅ OkHttpClient created OkHttpClient with connectTimeout=$connectTimeout, readTimeout=$readTimeout, writeTimeout=$writeTimeout, maxIdleConnections=$maxIdleConnections, keepAliveDuration=$keepAliveDuration"
