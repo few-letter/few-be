@@ -27,18 +27,11 @@ class NaverScrapper(
         log.debug { "[NAVER Category] URLs 추출 시작: $rootUrl" }
 
         val request = Request.Builder().url(rootUrl).build()
-        val html =
-            scrapperHttpClient.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    throw RuntimeException("[NAVER Category] HTTP ${response.code} ${response.message} for URL: $rootUrl")
-                }
-                response.body?.string()
-                    ?: throw RuntimeException("[NAVER Category] Empty response body for URL: $rootUrl")
-            }
+        val html = getHtml(request)
 
         val extractedUrls =
             Jsoup
-                .parse(html, rootUrl)
+                .parse(html)
                 .select("a[href]")
                 .mapNotNull { it.attr("href") }
                 .filter { it.matches(NaverConstants.NEWS_URL_REGEX) }
@@ -53,6 +46,38 @@ class NaverScrapper(
 
         return extractedUrls
     }
+
+    fun scrape(url: String): ScrappedResult {
+        val request = Request.Builder().url(url).build()
+        val html = getHtml(request)
+
+        val document: Document =
+            Jsoup
+                .parse(html)
+
+        val sourceUrl = NaverExtractor.Url.extractOrigin(document) ?: url
+        val extractTitle = NaverExtractor.Text.extractTitle(document)
+        val extractContents = NaverExtractor.Text.extractContent(document)
+        val extractImgs = NaverExtractor.Image.extractContentImages(document)
+        val extractThumbnailImageUrl = NaverExtractor.Image.extractThumbnailImageUrl(document)
+
+        return ScrappedResult(
+            sourceUrl = sourceUrl,
+            title = extractTitle,
+            rawTexts = extractContents,
+            images = extractImgs,
+            thumbnailImageUrl = extractThumbnailImageUrl,
+        )
+    }
+
+    private fun getHtml(request: Request): String =
+        scrapperHttpClient.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                throw RuntimeException("[NAVER] HTTP ${response.code} ${response.message} for URL: ${request.url}")
+            }
+            response.body?.string()
+                ?: throw RuntimeException("[NAVER] Empty response body for URL: ${request.url}")
+        }
 
     fun parseDocument(document: Document): ScrappedResult? {
         removeUnnecessaryTags(document)
@@ -79,7 +104,7 @@ class NaverScrapper(
         }
         val images = NaverExtractor.Image.extract(document)
 
-        return ScrappedResult(title, description, thumbnailImageUrl, rawTexts, images)
+        return ScrappedResult("", title, description, thumbnailImageUrl, rawTexts, images)
     }
 
     private fun removeUnnecessaryTags(document: Document) {
