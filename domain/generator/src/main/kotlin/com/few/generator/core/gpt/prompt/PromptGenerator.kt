@@ -14,7 +14,6 @@ class PromptGenerator(
 ) {
     fun toBodyTexts(
         title: String,
-        description: String,
         rawTexts: String,
     ): Prompt {
         val systemPrompt =
@@ -32,8 +31,7 @@ class PromptGenerator(
 
             ## Input
             1. Webpage Title: $title
-            2. Webpage Content: $description
-            3. Target Sentences to Extract: $rawTexts
+            2. Target Sentences to Extract: $rawTexts
             """.trimIndent()
 
         return Prompt(
@@ -48,12 +46,11 @@ class PromptGenerator(
 
     fun toCoreTexts(
         title: String,
-        description: String,
         bodyTexts: Texts,
     ): Prompt {
         val systemPrompt =
             """
-            You are tasked with analyzing webpage title, summary, and content to extract important sentences. 
+            You are tasked with analyzing webpage title and content to extract important sentences. 
             You must extract sentences exactly as they appear, without any modifications.
             """.trimIndent()
 
@@ -66,8 +63,7 @@ class PromptGenerator(
 
             ## Input
             1. Webpage Title: $title
-            2. Webpage Summary: $description
-            3. Target Sentences to Extract: ${bodyTexts.texts.joinToString(", ")}
+            2. Target Sentences to Extract: ${bodyTexts.texts.joinToString(", ")}
             """.trimIndent()
 
         return Prompt(
@@ -82,7 +78,6 @@ class PromptGenerator(
 
     fun toHeadlineShort(
         title: String,
-        description: String,
         coreTextsJson: String,
     ): Prompt {
         val systemPrompt =
@@ -99,8 +94,7 @@ class PromptGenerator(
 
             ## Input
             1. 원본 기사 제목: $title
-            2. 원본 기사 요약: $description
-            3. 원본 기사 내용: $coreTextsJson
+            2. 원본 기사 내용: $coreTextsJson
             """.trimIndent()
 
         return Prompt(
@@ -116,7 +110,6 @@ class PromptGenerator(
     fun toSummaryShort(
         headline: String,
         title: String,
-        description: String,
         coreTextsJson: String,
     ): Prompt {
         val systemPrompt =
@@ -134,8 +127,7 @@ class PromptGenerator(
             ## Input
             0. [제목]: $headline
             1. 원본 기사 제목: $title
-            2. 원본 기사 요약: $description
-            3. (참고용) 중요한 문장들: $coreTextsJson
+            2. (참고용) 중요한 문장들: $coreTextsJson
             """.trimIndent()
 
         return Prompt(
