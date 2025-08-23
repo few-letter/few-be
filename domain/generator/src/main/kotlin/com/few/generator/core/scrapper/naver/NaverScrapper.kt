@@ -101,7 +101,7 @@ class NaverScrapper(
         if (trimmedtitle.endsWith("(종합)")) {
             trimmedtitle = trimmedtitle.removeSuffix("(종합)")
         }
-        if (trimmedtitle.startsWith("[뉴스in뉴스]")) {
+        if (trimmedtitle.endsWith("[뉴스in뉴스]")) {
             trimmedtitle = trimmedtitle.removeSuffix("[뉴스in뉴스]")
         }
 
