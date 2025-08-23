@@ -2,15 +2,17 @@ package com.few.generator.core.scrapper.naver
 
 import com.few.common.domain.Category
 import com.few.common.domain.MediaType
-import com.few.generator.core.connection.RetryableJsoup
 import com.few.generator.core.scrapper.ScrappedResult
 import io.github.oshai.kotlinlogging.KotlinLogging
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.springframework.stereotype.Service
 
 @Service
 class NaverScrapper(
-    private val retryableJsoup: RetryableJsoup,
+    private val scrapperHttpClient: OkHttpClient,
 ) {
     private val log = KotlinLogging.logger { }
 
@@ -20,15 +22,37 @@ class NaverScrapper(
             .associateWith { NaverConstants.ROOT_URL_MAP[it]!! }
 
     fun extractUrlsByCategory(rootUrl: String): Set<String> {
-        // Introduce a random sleep time to avoid hitting the server too quickly
-        Thread.sleep((1..5).random().toLong())
-        return retryableJsoup
-            .connect(rootUrl)
-            .select("a[href]")
-            .mapNotNull { it.attr("href") }
-            .filter { it.matches(NaverConstants.NEWS_URL_REGEX) }
-            .map { it.replace("amp;", "") }
-            .toSet()
+        Thread.sleep((1..5).random() * 1000L)
+
+        log.debug { "[NAVER Category] URLs 추출 시작: $rootUrl" }
+
+        val request = Request.Builder().url(rootUrl).build()
+        val response = scrapperHttpClient.newCall(request).execute()
+
+        if (!response.isSuccessful) {
+            throw RuntimeException("[NAVER Category] HTTP ${response.code} error for URL: $rootUrl")
+        }
+
+        val html =
+            response.body?.string()
+                ?: throw RuntimeException("[NAVER Category] Empty response body for URL: $rootUrl")
+
+        val extractedUrls =
+            Jsoup
+                .parse(html, rootUrl)
+                .select("a[href]")
+                .mapNotNull { it.attr("href") }
+                .filter { it.matches(NaverConstants.NEWS_URL_REGEX) }
+                .map { it.replace("amp;", "") }
+                .toSet()
+
+        if (extractedUrls.isEmpty()) {
+            throw RuntimeException("[NAVER Category] No matching URLs found in: $rootUrl")
+        }
+
+        log.info { "[NAVER Category] URL 추출 완료: $rootUrl -> ${extractedUrls.size}개 URL" }
+
+        return extractedUrls
     }
 
     fun parseDocument(document: Document): ScrappedResult? {
