@@ -13,8 +13,6 @@ data class RawContents(
     val url: String,
     @Column(nullable = true)
     val title: String,
-    @Column(nullable = true, length = 1000)
-    val description: String,
     @Column(nullable = true)
     val thumbnailImageUrl: String? = null,
     @Column(nullable = true, columnDefinition = "TEXT")
