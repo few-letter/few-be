@@ -1,0 +1,6 @@
+few:
+  email:
+    provider:
+      aws:
+        region: ap-northeast-2
+        configuration-set-name: ses-configuration-set-local

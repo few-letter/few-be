@@ -4,12 +4,11 @@ import com.amazonaws.services.simpleemail.AmazonSimpleEmailService
 import com.amazonaws.services.simpleemail.model.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.annotation.Primary
-import org.springframework.stereotype.Component
 
 @Primary
-@Component
 class AwsSendEmailServiceProvider(
     private val amazonSimpleEmailService: AmazonSimpleEmailService,
+    private val configurationSetName: String,
 ) : EmailSendProvider {
     private val log = KotlinLogging.logger {}
 
@@ -34,7 +33,7 @@ class AwsSendEmailServiceProvider(
                 .withSource(from)
                 .withDestination(destination)
                 .withMessage(sendMessage)
-                .withConfigurationSetName(getWithConfigurationSetName())
+                .withConfigurationSetName(configurationSetName)
 
         runCatching {
             amazonSimpleEmailService.sendEmail(sendEmailRequest).messageId
@@ -47,8 +46,5 @@ class AwsSendEmailServiceProvider(
         }
     }
 
-    /**
-     * Default configuration set name is "few-configuration-set"
-     */
-    fun getWithConfigurationSetName(): String = "ses-configuration-set"
+    fun getWithConfigurationSetName(): String = configurationSetName
 }
