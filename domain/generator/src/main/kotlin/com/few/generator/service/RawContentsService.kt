@@ -22,30 +22,25 @@ class RawContentsService(
     private val log = KotlinLogging.logger {}
 
     fun create(
-        sourceUrl: String,
+        url: String,
         category: Category,
     ): RawContents {
-        rawContentsRepository.findByUrl(sourceUrl)?.let {
-            throw BadRequestException("이미 생성된 컨텐츠가 있습니다. ID: ${it.id}, URL: $sourceUrl")
-        }
+        val scrappedResult = scrapper.scrape(url)
 
-        val scrappedResult =
-            scrapper.scrape(sourceUrl)
-                ?: throw BadRequestException("URL에서 컨텐츠를 스크랩할 수 없습니다. URL: $sourceUrl")
+        rawContentsRepository.findByUrl(scrappedResult.sourceUrl)?.let {
+            throw BadRequestException("이미 생성된 컨텐츠가 있습니다. ID: ${it.id}, URL: ${scrappedResult.sourceUrl}")
+        }
 
         return rawContentsRepository.save(
             RawContents(
-                url = sourceUrl,
+                url = scrappedResult.sourceUrl,
                 title = scrappedResult.title,
-                description = scrappedResult.description,
                 thumbnailImageUrl = scrappedResult.thumbnailImageUrl,
                 rawTexts = scrappedResult.rawTexts.joinToString("\n"),
                 imageUrls = gson.toJson(scrappedResult.images),
                 category = category.code,
-                mediaType = MediaType.find(sourceUrl).code,
+                mediaType = MediaType.find(scrappedResult.sourceUrl).code,
             ),
         )
     }
-
-    fun exists(url: String): Boolean = rawContentsRepository.findByUrl(url) != null
 }

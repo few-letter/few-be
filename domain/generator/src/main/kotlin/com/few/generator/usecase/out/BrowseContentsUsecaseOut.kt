@@ -14,7 +14,6 @@ data class BrowseRawContentsUsecaseOut(
     val id: Long,
     val url: String,
     val title: String,
-    val description: String,
     val thumbnailImageUrl: String? = null,
     val mediaType: MediaType,
     val rawTexts: String,

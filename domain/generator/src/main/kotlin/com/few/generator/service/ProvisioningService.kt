@@ -28,8 +28,8 @@ class ProvisioningService(
             throw BadRequestException("이미 생성된 프로비저닝 컨텐츠가 있습니다. ID: ${it.id}")
         }
 
-        val bodyTexts: Texts = makeBodyTexts(rawContents.title, rawContents.description, rawContents.rawTexts)
-        val coreTexts: Texts = makeCoreTexts(rawContents.title, rawContents.description, bodyTexts)
+        val bodyTexts: Texts = makeBodyTexts(rawContents.title, rawContents.rawTexts)
+        val coreTexts: Texts = makeCoreTexts(rawContents.title, bodyTexts)
 
         return provisioningContentsRepository.save(
             ProvisioningContents(
@@ -48,20 +48,18 @@ class ProvisioningService(
 
     private fun makeBodyTexts(
         title: String,
-        description: String,
         rawTexts: String,
     ): Texts {
-        val prompt = promptGenerator.toBodyTexts(title, description, rawTexts)
+        val prompt = promptGenerator.toBodyTexts(title, rawTexts)
         val texts: Texts = chatGpt.ask(prompt) as Texts
         return texts
     }
 
     private fun makeCoreTexts(
         title: String,
-        description: String,
         bodyTexts: Texts,
     ): Texts {
-        val prompt = promptGenerator.toCoreTexts(title, description, bodyTexts)
+        val prompt = promptGenerator.toCoreTexts(title, bodyTexts)
         val texts = chatGpt.ask(prompt) as Texts
         return texts
     }

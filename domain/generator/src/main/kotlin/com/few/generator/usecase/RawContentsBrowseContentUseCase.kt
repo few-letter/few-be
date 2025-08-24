@@ -45,7 +45,6 @@ class RawContentsBrowseContentUseCase(
                     id = rawContents.id!!,
                     url = rawContents.url,
                     title = rawContents.title,
-                    description = rawContents.description,
                     thumbnailImageUrl = rawContents.thumbnailImageUrl,
                     mediaType = MediaType.from(rawContents.mediaType),
                     rawTexts = rawContents.rawTexts,

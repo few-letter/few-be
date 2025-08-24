@@ -34,6 +34,35 @@ object NaverExtractor {
             val text = sentence.trim()
             return text.split("\\s+".toRegex()).size >= 4 && text.any { it.isLetterOrDigit() }
         }
+
+        fun extractTitle(document: Document): String =
+            document.selectFirst("#title_area")?.text()?.trim()
+                ?: throw RuntimeException("Title element with id 'title_area' not found")
+
+        fun extractContent(document: Document): List<String> {
+            val contentElement =
+                document.selectFirst("#dic_area")
+                    ?: throw RuntimeException("Content element with id 'dic_area' not found")
+
+            // 문단성 블록 위주로 안전 추출 + 공백 정리
+            val blocks =
+                contentElement
+                    .select("p, li, blockquote, h2, h3, figcaption, pre")
+                    .eachText()
+                    .map { it.replace("\u00A0", " ").trim() }
+                    .filter { it.isNotEmpty() }
+
+            // <br>로 단락만 분리되는 케이스 보조 처리
+            val brSplit =
+                contentElement
+                    .select("br")
+                    .mapNotNull { it.previousSibling()?.outerHtml() }
+                    .flatMap { it.split("\n") }
+                    .map { it.replace(Regex("\\s+"), " ").trim() }
+                    .filter { it.isNotEmpty() }
+
+            return (blocks + brSplit).distinct()
+        }
     }
 
     object Image {
@@ -42,7 +71,7 @@ object NaverExtractor {
             document.select("img").forEach { img ->
                 img.attr("src").takeIf { isValidImageUrl(it) }?.let { imageUrls.add(it) }
                 img.attr("srcset").split(",").map { it.trim().split(" ")[0] }.forEach {
-                    if (isValidImageUrl(it)) imageUrls.add(it)
+                    if (isValidImageUrl(it)) imageUrls.add(it.trim())
                 }
                 img.attr("data-src").takeIf { isValidImageUrl(it) }?.let { imageUrls.add(it) }
             }
@@ -69,6 +98,57 @@ object NaverExtractor {
                 .filter { it.startsWith("http://") || it.startsWith("https://") }
                 .toList()
         }
+
+        fun extractContentImages(document: Document): List<String> {
+            val contentElement =
+                document.selectFirst("#dic_area")
+                    ?: throw RuntimeException("Content element with id 'dic_area' not found")
+
+            val imageUrls = mutableSetOf<String>()
+            contentElement.select("img").forEach { img ->
+                // 일반적인 src 속성
+                img.attr("src").takeIf { it.isNotBlank() && isValidImageUrl(it) }?.let { imageUrls.add(it) }
+
+                // lazy loading을 위한 data-* 속성들
+                img.attr("data-src").takeIf { it.isNotBlank() && isValidImageUrl(it) }?.let { imageUrls.add(it) }
+                img.attr("data-original").takeIf { it.isNotBlank() && isValidImageUrl(it) }?.let { imageUrls.add(it) }
+                img.attr("data-lazy-src").takeIf { it.isNotBlank() && isValidImageUrl(it) }?.let { imageUrls.add(it) }
+                img.attr("data-lazy").takeIf { it.isNotBlank() && isValidImageUrl(it) }?.let { imageUrls.add(it) }
+                img.attr("data-image").takeIf { it.isNotBlank() && isValidImageUrl(it) }?.let { imageUrls.add(it) }
+                img.attr("data-url").takeIf { it.isNotBlank() && isValidImageUrl(it) }?.let { imageUrls.add(it) }
+
+                // srcset 처리 (여러 이미지 URL이 쉼표로 구분됨)
+                img.attr("srcset").split(",").forEach { srcsetEntry ->
+                    val url = srcsetEntry.trim().split(" ")[0]
+                    if (url.isNotBlank() && isValidImageUrl(url)) {
+                        imageUrls.add(url)
+                    }
+                }
+
+                // 모든 속성을 검사하여 이미지 URL 패턴 찾기
+                img.attributes().forEach { attr ->
+                    val value = attr.value
+                    if (value.isNotBlank() &&
+                        (value.startsWith("http://") || value.startsWith("https://")) &&
+                        isValidImageUrl(value)
+                    ) {
+                        imageUrls.add(value)
+                    }
+                }
+            }
+
+            return imageUrls
+                .filter { true }
+                .filter { it.startsWith("http://") || it.startsWith("https://") }
+                .toList()
+        }
+
+        fun extractThumbnailImageUrl(document: Document): String? =
+            document
+                .selectFirst("meta[property=og:image]")
+                ?.attr("content")
+                ?.trim()
+                ?.takeIf { it.startsWith("https://") || it.startsWith("http://") }
 
         private fun isValidImageUrl(url: String): Boolean =
             try {

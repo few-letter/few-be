@@ -1,4 +1,4 @@
-package com.few.generator.config
+package com.few.generator.config.scrapper
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import okhttp3.ConnectionPool
