@@ -32,6 +32,9 @@ class SchedulingUseCase(
     @Scheduled(cron = "\${scheduling.cron.generator}")
     @GeneratorTransactional
     fun execute() {
+        /** 0~15분 사이 랜덤으로 sleep 후 진행 **/
+        Thread.sleep((0..15).random().toLong() * 60 * 1000)
+
         if (!isRunning.compareAndSet(false, true)) {
             throw BadRequestException("Contents scheduling is already running. Please try again later.")
         }
@@ -97,12 +100,7 @@ class SchedulingUseCase(
 
             for (url in urls) {
                 try {
-                    val originUrl =
-                        scrapper
-                            .extractOriginUrl(url)
-                            ?.takeUnless { rawContentsService.exists(it) } ?: throw RuntimeException("이미 생성된 URL입니다: $url")
-
-                    val rawContent = rawContentsService.create(originUrl, category)
+                    val rawContent = rawContentsService.create(url, category)
                     val provisioningContent = provisioningService.create(rawContent)
                     genService.create(rawContent, provisioningContent)
 

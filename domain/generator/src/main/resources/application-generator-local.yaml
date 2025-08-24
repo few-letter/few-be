@@ -19,7 +19,7 @@ spring:
                         decoder: com.few.generator.config.feign.OpenAiDecoder
     generator:
         datasource:
-            url: jdbc:mysql://localhost:13306/generator?allowPublicKeyRetrieval=true&rewriteBatchedStatements=true&allowMultiQueries=true
+            url: jdbc:mysql://localhost:13306/generator?allowPublicKeyRetrieval=true&rewriteBatchedStatements=true&allowMultiQueries=true&connectTimeout=10000&socketTimeout=1800000
             username: root
             password: root
             driver-class-name: com.mysql.cj.jdbc.Driver
@@ -29,13 +29,6 @@ spring:
             properties:
                 hibernate:
                     format_sql: true
-
-jsoup:
-    timeout: 120000  # 2분
-    userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
-    followRedirects: true
-    ignoreHttpErrors: false
-    ignoreContentType: true
 
 scheduling:
     cron:
@@ -59,3 +52,11 @@ generator:
         minGroupSize: 3
         maxGroupSize: 10
         similarityThreshold: 0.7
+
+app:
+    http:
+        connect-timeout: 10
+        read-timeout: 15
+        write-timeout: 15
+        max-idle-connections: 1
+        keep-alive-duration: 60

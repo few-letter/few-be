@@ -2,15 +2,17 @@ package com.few.generator.core.scrapper.naver
 
 import com.few.common.domain.Category
 import com.few.common.domain.MediaType
-import com.few.generator.core.connection.RetryableJsoup
 import com.few.generator.core.scrapper.ScrappedResult
 import io.github.oshai.kotlinlogging.KotlinLogging
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.springframework.stereotype.Service
 
 @Service
 class NaverScrapper(
-    private val retryableJsoup: RetryableJsoup,
+    private val scrapperHttpClient: OkHttpClient,
 ) {
     private val log = KotlinLogging.logger { }
 
@@ -20,53 +22,88 @@ class NaverScrapper(
             .associateWith { NaverConstants.ROOT_URL_MAP[it]!! }
 
     fun extractUrlsByCategory(rootUrl: String): Set<String> {
-        // Introduce a random sleep time to avoid hitting the server too quickly
-        Thread.sleep((1..5).random().toLong())
-        return retryableJsoup
-            .connect(rootUrl)
-            .select("a[href]")
-            .mapNotNull { it.attr("href") }
-            .filter { it.matches(NaverConstants.NEWS_URL_REGEX) }
-            .map { it.replace("amp;", "") }
-            .toSet()
+        Thread.sleep((1..5).random() * 1000L)
+
+        log.debug { "[NAVER Category] URLs 추출 시작: $rootUrl" }
+
+        val request = Request.Builder().url(rootUrl).build()
+        val html = getHtml(request)
+
+        val extractedUrls =
+            Jsoup
+                .parse(html)
+                .select("a[href]")
+                .mapNotNull { it.attr("href") }
+                .filter { it.matches(NaverConstants.NEWS_URL_REGEX) }
+                .map { it.replace("amp;", "") }
+                .toSet()
+
+        if (extractedUrls.isEmpty()) {
+            throw RuntimeException("[NAVER Category] No matching URLs found in: $rootUrl")
+        }
+
+        log.info { "[NAVER Category] URL 추출 완료: $rootUrl -> ${extractedUrls.size}개 URL" }
+
+        return extractedUrls
     }
 
-    fun parseDocument(document: Document): ScrappedResult? {
-        removeUnnecessaryTags(document)
-        val mainContent = document.selectFirst("main, article, div.content") ?: document
-        val title = removeMediaTypeTitleSuffix(document.selectFirst("title")?.text())
-        if (title.isNullOrBlank()) {
-            throw RuntimeException("Title is null or blank. URL: ${document.location()}")
-        }
+    fun scrape(url: String): ScrappedResult {
+        val request = Request.Builder().url(url).build()
+        val html = getHtml(request)
 
-        val description = document.selectFirst("meta[name=description]")?.attr("content")?.trim()
-        if (description.isNullOrBlank()) {
-            throw RuntimeException("Description is null or blank. URL: ${document.location()}")
-        }
+        val document: Document =
+            Jsoup
+                .parse(html)
 
-        val thumbnailImageUrl: String? =
-            document
-                .selectFirst("meta[property=og:image]")
-                ?.attr("content")
-                ?.trim()
-                ?.takeIf { it.startsWith("https://") || it.startsWith("http://") }
-        val rawTexts = NaverExtractor.Text.extract(mainContent)
-        if (rawTexts.isEmpty()) {
-            throw RuntimeException("No valid raw texts found in the document. URL: ${document.location()}")
-        }
-        val images = NaverExtractor.Image.extract(document)
+        val sourceUrl = NaverExtractor.Url.extractOrigin(document) ?: url
+        val extractTitle = removeMediaTypeTitleSuffix(NaverExtractor.Text.extractTitle(document))
+        val extractContents = NaverExtractor.Text.extractContent(document)
+        val extractImgs = NaverExtractor.Image.extractContentImages(document)
+        val extractThumbnailImageUrl = NaverExtractor.Image.extractThumbnailImageUrl(document)
 
-        return ScrappedResult(title, description, thumbnailImageUrl, rawTexts, images)
+        return ScrappedResult(
+            sourceUrl = sourceUrl,
+            title = extractTitle,
+            rawTexts = extractContents,
+            images = extractImgs,
+            thumbnailImageUrl = extractThumbnailImageUrl,
+        )
     }
 
+    private fun getHtml(request: Request): String =
+        scrapperHttpClient.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                throw RuntimeException("[NAVER] HTTP ${response.code} ${response.message} for URL: ${request.url}")
+            }
+            response.body?.string()
+                ?: throw RuntimeException("[NAVER] Empty response body for URL: ${request.url}")
+        }
+
+    @Deprecated("Not used anymore")
     private fun removeUnnecessaryTags(document: Document) {
         document.select("script, style, nav, footer, header").forEach { it.remove() }
     }
 
-    private fun removeMediaTypeTitleSuffix(title: String?): String? {
-        if (title == null) return null
+    private fun removeMediaTypeTitleSuffix(title: String?): String {
+        if (title == null) {
+            throw RuntimeException("Title is null")
+        }
 
         var trimmedtitle = title.trim()
+
+        if (trimmedtitle.startsWith("[속보]")) {
+            trimmedtitle = trimmedtitle.removePrefix("[속보]")
+        }
+        if (trimmedtitle.startsWith("[AI픽]")) {
+            trimmedtitle = trimmedtitle.removePrefix("[AI픽]")
+        }
+        if (trimmedtitle.endsWith("(종합)")) {
+            trimmedtitle = trimmedtitle.removeSuffix("(종합)")
+        }
+        if (trimmedtitle.endsWith("[뉴스in뉴스]")) {
+            trimmedtitle = trimmedtitle.removeSuffix("[뉴스in뉴스]")
+        }
+
         for (mediaType in MediaType.entries) {
             if (mediaType == MediaType.ETC) continue
             if (trimmedtitle.endsWith(mediaType.title)) {
