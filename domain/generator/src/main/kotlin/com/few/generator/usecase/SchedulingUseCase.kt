@@ -32,6 +32,9 @@ class SchedulingUseCase(
     @Scheduled(cron = "\${scheduling.cron.generator}")
     @GeneratorTransactional
     fun execute() {
+        /** 0~15분 사이 랜덤으로 sleep 후 진행 **/
+        Thread.sleep((0..15).random().toLong() * 60 * 1000)
+
         if (!isRunning.compareAndSet(false, true)) {
             throw BadRequestException("Contents scheduling is already running. Please try again later.")
         }
