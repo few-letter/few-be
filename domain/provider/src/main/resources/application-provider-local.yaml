@@ -1,7 +1,7 @@
 spring:
     provider:
         datasource:
-            url: jdbc:mysql://localhost:13306/generator?allowPublicKeyRetrieval=true&rewriteBatchedStatements=true&allowMultiQueries=true
+            url: jdbc:mysql://localhost:13306/generator?allowPublicKeyRetrieval=true&rewriteBatchedStatements=true&allowMultiQueries=true&connectTimeout=10000&socketTimeout=30000
             username: root
             password: root
             driver-class-name: com.mysql.cj.jdbc.Driver

@@ -19,7 +19,7 @@ spring:
                         decoder: com.few.generator.config.feign.OpenAiDecoder
     generator:
         datasource:
-            url: ${DB_HOSTNAME}/generator?allowPublicKeyRetrieval=true&rewriteBatchedStatements=true&allowMultiQueries=true
+            url: ${DB_HOSTNAME}/generator?allowPublicKeyRetrieval=true&rewriteBatchedStatements=true&allowMultiQueries=true&connectTimeout=10000&socketTimeout=1800000
             username: ${DB_USERNAME}
             password: ${DB_PASSWORD}
             driver-class-name: com.mysql.cj.jdbc.Driver
