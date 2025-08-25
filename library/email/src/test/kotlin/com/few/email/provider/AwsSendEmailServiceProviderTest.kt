@@ -3,6 +3,7 @@ package com.few.email.provider
 import com.amazonaws.services.simpleemail.model.AmazonSimpleEmailServiceException
 import com.few.email.config.MailConfig
 import com.few.email.config.MailSenderConfig
+import jakarta.annotation.PostConstruct
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,6 +22,15 @@ class AwsSendEmailServiceProviderTest {
 
     @Autowired
     private lateinit var awsSendEmailServiceProvider: AwsSendEmailServiceProvider
+
+    @PostConstruct
+    fun checkEnvironmentVariables() {
+        println("🔑 환경 변수 확인:")
+        println("   - AWS_ACCESS_KEY_ID: ${System.getenv("AWS_ACCESS_KEY_ID") ?: "NOT SET"}")
+        println("   - AWS_SECRET_ACCESS_KEY: ${if (System.getenv("AWS_SECRET_ACCESS_KEY") != null) "SET" else "NOT SET"}")
+        println("   - AWS_DEFAULT_REGION: ${System.getenv("AWS_DEFAULT_REGION") ?: "NOT SET"}")
+        println("   - EMAIL_PASSWORD: ${if (System.getenv("EMAIL_PASSWORD") != null) "SET" else "NOT SET"}")
+    }
 
     @Test
     @DisplayName("SES를 통해 이메일이 성공적으로 발송되어야 한다")

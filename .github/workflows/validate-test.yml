@@ -32,6 +32,9 @@ jobs:
         needs: setup-test
         runs-on: ubuntu-latest
         env:
+            EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+            AWS_DEFAULT_REGION: ap-northeast-2
+            AWS_REGION: ap-northeast-2
             AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         steps:
@@ -44,4 +47,21 @@ jobs:
 
             - name: Test with Gradle
               run: |
-                  ./gradlew test
+                  ./gradlew test --info --stacktrace --continue
+            
+            - name: Publish Test Results
+              uses: EnricoMi/publish-unit-test-result-action@v2
+              if: always()
+              with:
+                  files: |
+                      **/build/test-results/test/TEST-*.xml
+                      **/build/test-results/integrationTest/TEST-*.xml
+            
+            - name: Upload Test Reports
+              uses: actions/upload-artifact@v3
+              if: failure()
+              with:
+                  name: test-reports
+                  path: |
+                      **/build/reports/tests/
+                      **/build/test-results/
