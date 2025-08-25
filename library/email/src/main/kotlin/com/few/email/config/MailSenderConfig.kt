@@ -1,7 +1,5 @@
 package com.few.email.config
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider
-import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder
 import com.few.email.config.MailConfig.Companion.BEAN_NAME_PREFIX
@@ -72,7 +70,7 @@ class MailSenderConfig {
     }
 
     @Bean(name = [AWS_EMAIL_PROVIDER_PROPERTIES])
-    @ConfigurationProperties(prefix = "spring.mail.provider.aws")
+    @ConfigurationProperties(prefix = "few.email.provider.aws")
     fun awsProviderProperties(): AwsEmailProviderProperties = AwsEmailProviderProperties()
 
     @Bean(name = [MAIL_SENDER])
@@ -100,15 +98,9 @@ class MailSenderConfig {
     @Bean(name = [AWS_EMAIL_SENDER])
     fun awsEmailSender(): AmazonSimpleEmailService {
         val properties = awsProviderProperties()
-        val basicAWSCredentials = BasicAWSCredentials(properties.accessKey, properties.secretKey)
-        val awsStaticCredentialsProvider =
-            AWSStaticCredentialsProvider(
-                basicAWSCredentials,
-            )
 
         return AmazonSimpleEmailServiceClientBuilder
             .standard()
-            .withCredentials(awsStaticCredentialsProvider)
             .withRegion(properties.region)
             .build()
     }

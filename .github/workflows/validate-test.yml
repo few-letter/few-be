@@ -8,9 +8,6 @@ on:
 permissions:
     contents: read
 
-env:
-    EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-
 jobs:
     setup-test:
         runs-on: ubuntu-latest
@@ -44,4 +41,4 @@ jobs:
 
             - name: Test with Gradle
               run: |
-                  ./gradlew test
+                ./gradlew test -PexcludeTags=aws-integration --info --stacktrace

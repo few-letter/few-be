@@ -1,22 +1,21 @@
 spring:
+  config:
+    import:
+      - classpath:email-provider-prd.yml
+
+
   mail:
     protocol: smtp
-    host: smtp.gmail.com
+    host: email-smtp.ap-northeast-2.amazonaws.com
     port: 587
-    username: ${EMAIL_USERNAME}
-    password: ${EMAIL_PASSWORD}
+    username: ${AWS_SMTP_USERNAME}
+    password: ${AWS_SMTP_PASSWORD}
     properties:
       mail:
         smtp:
           auth: true
-          debug: true
+          debug: false
           starttls:
-              enable: true
+            enable: true
           EnableSSL:
-                enable: true
-
-    provider:
-     aws:
-      access-key: ${EMAIL_ACCESS_KEY}
-      secret-key: ${EMAIL_SECRET_KEY}
-      region: ${EMAIL_REGION}
+            enable: true
