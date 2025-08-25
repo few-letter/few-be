@@ -26,7 +26,7 @@ class AwsSendEmailServiceProviderTest {
     @PostConstruct
     fun checkEnvironmentVariables() {
         println("🔑 환경 변수 확인:")
-        println("   - AWS_ACCESS_KEY_ID: ${System.getenv("AWS_ACCESS_KEY_ID") ?: "NOT SET"}")
+        println("   - AWS_ACCESS_KEY_ID: ${if (System.getenv("AWS_ACCESS_KEY_ID") != null) "SET" else "NOT SET"}")
         println("   - AWS_SECRET_ACCESS_KEY: ${if (System.getenv("AWS_SECRET_ACCESS_KEY") != null) "SET" else "NOT SET"}")
         println("   - AWS_DEFAULT_REGION: ${System.getenv("AWS_DEFAULT_REGION") ?: "NOT SET"}")
         println("   - EMAIL_PASSWORD: ${if (System.getenv("EMAIL_PASSWORD") != null) "SET" else "NOT SET"}")
@@ -64,7 +64,7 @@ class AwsSendEmailServiceProviderTest {
         println("📧 Message ID: $messageId")
         println("📮 발신자: $from")
         println("📮 수신자: $to")
-//        println("📝 제목: $subject")
+        println("📝 제목: $subject")
 
         verifyEmailSent(to, subject)
     }
