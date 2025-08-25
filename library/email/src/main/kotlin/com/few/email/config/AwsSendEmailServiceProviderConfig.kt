@@ -14,7 +14,7 @@ class AwsSendEmailServiceProviderConfig(
 ) {
     @Primary
     @Bean
-    fun amazonSimpleEmailService(): AwsSendEmailServiceProvider =
+    fun awsSendEmailServiceProvider(): AwsSendEmailServiceProvider =
         AwsSendEmailServiceProvider(
             amazonSimpleEmailService = amazonSimpleEmailService,
             configurationSetName = amazoneEmailProviderProperties.configurationSetName,

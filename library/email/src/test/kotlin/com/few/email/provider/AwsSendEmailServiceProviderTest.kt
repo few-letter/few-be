@@ -5,6 +5,7 @@ import com.few.email.config.MailConfig
 import com.few.email.config.MailSenderConfig
 import jakarta.annotation.PostConstruct
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -15,6 +16,7 @@ import org.springframework.test.context.ActiveProfiles
 @Import(MailConfig::class, MailSenderConfig::class)
 @DisplayName("AwsSendEmailServiceProvider 통합 테스트")
 @ActiveProfiles("email-local")
+@Tag("aws-integration")
 class AwsSendEmailServiceProviderTest {
     companion object {
         const val TEST_SENDER = "noreply@fewletter.store"

@@ -5,7 +5,6 @@ import com.amazonaws.services.simpleemail.model.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.annotation.Primary
 
-@Primary
 class AwsSendEmailServiceProvider(
     private val amazonSimpleEmailService: AmazonSimpleEmailService,
     private val configurationSetName: String,
