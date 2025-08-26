@@ -8,9 +8,6 @@ on:
 permissions:
     contents: read
 
-env:
-    EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-
 jobs:
     setup-test:
         runs-on: ubuntu-latest
@@ -34,6 +31,11 @@ jobs:
     api-test:
         needs: setup-test
         runs-on: ubuntu-latest
+        env:
+            AWS_DEFAULT_REGION: ap-northeast-2
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
         steps:
             - uses: actions/checkout@v3
             - name: Set up JDK 18
@@ -44,4 +46,4 @@ jobs:
 
             - name: Test with Gradle
               run: |
-                  ./gradlew test
+                ./gradlew test -PexcludeTags=aws-integration --info --stacktrace

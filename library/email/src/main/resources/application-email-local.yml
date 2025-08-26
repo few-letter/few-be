@@ -1,4 +1,8 @@
 spring:
+  config:
+    import:
+      - classpath:email-provider-local.yml
+
   mail:
     protocol: smtp
     host: smtp.gmail.com
@@ -11,12 +15,6 @@ spring:
           auth: true
           debug: true
           starttls:
-              enable: true
+            enable: true
           EnableSSL:
-                enable: true
-
-    provider:
-        aws:
-            access-key: thisisaccesskey
-            secret-key: thisissecretkey
-            region: ap-northeast-2
+            enable: true
