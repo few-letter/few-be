@@ -1,12 +1,12 @@
-package com.few.provider.usecase
+package com.few.generator.usecase
 
 import com.few.common.exception.BadRequestException
-import com.few.provider.domain.SubscriptionAction
-import com.few.provider.domain.SubscriptionHis
-import com.few.provider.repository.SubscriptionHisRepository
-import com.few.provider.repository.SubscriptionRepository
-import com.few.provider.support.jpa.ProviderTransactional
-import com.few.provider.usecase.input.UnsubscribeUseCaseIn
+import com.few.generator.domain.SubscriptionAction
+import com.few.generator.domain.SubscriptionHis
+import com.few.generator.repository.SubscriptionHisRepository
+import com.few.generator.repository.SubscriptionRepository
+import com.few.generator.support.jpa.GeneratorTransactional
+import com.few.generator.usecase.input.UnsubscribeUseCaseIn
 import org.springframework.stereotype.Component
 
 @Component
@@ -14,7 +14,7 @@ data class UnsubscribeUseCase(
     private val subscriptionRepository: SubscriptionRepository,
     private val subscriptionHisRepository: SubscriptionHisRepository,
 ) {
-    @ProviderTransactional
+    @GeneratorTransactional
     fun execute(input: UnsubscribeUseCaseIn) {
         val existing =
             subscriptionRepository.findByEmail(input.email)

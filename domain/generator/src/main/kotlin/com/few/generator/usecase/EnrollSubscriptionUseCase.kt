@@ -1,14 +1,14 @@
-package com.few.provider.usecase
+package com.few.generator.usecase
 
 import com.few.common.domain.Category
-import com.few.provider.domain.Subscription
-import com.few.provider.domain.SubscriptionAction
-import com.few.provider.domain.SubscriptionHis
-import com.few.provider.repository.SubscriptionHisRepository
-import com.few.provider.repository.SubscriptionRepository
-import com.few.provider.support.jpa.ProviderTransactional
-import com.few.provider.usecase.input.EnrollSubscriptionUseCaseIn
-import com.few.provider.usecase.out.BrowseSubscriptionUseCaseOut
+import com.few.generator.domain.Subscription
+import com.few.generator.domain.SubscriptionAction
+import com.few.generator.domain.SubscriptionHis
+import com.few.generator.repository.SubscriptionHisRepository
+import com.few.generator.repository.SubscriptionRepository
+import com.few.generator.support.jpa.GeneratorTransactional
+import com.few.generator.usecase.input.EnrollSubscriptionUseCaseIn
+import com.few.generator.usecase.out.BrowseSubscriptionUseCaseOut
 import org.springframework.stereotype.Component
 
 @Component
@@ -16,12 +16,12 @@ data class EnrollSubscriptionUseCase(
     private val subscriptionRepository: SubscriptionRepository,
     private val subscriptionHisRepository: SubscriptionHisRepository,
 ) {
-    @ProviderTransactional
+    @GeneratorTransactional
     fun execute(input: EnrollSubscriptionUseCaseIn): BrowseSubscriptionUseCaseOut {
         val existing = subscriptionRepository.findByEmail(input.email)
 
         val joinedCategories = input.categoryCodes.distinct().joinToString(",") { it.toString() }
-        val categories = input.categoryCodes.map { Category.from(it) }.toSet()
+        val categories = input.categoryCodes.map { Category.Companion.from(it) }.toSet()
 
         subscriptionHisRepository.save(
             SubscriptionHis(

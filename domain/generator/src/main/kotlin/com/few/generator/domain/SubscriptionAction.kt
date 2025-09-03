@@ -1,4 +1,4 @@
-package com.few.provider.domain
+package com.few.generator.domain
 
 enum class SubscriptionAction(
     val code: Int,

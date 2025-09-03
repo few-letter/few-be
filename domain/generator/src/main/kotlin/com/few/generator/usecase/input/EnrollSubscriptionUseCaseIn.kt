@@ -1,4 +1,4 @@
-package com.few.provider.usecase.input
+package com.few.generator.usecase.input
 
 data class EnrollSubscriptionUseCaseIn(
     val email: String,

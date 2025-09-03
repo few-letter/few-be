@@ -1,4 +1,4 @@
-package com.few.provider.controller.response
+package com.few.generator.controller.response
 
 class BrowseSubscriptionResponse(
     val subscribedCategories: List<CodeValueResponse>,

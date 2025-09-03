@@ -1,4 +1,4 @@
-package com.few.provider.controller.response
+package com.few.generator.controller.response
 
 class EnrollSubscriptionResponse(
     val subscribedCategories: List<CodeValueResponse>,

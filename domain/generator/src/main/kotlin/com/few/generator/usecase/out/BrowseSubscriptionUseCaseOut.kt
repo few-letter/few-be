@@ -1,4 +1,4 @@
-package com.few.provider.usecase.out
+package com.few.generator.usecase.out
 
 import com.few.common.domain.Category
 
