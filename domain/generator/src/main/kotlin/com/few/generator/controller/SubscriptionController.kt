@@ -1,19 +1,25 @@
-package com.few.provider.controller
+package com.few.generator.controller
 
-import com.few.provider.controller.request.EnrollSubscriptionRequest
-import com.few.provider.controller.response.BrowseSubscriptionResponse
-import com.few.provider.controller.response.CodeValueResponse
-import com.few.provider.usecase.BrowseSubscriptionUseCase
-import com.few.provider.usecase.EnrollSubscriptionUseCase
-import com.few.provider.usecase.UnsubscribeUseCase
-import com.few.provider.usecase.input.BrowseSubscriptionUseCaseIn
-import com.few.provider.usecase.input.EnrollSubscriptionUseCaseIn
-import com.few.provider.usecase.input.UnsubscribeUseCaseIn
+import com.few.generator.controller.request.EnrollSubscriptionRequest
+import com.few.generator.controller.response.BrowseSubscriptionResponse
+import com.few.generator.controller.response.CodeValueResponse
+import com.few.generator.usecase.BrowseSubscriptionUseCase
+import com.few.generator.usecase.EnrollSubscriptionUseCase
+import com.few.generator.usecase.UnsubscribeUseCase
+import com.few.generator.usecase.input.BrowseSubscriptionUseCaseIn
+import com.few.generator.usecase.input.EnrollSubscriptionUseCaseIn
+import com.few.generator.usecase.input.UnsubscribeUseCaseIn
 import com.few.web.ApiResponse
 import com.few.web.ApiResponseGenerator
 import org.springframework.http.HttpStatus
 import org.springframework.validation.annotation.Validated
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 @Validated
 @RestController

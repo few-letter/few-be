@@ -1,17 +1,17 @@
-package com.few.provider.usecase
+package com.few.generator.usecase
 
 import com.few.common.domain.Category
-import com.few.provider.repository.SubscriptionRepository
-import com.few.provider.support.jpa.ProviderTransactional
-import com.few.provider.usecase.input.BrowseSubscriptionUseCaseIn
-import com.few.provider.usecase.out.BrowseSubscriptionUseCaseOut
+import com.few.generator.repository.SubscriptionRepository
+import com.few.generator.support.jpa.GeneratorTransactional
+import com.few.generator.usecase.input.BrowseSubscriptionUseCaseIn
+import com.few.generator.usecase.out.BrowseSubscriptionUseCaseOut
 import org.springframework.stereotype.Component
 
 @Component
 data class BrowseSubscriptionUseCase(
     private val subscriptionRepository: SubscriptionRepository,
 ) {
-    @ProviderTransactional(readOnly = true)
+    @GeneratorTransactional(readOnly = true)
     fun execute(input: BrowseSubscriptionUseCaseIn): BrowseSubscriptionUseCaseOut {
         val existing = subscriptionRepository.findByEmail(input.email)
 

@@ -1,4 +1,4 @@
-package com.few.provider.controller.request
+package com.few.generator.controller.request
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty

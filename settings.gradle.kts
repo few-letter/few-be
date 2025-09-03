@@ -4,7 +4,6 @@ include("api")
 
 include("domain")
 include("domain:generator")
-include("domain:provider")
 
 include("library")
 include("library:common")
