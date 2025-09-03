@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FEW Letter</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .logo {
+            color: #ffffff;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #bdc3c7;
+            font-size: 14px;
+            margin: 0;
+        }
+        .date {
+            background-color: #ecf0f1;
+            padding: 15px 20px;
+            font-size: 14px;
+            color: #7f8c8d;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .section {
+            padding: 25px 20px;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .section-icon {
+            width: 12px;
+            height: 12px;
+            background-color: #e74c3c;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .news-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .news-item {
+            margin-bottom: 12px;
+            padding-left: 0;
+            display: flex;
+            align-items: flex-start;
+        }
+        .news-item:before {
+            content: '•';
+            color: #2c3e50;
+            margin-right: 8px;
+            font-size: 14px;
+        }
+        .news-title {
+            font-size: 14px;
+            color: #2c3e50;
+            line-height: 1.5;
+            flex: 1;
+            margin-right: 8px;
+        }
+        .news-source {
+            font-size: 12px;
+            color: #95a5a6;
+            white-space: nowrap;
+        }
+        .more-button {
+            text-align: center;
+            margin-top: 25px;
+        }
+        .more-button a {
+            display: inline-block;
+            background-color: #2c3e50;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .footer {
+            background-color: #2c3e50;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .footer-logo {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .footer-text {
+            color: #bdc3c7;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .social-links {
+            margin-bottom: 15px;
+        }
+        .social-links a {
+            color: #bdc3c7;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 14px;
+        }
+        .unsubscribe {
+            color: #95a5a6;
+            font-size: 12px;
+        }
+        .unsubscribe a {
+            color: #95a5a6;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">few.</div>
+            <p class="subtitle">AI daily letter</p>
+        </div>
+
+        <!-- Date -->
+        <div class="date">
+            <span th:text="${date}">2024. 4. 28</span>
+        </div>
+
+        <!-- News Sections -->
+        <div th:each="categoryEntry : ${gensByCategory}" class="section">
+            <div class="section-title">
+                <div class="section-icon"></div>
+                <span th:text="${categoryEntry.categoryName}">카테고리</span>
+            </div>
+            <ul class="news-list">
+                <li th:each="gen : ${categoryEntry.gens}" class="news-item">
+                    <span class="news-title" th:text="${gen.headline}">뉴스 제목</span>
+                    <span class="news-source">(FEW *)</span>
+                </li>
+            </ul>
+            <div class="more-button">
+                <a href="#">펼쳐서 더보기</a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-logo">few.</div>
+            <div class="footer-text">
+                한줄로 따라잡는 AI 업계 뉴스레터<br>
+                팀에서 엄선한 TOP 뉴스 보기
+            </div>
+            <div class="social-links">
+                <a href="https://www.instagram.com/few.letter?igsh=MXByeXc5c2d1bmk2dQ==">Instagram</a>
+                <a href="#">Link</a>
+            </div>
+            <div class="unsubscribe">
+                <a href="#">구독취소</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

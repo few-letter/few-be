@@ -13,6 +13,7 @@ plugins {
 dependencies {
     implementation(project(":library:web"))
     implementation(project(":library:common"))
+    implementation(project(":library:email"))
 
     /** starter */
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
