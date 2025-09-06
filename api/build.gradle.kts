@@ -9,6 +9,7 @@ apply(from = "$rootDir/gradle/image.gradle.kts")
 dependencies {
     /** library */
     implementation(project(":library:common"))
+    implementation(project(":library:email"))
     /** domain */
     implementation(project(":domain:generator"))
 
