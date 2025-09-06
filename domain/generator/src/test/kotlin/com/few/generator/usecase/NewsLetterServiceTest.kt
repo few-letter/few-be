@@ -11,6 +11,7 @@ import com.few.generator.domain.Subscription
 import com.few.generator.repository.GenRepository
 import com.few.generator.repository.SubscriptionRepository
 import com.few.generator.service.DateProvider
+import com.few.generator.service.GenUrlService
 import com.few.generator.service.MailSendService
 import com.few.generator.service.NewsletterContentBuilder
 import com.few.generator.support.jpa.GeneratorTransactional
@@ -38,6 +39,7 @@ import java.time.LocalDate
         AwsSendEmailServiceProviderConfig::class,
         NewsLetterServiceTest.TestConfig::class,
         NewsletterContentBuilder::class,
+        GenUrlService::class,
     ],
 )
 @DisplayName("뉴스레터 SES 통합 테스트")
@@ -68,7 +70,7 @@ class NewsLetterServiceTest {
     @DisplayName("실제 SES를 통한 뉴스레터 전송이 성공해야 한다")
     fun `should send newsletter successfully via SES`() {
         // Given
-        val testEmail = "ngolo6187@gmail.com"
+        val testEmail = "hun.ca.dev@gmail.com"
         val today = LocalDate.now()
 
         val testGen =

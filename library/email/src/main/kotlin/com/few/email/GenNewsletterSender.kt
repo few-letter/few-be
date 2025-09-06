@@ -13,6 +13,7 @@ data class GenData(
     val headline: String,
     val summary: String,
     val category: Int,
+    val url: String? = null,
 )
 
 data class GenNewsletterArgs(

@@ -18,6 +18,7 @@ class MailSendService(
     private val genNewsletterSender: GenNewsletterSender,
     private val dateProvider: DateProvider,
     private val newsletterContentBuilder: NewsletterContentBuilder,
+    private val genUrlService: GenUrlService,
 ) {
     private val log = KotlinLogging.logger {}
     private val pageSize = 100
@@ -61,9 +62,17 @@ class MailSendService(
         if (todayGens.isEmpty()) return true
 
         return runCatching {
+            val urlsByGenId = genUrlService.getUrlsByGens(todayGens)
+
             val genDataList =
                 todayGens.map { gen ->
-                    GenData(gen.id!!, gen.headline, gen.summary, gen.category)
+                    GenData(
+                        id = gen.id!!,
+                        headline = gen.headline,
+                        summary = gen.summary,
+                        category = gen.category,
+                        url = urlsByGenId[gen.id],
+                    )
                 }
 
             val targetDate = dateProvider.getTargetDate()
