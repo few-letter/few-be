@@ -4,30 +4,45 @@ import com.few.email.GenData
 import com.few.email.GenNewsletterArgs
 import com.few.email.GenNewsletterContent
 import com.few.email.GenNewsletterSender
+import com.few.generator.domain.Gen
 import com.few.generator.domain.Subscription
 import com.few.generator.repository.GenRepository
 import com.few.generator.repository.SubscriptionRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
+import java.time.Clock
+import java.time.LocalDate
 
 @Service
 class MailSendService(
     private val subscriptionRepository: SubscriptionRepository,
     private val genRepository: GenRepository,
     private val genNewsletterSender: GenNewsletterSender,
-    private val dateProvider: DateProvider,
     private val newsletterContentBuilder: NewsletterContentBuilder,
     private val genUrlService: GenUrlService,
+    private val clock: Clock = Clock.systemDefaultZone(),
 ) {
     private val log = KotlinLogging.logger {}
     private val pageSize = 100
 
     fun sendDailyNewsletter(): Pair<Int, Int> {
-        val targetDate = dateProvider.getTargetDate()
-        val dateRange = DateRange(targetDate.atStartOfDay(), targetDate.plusDays(1).atStartOfDay())
-        val genCache = GenCache(genRepository, dateRange)
-        val rawContentsUrlsByGens = genUrlService.getRawContentsUrlsByGens(genCache.getAllGens())
+        val latestGenDate =
+            genRepository
+                .findFirstLimit(1)
+                .firstOrNull()
+                ?.createdAt
+                ?.toLocalDate()
+        val today = LocalDate.now(clock)
+
+        if (latestGenDate == null || latestGenDate.isBefore(today)) {
+            return 0 to 0
+        }
+
+        val dateRange = DateRange(latestGenDate.atStartOfDay(), latestGenDate.plusDays(1).atStartOfDay())
+        val gensToSend = genRepository.findAllByCreatedAtBetween(dateRange.start, dateRange.end)
+        val gensByCategory = gensToSend.groupBy { it.category }
+        val rawContentsUrlsByGens = genUrlService.getRawContentsUrlsByGens(gensToSend)
         var successCount = 0
         var failCount = 0
         var page = 0
@@ -36,7 +51,7 @@ class MailSendService(
             val subscriptionPage = subscriptionRepository.findAll(PageRequest.of(page, pageSize))
 
             subscriptionPage.content.forEach { subscription ->
-                if (sendNewsletterToSubscriber(subscription, genCache, rawContentsUrlsByGens, targetDate)) {
+                if (sendNewsletterToSubscriber(subscription, gensByCategory, rawContentsUrlsByGens, latestGenDate)) {
                     successCount++
                 } else {
                     failCount++
@@ -51,12 +66,12 @@ class MailSendService(
 
     private fun sendNewsletterToSubscriber(
         subscription: Subscription,
-        genCache: GenCache,
-        urlCache: Map<Long, String>,
+        gensByCategory: Map<Int, List<Gen>>,
+        rawContentsUrlsByGens: Map<Long, String>,
         targetDate: java.time.LocalDate,
     ): Boolean {
         val categories = parseCategories(subscription.categories)
-        val todayGens = genCache.getGensByCategories(categories)
+        val todayGens = categories.flatMap { category -> gensByCategory[category].orEmpty() }
 
         if (todayGens.isEmpty()) return true
 
@@ -68,7 +83,7 @@ class MailSendService(
                         headline = gen.headline,
                         summary = gen.summary,
                         category = gen.category,
-                        url = urlCache[gen.id!!],
+                        url = rawContentsUrlsByGens[gen.id!!],
                     )
                 }
 

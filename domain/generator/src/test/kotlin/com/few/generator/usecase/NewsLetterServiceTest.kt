@@ -10,13 +10,11 @@ import com.few.generator.domain.Gen
 import com.few.generator.domain.Subscription
 import com.few.generator.repository.GenRepository
 import com.few.generator.repository.SubscriptionRepository
-import com.few.generator.service.DateProvider
 import com.few.generator.service.GenUrlService
 import com.few.generator.service.MailSendService
 import com.few.generator.service.NewsletterContentBuilder
 import com.few.generator.support.jpa.GeneratorTransactional
-import io.mockk.every
-import io.mockk.mockk
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
@@ -25,7 +23,16 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary
+import org.springframework.data.auditing.AuditingHandler
+import org.springframework.data.auditing.DateTimeProvider
+import java.time.Clock
+import java.time.Duration
+import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.temporal.TemporalAccessor
+import java.util.*
 
 @SpringBootTest(
     properties = ["spring.profiles.active=email-local,generator-local"],
@@ -37,24 +44,40 @@ import java.time.LocalDate
         MailSenderConfig::class,
         MailConfig::class,
         AwsSendEmailServiceProviderConfig::class,
-        NewsLetterServiceTest.TestConfig::class,
         NewsletterContentBuilder::class,
         GenUrlService::class,
+        NewsLetterServiceTest.TestConfig::class,
     ],
 )
 @DisplayName("뉴스레터 SES 통합 테스트")
 @Tag("integration")
 class NewsLetterServiceTest {
+    class CustomDateTimeProvider : DateTimeProvider {
+        var clock: Clock = Clock.systemDefaultZone()
+
+        override fun getNow(): Optional<TemporalAccessor> =
+            clock.instant().let {
+                Optional.of(
+                    LocalDateTime.ofInstant(it, ZoneId.systemDefault()),
+                )
+            }
+    }
+
     @TestConfiguration
     class TestConfig {
         @Bean
         @Primary
-        fun testDateProvider(): DateProvider {
-            val mockDateProvider = mockk<DateProvider>()
-            every { mockDateProvider.getTargetDate() } returns LocalDate.now()
-            return mockDateProvider
-        }
+        fun testDateTimeProvider(): CustomDateTimeProvider = CustomDateTimeProvider()
     }
+
+    @Autowired
+    private lateinit var testDateTimeProvider: CustomDateTimeProvider
+
+    @Autowired
+    private lateinit var auditingHandler: AuditingHandler
+
+    @Autowired
+    private lateinit var dateTimeProvider: CustomDateTimeProvider
 
     @Autowired
     private lateinit var subscriptionRepository: SubscriptionRepository
@@ -146,6 +169,57 @@ class NewsLetterServiceTest {
         println("🚫 구독하지 않은 Gen: ${unsubscribedGen.headline}")
 
         verifyNewsletterSent(testEmail, "FEW Letter - $today 뉴스레터")
+    }
+
+    @Test
+    @GeneratorTransactional
+    @DisplayName("가장 최근에 생성된 Gen과 동일한 날에 생성된 Gen만 전송 되어야 한다.")
+    fun `should not send newsletter for Gen created on same date as latest Gen`() {
+        // Given
+        val testEmail = "ngolo6187@gmail.com"
+
+        auditingHandler.setDateTimeProvider(testDateTimeProvider)
+        testDateTimeProvider.clock =
+            Clock.fixed(
+                Instant.now().minusSeconds(Duration.ofDays(1).toSeconds()),
+                ZoneId.systemDefault(),
+            )
+        val yesterdayGen =
+            genRepository.save(
+                createTestGen(
+                    headline = "어제 뉴스",
+                    summary = "어제 생성된 뉴스입니다",
+                ),
+            )
+        genRepository.save(yesterdayGen)
+        println(yesterdayGen.createdAt)
+
+        testDateTimeProvider.clock = Clock.systemDefaultZone()
+        auditingHandler.setDateTimeProvider(testDateTimeProvider)
+        val todayGen =
+            genRepository.save(
+                createTestGen(
+                    headline = "오늘 뉴스",
+                    summary = "오늘 생성된 뉴스입니다",
+                ),
+            )
+        genRepository.save(todayGen)
+        println(todayGen.createdAt)
+
+        val testSubscription = createTestSubscription(testEmail)
+        subscriptionRepository.save(testSubscription)
+
+        // When
+        val (successCount, failCount) = mailSendService.sendDailyNewsletter()
+
+        // Then
+        successCount shouldBe 1
+
+        println("✅ 최신 날짜 필터링 테스트 완료!")
+        println("📊 전송 결과 - 성공: $successCount, 실패: $failCount")
+        println("📮 수신자: $testEmail")
+        println("📝 전송된 Gen: ${yesterdayGen.headline} (어제 생성)")
+        println("🚫 전송되지 않은 Gen: ${todayGen.headline} (오늘 생성 - 최신)")
     }
 
     private fun createTestGen(
