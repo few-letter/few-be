@@ -46,4 +46,4 @@ jobs:
 
             - name: Test with Gradle
               run: |
-                ./gradlew test -PexcludeTags=integration --info --stacktrace
+                ./gradlew test
