@@ -16,7 +16,7 @@ import org.springframework.test.context.ActiveProfiles
 @Import(MailConfig::class, MailSenderConfig::class)
 @DisplayName("AwsSendEmailServiceProvider 통합 테스트")
 @ActiveProfiles("email-local")
-@Tag("aws-integration")
+@Tag("integration")
 class AwsSendEmailServiceProviderTest {
     companion object {
         const val TEST_SENDER = "noreply@fewletter.store"

@@ -46,4 +46,4 @@ jobs:
 
             - name: Test with Gradle
               run: |
-                ./gradlew test -PexcludeTags=aws-integration --info --stacktrace
+                ./gradlew test -PexcludeTags=integration --info --stacktrace
