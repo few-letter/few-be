@@ -70,7 +70,7 @@ class NewsLetterServiceTest {
     @DisplayName("실제 SES를 통한 뉴스레터 전송이 성공해야 한다")
     fun `should send newsletter successfully via SES`() {
         // Given
-        val testEmail = "hun.ca.dev@gmail.com"
+        val testEmail = "ngolo6187@gmail.com"
         val today = LocalDate.now()
 
         val testGen =

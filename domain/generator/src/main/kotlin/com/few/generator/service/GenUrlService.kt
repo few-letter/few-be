@@ -10,23 +10,33 @@ class GenUrlService(
     private val provisioningContentsRepository: ProvisioningContentsRepository,
     private val rawContentsRepository: RawContentsRepository,
 ) {
-    fun getUrlsByGens(gens: List<Gen>): Map<Long, String> {
-        val provisioningIds = gens.map { it.provisioningContentsId }
+    fun getRawContentsUrlsByGens(gens: List<Gen>): Map<Long, String> {
+        if (gens.isEmpty()) {
+            return emptyMap()
+        }
+
+        val provisioningIds = gens.map { it.provisioningContentsId }.distinct()
+        if (provisioningIds.isEmpty()) return emptyMap()
         val provisioningContents = provisioningContentsRepository.findAllByIdIn(provisioningIds)
 
-        val rawContentsIds = provisioningContents.map { it.rawContentsId }
+        val rawContentsIds = provisioningContents.map { it.rawContentsId }.distinct()
+        if (rawContentsIds.isEmpty()) return emptyMap()
         val rawContents = rawContentsRepository.findAllByIdIn(rawContentsIds)
 
-        val rawContentsMap = rawContents.associateBy { it.id!! }
-        val provisioningMap = provisioningContents.associateBy { it.id!! }
+        val rawContentsMap: Map<Long, String> =
+            rawContents.mapNotNull { rawContent -> rawContent.id?.let { it to rawContent.url } }.toMap()
+
+        val provisioningMap =
+            provisioningContents
+                .mapNotNull { provisioning -> provisioning.id?.let { provisioning.id to provisioning } }
+                .toMap()
 
         return gens
             .mapNotNull { gen ->
-                provisioningMap[gen.provisioningContentsId]?.let { provisioning ->
-                    rawContentsMap[provisioning.rawContentsId]?.let { rawContent ->
-                        gen.id!! to rawContent.url
-                    }
-                }
+                val gId = gen.id ?: return@mapNotNull null
+                val pId = gen.provisioningContentsId
+                val rawId = provisioningMap[pId]?.rawContentsId ?: return@mapNotNull null
+                rawContentsMap[rawId]?.let { url -> gId to url }
             }.toMap()
     }
 }

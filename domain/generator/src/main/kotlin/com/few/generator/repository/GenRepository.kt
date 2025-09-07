@@ -65,10 +65,4 @@ interface GenRepository : JpaRepository<Gen, Long> {
         endTime: LocalDateTime,
         category: Int,
     ): List<Gen>
-
-    @Query(
-        "SELECT MAX(g.created_at) FROM gen g",
-        nativeQuery = true,
-    )
-    fun findLatestCreatedAt(): LocalDateTime?
 }

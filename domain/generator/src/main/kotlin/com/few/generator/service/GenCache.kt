@@ -19,4 +19,6 @@ class GenCache(
                 )
             }
         }
+
+    fun getAllGens(): List<Gen> = cache.values.flatten()
 }

@@ -24,8 +24,10 @@ class MailSendService(
     private val pageSize = 100
 
     fun sendDailyNewsletter(): Pair<Int, Int> {
-        val dateRange = getTodayDateRange()
+        val targetDate = dateProvider.getTargetDate()
+        val dateRange = DateRange(targetDate.atStartOfDay(), targetDate.plusDays(1).atStartOfDay())
         val genCache = GenCache(genRepository, dateRange)
+        val rawContentsUrlsByGens = genUrlService.getRawContentsUrlsByGens(genCache.getAllGens())
         var successCount = 0
         var failCount = 0
         var page = 0
@@ -34,7 +36,7 @@ class MailSendService(
             val subscriptionPage = subscriptionRepository.findAll(PageRequest.of(page, pageSize))
 
             subscriptionPage.content.forEach { subscription ->
-                if (sendNewsletterToSubscriber(subscription, genCache)) {
+                if (sendNewsletterToSubscriber(subscription, genCache, rawContentsUrlsByGens, targetDate)) {
                     successCount++
                 } else {
                     failCount++
@@ -47,14 +49,11 @@ class MailSendService(
         return successCount to failCount
     }
 
-    private fun getTodayDateRange(): DateRange {
-        val targetDate = dateProvider.getTargetDate()
-        return DateRange(targetDate.atStartOfDay(), targetDate.plusDays(1).atStartOfDay())
-    }
-
     private fun sendNewsletterToSubscriber(
         subscription: Subscription,
         genCache: GenCache,
+        urlCache: Map<Long, String>,
+        targetDate: java.time.LocalDate,
     ): Boolean {
         val categories = parseCategories(subscription.categories)
         val todayGens = genCache.getGensByCategories(categories)
@@ -62,8 +61,6 @@ class MailSendService(
         if (todayGens.isEmpty()) return true
 
         return runCatching {
-            val urlsByGenId = genUrlService.getUrlsByGens(todayGens)
-
             val genDataList =
                 todayGens.map { gen ->
                     GenData(
@@ -71,11 +68,10 @@ class MailSendService(
                         headline = gen.headline,
                         summary = gen.summary,
                         category = gen.category,
-                        url = urlsByGenId[gen.id],
+                        url = urlCache[gen.id!!],
                     )
                 }
 
-            val targetDate = dateProvider.getTargetDate()
             val gensByCategory = genDataList.groupBy { it.category }
             val emailContext = newsletterContentBuilder.buildEmailContext(targetDate, gensByCategory)
 
