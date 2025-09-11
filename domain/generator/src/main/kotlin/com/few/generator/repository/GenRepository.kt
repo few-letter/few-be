@@ -65,4 +65,9 @@ interface GenRepository : JpaRepository<Gen, Long> {
         endTime: LocalDateTime,
         category: Int,
     ): List<Gen>
+
+    fun findAllByCreatedAtBetween(
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
+    ): List<Gen>
 }
