@@ -1,4 +1,4 @@
-package com.few.generator.service
+package com.few.generator.usecase
 
 import com.few.email.GenData
 import com.few.email.GenNewsletterArgs
@@ -6,41 +6,93 @@ import com.few.email.GenNewsletterContent
 import com.few.email.GenNewsletterSender
 import com.few.generator.domain.Gen
 import com.few.generator.domain.Subscription
-import com.few.generator.repository.GenRepository
 import com.few.generator.repository.SubscriptionRepository
+import com.few.generator.service.GenService
+import com.few.generator.service.GenUrlService
+import com.few.generator.service.NewsletterContentBuilder
+import com.few.generator.support.jpa.GeneratorTransactional
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.data.domain.PageRequest
-import org.springframework.stereotype.Service
+import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.stereotype.Component
 import java.time.Clock
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.system.measureTimeMillis
 
-@Service
-class MailSendService(
-    private val subscriptionRepository: SubscriptionRepository,
-    private val genRepository: GenRepository,
-    private val genNewsletterSender: GenNewsletterSender,
+@Component
+class SendNewsletterUseCase(
+    private val subscriptionRepository: SubscriptionRepository, // 설계 원칙 위배
+    private val genService: GenService, // 설계 원칙 위배
+    private val genNewsletterSender: GenNewsletterSender, // 설계 원칙 위배
     private val newsletterContentBuilder: NewsletterContentBuilder,
-    private val genUrlService: GenUrlService,
+    private val genUrlService: GenUrlService, // 설계 원칙 위배
     private val clock: Clock = Clock.systemDefaultZone(),
 ) {
     private val log = KotlinLogging.logger {}
+    private val isRunning = AtomicBoolean(false)
     private val pageSize = 100
 
-    fun sendDailyNewsletter(): Pair<Int, Int> {
-        val latestGenDate =
-            genRepository
-                .findFirstLimit(1)
-                .firstOrNull()
-                ?.createdAt
-                ?.toLocalDate()
-        val today = LocalDate.now(clock)
+    @Scheduled(cron = "0 0 8 * * *")
+    @GeneratorTransactional
+    fun execute() {
+        if (!isRunning.compareAndSet(false, true)) {
+            log.warn { "뉴스레터 스케줄링이 이미 실행 중입니다." }
+            return
+        }
 
-        if (latestGenDate == null || latestGenDate.isBefore(today)) {
+        try {
+            doExecute()
+        } finally {
+            isRunning.set(false)
+        }
+    }
+
+    private fun doExecute() {
+        val startTime = LocalDateTime.now()
+        var isSuccess = true
+        var executionTimeSec = 0.0
+        var exception: Throwable? = null
+
+        var result: Pair<Int, Int> = Pair(0, 0)
+
+        runCatching {
+            executionTimeSec =
+                measureTimeMillis {
+                    result = sendDailyNewsletter()
+                }.msToSeconds()
+        }.onFailure { ex ->
+            isSuccess = false
+            log.error(ex) { "뉴스레터 전송 중 오류 발생" }
+            exception = ex
+        }.also {
+            log.info {
+                buildString {
+                    appendLine("📧 뉴스레터 전송 완료")
+                    appendLine("✅ 성공 여부: $isSuccess")
+                    appendLine("✅ 시작 시간: $startTime")
+                    appendLine("✅ 소요 시간: ${executionTimeSec}초")
+                    appendLine("✅ 결과: 성공(${result.first}) / 실패(${result.second})")
+                    if (!isSuccess) appendLine("❌ 오류: ${exception?.message}")
+                }
+            }
+        }
+    }
+
+    private fun sendDailyNewsletter(): Pair<Int, Int> {
+        val latestGenDate = genService.findLatestGen().createdAt ?: return 0 to 0
+        val today = LocalDateTime.now(clock)
+        if (latestGenDate.isBefore(today)) {
             return 0 to 0
         }
 
-        val dateRange = DateRange(latestGenDate.atStartOfDay(), latestGenDate.plusDays(1).atStartOfDay())
-        val gensToSend = genRepository.findAllByCreatedAtBetween(dateRange.start, dateRange.end)
+        val gensToSend =
+            genService.findAllByCreatedAtBetween(
+                start = latestGenDate.toLocalDate().atStartOfDay(),
+                end = latestGenDate.toLocalDate().plusDays(1).atStartOfDay(),
+            )
+
         val gensByCategory = gensToSend.groupBy { it.category }
         val rawContentsUrlsByGens = genUrlService.getRawContentsUrlsByGens(gensToSend)
         var successCount = 0
@@ -51,7 +103,7 @@ class MailSendService(
             val subscriptionPage = subscriptionRepository.findAll(PageRequest.of(page, pageSize))
 
             subscriptionPage.content.forEach { subscription ->
-                if (sendNewsletterToSubscriber(subscription, gensByCategory, rawContentsUrlsByGens, latestGenDate)) {
+                if (sendNewsletterToSubscriber(subscription, gensByCategory, rawContentsUrlsByGens, latestGenDate.toLocalDate())) {
                     successCount++
                 } else {
                     failCount++
@@ -107,4 +159,6 @@ class MailSendService(
     }
 
     private fun parseCategories(categories: String): List<Int> = categories.split(",").mapNotNull { it.trim().toIntOrNull() }
+
+    private fun Long.msToSeconds(): Double = this / 1000.0
 }
