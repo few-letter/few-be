@@ -6,9 +6,10 @@ import com.few.email.GenNewsletterContent
 import com.few.email.GenNewsletterSender
 import com.few.generator.domain.Gen
 import com.few.generator.domain.Subscription
-import com.few.generator.repository.SubscriptionRepository
 import com.few.generator.service.GenService
-import com.few.generator.service.GenUrlService
+import com.few.generator.service.ProvisioningContentsService
+import com.few.generator.service.RawContentsService
+import com.few.generator.service.SubscriptionService
 import com.few.generator.service.implement.NewsletterContentBuilder
 import com.few.generator.support.jpa.GeneratorTransactional
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -23,11 +24,12 @@ import kotlin.system.measureTimeMillis
 
 @Component
 class SendNewsletterUseCase(
-    private val subscriptionRepository: SubscriptionRepository, // 설계 원칙 위배?
+    private val subscriptionService: SubscriptionService,
     private val genService: GenService,
+    private val provisioningContentsService: ProvisioningContentsService,
+    private val rawContentsService: RawContentsService,
     private val genNewsletterSender: GenNewsletterSender,
     private val newsletterContentBuilder: NewsletterContentBuilder,
-    private val genUrlService: GenUrlService, // 설계 원칙 위배
     private val clock: Clock = Clock.systemDefaultZone(),
 ) {
     private val log = KotlinLogging.logger {}
@@ -95,13 +97,13 @@ class SendNewsletterUseCase(
             )
 
         val gensByCategory = gensToSend.groupBy { it.category }
-        val rawContentsUrlsByGens = genUrlService.getRawContentsUrlsByGens(gensToSend)
+        val rawContentsUrlsByGens = getRawContentsUrlsByGens(gensToSend)
         var successCount = 0
         var failCount = 0
         var page = 0
 
         do {
-            val subscriptionPage = subscriptionRepository.findAll(PageRequest.of(page, pageSize))
+            val subscriptionPage = subscriptionService.findAll(PageRequest.of(page, pageSize))
 
             subscriptionPage.content.forEach { subscription ->
                 if (sendNewsletterToSubscriber(subscription, gensByCategory, rawContentsUrlsByGens, latestGenDate.toLocalDate())) {
@@ -157,6 +159,34 @@ class SendNewsletterUseCase(
             log.error(ex) { "메일 발송 실패 - 구독자: ${subscription.email}" }
             false
         }
+    }
+
+    private fun getRawContentsUrlsByGens(gens: List<Gen>): Map<Long, String> {
+        if (gens.isEmpty()) return emptyMap()
+
+        val provisioningIds = gens.map { it.provisioningContentsId }.distinct()
+        if (provisioningIds.isEmpty()) return emptyMap()
+        val provisioningContents = provisioningContentsService.findAllByIdIn(provisioningIds)
+
+        val rawContentsIds = provisioningContents.map { it.rawContentsId }.distinct()
+        if (rawContentsIds.isEmpty()) return emptyMap()
+        val rawContents = rawContentsService.findAllByIdIn(rawContentsIds)
+
+        val rawContentsMap: Map<Long, String> =
+            rawContents.mapNotNull { rawContent -> rawContent.id?.let { it to rawContent.url } }.toMap()
+
+        val provisioningMap =
+            provisioningContents
+                .mapNotNull { provisioning -> provisioning.id?.let { provisioning.id to provisioning } }
+                .toMap()
+
+        return gens
+            .mapNotNull { gen ->
+                val gId = gen.id ?: return@mapNotNull null
+                val pId = gen.provisioningContentsId
+                val rawId = provisioningMap[pId]?.rawContentsId ?: return@mapNotNull null
+                rawContentsMap[rawId]?.let { url -> gId to url }
+            }.toMap()
     }
 
     private fun parseCategories(categories: String): List<Int> = categories.split(",").mapNotNull { it.trim().toIntOrNull() }
