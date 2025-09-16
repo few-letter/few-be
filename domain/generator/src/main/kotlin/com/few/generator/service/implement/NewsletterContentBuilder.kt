@@ -1,4 +1,4 @@
-package com.few.generator.service
+package com.few.generator.service.implement
 
 import com.few.email.EmailContext
 import com.few.email.GenData

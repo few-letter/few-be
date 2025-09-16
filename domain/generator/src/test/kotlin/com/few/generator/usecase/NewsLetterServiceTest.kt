@@ -12,7 +12,7 @@ import com.few.generator.repository.GenRepository
 import com.few.generator.repository.SubscriptionRepository
 import com.few.generator.service.GenUrlService
 import com.few.generator.service.MailSendService
-import com.few.generator.service.NewsletterContentBuilder
+import com.few.generator.service.implement.NewsletterContentBuilder
 import com.few.generator.support.jpa.GeneratorTransactional
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.DisplayName

@@ -9,7 +9,7 @@ import com.few.generator.domain.Subscription
 import com.few.generator.repository.SubscriptionRepository
 import com.few.generator.service.GenService
 import com.few.generator.service.GenUrlService
-import com.few.generator.service.NewsletterContentBuilder
+import com.few.generator.service.implement.NewsletterContentBuilder
 import com.few.generator.support.jpa.GeneratorTransactional
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.data.domain.PageRequest
@@ -23,9 +23,9 @@ import kotlin.system.measureTimeMillis
 
 @Component
 class SendNewsletterUseCase(
-    private val subscriptionRepository: SubscriptionRepository, // 설계 원칙 위배
-    private val genService: GenService, // 설계 원칙 위배
-    private val genNewsletterSender: GenNewsletterSender, // 설계 원칙 위배
+    private val subscriptionRepository: SubscriptionRepository, // 설계 원칙 위배?
+    private val genService: GenService,
+    private val genNewsletterSender: GenNewsletterSender,
     private val newsletterContentBuilder: NewsletterContentBuilder,
     private val genUrlService: GenUrlService, // 설계 원칙 위배
     private val clock: Clock = Clock.systemDefaultZone(),
@@ -84,6 +84,7 @@ class SendNewsletterUseCase(
         val latestGenDate = genService.findLatestGen().createdAt ?: return 0 to 0
         val today = LocalDateTime.now(clock)
         if (latestGenDate.isBefore(today)) {
+            log.info { "뉴스레터 전송 대상 없음" }
             return 0 to 0
         }
 
