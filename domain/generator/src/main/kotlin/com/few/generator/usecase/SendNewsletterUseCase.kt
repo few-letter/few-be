@@ -7,7 +7,7 @@ import com.few.email.GenNewsletterSender
 import com.few.generator.domain.Gen
 import com.few.generator.domain.Subscription
 import com.few.generator.service.GenService
-import com.few.generator.service.ProvisioningContentsService
+import com.few.generator.service.ProvisioningService
 import com.few.generator.service.RawContentsService
 import com.few.generator.service.SubscriptionService
 import com.few.generator.service.implement.NewsletterContentBuilder
@@ -26,7 +26,7 @@ import kotlin.system.measureTimeMillis
 class SendNewsletterUseCase(
     private val subscriptionService: SubscriptionService,
     private val genService: GenService,
-    private val provisioningContentsService: ProvisioningContentsService,
+    private val provisioningService: ProvisioningService,
     private val rawContentsService: RawContentsService,
     private val genNewsletterSender: GenNewsletterSender,
     private val newsletterContentBuilder: NewsletterContentBuilder,
@@ -161,7 +161,7 @@ class SendNewsletterUseCase(
 
         val provisioningIds = gens.map { it.provisioningContentsId }.distinct()
         if (provisioningIds.isEmpty()) return emptyMap()
-        val provisioningContents = provisioningContentsService.findAllByIdIn(provisioningIds)
+        val provisioningContents = provisioningService.findAllByIdIn(provisioningIds)
 
         val rawContentsIds = provisioningContents.map { it.rawContentsId }.distinct()
         if (rawContentsIds.isEmpty()) return emptyMap()
