@@ -34,7 +34,7 @@ class SendNewsletterUseCase(
     private val isRunning = AtomicBoolean(false)
     private val pageSize = 100
 
-    @Scheduled(cron = "0 0 8 * * *")
+    @Scheduled(cron = "0 0 9 * * *", zone = "Asia/Seoul")
     @GeneratorTransactional
     fun execute() {
         if (!isRunning.compareAndSet(false, true)) {
