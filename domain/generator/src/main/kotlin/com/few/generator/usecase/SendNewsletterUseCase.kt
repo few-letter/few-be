@@ -84,11 +84,6 @@ class SendNewsletterUseCase(
 
     private fun sendDailyNewsletter(): Pair<Int, Int> {
         val latestGenDate = genService.findLatestGen().createdAt ?: return 0 to 0
-        val today = LocalDateTime.now(clock)
-        if (latestGenDate.isBefore(today)) {
-            log.info { "뉴스레터 전송 대상 없음" }
-            return 0 to 0
-        }
 
         val gensToSend =
             genService.findAllByCreatedAtBetween(
