@@ -15,6 +15,7 @@ import com.google.gson.Gson
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 
 @Service
 class GenService(
@@ -59,4 +60,11 @@ class GenService(
             ),
         )
     }
+
+    fun findLatestGen(): Gen = genRepository.findFirstLimit(1)[0]
+
+    fun findAllByCreatedAtBetween(
+        start: LocalDateTime,
+        end: LocalDateTime,
+    ): List<Gen> = genRepository.findAllByCreatedAtBetween(start, end)
 }

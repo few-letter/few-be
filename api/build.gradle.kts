@@ -9,9 +9,9 @@ apply(from = "$rootDir/gradle/image.gradle.kts")
 dependencies {
     /** library */
     implementation(project(":library:common"))
+    implementation(project(":library:email"))
     /** domain */
     implementation(project(":domain:generator"))
-    implementation(project(":domain:provider"))
 
     /** starter */
     implementation("org.springframework.boot:spring-boot-starter-actuator")

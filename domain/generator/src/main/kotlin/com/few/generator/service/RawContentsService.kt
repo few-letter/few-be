@@ -43,4 +43,6 @@ class RawContentsService(
             ),
         )
     }
+
+    fun findAllByIdIn(ids: List<Long>): List<RawContents> = rawContentsRepository.findAllByIdIn(ids)
 }

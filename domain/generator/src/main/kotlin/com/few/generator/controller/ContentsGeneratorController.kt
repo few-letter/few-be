@@ -7,6 +7,7 @@ import com.few.generator.usecase.BrowseContentsUseCase
 import com.few.generator.usecase.GroupGenBrowseUseCase
 import com.few.generator.usecase.RawContentsBrowseContentUseCase
 import com.few.generator.usecase.SchedulingUseCase
+import com.few.generator.usecase.SendNewsletterUseCase
 import com.few.generator.usecase.input.BrowseContentsUseCaseIn
 import com.few.web.ApiResponse
 import com.few.web.ApiResponseGenerator
@@ -23,6 +24,7 @@ import java.time.LocalDate
 @RequestMapping("/api/v1")
 class ContentsGeneratorController(
     private val schedulingUseCase: SchedulingUseCase,
+    private val newsletterSchedulingUseCase: SendNewsletterUseCase,
     private val rawContentsBrowseContentUseCase: RawContentsBrowseContentUseCase,
     private val browseContentsUseCase: BrowseContentsUseCase,
     private val groupGenService: GroupGenService,
@@ -33,6 +35,17 @@ class ContentsGeneratorController(
     )
     fun createAll(): ApiResponse<ApiResponse.Success> {
         schedulingUseCase.execute()
+
+        return ApiResponseGenerator.success(
+            HttpStatus.OK,
+        )
+    }
+
+    @PostMapping(
+        value = ["/contents/send"],
+    )
+    fun sendAll(): ApiResponse<ApiResponse.Success> {
+        newsletterSchedulingUseCase.execute()
 
         return ApiResponseGenerator.success(
             HttpStatus.OK,

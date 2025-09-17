@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Daily Letter</title>
+</head>
+<body style="margin: 0 auto;
+            width: 100%;
+            max-width: 360px;
+            font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f8f9fa;
+            line-height: 1.5;"
+>
+<table cellpadding="0" cellspacing="0" style=
+    "background-color: #ffffff; color: #000000;
+            padding-top: 50px;
+            padding-left: 16px;
+            padding-right: 16px;
+            ">
+    <tbody>
+    <!-- 날짜 섹션 -->
+    <tr style="
+            font-weight: 500;
+            font-size: 12px;
+            margin-bottom: 8px;
+            color: #212531;">
+        <td>
+            <p th:text="${newsletterDate}">2025.09.07</p>
+        </td>
+    </tr>
+    <!-- 배너 이미지 -->
+    <tr>
+        <td>
+            <img src="https://few-bucket-6c253cf8965ce212.s3.ap-northeast-2.amazonaws.com/public/images/fewBanner.png" alt="Newsletter Image" style="
+            width: 328px;
+            height: 68px;
+            border-radius: 4px;
+            overflow: hidden;
+            max-width: 100%;
+            height: auto;" />
+        </td>
+    </tr>
+
+    <!-- 카테고리 섹션 -->
+    <th:block th:each="categoryData : ${gensByCategory}">
+        <tr style="background-color: #ffffff;">
+            <td>
+                <h2 style="margin-top: 40px; font-size: 18px; font-weight: 600; color: #0c121b;" th:text="${categoryData.categoryName}">Apple</h2>
+            </td>
+        </tr>
+        <th:block th:each="gen : ${categoryData.gens}">
+            <tr style="background-color: #f7f7f7;">
+                <td style="padding-left: 16px; padding-right: 16px; padding-top: 16px; padding-bottom: 8px;">
+                    <span style="font-size: 16px; color: #37404f; font-weight: 400;" th:text="${' · ' + gen.headline}"> · WWDC 2025는 6월 9일부터 13일까지 온라인으로 열리며, 6월 9일 애플 파크에서 특별 행사도 진행됩니다.</span>
+                    <a style="font-size: 12px; color: #6c757d; margin-top: 5px; font-style: italic; text-decoration: underline; cursor: pointer;" th:href="${gen.url}" th:text="'(원문↗)'">(원문↗)</a>
+                </td>
+            </tr>
+        </th:block>
+    </th:block>
+
+    <!-- 푸터 섹션 -->
+    <tr>
+        <td align="center">
+            <img src="https://few-bucket-6c253cf8965ce212.s3.ap-northeast-2.amazonaws.com/public/images/fewLogo.png" alt="Footer Image" style="
+            width: 68px;
+            height: 34px;
+            max-width: 100%;
+            padding-top: 60px;
+            border-radius: 4px;
+            overflow: hidden;
+            height: auto;" />
+        </td>
+    </tr>
+
+    <tr>
+        <td align="center">
+            <span style="padding-top: 8px; font-size: 14px; color: #4c5667; font-weight: 500;">한줄로 떠먹여주는 AI 요약 뉴스레터</span>
+        </td>
+    </tr>
+
+    <tr>
+        <td align="center">
+            <a th:href="${webscribeLink}" style="margin-top: 16px; padding: 16px; color: #37404f; font-weight: 600; font-size: 14px; cursor: pointer; background-color: #eaf6ff; border-radius: 8px; display: block; position: relative; text-decoration: none;">웹에서 오늘의 TOP 뉴스 보기
+                <span style="position: absolute;
+            right: 0; bottom: 0; width: 24px; height: 12px;
+            border-top-left-radius: 8px;
+            background: linear-gradient(to top left, #ffffff 50%, #1f2733 50%);"/>
+            </a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<table cellpadding="0" cellspacing="0" style="padding-bottom: 80px; background-color: #ffffff; width: 100%;">
+    <tr>
+        <td align="right" style="padding-right: 16px;">
+            <a href="https://www.instagram.com/few.letter?igsh=MXdla291OWRndG84aw==&utm_source=qr" style="display: block; width: 36px; height: 36px; margin-top: 24px; cursor: pointer;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#818ca0" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6.96 0H17.04C20.88 0 24 3.12 24 6.96V17.04C24 18.8859 23.2667 20.6562 21.9615 21.9615C20.6562 23.2667 18.8859 24 17.04 24H6.96C3.12 24 0 20.88 0 17.04V6.96C0 5.11409 0.733284 3.34379 2.03854 2.03854C3.34379 0.733284 5.11409 0 6.96 0ZM6.72 2.4C5.57427 2.4 4.47546 2.85514 3.6653 3.6653C2.85514 4.47546 2.4 5.57427 2.4 6.72V17.28C2.4 19.668 4.332 21.6 6.72 21.6H17.28C18.4257 21.6 19.5245 21.1449 20.3347 20.3347C21.1449 19.5245 21.6 18.4257 21.6 17.28V6.72C21.6 4.332 19.668 2.4 17.28 2.4H6.72ZM18.3 4.2C18.6978 4.2 19.0794 4.35804 19.3607 4.63934C19.642 4.92064 19.8 5.30218 19.8 5.7C19.8 6.09783 19.642 6.47936 19.3607 6.76066C19.0794 7.04197 18.6978 7.2 18.3 7.2C17.9022 7.2 17.5206 7.04197 17.2393 6.76066C16.958 6.47936 16.8 6.09783 16.8 5.7C16.8 5.30218 16.958 4.92064 17.2393 4.63934C17.5206 4.35804 17.9022 4.2 18.3 4.2ZM12 6C13.5913 6 15.1174 6.63214 16.2426 7.75736C17.3679 8.88258 18 10.4087 18 12C18 13.5913 17.3679 15.1174 16.2426 16.2426C15.1174 17.3679 13.5913 18 12 18C10.4087 18 8.88258 17.3679 7.75736 16.2426C6.63214 15.1174 6 13.5913 6 12C6 10.4087 6.63214 8.88258 7.75736 7.75736C8.88258 6.63214 10.4087 6 12 6ZM12 8.4C11.0452 8.4 10.1295 8.77928 9.45442 9.45442C8.77928 10.1295 8.4 11.0452 8.4 12C8.4 12.9548 8.77928 13.8705 9.45442 14.5456C10.1295 15.2207 11.0452 15.6 12 15.6C12.9548 15.6 13.8705 15.2207 14.5456 14.5456C15.2207 13.8705 15.6 12.9548 15.6 12C15.6 11.0452 15.2207 10.1295 14.5456 9.45442C13.8705 8.77928 12.9548 8.4 12 8.4Z" fill="#818CA0"/>
+                </svg>
+            </a>
+        </td>
+        <td align="left" style="padding-left: 16px;">
+            <a href="https://few-fe.vercel.app/" style="display: block; width: 36px; height: 36px; margin-top: 24px; cursor: pointer;">
+                <svg width="24" height="22" viewBox="0 0 24 22" fill="#818ca0" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10.8808 17.2816C10.9965 17.3969 11.0883 17.5339 11.1509 17.6848C11.2136 17.8357 11.2458 17.9974 11.2458 18.1608C11.2458 18.3241 11.2136 18.4859 11.1509 18.6367C11.0883 18.7876 10.9965 18.9246 10.8808 19.0399L10.3512 19.5695C9.78905 20.1337 9.12064 20.5809 8.38459 20.8852C7.64855 21.1895 6.85948 21.3448 6.06302 21.3422C4.86358 21.3426 3.69098 20.9872 2.69356 20.3211C1.69615 19.6549 0.918735 18.7078 0.459679 17.5997C0.000622556 16.4916 -0.119449 15.2722 0.114655 14.0958C0.348759 12.9195 0.92652 11.839 1.77484 10.991L5.36901 7.39688C6.13349 6.63251 7.08838 6.08636 8.13482 5.81498C9.18127 5.5436 10.2812 5.55685 11.3208 5.85335C12.3604 6.14985 13.3019 6.71883 14.0478 7.50139C14.7936 8.28395 15.3167 9.25164 15.563 10.3043C15.6038 10.4643 15.6122 10.6309 15.5878 10.7943C15.5634 10.9576 15.5066 11.1144 15.4208 11.2556C15.335 11.3967 15.2219 11.5193 15.0881 11.6161C14.9543 11.713 14.8025 11.7821 14.6417 11.8196C14.4808 11.857 14.3141 11.862 14.1513 11.8342C13.9885 11.8064 13.8329 11.7463 13.6936 11.6576C13.5542 11.5689 13.434 11.4533 13.34 11.3175C13.2459 11.1817 13.1799 11.0285 13.1459 10.8669C12.9997 10.2456 12.6903 9.67449 12.2495 9.21277C11.8088 8.75104 11.2527 8.41541 10.6388 8.24058C10.0249 8.06575 9.3754 8.05806 8.75752 8.21831C8.13964 8.37855 7.57577 8.70091 7.1242 9.15207L3.53004 12.7462C3.02903 13.2468 2.68774 13.8848 2.5493 14.5793C2.41087 15.2739 2.48152 15.9939 2.75232 16.6484C3.02313 17.3028 3.48191 17.8622 4.07066 18.2558C4.65941 18.6495 5.35168 18.8597 6.05992 18.8599C6.5305 18.8613 6.99669 18.7693 7.43148 18.5893C7.86627 18.4093 8.26103 18.1448 8.5929 17.8112L9.12142 17.2816C9.23675 17.1658 9.37383 17.0738 9.52479 17.0111C9.67575 16.9483 9.83761 16.916 10.0011 16.916C10.1646 16.916 10.3264 16.9483 10.4774 17.0111C10.6283 17.0738 10.7654 17.1658 10.8808 17.2816ZM22.2218 2.43227C21.0842 1.29508 19.5416 0.65625 17.9331 0.65625C16.3246 0.65625 14.7819 1.29508 13.6444 2.43227L13.1159 2.9608C12.8827 3.19396 12.7517 3.5102 12.7517 3.83995C12.7517 4.16969 12.8827 4.48593 13.1159 4.71909C13.349 4.95226 13.6653 5.08325 13.995 5.08325C14.3248 5.08325 14.641 4.95226 14.8742 4.71909L15.4037 4.18954C16.0758 3.51747 16.9873 3.13991 17.9377 3.13991C18.8882 3.13991 19.7997 3.51747 20.4718 4.18954C21.1438 4.8616 21.5214 5.77311 21.5214 6.72355C21.5214 7.67399 21.1438 8.58551 20.4718 9.25757L16.8714 12.8466C16.5395 13.1802 16.1447 13.4447 15.71 13.6247C15.2752 13.8047 14.809 13.8967 14.3384 13.8953C13.5311 13.8948 12.7477 13.6215 12.1152 13.1199C11.4827 12.6182 11.0383 11.9176 10.8539 11.1317C10.7793 10.811 10.5803 10.5331 10.3008 10.3592C10.0213 10.1852 9.68412 10.1293 9.36345 10.2039C9.04278 10.2786 8.76488 10.4775 8.59089 10.757C8.4169 11.0365 8.36107 11.3737 8.43569 11.6944C8.74712 13.0254 9.49905 14.2121 10.5695 15.0622C11.64 15.9123 12.9663 16.3758 14.3332 16.3776H14.3384C15.1352 16.3798 15.9246 16.224 16.6608 15.9192C17.397 15.6144 18.0655 15.1666 18.6276 14.6018L22.2218 11.0076C22.7849 10.4446 23.2316 9.77613 23.5364 9.04045C23.8412 8.30477 23.998 7.51625 23.998 6.71993C23.998 5.92362 23.8412 5.1351 23.5364 4.39942C23.2316 3.66373 22.7849 2.99529 22.2218 2.43227Z" fill="#818CA0"/>
+                </svg>
+            </a>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

@@ -63,4 +63,6 @@ class ProvisioningService(
         val texts = chatGpt.ask(prompt) as Texts
         return texts
     }
+
+    fun findAllByIdIn(ids: List<Long>): List<ProvisioningContents> = provisioningContentsRepository.findAllByIdIn(ids)
 }
