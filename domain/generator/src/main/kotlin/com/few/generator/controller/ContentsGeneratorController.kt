@@ -5,9 +5,9 @@ import com.few.generator.controller.response.*
 import com.few.generator.service.GroupGenService
 import com.few.generator.usecase.BrowseContentsUseCase
 import com.few.generator.usecase.GroupGenBrowseUseCase
-import com.few.generator.usecase.NewsletterSchedulingUseCase
 import com.few.generator.usecase.RawContentsBrowseContentUseCase
 import com.few.generator.usecase.SchedulingUseCase
+import com.few.generator.usecase.SendNewsletterUseCase
 import com.few.generator.usecase.input.BrowseContentsUseCaseIn
 import com.few.web.ApiResponse
 import com.few.web.ApiResponseGenerator
@@ -24,7 +24,7 @@ import java.time.LocalDate
 @RequestMapping("/api/v1")
 class ContentsGeneratorController(
     private val schedulingUseCase: SchedulingUseCase,
-    private val newsletterSchedulingUseCase: NewsletterSchedulingUseCase,
+    private val newsletterSchedulingUseCase: SendNewsletterUseCase,
     private val rawContentsBrowseContentUseCase: RawContentsBrowseContentUseCase,
     private val browseContentsUseCase: BrowseContentsUseCase,
     private val groupGenService: GroupGenService,
