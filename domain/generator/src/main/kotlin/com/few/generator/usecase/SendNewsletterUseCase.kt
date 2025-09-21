@@ -1,10 +1,12 @@
 package com.few.generator.usecase
 
+import com.few.common.domain.MediaType
 import com.few.email.GenData
 import com.few.email.GenNewsletterArgs
 import com.few.email.GenNewsletterContent
 import com.few.email.GenNewsletterSender
 import com.few.generator.domain.Gen
+import com.few.generator.domain.RawContents
 import com.few.generator.domain.Subscription
 import com.few.generator.service.GenService
 import com.few.generator.service.ProvisioningService
@@ -17,7 +19,6 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.Clock
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
@@ -92,7 +93,9 @@ class SendNewsletterUseCase(
             )
 
         val gensByCategory = gensToSend.groupBy { it.category }
-        val rawContentsUrlsByGens = getRawContentsUrlsByGens(gensToSend)
+        val rawContentsByGenId = getRawContentsByGens(gensToSend)
+        val rawContentsUrlsByGens = getRawContentsUrlsByGens(rawContentsByGenId)
+        val rawContentsMediaTypeByGens = getRawContentsMediaTypeNameByGens(rawContentsByGenId)
         var successCount = 0
         var failCount = 0
         var page = 0
@@ -101,7 +104,14 @@ class SendNewsletterUseCase(
             val subscriptionPage = subscriptionService.findAll(PageRequest.of(page, pageSize))
 
             subscriptionPage.content.forEach { subscription ->
-                if (sendNewsletterToSubscriber(subscription, gensByCategory, rawContentsUrlsByGens, latestGenDate.toLocalDate())) {
+                if (sendNewsletterToSubscriber(
+                        subscription = subscription,
+                        gensByCategory = gensByCategory,
+                        rawContentsUrlsByGens = rawContentsUrlsByGens,
+                        rawContentsMediaTypeNameByGens = rawContentsMediaTypeByGens,
+                        targetDate = latestGenDate.toLocalDate(),
+                    )
+                ) {
                     successCount++
                 } else {
                     failCount++
@@ -118,6 +128,7 @@ class SendNewsletterUseCase(
         subscription: Subscription,
         gensByCategory: Map<Int, List<Gen>>,
         rawContentsUrlsByGens: Map<Long, String>,
+        rawContentsMediaTypeNameByGens: Map<Long, String>,
         targetDate: java.time.LocalDate,
     ): Boolean {
         val categories = parseCategories(subscription.categories)
@@ -133,7 +144,8 @@ class SendNewsletterUseCase(
                         headline = gen.headline,
                         summary = gen.summary,
                         category = gen.category,
-                        url = rawContentsUrlsByGens[gen.id!!],
+                        url = rawContentsUrlsByGens[gen.id!!]!!,
+                        mediaTypeName = rawContentsMediaTypeNameByGens[gen.id!!]!!,
                     )
                 }
 
@@ -156,32 +168,52 @@ class SendNewsletterUseCase(
         }
     }
 
-    private fun getRawContentsUrlsByGens(gens: List<Gen>): Map<Long, String> {
+    private fun getRawContentsUrlsByGens(rawContentsById: Map<Long, RawContents>): Map<Long, String> =
+        rawContentsById
+            .mapNotNull { it ->
+                val genId = it.key
+                val rawContents = it.value
+                genId to rawContents.url
+            }.toMap()
+
+    private fun getRawContentsMediaTypeNameByGens(rawContentsById: Map<Long, RawContents>): Map<Long, String> =
+        rawContentsById
+            .mapNotNull { it ->
+                val genId = it.key
+                val rawContents = it.value
+                val mediaType = MediaType.from(rawContents.mediaType)
+                genId to mediaType.title
+            }.toMap()
+
+    private fun getRawContentsByGens(gens: List<Gen>): Map<Long, RawContents> {
         if (gens.isEmpty()) return emptyMap()
 
         val provisioningIds = gens.map { it.provisioningContentsId }.distinct()
         if (provisioningIds.isEmpty()) return emptyMap()
         val provisioningContents = provisioningService.findAllByIdIn(provisioningIds)
-
-        val rawContentsIds = provisioningContents.map { it.rawContentsId }.distinct()
-        if (rawContentsIds.isEmpty()) return emptyMap()
-        val rawContents = rawContentsService.findAllByIdIn(rawContentsIds)
-
-        val rawContentsMap: Map<Long, String> =
-            rawContents.mapNotNull { rawContent -> rawContent.id?.let { it to rawContent.url } }.toMap()
-
-        val provisioningMap =
+        val provisioningById =
             provisioningContents
                 .mapNotNull { provisioning -> provisioning.id?.let { provisioning.id to provisioning } }
                 .toMap()
 
-        return gens
-            .mapNotNull { gen ->
-                val gId = gen.id ?: return@mapNotNull null
-                val pId = gen.provisioningContentsId
-                val rawId = provisioningMap[pId]?.rawContentsId ?: return@mapNotNull null
-                rawContentsMap[rawId]?.let { url -> gId to url }
-            }.toMap()
+        val rawContentsIds = provisioningContents.map { it.rawContentsId }.distinct()
+        if (rawContentsIds.isEmpty()) return emptyMap()
+        val rawContents = rawContentsService.findAllByIdIn(rawContentsIds)
+        val rawContentsById =
+            rawContents
+                .mapNotNull { rawContent -> rawContent.id?.let { it to rawContent } }
+                .toMap()
+
+        val rawContentsByGenId =
+            gens
+                .mapNotNull { it ->
+                    val pId = it.provisioningContentsId
+                    val rawId = provisioningById[pId]?.rawContentsId ?: return@mapNotNull null
+                    val rawContents = rawContentsById[rawId]
+                    rawContents?.let { rawContents -> it.id?.let { it to rawContents } }
+                }.toMap()
+
+        return rawContentsByGenId
     }
 
     private fun parseCategories(categories: String): List<Int> = categories.split(",").mapNotNull { it.trim().toIntOrNull() }

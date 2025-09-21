@@ -26,7 +26,7 @@
             margin-bottom: 8px;
             color: #212531;">
             <td>
-            <p th:text="${newsletterDate}">2025.09.07</p>
+            <p th:text="${date}">2025.09.07</p>
             </td>
         </tr>
         <!-- 배너 이미지 -->
@@ -56,7 +56,7 @@
                     <td style="padding-left: 16px; padding-right: 16px; padding-top: 16px; padding-bottom: 8px;">
                         <span style="font-size: 16px; color: #37404f; font-weight: 400;" th:text="${' · ' + gen.headline}"> · WWDC 2025는 6월 9일부터 13일까지 온라인으로 열리며, 6월 9일 애플 파크에서 특별 행사도 진행됩니다.</span>
                         <a style="font-size: 12px; color: #6c757d; margin-top: 5px; font-style: italic; text-decoration: underline; cursor: pointer;"
-                           th:href="${gen.url}" th:text="'(원문↗)'">(원문↗)</a>
+                           th:href="${gen.url}" th:text="|${gen.mediaTypeName}|">(원문↗)</a>
                     </td>
                 </tr>
             </th:block>
