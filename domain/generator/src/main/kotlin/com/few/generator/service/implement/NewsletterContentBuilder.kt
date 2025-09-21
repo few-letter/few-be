@@ -17,6 +17,8 @@ class NewsletterContentBuilder {
 
         context.setVariable("date", templateData.date)
         context.setVariable("gensByCategory", templateData.gensByCategory)
+        context.setVariable("webLink", "https://few-fe.vercel.app/")
+        context.setVariable("instaLink", "https://www.instagram.com/few.letter?igsh=MXdla291OWRndG84aw==&utm_source=qr")
 
         return context
     }

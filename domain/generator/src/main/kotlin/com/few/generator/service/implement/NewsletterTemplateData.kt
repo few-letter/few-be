@@ -20,6 +20,7 @@ data class NewsletterTemplateData(
                     CategoryGenData(
                         categoryName = Category.from(categoryCode).title,
                         gens = gens,
+                        categoryCode = categoryCode,
                     )
                 }
 
@@ -32,6 +33,7 @@ data class NewsletterTemplateData(
 }
 
 data class CategoryGenData(
+    val categoryCode: Int,
     val categoryName: String,
     val gens: List<GenData>,
 )
