@@ -1,7 +1,7 @@
-package com.few.generator.service
+package com.few.generator.service.specifics.groupgen
 
 import com.few.common.domain.Category
-import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
+import com.few.generator.config.GeneratorGsonConfig
 import com.few.generator.core.gpt.ChatGpt
 import com.few.generator.core.gpt.prompt.PromptGenerator
 import com.few.generator.core.gpt.prompt.schema.Group
@@ -19,13 +19,16 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
+/**
+ * TODO: refactor code architecture
+ */
 @Service
-class GroupContentGenerationService(
+class GroupContentGenerator(
     private val promptGenerator: PromptGenerator,
     private val chatGpt: ChatGpt,
     private val groupGenRepository: GroupGenRepository,
     private val rawContentsRepository: RawContentsRepository,
-    @Qualifier(GSON_BEAN_NAME)
+    @Qualifier(GeneratorGsonConfig.Companion.GSON_BEAN_NAME)
     private val gson: Gson,
 ) {
     private val log = KotlinLogging.logger {}

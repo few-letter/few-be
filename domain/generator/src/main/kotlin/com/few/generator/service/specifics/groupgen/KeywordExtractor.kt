@@ -1,4 +1,4 @@
-package com.few.generator.service
+package com.few.generator.service.specifics.groupgen
 
 import com.few.generator.domain.Gen
 import com.few.generator.domain.ProvisioningContents
@@ -9,9 +9,12 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import org.springframework.stereotype.Service
 
+/**
+ * TODO: refactor code architecture
+ */
 @Service
-class KeywordExtractionService(
-    private val keyWordsService: KeyWordsService,
+class KeywordExtractor(
+    private val keyWordsCreator: KeyWordsCreator,
 ) {
     private val log = KotlinLogging.logger {}
 
@@ -31,7 +34,7 @@ class KeywordExtractionService(
 
                     AsyncKeywordJob(
                         gen = gen,
-                        keywordDeferred = async { keyWordsService.generateKeyWordsWithCoroutine(coreTexts) },
+                        keywordDeferred = async { keyWordsCreator.generateKeyWordsWithCoroutine(coreTexts) },
                     )
                 }
 
