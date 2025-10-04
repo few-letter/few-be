@@ -11,13 +11,13 @@ import org.springframework.stereotype.Component
 @Component
 class ContentsSchedulingEventListener(
     private val contentsSchedulingHandler: ContentsSchedulingHandler,
-    private val discordIoCoroutineScope: CoroutineScope,
+    private val notificationIoCoroutineScope: CoroutineScope,
 ) {
     private val log = KotlinLogging.logger {}
 
     @EventListener
     fun handleEvent(event: ContentsSchedulingEventDto) {
-        discordIoCoroutineScope.launch {
+        notificationIoCoroutineScope.launch {
             contentsSchedulingHandler.handle(event)
         }
     }
