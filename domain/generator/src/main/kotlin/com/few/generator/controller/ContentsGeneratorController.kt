@@ -2,9 +2,9 @@ package com.few.generator.controller
 
 import com.few.common.domain.Category
 import com.few.generator.controller.response.*
-import com.few.generator.service.GroupGenService
 import com.few.generator.usecase.BrowseContentsUseCase
 import com.few.generator.usecase.GroupGenBrowseUseCase
+import com.few.generator.usecase.GroupSchedulingUseCase
 import com.few.generator.usecase.RawContentsBrowseContentUseCase
 import com.few.generator.usecase.SchedulingUseCase
 import com.few.generator.usecase.SendNewsletterUseCase
@@ -27,8 +27,8 @@ class ContentsGeneratorController(
     private val newsletterSchedulingUseCase: SendNewsletterUseCase,
     private val rawContentsBrowseContentUseCase: RawContentsBrowseContentUseCase,
     private val browseContentsUseCase: BrowseContentsUseCase,
-    private val groupGenService: GroupGenService,
     private val groupGenBrowseUseCase: GroupGenBrowseUseCase,
+    private val groupSchedulingUseCase: GroupSchedulingUseCase,
 ) {
     @PostMapping(
         value = ["/contents/schedule"],
@@ -56,7 +56,7 @@ class ContentsGeneratorController(
         value = ["/contents/groups/schedule"],
     )
     fun createAllGroupGen(): ApiResponse<ApiResponse.Success> {
-        groupGenService.createAllGroupGen()
+        groupSchedulingUseCase.execute()
 
         return ApiResponseGenerator.success(
             HttpStatus.OK,

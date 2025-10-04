@@ -1,4 +1,4 @@
-package com.few.generator.service
+package com.few.generator.service.specifics.groupgen
 
 import com.few.common.domain.Category
 import com.few.generator.config.GroupingProperties
@@ -9,8 +9,11 @@ import com.few.generator.domain.vo.GenDetail
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 
+/**
+ * TODO: refactor code architecture
+ */
 @Service
-class GroupingService(
+class GenGroupper(
     private val promptGenerator: PromptGenerator,
     private val chatGpt: ChatGpt,
     private val groupingProperties: GroupingProperties,

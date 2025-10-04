@@ -67,4 +67,20 @@ class GenService(
         start: LocalDateTime,
         end: LocalDateTime,
     ): List<Gen> = genRepository.findAllByCreatedAtBetween(start, end)
+
+    fun findAllByCreatedAtBetweenAndCategory(category: Category): List<Gen> =
+        genRepository.findAllByCreatedAtBetweenAndCategory(
+            LocalDateTime
+                .now()
+                .withHour(0)
+                .withMinute(0)
+                .withSecond(0),
+            LocalDateTime
+                .now()
+                .plusDays(1)
+                .withHour(0)
+                .withMinute(0)
+                .withSecond(0),
+            category.code,
+        )
 }
