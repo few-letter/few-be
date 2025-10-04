@@ -29,7 +29,9 @@ sonar {
     }
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_18
+kotlin {
+    jvmToolchain(21)
+}
 
 allprojects {
     group = "com.few"

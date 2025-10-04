@@ -37,7 +37,7 @@ object DependencyVersion {
     const val GSON = "2.10.1"
 
     /** jsoup **/
-    const val JSOUP = "1.15.3"
+    const val JSOUP = "1.17.2"
 
     /** Sonar */
     const val SONAR = "6.2.0.5505"
