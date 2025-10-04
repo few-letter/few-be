@@ -1,4 +1,4 @@
-package com.few.common.config
+package com.few.generator.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -6,9 +6,9 @@ import java.net.http.HttpClient
 import java.time.Duration
 
 @Configuration
-class WebhookRestTemplateConfig {
+class SlackHttpClientConfig {
     @Bean
-    fun httpClient(): HttpClient =
+    fun slackHttpClient(): HttpClient =
         HttpClient
             .newBuilder()
             .connectTimeout(Duration.ofSeconds(5))
