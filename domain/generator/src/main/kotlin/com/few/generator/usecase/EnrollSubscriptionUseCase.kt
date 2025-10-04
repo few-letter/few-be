@@ -38,7 +38,7 @@ data class EnrollSubscriptionUseCase(
         applicationEventPublisher.publishEvent(
             EnrollSubscriptionEventDto(
                 email = input.email,
-                categories = joinedCategories,
+                categories = categories.joinToString(", ") { it.title },
                 enrolledAt = LocalDateTime.now(),
             ),
         )

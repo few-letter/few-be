@@ -1,5 +1,6 @@
 package com.few.generator.usecase
 
+import com.few.common.domain.Category
 import com.few.common.exception.BadRequestException
 import com.few.generator.domain.SubscriptionAction
 import com.few.generator.domain.SubscriptionHis
@@ -36,7 +37,12 @@ data class UnsubscribeUseCase(
         applicationEventPublisher.publishEvent(
             UnsubscribeEventDto(
                 email = input.email,
-                categories = existing.categories,
+                categories =
+                    existing.categories
+                        .split(",")
+                        .mapNotNull { it.toIntOrNull() }
+                        .map { Category.from(it) }
+                        .joinToString(", ") { it.title },
                 unsubscribedAt = LocalDateTime.now(),
             ),
         )
