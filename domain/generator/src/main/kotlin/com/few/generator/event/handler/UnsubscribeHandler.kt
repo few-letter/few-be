@@ -1,24 +1,30 @@
 package com.few.generator.event.handler
 
+import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.event.dto.UnsubscribeEventDto
 import com.few.web.client.Block
 import com.few.web.client.SlackBodyProperty
 import com.few.web.client.Text
+import com.google.gson.Gson
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Component
-import org.springframework.web.client.RestTemplate
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 
 @Component
 class UnsubscribeHandler(
-    private val webhookRestTemplate: RestTemplate,
+    private val slackHttpClient: HttpClient,
+    @Qualifier(GSON_BEAN_NAME)
+    private val gson: Gson,
     @Value("\${urls.webhook.slack}") private val webhookUrl: String,
 ) {
     private val log = KotlinLogging.logger {}
 
-    suspend fun handle(event: UnsubscribeEventDto) {
+    fun handle(event: UnsubscribeEventDto) {
         val body =
             SlackBodyProperty(
                 blocks =
@@ -38,18 +44,26 @@ class UnsubscribeHandler(
                     ),
             )
 
-        webhookRestTemplate
-            .exchange(
-                webhookUrl,
-                HttpMethod.POST,
-                HttpEntity(body),
-                String::class.java,
-            ).let { res ->
-                if (res.statusCode.is2xxSuccessful) {
-                    log.info { "Webhook success: ${res.statusCode}" }
+        val request =
+            HttpRequest
+                .newBuilder()
+                .timeout(java.time.Duration.ofSeconds(10))
+                .uri(URI.create(webhookUrl))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(body)))
+                .build()
+
+        slackHttpClient
+            .sendAsync(request, HttpResponse.BodyHandlers.ofString())
+            .thenAccept { response ->
+                if (response.statusCode() in 200..299) {
+                    log.info { "Webhook success: ${response.statusCode()}" }
                 } else {
-                    log.error { "Webhook failed: ${res.statusCode}" }
+                    log.error { "Webhook failed: ${response.statusCode()}" }
                 }
+            }.exceptionally { e ->
+                log.error(e) { "Webhook request failed" }
+                null
             }
     }
 }
