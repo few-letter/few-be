@@ -18,23 +18,23 @@ class ContentsSchedulingHandler(
                     listOf(
                         Block(
                             type = "section",
-                            text = Text(text = "✅ *isSuccess*\n" + event.isSuccess.toString()),
+                            text = Text(text = "✅ *isSuccess*\n${event.isSuccess}"),
                         ),
                         Block(
                             type = "section",
-                            text = Text(text = "⏰ *시작 시간*\n" + event.startTime.toString()),
+                            text = Text(text = "⏰ *시작 시간*\n${event.startTime}"),
                         ),
                         Block(
                             type = "section",
-                            text = Text(text = "⌛ *전체 소요 시간* 🕐\n" + event.totalTime),
+                            text = Text(text = "⌛ *전체 소요 시간* 🕐\n${event.totalTime}"),
                         ),
                         Block(
                             type = "section",
-                            text = Text(text = "🔔 *message*\n" + event.message),
+                            text = Text(text = "🔔 *message*\n${event.message}"),
                         ),
                         Block(
                             type = "section",
-                            text = Text(text = "🚀 *result*\n" + event.result),
+                            text = Text(text = "🚀 *result*\n${event.result}"),
                         ),
                     ),
             )
