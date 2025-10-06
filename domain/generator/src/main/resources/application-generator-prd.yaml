@@ -34,6 +34,7 @@ scheduling:
     cron:
         generator: "0 0 4 * * *"
         group: "0 0 5 * * *"
+        send: "0 0 9 * * *"
 
 urls:
     webhook:
