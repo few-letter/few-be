@@ -47,8 +47,10 @@
         <th:block th:each="categoryData : ${gensByCategory}">
             <tr style="background-color: #ffffff;">
                 <td>
-                    <h2 style="margin-top: 40px; font-size: 18px; font-weight: 600; color: #0c121b;"
-                        th:text="${categoryData.categoryName}">Apple</h2>
+                    <h2 style="margin-top: 40px; font-size: 18px; font-weight: 600; color: #0c121b;">
+                        <span th:test="${categoryData.categoryEmoji}">💻</span>
+                        <span th:text="${' ' + categoryData.categoryName}"> 기술</span>
+                    </h2>
                 </td>
             </tr>
             <th:block th:each="gen : ${categoryData.gens}">

@@ -21,6 +21,7 @@ data class NewsletterTemplateData(
                         categoryName = Category.from(categoryCode).title,
                         gens = gens,
                         categoryCode = categoryCode,
+                        categoryEmoji = emoji(Category.from(categoryCode)),
                     )
                 }
 
@@ -29,6 +30,16 @@ data class NewsletterTemplateData(
                 gensByCategory = categoryGenDataList,
             )
         }
+
+        fun emoji(category: Category): String =
+            when (category) {
+                Category.TECHNOLOGY -> "\uD83D\uDCBB" // 💻
+                Category.LIFE -> "\uD83C\uDFE1" // 🏡
+                Category.POLITICS -> "\uD83C\uDFDB\uFE0F" // 🏛️
+                Category.ECONOMY -> "\uD83D\uDCB0" // 💰
+                Category.SOCIETY -> "\uD83C\uDF0E" // 🌎
+                else -> "\uD83D\uDD2E" // 🔮
+            }
     }
 }
 
@@ -36,4 +47,5 @@ data class CategoryGenData(
     val categoryCode: Int,
     val categoryName: String,
     val gens: List<GenData>,
+    val categoryEmoji: String,
 )
