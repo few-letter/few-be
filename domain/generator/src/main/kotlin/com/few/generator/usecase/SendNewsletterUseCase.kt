@@ -12,7 +12,7 @@ import com.few.generator.service.GenService
 import com.few.generator.service.ProvisioningService
 import com.few.generator.service.RawContentsService
 import com.few.generator.service.SubscriptionService
-import com.few.generator.service.implement.NewsletterContentBuilder
+import com.few.generator.service.specifics.newsletter.NewsletterContentBuilder
 import com.few.generator.support.jpa.GeneratorTransactional
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.data.domain.PageRequest

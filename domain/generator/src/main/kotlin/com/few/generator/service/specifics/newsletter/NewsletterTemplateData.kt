@@ -1,4 +1,4 @@
-package com.few.generator.service.implement
+package com.few.generator.service.specifics.newsletter
 
 import com.few.common.domain.Category
 import com.few.email.GenData
