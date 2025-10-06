@@ -155,7 +155,7 @@ class SendNewsletterUseCase(
             val newsletterArgs =
                 GenNewsletterArgs(
                     to = subscription.email,
-                    subject = "FEW Letter - $targetDate 뉴스레터",
+                    subject = getSubject(subscription, gensByCategory),
                     content = GenNewsletterContent(genDataList),
                     emailContext = emailContext,
                 )
@@ -166,6 +166,16 @@ class SendNewsletterUseCase(
             log.error(ex) { "메일 발송 실패 - 구독자: ${subscription.email}" }
             false
         }
+    }
+
+    fun getSubject(
+        subscription: Subscription,
+        gensByCategory: Map<Int, List<GenData>>,
+    ): String {
+        val firstCategory = parseCategories(subscription.categories)[0]
+        val firstContentOfFirstCategory = gensByCategory[firstCategory]?.get(0)
+        val headline = firstContentOfFirstCategory?.headline ?: ""
+        return "[국내 뉴스] $headline"
     }
 
     private fun getRawContentsUrlsByGens(rawContentsById: Map<Long, RawContents>): Map<Long, String> =
