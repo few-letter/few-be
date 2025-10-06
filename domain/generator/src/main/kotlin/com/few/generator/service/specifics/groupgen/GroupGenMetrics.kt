@@ -1,11 +1,14 @@
-package com.few.generator.service
+package com.few.generator.service.specifics.groupgen
 
 import com.few.common.domain.Category
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 
+/**
+ * TODO: refactor code architecture
+ */
 @Service
-class GroupGenMetricsService {
+class GroupGenMetrics {
     private val log = KotlinLogging.logger {}
 
     data class GroupGenMetrics(

@@ -1,4 +1,4 @@
-package com.few.generator.service.implement
+package com.few.generator.service.specifics.newsletter
 
 import com.few.email.EmailContext
 import com.few.email.GenData
@@ -17,6 +17,8 @@ class NewsletterContentBuilder {
 
         context.setVariable("date", templateData.date)
         context.setVariable("gensByCategory", templateData.gensByCategory)
+        context.setVariable("webLink", "https://few-fe.vercel.app/")
+        context.setVariable("instaLink", "https://www.instagram.com/few.letter?igsh=MXdla291OWRndG84aw==&utm_source=qr")
 
         return context
     }

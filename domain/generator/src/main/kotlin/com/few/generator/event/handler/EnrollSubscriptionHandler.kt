@@ -1,40 +1,32 @@
 package com.few.generator.event.handler
 
 import com.few.generator.event.client.SlackWebhookClient
-import com.few.generator.event.dto.ContentsSchedulingEventDto
+import com.few.generator.event.dto.EnrollSubscriptionEventDto
 import com.few.web.client.Block
 import com.few.web.client.SlackBodyProperty
 import com.few.web.client.Text
 import org.springframework.stereotype.Component
 
 @Component
-class ContentsSchedulingHandler(
+class EnrollSubscriptionHandler(
     private val slackWebhookClient: SlackWebhookClient,
 ) {
-    fun handle(event: ContentsSchedulingEventDto) {
+    fun handle(event: EnrollSubscriptionEventDto) {
         val body =
             SlackBodyProperty(
                 blocks =
                     listOf(
                         Block(
                             type = "section",
-                            text = Text(text = "✅ *isSuccess*\n${event.isSuccess}"),
+                            text = Text(text = "📧 *신규 구독*\n이메일: ${event.email}"),
                         ),
                         Block(
                             type = "section",
-                            text = Text(text = "⏰ *시작 시간*\n${event.startTime}"),
+                            text = Text(text = "🏷️ *카테고리*\n${event.categories}"),
                         ),
                         Block(
                             type = "section",
-                            text = Text(text = "⌛ *전체 소요 시간* 🕐\n${event.totalTime}"),
-                        ),
-                        Block(
-                            type = "section",
-                            text = Text(text = "🔔 *message*\n${event.message}"),
-                        ),
-                        Block(
-                            type = "section",
-                            text = Text(text = "🚀 *result*\n${event.result}"),
+                            text = Text(text = "⏰ *구독 시간*\n${event.enrolledAt}"),
                         ),
                     ),
             )

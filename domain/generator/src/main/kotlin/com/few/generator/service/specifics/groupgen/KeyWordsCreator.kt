@@ -1,4 +1,4 @@
-package com.few.generator.service
+package com.few.generator.service.specifics.groupgen
 
 import com.few.generator.core.gpt.ChatGpt
 import com.few.generator.core.gpt.prompt.PromptGenerator
@@ -10,8 +10,11 @@ import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import java.util.concurrent.CompletableFuture
 
+/**
+ * TODO: refactor code architecture
+ */
 @Service
-class KeyWordsService(
+class KeyWordsCreator(
     private val promptGenerator: PromptGenerator,
     private val chatGpt: ChatGpt,
 ) {

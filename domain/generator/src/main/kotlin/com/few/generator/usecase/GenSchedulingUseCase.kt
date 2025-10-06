@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
 
 @Component
-class SchedulingUseCase(
+class GenSchedulingUseCase(
     private val rawContentsService: RawContentsService,
     private val provisioningService: ProvisioningService,
     private val genService: GenService,
