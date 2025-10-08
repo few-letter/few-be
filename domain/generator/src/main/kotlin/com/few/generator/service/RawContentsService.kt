@@ -2,6 +2,7 @@ package com.few.generator.service
 
 import com.few.common.domain.Category
 import com.few.common.domain.MediaType
+import com.few.common.domain.Region
 import com.few.common.exception.BadRequestException
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.core.scrapper.Scrapper
@@ -24,7 +25,7 @@ class RawContentsService(
     fun create(
         url: String,
         category: Category,
-        region: Int? = null,
+        region: Region,
     ): RawContents {
         val scrappedResult = scrapper.scrape(url)
 
@@ -41,7 +42,7 @@ class RawContentsService(
                 imageUrls = gson.toJson(scrappedResult.images),
                 category = category.code,
                 mediaType = MediaType.find(scrappedResult.sourceUrl).code,
-                region = region,
+                region = region.code,
             ),
         )
     }

@@ -1,6 +1,7 @@
 package com.few.generator.core.scrapper
 
 import com.few.common.domain.Category
+import com.few.common.domain.Region
 import com.few.generator.core.scrapper.cnbc.CnbcScrapper
 import com.few.generator.core.scrapper.naver.NaverScrapper
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -13,19 +14,21 @@ class Scrapper(
 ) {
     private val log = KotlinLogging.logger {}
 
-    fun extractUrlsByCategories(): Map<Category, Set<String>> =
-        naverScrapper
-            .getRootUrlsByCategory(Category.entries)
-            .mapValues { (_, rootUrl) ->
-                naverScrapper.extractUrlsByCategory(rootUrl)
-            }
-
-    fun extractUrlsByCategoriesForCnbc(): Map<Category, Set<String>> =
-        cnbcScrapper
-            .getRootUrlsByCategory(Category.entries)
-            .mapValues { (_, rootUrl) ->
-                cnbcScrapper.extractUrlsByCategory(rootUrl)
-            }
+    fun extractUrlsByCategories(region: Region): Map<Category, Set<String>> =
+        when (region) {
+            Region.LOCAL ->
+                naverScrapper
+                    .getRootUrlsByCategory(Category.entries)
+                    .mapValues { (_, rootUrl) ->
+                        naverScrapper.extractUrlsByCategory(rootUrl)
+                    }
+            Region.GLOBAL ->
+                cnbcScrapper
+                    .getRootUrlsByCategory(Category.entries)
+                    .mapValues { (_, rootUrl) ->
+                        cnbcScrapper.extractUrlsByCategory(rootUrl)
+                    }
+        }
 
     fun scrape(url: String): ScrappedResult {
         Thread.sleep((1..5).random().toLong())
