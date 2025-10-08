@@ -1,6 +1,7 @@
 package com.few.generator.controller
 
 import com.few.common.domain.Category
+import com.few.generator.controller.request.ContentsSchedulingRequest
 import com.few.generator.controller.response.*
 import com.few.generator.usecase.BrowseContentsUseCase
 import com.few.generator.usecase.GenSchedulingUseCase
@@ -32,13 +33,13 @@ class ContentsGeneratorController(
     private val groupGenBrowseUseCase: GroupGenBrowseUseCase,
     private val groupSchedulingUseCase: GroupSchedulingUseCase,
 ) {
-    @GetMapping(
+    @PostMapping(
         value = ["/contents/schedule"],
     )
     fun createAll(
-        @RequestParam(defaultValue = "local") region: String,
+        @Validated @RequestBody request: ContentsSchedulingRequest,
     ): ApiResponse<ApiResponse.Success> {
-        if ("global".equals(region, ignoreCase = true)) {
+        if ("global".equals(request.region, ignoreCase = true)) {
             globalGenSchedulingUseCase.execute()
         } else {
             genSchedulingUseCase.execute()
