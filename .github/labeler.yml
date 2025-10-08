@@ -38,4 +38,4 @@ test:
 
 # 브랜치 이름이 dev 및 release로 시작하면 release 라벨을 붙인다.
 release:
-    - head-branch: [ 'dev', 'release', '^release']
+    - head-branch: [ '^dev$', 'release', '^release']
