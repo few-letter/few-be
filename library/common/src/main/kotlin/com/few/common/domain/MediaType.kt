@@ -7,6 +7,7 @@ enum class MediaType(
     val title: String,
     val keywords: List<String>,
 ) {
+    /** Local **/
     CHOSUN(1, "조선일보", listOf("chosun")),
     KHAN(2, "경향신문", listOf("khan")),
     SBS(3, "SBS", listOf("sbs")),
@@ -46,6 +47,9 @@ enum class MediaType(
     YONHAPNEWS(37, "연합뉴스", listOf("yonhapnews", "yna.co.kr")),
     MAEIL(38, "매일신문", listOf("imaeil.com")),
     JOSEILBO(39, "조세일보", listOf("joseilbo.com")),
+
+    /** Global **/
+    CNBC(40, "CNBC", listOf("cnbc.com")),
     ETC(0, "ETC", emptyList()),
 
     ;
