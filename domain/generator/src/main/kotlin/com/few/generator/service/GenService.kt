@@ -69,7 +69,7 @@ class GenService(
         start: LocalDateTime,
         end: LocalDateTime,
         region: Region = Region.LOCAL,
-    ): List<Gen> = genRepository.findAllByCreatedAtBetweenAndRegion(start, end, Region.LOCAL.code)
+    ): List<Gen> = genRepository.findAllByCreatedAtBetweenAndRegion(start, end, region.code)
 
     fun findAllByCreatedAtBetweenAndCategoryAndRegion(
         category: Category,
@@ -88,6 +88,6 @@ class GenService(
                 .withMinute(0)
                 .withSecond(0),
             category.code,
-            Region.LOCAL.code,
+            region.code,
         )
 }
