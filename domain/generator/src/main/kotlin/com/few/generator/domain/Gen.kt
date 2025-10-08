@@ -8,13 +8,9 @@ import jakarta.persistence.*
     name = "gen",
     indexes =
         [
-            Index(
-                name = "idx_gen_1",
-                columnList = "provisioning_contents_id",
-                unique = false,
-            ),
-            Index(name = "idx_gen_2", columnList = "created_at DESC"),
-            Index(name = "idx_gen_3", columnList = "category", unique = false),
+            Index(name = "idx_gen_created_at", columnList = "created_at DESC", unique = false),
+            Index(name = "idx_gen_created_at_category", columnList = "created_at DESC, category", unique = false),
+            Index(name = "idx_gen_category", columnList = "category", unique = false),
         ],
 )
 data class Gen( // TODO: DB컬럼 타입 변경 필요
@@ -27,4 +23,5 @@ data class Gen( // TODO: DB컬럼 타입 변경 필요
     @Column(columnDefinition = "TEXT", nullable = false) val summary: String,
     @Column(columnDefinition = "TEXT", nullable = false) val highlightTexts: String = "[]",
     @Column(nullable = false) val category: Int,
+    @Column(nullable = true) val region: Int,
 ) : BaseEntity()

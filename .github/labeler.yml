@@ -35,3 +35,7 @@ fix:
 # 브랜치 이름이 test로 시작하면 test 라벨을 붙인다.
 test:
   - head-branch: [ '^test', 'test' ]
+
+# 브랜치 이름이 dev 및 release로 시작하면 release 라벨을 붙인다.
+release:
+    - head-branch: [ '^dev$', 'release', '^release']

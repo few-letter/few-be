@@ -2,6 +2,7 @@ package com.few.generator.usecase
 
 import com.few.common.domain.Category
 import com.few.common.domain.MediaType
+import com.few.common.domain.Region
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.repository.GenRepository
 import com.few.generator.repository.ProvisioningContentsRepository
@@ -35,9 +36,9 @@ data class BrowseContentsUseCase(
             when {
                 input.categoryCode != null -> {
                     if (input.prevGenId == -1L) {
-                        genRepository.findFirstLimitByCategory(input.categoryCode, pageSize)
+                        genRepository.findFirstLimitByCategory(input.categoryCode, pageSize, Region.LOCAL.code)
                     } else {
-                        genRepository.findNextLimitByCategory(input.prevGenId, input.categoryCode, pageSize)
+                        genRepository.findNextLimitByCategory(input.prevGenId, input.categoryCode, pageSize, Region.LOCAL.code)
                     }
                 }
                 else -> {

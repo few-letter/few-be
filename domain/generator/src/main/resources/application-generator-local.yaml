@@ -29,12 +29,15 @@ spring:
             properties:
                 hibernate:
                     format_sql: true
+                    show_sql: true
+            show-sql: true
 
 scheduling:
     cron:
         generator: "0 0 4 * * *"
         group: "0 0 5 * * *"
         send: "0 0 9 * * *"
+        global-gen: "0 0 13 * * *"
 
 urls:
     webhook:

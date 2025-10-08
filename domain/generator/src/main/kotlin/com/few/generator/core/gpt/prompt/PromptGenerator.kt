@@ -18,20 +18,21 @@ class PromptGenerator(
     ): Prompt {
         val systemPrompt =
             """
-            You are tasked with analyzing webpage metadata and content to extract relevant sentences. 
-            You must extract sentences exactly as they appear, without any modifications.
+            당신은 웹페이지 메타데이터와 본문을 분석하여 관련 문장을 정확히 추출하는 전문가입니다.
+            모든 문장은 원문 그대로 추출해야 합니다. 수정이나 요약을 금지합니다.
             """.trimIndent()
 
         val userPrompt =
             """
-            ## Instructions
-            1. Extract all topic-related sentences from the given text exactly as they appear, without any modifications.
-            2. Maintain the meaning of the text and include as many relevant sentences as possible without omissions.
-            3. Do not reconstruct or edit the extracted sentences.
+            ## 지침
+            1. 주어진 텍스트에서 주제와 관련된 모든 문장을 수정 없이 있는 그대로 추출하세요.
+            2. 텍스트의 의미를 유지하고 누락 없이 가능한 한 많은 관련 문장을 포함하세요.
+            3. 원문을 재구성하지 말고 그대로 인용하시오.
+            4. 본문은 너무 길 경우 일부 생략될 수 있습니다. 핵심 문장만 사용하세요.
 
-            ## Input
-            1. Webpage Title: $title
-            2. Target Sentences to Extract: $rawTexts
+            ## 입력
+            1. 웹페이지 제목: $title
+            2. 원문 문장들: $rawTexts
             """.trimIndent()
 
         return Prompt(
@@ -50,20 +51,21 @@ class PromptGenerator(
     ): Prompt {
         val systemPrompt =
             """
-            You are tasked with analyzing webpage title and content to extract important sentences. 
-            You must extract sentences exactly as they appear, without any modifications.
+            당신은 웹페이지 메타데이터와 본문을 분석하여 관련 문장을 정확히 추출하는 전문가입니다.
+            모든 문장은 원문 그대로 추출해야 합니다. 수정이나 요약을 금지합니다.
             """.trimIndent()
 
         val userPrompt =
             """
-            ## Instructions
-            1. Extract all factual and content-wise important sentences from the given text exactly as they appear, without any modifications.
-            2. Do not reconstruct or edit the extracted sentences.
-            3. Include at least 50% of the target sentences.
+            ## 지침
+            1. 주어진 텍스트에서 사실적이고 내용적으로 중요한 모든 문장을 수정 없이 있는 그대로 추출하십시오.
+            2. 원문을 재구성하지 말고 그대로 인용하시오.
+            3. 대상 문장의 최소 50%를 포함하십시오.
+            4. 본문은 너무 길 경우 일부 생략될 수 있습니다. 핵심 문장만 사용하세요.
 
-            ## Input
-            1. Webpage Title: $title
-            2. Target Sentences to Extract (JSON Array): ${gson.toJson(bodyTexts.texts)}
+            ## 입력
+            1. 웹페이지 제목: $title
+            2. 원문 문장들 (JSON Array): ${gson.toJson(bodyTexts.texts)}
             """.trimIndent()
 
         return Prompt(
@@ -91,6 +93,7 @@ class PromptGenerator(
             1. 20자 이상 30자 이내로 작성해주세요.
             2. 자연스러운 한국어 문장으로 단답식으로 작성해주세요. 느낌표, 물음표 사용없이, 마침표만 사용해주세요.
             3. 핵심 수치나, 구체적인 기업명, 시간이나 날짜, 장소명 등등의 내용이 모두 포함되게 작성해주세요.
+            4. 문장형 종결어미(~입니다, ~했다 등)를 사용하지 말고, '명사로 끝나는 구문'으로 작성하세요.(예: '애플의 신제품 발표', '삼성 주가 급등' 등)
 
             ## Input
             1. 원본 기사 제목: $title
@@ -152,7 +155,7 @@ class PromptGenerator(
             1. 아래 Input의 대괄호([]) 안 텍스트에서만 하이라이트를 추출하세요.
             2. 하이라이트는 한 문장 또는 핵심 키워드/구문으로 추출하세요. 길 경우(대략 13자 이상) 원문 일부만 발췌하세요.
             3. 반드시 아래 Input의 원문과 철자·띄어쓰기·숫자·기호까지 100% 일치해야 합니다.
-            4. 다시 한번 강조: 출력은 아래 Input에서 그대로 복사한 문자열이어야 합니다. 문장 전체가 아니어도 되며, 단어 또는 일부 구문이어도 됩니다.
+            4. 강조: 출력은 아래 Input에서 그대로 복사한 문자열이어야 합니다. 문장 전체가 아니어도 되며, 단어 또는 일부 구문이어도 됩니다. 단, 원문을 재구성하지 말고 그대로 인용하시오.
 
             ## Input
             [$summary] 중에서 강조하고 싶은 하이라이트 텍스트를 1개 추출해주세요.
@@ -257,6 +260,7 @@ class PromptGenerator(
             2. 모든 헤드라인의 핵심 내용을 포괄하는 통합 헤드라인을 작성하세요.
             3. 간결하고 명확하며 흥미를 끄는 헤드라인으로 작성하세요.
             4. 한국어로 작성하고, 30자 이내로 제한하세요.
+            5. 문장형 종결어미(~입니다, ~했다 등)를 사용하지 말고, '명사로 끝나는 구문'으로 작성하세요.(예: '애플의 신제품 발표', '삼성 주가 급등' 등)
 
             ## 헤드라인 목록
             $headlineList
@@ -323,9 +327,9 @@ class PromptGenerator(
             1. 주어진 그룹 요약에서 강조하고 싶은 하이라이트 텍스트들을 추출해주세요.
             2. 각 하이라이트는 한 문장 또는 핵심 구문으로 작성하세요.
             3. 2-4개의 하이라이트를 추출하세요.
-            4. 요약 내용과 정확하게 일치하는 텍스트를 사용하세요.
+            4. 강조: 출력은 아래 Input에서 그대로 복사한 문자열이어야 합니다. 문장 전체가 아니어도 되며, 단어 또는 일부 구문이어도 됩니다. 단, 원문을 재구성하지 말고 그대로 인용하시오.
 
-            ## 그룹 요약
+            ## 그룹 요약(Input)
             $groupSummary
             """.trimIndent()
 

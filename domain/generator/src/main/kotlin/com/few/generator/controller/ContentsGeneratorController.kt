@@ -1,9 +1,11 @@
 package com.few.generator.controller
 
 import com.few.common.domain.Category
+import com.few.generator.controller.request.ContentsSchedulingRequest
 import com.few.generator.controller.response.*
 import com.few.generator.usecase.BrowseContentsUseCase
 import com.few.generator.usecase.GenSchedulingUseCase
+import com.few.generator.usecase.GlobalGenSchedulingUseCase
 import com.few.generator.usecase.GroupGenBrowseUseCase
 import com.few.generator.usecase.GroupSchedulingUseCase
 import com.few.generator.usecase.RawContentsBrowseContentUseCase
@@ -24,6 +26,7 @@ import java.time.LocalDate
 @RequestMapping("/api/v1")
 class ContentsGeneratorController(
     private val genSchedulingUseCase: GenSchedulingUseCase,
+    private val globalGenSchedulingUseCase: GlobalGenSchedulingUseCase,
     private val newsletterSchedulingUseCase: SendNewsletterUseCase,
     private val rawContentsBrowseContentUseCase: RawContentsBrowseContentUseCase,
     private val browseContentsUseCase: BrowseContentsUseCase,
@@ -33,8 +36,14 @@ class ContentsGeneratorController(
     @PostMapping(
         value = ["/contents/schedule"],
     )
-    fun createAll(): ApiResponse<ApiResponse.Success> {
-        genSchedulingUseCase.execute()
+    fun createAll(
+        @Validated @RequestBody(required = false) request: ContentsSchedulingRequest,
+    ): ApiResponse<ApiResponse.Success> {
+        if ("global".equals(request.region, ignoreCase = true)) {
+            globalGenSchedulingUseCase.execute()
+        } else {
+            genSchedulingUseCase.execute()
+        }
 
         return ApiResponseGenerator.success(
             HttpStatus.OK,
