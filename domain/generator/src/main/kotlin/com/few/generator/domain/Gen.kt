@@ -27,5 +27,5 @@ data class Gen( // TODO: DB컬럼 타입 변경 필요
     @Column(columnDefinition = "TEXT", nullable = false) val summary: String,
     @Column(columnDefinition = "TEXT", nullable = false) val highlightTexts: String = "[]",
     @Column(nullable = false) val category: Int,
-    @Column(nullable = true) val region: Int? = null,
+    @Column(nullable = true) val region: Int,
 ) : BaseEntity()

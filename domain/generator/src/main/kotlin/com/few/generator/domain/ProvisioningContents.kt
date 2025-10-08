@@ -24,5 +24,5 @@ data class ProvisioningContents( // TODO: DB컬럼 타입 변경 필요
     @Column(nullable = false)
     val category: Int,
     @Column(nullable = true)
-    val region: Int? = null,
+    val region: Int,
 ) : BaseEntity()
