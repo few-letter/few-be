@@ -30,15 +30,20 @@ class CnbcScrapper(
         val request = Request.Builder().url(rootUrl).build()
         val html = getHtml(request)
 
-        val yesterday = LocalDate.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
-        val datePrefix = "https://www.cnbc.com/$yesterday/"
+        val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
+        val datePrefixes =
+            listOf(
+                "https://www.cnbc.com/${LocalDate.now().format(formatter)}/",
+                "https://www.cnbc.com/${LocalDate.now().minusDays(1).format(formatter)}/",
+                "https://www.cnbc.com/${LocalDate.now().minusDays(2).format(formatter)}/",
+            )
 
         val extractedUrls =
             Jsoup
                 .parse(html)
                 .select("a[href]")
                 .mapNotNull { it.attr("href") }
-                .filter { it.startsWith(datePrefix) }
+                .filter { url -> datePrefixes.any { prefix -> url.startsWith(prefix) } }
                 .map { it.split("?")[0] }
                 .toSet()
 
