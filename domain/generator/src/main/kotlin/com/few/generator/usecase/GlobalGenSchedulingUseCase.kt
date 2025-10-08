@@ -100,7 +100,7 @@ class GlobalGenSchedulingUseCase(
 
             for (url in urls) {
                 try {
-                    val rawContent = rawContentsService.create(url, category)
+                    val rawContent = rawContentsService.create(url, category, region = 1)
                     val provisioningContent = provisioningService.create(rawContent)
                     genService.create(rawContent, provisioningContent)
 

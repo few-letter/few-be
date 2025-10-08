@@ -40,6 +40,7 @@ interface GenRepository : JpaRepository<Gen, Long> {
         AND g.created_at < (
             SELECT created_at FROM gen WHERE id = :targetId
         )
+        AND g.region = :region
         ORDER BY g.created_at DESC
         LIMIT :limitSize
         """,
@@ -49,15 +50,17 @@ interface GenRepository : JpaRepository<Gen, Long> {
         @Param("targetId") targetId: Long,
         @Param("category") category: Int,
         @Param("limitSize") limitSize: Int,
+        @Param("region") region: Int? = null,
     ): List<Gen>
 
     @Query(
-        "SELECT * FROM gen WHERE category = :category ORDER BY created_at DESC LIMIT :limitSize",
+        "SELECT * FROM gen WHERE category = :category and region = :region ORDER BY created_at DESC LIMIT :limitSize",
         nativeQuery = true,
     )
     fun findFirstLimitByCategory(
         @Param("category") category: Int,
         @Param("limitSize") limitSize: Int,
+        @Param("region") region: Int? = null,
     ): List<Gen>
 
     fun findAllByCreatedAtBetweenAndCategory(
