@@ -42,6 +42,7 @@ class ProvisioningService(
                 bodyTextsJson = gson.toJson(bodyTexts.texts), // TODO: DB 저장 타입 등 정의, 수정 필요
                 coreTextsJson = gson.toJson(coreTexts.texts),
                 category = rawContents.category,
+                region = rawContents.region,
             ),
         )
     }

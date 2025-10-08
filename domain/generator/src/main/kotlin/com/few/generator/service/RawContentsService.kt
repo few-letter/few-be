@@ -24,6 +24,7 @@ class RawContentsService(
     fun create(
         url: String,
         category: Category,
+        region: Int? = null,
     ): RawContents {
         val scrappedResult = scrapper.scrape(url)
 
@@ -40,6 +41,7 @@ class RawContentsService(
                 imageUrls = gson.toJson(scrappedResult.images),
                 category = category.code,
                 mediaType = MediaType.find(scrappedResult.sourceUrl).code,
+                region = region,
             ),
         )
     }

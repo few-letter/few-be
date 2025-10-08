@@ -57,6 +57,7 @@ class GenService(
                 summary = summary.summary,
                 highlightTexts = gson.toJson(listOf(highlightText.highlightText)),
                 category = Category.from(provisioningContent.category).code,
+                region = provisioningContent.region,
             ),
         )
     }
