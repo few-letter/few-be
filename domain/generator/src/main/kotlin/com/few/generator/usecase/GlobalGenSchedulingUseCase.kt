@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
 
 @Component
-class GenSchedulingUseCase(
+class GlobalGenSchedulingUseCase(
     private val rawContentsService: RawContentsService,
     private val provisioningService: ProvisioningService,
     private val genService: GenService,
@@ -30,14 +30,14 @@ class GenSchedulingUseCase(
     private val log = KotlinLogging.logger {}
     private val isRunning = AtomicBoolean(false)
 
-    @Scheduled(cron = "\${scheduling.cron.generator}")
+    @Scheduled(cron = "\${scheduling.cron.global-gen}")
     @GeneratorTransactional
     fun execute() {
         /** 0~15분 사이 랜덤으로 sleep 후 진행 **/
         Thread.sleep((0..15).random().toLong() * 60 * 1000)
 
         if (!isRunning.compareAndSet(false, true)) {
-            throw BadRequestException("Contents scheduling is already running. Please try again later.")
+            throw BadRequestException("Global contents scheduling is already running. Please try again later.")
         }
 
         try {
@@ -61,7 +61,7 @@ class GenSchedulingUseCase(
                 }.msToSeconds()
         }.onFailure { ex ->
             isSuccess = false
-            log.error(ex) { "콘텐츠 스케줄링 중 오류 발생" }
+            log.error(ex) { "글로벌 콘텐츠 스케줄링 중 오류 발생" }
             exception = ex
         }.also {
             log.info {
@@ -85,13 +85,13 @@ class GenSchedulingUseCase(
             )
 
             if (!isSuccess) {
-                throw BadRequestException("콘텐츠 스케줄링에 실패 : ${exception?.cause?.message}")
+                throw BadRequestException("글로벌 콘텐츠 스케줄링에 실패 : ${exception?.cause?.message}")
             }
         }
     }
 
     private fun create(): Pair<Int, Int> {
-        val urlsByCategories = scrapper.extractUrlsByCategories(Region.LOCAL)
+        val urlsByCategories = scrapper.extractUrlsByCategories(Region.GLOBAL)
 
         var successCnt = 0
         var failCnt = 0
@@ -101,7 +101,7 @@ class GenSchedulingUseCase(
 
             for (url in urls) {
                 try {
-                    val rawContent = rawContentsService.create(url, category, Region.LOCAL)
+                    val rawContent = rawContentsService.create(url, category, Region.GLOBAL)
                     val provisioningContent = provisioningService.create(rawContent)
                     genService.create(rawContent, provisioningContent)
 
@@ -112,7 +112,7 @@ class GenSchedulingUseCase(
                 } catch (e: Exception) {
                     failCnt++
                     log.error(e) {
-                        "콘텐츠 생성 중 오류 발생하여 Skip 처리. URL: $url, 카테고리: ${category.title}"
+                        "글로벌 콘텐츠 생성 중 오류 발생하여 Skip 처리. URL: $url, 카테고리: ${category.title}"
                     }
                 }
             }
