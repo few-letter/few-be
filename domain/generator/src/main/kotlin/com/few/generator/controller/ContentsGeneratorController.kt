@@ -37,7 +37,7 @@ class ContentsGeneratorController(
         value = ["/contents/schedule"],
     )
     fun createAll(
-        @Validated @RequestBody request: ContentsSchedulingRequest,
+        @Validated @RequestBody(required = false) request: ContentsSchedulingRequest,
     ): ApiResponse<ApiResponse.Success> {
         if ("global".equals(request.region, ignoreCase = true)) {
             globalGenSchedulingUseCase.execute()
