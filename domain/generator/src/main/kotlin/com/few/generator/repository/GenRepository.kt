@@ -1,5 +1,6 @@
 package com.few.generator.repository
 
+import com.few.common.domain.Region
 import com.few.generator.domain.Gen
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -13,6 +14,7 @@ interface GenRepository : JpaRepository<Gen, Long> {
         WHERE g.created_at < (
             SELECT created_at FROM gen WHERE id = :targetId
         )
+        AND g.region = :region
         ORDER BY g.created_at DESC
         LIMIT :limitSize
         """,
@@ -21,14 +23,16 @@ interface GenRepository : JpaRepository<Gen, Long> {
     fun findNextLimit(
         @Param("targetId") targetId: Long,
         @Param("limitSize") limitSize: Int,
+        @Param("region") region: Int = Region.LOCAL.code,
     ): List<Gen>
 
     @Query(
-        "SELECT * FROM gen ORDER BY created_at DESC LIMIT :limitSize",
+        "SELECT * FROM gen WHERE region = :region ORDER BY created_at DESC LIMIT :limitSize",
         nativeQuery = true,
     )
     fun findFirstLimit(
         @Param("limitSize") limitSize: Int,
+        @Param("region") region: Int = Region.LOCAL.code,
     ): List<Gen>
 
     @Query(
