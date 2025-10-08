@@ -24,4 +24,6 @@ data class RawContents(
     val category: Int,
     @Column(nullable = false)
     val mediaType: Int,
+    @Column(nullable = true)
+    val region: Int? = null,
 ) : BaseEntity()
