@@ -1,6 +1,7 @@
 package com.few.generator.service
 
 import com.few.common.domain.Category
+import com.few.common.domain.Region
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.core.gpt.ChatGpt
 import com.few.generator.core.gpt.prompt.PromptGenerator
@@ -64,13 +65,17 @@ class GenService(
 
     fun findLatestGen(): Gen = genRepository.findFirstLimit(1)[0]
 
-    fun findAllByCreatedAtBetween(
+    fun findAllByCreatedAtBetweenAndRegion(
         start: LocalDateTime,
         end: LocalDateTime,
-    ): List<Gen> = genRepository.findAllByCreatedAtBetween(start, end)
+        region: Region = Region.LOCAL,
+    ): List<Gen> = genRepository.findAllByCreatedAtBetweenAndRegion(start, end, Region.LOCAL.code)
 
-    fun findAllByCreatedAtBetweenAndCategory(category: Category): List<Gen> =
-        genRepository.findAllByCreatedAtBetweenAndCategory(
+    fun findAllByCreatedAtBetweenAndCategoryAndRegion(
+        category: Category,
+        region: Region = Region.LOCAL,
+    ): List<Gen> =
+        genRepository.findAllByCreatedAtBetweenAndCategoryAndRegion(
             LocalDateTime
                 .now()
                 .withHour(0)
@@ -83,5 +88,6 @@ class GenService(
                 .withMinute(0)
                 .withSecond(0),
             category.code,
+            Region.LOCAL.code,
         )
 }

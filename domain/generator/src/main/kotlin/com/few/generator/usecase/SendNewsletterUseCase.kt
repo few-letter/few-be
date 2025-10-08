@@ -87,7 +87,7 @@ class SendNewsletterUseCase(
         val latestGenDate = genService.findLatestGen().createdAt ?: return 0 to 0
 
         val gensToSend =
-            genService.findAllByCreatedAtBetween(
+            genService.findAllByCreatedAtBetweenAndRegion(
                 start = latestGenDate.toLocalDate().atStartOfDay(),
                 end = latestGenDate.toLocalDate().plusDays(1).atStartOfDay(),
             )

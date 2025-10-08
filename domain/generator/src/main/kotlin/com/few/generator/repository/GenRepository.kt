@@ -61,14 +61,16 @@ interface GenRepository : JpaRepository<Gen, Long> {
         @Param("region") region: Int,
     ): List<Gen>
 
-    fun findAllByCreatedAtBetweenAndCategory(
+    fun findAllByCreatedAtBetweenAndCategoryAndRegion(
         startTime: LocalDateTime,
         endTime: LocalDateTime,
         category: Int,
+        region: Int,
     ): List<Gen>
 
-    fun findAllByCreatedAtBetween(
+    fun findAllByCreatedAtBetweenAndRegion(
         startTime: LocalDateTime,
         endTime: LocalDateTime,
+        region: Int,
     ): List<Gen>
 }
