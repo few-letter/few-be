@@ -7,8 +7,6 @@ import org.springframework.data.repository.query.Param
 import java.time.LocalDateTime
 
 interface GenRepository : JpaRepository<Gen, Long> {
-    fun findByProvisioningContentsId(provisioningContentsId: Long): List<Gen>
-
     @Query(
         """
         SELECT g.* FROM gen g
@@ -50,7 +48,7 @@ interface GenRepository : JpaRepository<Gen, Long> {
         @Param("targetId") targetId: Long,
         @Param("category") category: Int,
         @Param("limitSize") limitSize: Int,
-        @Param("region") region: Int? = null,
+        @Param("region") region: Int,
     ): List<Gen>
 
     @Query(
@@ -60,7 +58,7 @@ interface GenRepository : JpaRepository<Gen, Long> {
     fun findFirstLimitByCategory(
         @Param("category") category: Int,
         @Param("limitSize") limitSize: Int,
-        @Param("region") region: Int? = null,
+        @Param("region") region: Int,
     ): List<Gen>
 
     fun findAllByCreatedAtBetweenAndCategory(

@@ -1,5 +1,6 @@
 package com.few.generator.usecase
 
+import com.few.common.domain.Region
 import com.few.common.exception.BadRequestException
 import com.few.generator.core.scrapper.Scrapper
 import com.few.generator.event.dto.ContentsSchedulingEventDto
@@ -90,7 +91,7 @@ class GenSchedulingUseCase(
     }
 
     private fun create(): Pair<Int, Int> {
-        val urlsByCategories = scrapper.extractUrlsByCategories()
+        val urlsByCategories = scrapper.extractUrlsByCategories(Region.LOCAL)
 
         var successCnt = 0
         var failCnt = 0
@@ -100,7 +101,7 @@ class GenSchedulingUseCase(
 
             for (url in urls) {
                 try {
-                    val rawContent = rawContentsService.create(url, category)
+                    val rawContent = rawContentsService.create(url, category, Region.LOCAL)
                     val provisioningContent = provisioningService.create(rawContent)
                     genService.create(rawContent, provisioningContent)
 
