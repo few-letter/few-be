@@ -29,7 +29,6 @@ class GeneratorDataSourceConfig {
                 maximumPoolSize = 8
                 minimumIdle = 8
                 connectionTimeout = 15000
-                idleTimeout = 300000
                 maxLifetime = 1800000
                 leakDetectionThreshold = 2000
             }
