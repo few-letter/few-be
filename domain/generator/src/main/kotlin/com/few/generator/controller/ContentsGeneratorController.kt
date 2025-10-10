@@ -1,6 +1,7 @@
 package com.few.generator.controller
 
 import com.few.common.domain.Category
+import com.few.common.domain.Region
 import com.few.generator.controller.request.ContentsSchedulingRequest
 import com.few.generator.controller.response.*
 import com.few.generator.usecase.BrowseContentsUseCase
@@ -87,9 +88,16 @@ class ContentsGeneratorController(
             required = false,
         )
         categoryCode: Int?,
+        @RequestParam(
+            value = "region",
+            required = false,
+            defaultValue = "local",
+        )
+        regionParam: String,
     ): ApiResponse<ApiResponse.SuccessBody<BrowseContentResponses>> {
-        val input = BrowseContentsUseCaseIn(prevGenId, categoryCode)
-        val ucOuts = browseContentsUseCase.execute(input)
+        val region = if ("global".equals(regionParam, ignoreCase = true)) Region.GLOBAL else Region.LOCAL
+        val category = categoryCode?.let { Category.from(it) }
+        val ucOuts = browseContentsUseCase.execute(BrowseContentsUseCaseIn(prevGenId, category, region))
 
         val response =
             BrowseContentResponses(
