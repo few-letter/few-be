@@ -32,7 +32,6 @@ class GeneratorDataSourceConfig {
                 idleTimeout = 300000
                 maxLifetime = 1800000
                 leakDetectionThreshold = 2000
-                connectionTestQuery = "SELECT 1"
             }
         return HikariDataSource(hikariConfig)
     }
