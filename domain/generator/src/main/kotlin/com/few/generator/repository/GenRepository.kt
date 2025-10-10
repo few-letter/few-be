@@ -1,6 +1,5 @@
 package com.few.generator.repository
 
-import com.few.common.domain.Region
 import com.few.generator.domain.Gen
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -23,7 +22,7 @@ interface GenRepository : JpaRepository<Gen, Long> {
     fun findNextLimit(
         @Param("targetId") targetId: Long,
         @Param("limitSize") limitSize: Int,
-        @Param("region") region: Int = Region.LOCAL.code,
+        @Param("region") region: Int,
     ): List<Gen>
 
     @Query(
@@ -32,7 +31,7 @@ interface GenRepository : JpaRepository<Gen, Long> {
     )
     fun findFirstLimit(
         @Param("limitSize") limitSize: Int,
-        @Param("region") region: Int = Region.LOCAL.code,
+        @Param("region") region: Int,
     ): List<Gen>
 
     @Query(
