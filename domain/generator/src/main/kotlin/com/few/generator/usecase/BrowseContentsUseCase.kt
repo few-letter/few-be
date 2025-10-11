@@ -2,7 +2,6 @@ package com.few.generator.usecase
 
 import com.few.common.domain.Category
 import com.few.common.domain.MediaType
-import com.few.common.domain.Region
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.repository.GenRepository
 import com.few.generator.repository.ProvisioningContentsRepository
@@ -17,8 +16,6 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
-import kotlin.Int
-import kotlin.String
 
 @Component
 data class BrowseContentsUseCase(
@@ -34,18 +31,18 @@ data class BrowseContentsUseCase(
     fun execute(input: BrowseContentsUseCaseIn): BrowseContentsUsecaseOuts {
         val gens =
             when {
-                input.categoryCode != null -> {
+                input.category != null -> {
                     if (input.prevGenId == -1L) {
-                        genRepository.findFirstLimitByCategory(input.categoryCode, pageSize, Region.LOCAL.code)
+                        genRepository.findFirstLimitByCategory(input.category.code, pageSize, input.region.code)
                     } else {
-                        genRepository.findNextLimitByCategory(input.prevGenId, input.categoryCode, pageSize, Region.LOCAL.code)
+                        genRepository.findNextLimitByCategory(input.prevGenId, input.category.code, pageSize, input.region.code)
                     }
                 }
                 else -> {
                     if (input.prevGenId == -1L) {
-                        genRepository.findFirstLimit(pageSize)
+                        genRepository.findFirstLimit(pageSize, input.region.code)
                     } else {
-                        genRepository.findNextLimit(input.prevGenId, pageSize)
+                        genRepository.findNextLimit(input.prevGenId, pageSize, input.region.code)
                     }
                 }
             }
