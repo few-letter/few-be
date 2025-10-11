@@ -74,9 +74,12 @@ class ContentsGeneratorController(
     }
 
     @GetMapping(
-        value = ["/contents"],
+        value = [
+            "/contents", // TODO: remove deprecated URL "contents"
+            "/contents/local-news",
+        ],
     )
-    fun readContents(
+    fun readLocalNewsContents(
         @RequestParam(
             value = "prevContentId",
             required = false,
@@ -88,16 +91,58 @@ class ContentsGeneratorController(
             required = false,
         )
         categoryCode: Int?,
-        @RequestParam(
-            value = "region",
-            required = false,
-            defaultValue = "local",
-        )
-        regionParam: String,
     ): ApiResponse<ApiResponse.SuccessBody<BrowseContentResponses>> {
-        val region = if ("global".equals(regionParam, ignoreCase = true)) Region.GLOBAL else Region.LOCAL
         val category = categoryCode?.let { Category.from(it) }
-        val ucOuts = browseContentsUseCase.execute(BrowseContentsUseCaseIn(prevGenId, category, region))
+        val ucOuts = browseContentsUseCase.execute(BrowseContentsUseCaseIn(prevGenId, category, Region.LOCAL))
+
+        val response =
+            BrowseContentResponses(
+                contents =
+                    ucOuts.contents.map {
+                        BrowseContentResponse(
+                            id = it.id,
+                            url = it.url,
+                            thumbnailImageUrl = it.thumbnailImageUrl,
+                            mediaType =
+                                CodeValueResponse(
+                                    code = it.mediaType.code,
+                                    value = it.mediaType.title,
+                                ),
+                            headline = it.headline,
+                            summary = it.summary,
+                            highlightTexts = it.highlightTexts,
+                            createdAt = it.createdAt,
+                            category =
+                                CodeValueResponse(
+                                    code = it.category.code,
+                                    value = it.category.title,
+                                ),
+                        )
+                    },
+                isLast = ucOuts.isLast,
+            )
+
+        return ApiResponseGenerator.success(response, HttpStatus.OK)
+    }
+
+    @GetMapping(
+        value = ["/contents/global-news"],
+    )
+    fun readGlobalNewsContents(
+        @RequestParam(
+            value = "prevContentId",
+            required = false,
+            defaultValue = "-1",
+        )
+        prevGenId: Long,
+        @RequestParam(
+            value = "category",
+            required = false,
+        )
+        categoryCode: Int?,
+    ): ApiResponse<ApiResponse.SuccessBody<BrowseContentResponses>> {
+        val category = categoryCode?.let { Category.from(it) }
+        val ucOuts = browseContentsUseCase.execute(BrowseContentsUseCaseIn(prevGenId, category, Region.GLOBAL))
 
         val response =
             BrowseContentResponses(
