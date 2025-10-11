@@ -3,6 +3,7 @@ package com.few.generator.controller
 import com.few.common.domain.Category
 import com.few.common.domain.ContentsType
 import com.few.common.domain.Region
+import com.few.common.exception.BadRequestException
 import com.few.generator.controller.request.ContentsSchedulingRequest
 import com.few.generator.controller.response.*
 import com.few.generator.usecase.BrowseContentsUseCase
@@ -42,10 +43,10 @@ class ContentsGeneratorController(
     fun createAll(
         @Validated @RequestBody(required = false) request: ContentsSchedulingRequest,
     ): ApiResponse<ApiResponse.Success> {
-        if ("global".equals(request.region, ignoreCase = true)) {
-            globalGenSchedulingUseCase.execute()
-        } else {
-            genSchedulingUseCase.execute()
+        when (request.type.uppercase()) {
+            ContentsType.GLOBAL_NEWS.title.uppercase() -> globalGenSchedulingUseCase.execute()
+            ContentsType.LOCAL_NEWS.title.uppercase() -> genSchedulingUseCase.execute()
+            else -> throw BadRequestException("Invalid Contents Type: ${request.type}")
         }
 
         return ApiResponseGenerator.success(
