@@ -6,7 +6,7 @@ enum class ContentsType(
     val title: String,
 ) {
     LOCAL_NEWS("local-news"),
-    GLOBAL_NEWA("global-news"),
+    GLOBAL_NEWS("global-news"),
 
     ;
 
