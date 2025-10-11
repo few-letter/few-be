@@ -3,6 +3,7 @@ package com.few.generator.controller
 import com.few.common.domain.Category
 import com.few.common.domain.ContentsType
 import com.few.common.domain.Region
+import com.few.common.exception.BadRequestException
 import com.few.generator.controller.request.ContentsSchedulingRequest
 import com.few.generator.controller.response.*
 import com.few.generator.usecase.BrowseContentsUseCase
@@ -21,6 +22,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 import java.time.LocalDate
 
 @Validated
@@ -41,10 +43,10 @@ class ContentsGeneratorController(
     fun createAll(
         @Validated @RequestBody(required = false) request: ContentsSchedulingRequest,
     ): ApiResponse<ApiResponse.Success> {
-        if ("global".equals(request.region, ignoreCase = true)) {
-            globalGenSchedulingUseCase.execute()
-        } else {
-            genSchedulingUseCase.execute()
+        when (request.type.uppercase()) {
+            ContentsType.GLOBAL_NEWS.title.uppercase() -> globalGenSchedulingUseCase.execute()
+            ContentsType.LOCAL_NEWS.title.uppercase() -> genSchedulingUseCase.execute()
+            else -> throw BadRequestException("Invalid Contents Type: ${request.type}")
         }
 
         return ApiResponseGenerator.success(
@@ -78,6 +80,7 @@ class ContentsGeneratorController(
         value = [
             "/contents", // TODO: remove deprecated URL "contents"
             "/contents/local-news",
+            "/contents/global-news",
         ],
     )
     fun readLocalNewsContents(
@@ -93,57 +96,13 @@ class ContentsGeneratorController(
         )
         categoryCode: Int?,
     ): ApiResponse<ApiResponse.SuccessBody<BrowseContentResponses>> {
+        val url =
+            ServletUriComponentsBuilder
+                .fromCurrentRequestUri()
+                .toUriString()
+        val region = if (url.contains("global-news")) Region.GLOBAL else Region.LOCAL
         val category = categoryCode?.let { Category.from(it) }
-        val ucOuts = browseContentsUseCase.execute(BrowseContentsUseCaseIn(prevGenId, category, Region.LOCAL))
-
-        val response =
-            BrowseContentResponses(
-                contents =
-                    ucOuts.contents.map {
-                        BrowseContentResponse(
-                            id = it.id,
-                            url = it.url,
-                            thumbnailImageUrl = it.thumbnailImageUrl,
-                            mediaType =
-                                CodeValueResponse(
-                                    code = it.mediaType.code,
-                                    value = it.mediaType.title,
-                                ),
-                            headline = it.headline,
-                            summary = it.summary,
-                            highlightTexts = it.highlightTexts,
-                            createdAt = it.createdAt,
-                            category =
-                                CodeValueResponse(
-                                    code = it.category.code,
-                                    value = it.category.title,
-                                ),
-                        )
-                    },
-                isLast = ucOuts.isLast,
-            )
-
-        return ApiResponseGenerator.success(response, HttpStatus.OK)
-    }
-
-    @GetMapping(
-        value = ["/contents/global-news"],
-    )
-    fun readGlobalNewsContents(
-        @RequestParam(
-            value = "prevContentId",
-            required = false,
-            defaultValue = "-1",
-        )
-        prevGenId: Long,
-        @RequestParam(
-            value = "category",
-            required = false,
-        )
-        categoryCode: Int?,
-    ): ApiResponse<ApiResponse.SuccessBody<BrowseContentResponses>> {
-        val category = categoryCode?.let { Category.from(it) }
-        val ucOuts = browseContentsUseCase.execute(BrowseContentsUseCaseIn(prevGenId, category, Region.GLOBAL))
+        val ucOuts = browseContentsUseCase.execute(BrowseContentsUseCaseIn(prevGenId, category, region))
 
         val response =
             BrowseContentResponses(
