@@ -1,6 +1,7 @@
 package com.few.generator.controller
 
 import com.few.common.domain.Category
+import com.few.common.domain.ContentsType
 import com.few.common.domain.Region
 import com.few.generator.controller.request.ContentsSchedulingRequest
 import com.few.generator.controller.response.*
@@ -261,4 +262,11 @@ class ContentsGeneratorController(
         val response = groupGenBrowseUseCase.execute(date)
         return ApiResponseGenerator.success(response, HttpStatus.OK)
     }
+
+    @GetMapping(value = ["/contents/types"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun getContentsTypes(): ApiResponse<ApiResponse.SuccessBody<List<String>>> =
+        ApiResponseGenerator.success(
+            ContentsType.entries.map { it.title },
+            HttpStatus.OK,
+        )
 }
