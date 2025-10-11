@@ -63,7 +63,7 @@ class GenService(
         )
     }
 
-    fun findLatestGen(): Gen = genRepository.findFirstLimit(1)[0]
+    fun findLatestGen(): Gen = genRepository.findFirstLimit(1, Region.LOCAL.code)[0]
 
     fun findAllByCreatedAtBetweenAndRegion(
         start: LocalDateTime,
