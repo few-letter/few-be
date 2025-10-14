@@ -38,7 +38,20 @@ class GlobalGenSchedulingUseCase(
         Thread.sleep((0..15).random().toLong() * 60 * 1000)
 
         if (!isRunning.compareAndSet(false, true)) {
-            throw BadRequestException("Global contents scheduling is already running. Please try again later.")
+            throw BadRequestException("Global news contents scheduling is already running. Please try again later.")
+        }
+
+        try {
+            doExecute()
+        } finally {
+            isRunning.set(false)
+        }
+    }
+
+    @GeneratorTransactional
+    fun executeNow() {
+        if (!isRunning.compareAndSet(false, true)) {
+            throw BadRequestException("Global news contents scheduling is already running. Please try again later.")
         }
 
         try {
