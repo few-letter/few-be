@@ -1,5 +1,6 @@
 package com.few.generator.usecase
 
+import com.few.common.domain.Category
 import com.few.common.domain.Region
 import com.few.common.exception.BadRequestException
 import com.few.generator.core.scrapper.Scrapper
@@ -95,24 +96,32 @@ class GlobalGenSchedulingUseCase(
 
         var successCnt = 0
         var failCnt = 0
+        val successCntByCategory = mutableMapOf<Category, Int>()
 
-        urlsByCategories.forEach { (category, urls) ->
-            var successCntByCategory = 0
+        val maxSize = urlsByCategories.values.maxOfOrNull { it.size } ?: 0
 
-            for (url in urls) {
-                try {
-                    val rawContent = rawContentsService.create(url, category, Region.GLOBAL)
-                    val provisioningContent = provisioningService.create(rawContent)
-                    genService.create(rawContent, provisioningContent)
+        /**
+         * 각 카테고리의 뉴스를 1개씩 순회하여 카테고리가 골고루 섞이도록 처리
+         */
+        for (i in 0 until maxSize) {
+            urlsByCategories.forEach { (category, urls) ->
+                if (successCntByCategory.getOrDefault(category, 0) >= contentsCountByCategory) {
+                    return@forEach
+                }
 
-                    successCntByCategory++
-                    successCnt++
+                urls.elementAtOrNull(i)?.let { url ->
+                    try {
+                        val rawContent = rawContentsService.create(url, category, Region.GLOBAL)
+                        val provisioningContent = provisioningService.create(rawContent)
+                        genService.create(rawContent, provisioningContent)
 
-                    if (successCntByCategory >= contentsCountByCategory) break
-                } catch (e: Exception) {
-                    failCnt++
-                    log.error(e) {
-                        "글로벌 콘텐츠 생성 중 오류 발생하여 Skip 처리. URL: $url, 카테고리: ${category.title}"
+                        successCntByCategory[category] = successCntByCategory.getOrDefault(category, 0) + 1
+                        successCnt++
+                    } catch (e: Exception) {
+                        failCnt++
+                        log.error(e) {
+                            "글로벌 콘텐츠 생성 중 오류 발생하여 Skip 처리. URL: $url, 카테고리: ${category.title}"
+                        }
                     }
                 }
             }
