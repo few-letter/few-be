@@ -35,7 +35,7 @@ class LocalGenSchedulingUseCase(
     @GeneratorTransactional
     fun execute() {
         // 0~15분 사이 랜덤으로 sleep 후 진행
-//        Thread.sleep((0..15).random().toLong() * 60 * 1000)
+        Thread.sleep((0..15).random().toLong() * 60 * 1000)
 
         if (!isRunning.compareAndSet(false, true)) {
             throw BadRequestException("Contents scheduling is already running. Please try again later.")
@@ -100,6 +100,9 @@ class LocalGenSchedulingUseCase(
 
         val maxSize = urlsByCategories.values.maxOfOrNull { it.size } ?: 0
 
+        /**
+         * 각 카테고리의 뉴스를 1개씩 순회하여 카테고리가 골고루 섞이도록 처리
+         */
         for (i in 0 until maxSize) {
             urlsByCategories.forEach { (category, urls) ->
                 if (successCntByCategory.getOrDefault(category, 0) >= contentsCountByCategory) {
