@@ -14,7 +14,7 @@ class Scrapper(
 ) {
     private val log = KotlinLogging.logger {}
 
-    fun extractUrlsByCategories(region: Region): Map<Category, Set<String>> =
+    fun extractUrlsByCategories(region: Region): Map<Category, List<String>> =
         when (region) {
             Region.LOCAL ->
                 naverScrapper
