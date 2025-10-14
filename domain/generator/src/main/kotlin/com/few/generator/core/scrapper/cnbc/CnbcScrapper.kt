@@ -22,7 +22,7 @@ class CnbcScrapper(
             .filter { it in CnbcConstants.ROOT_URL_MAP }
             .associateWith { CnbcConstants.ROOT_URL_MAP[it]!! }
 
-    fun extractUrlsByCategory(rootUrl: String): Set<String> {
+    fun extractUrlsByCategory(rootUrl: String): List<String> {
         Thread.sleep((1..5).random() * 1000L)
 
         log.debug { "[CNBC Category] URLs 추출 시작: $rootUrl" }
@@ -53,7 +53,7 @@ class CnbcScrapper(
 
         log.info { "[CNBC Category] URL 추출 완료: $rootUrl -> ${extractedUrls.size}개 URL" }
 
-        return extractedUrls
+        return extractedUrls.toList()
     }
 
     fun scrape(url: String): ScrappedResult {

@@ -1,5 +1,6 @@
 package com.few.generator.usecase
 
+import com.few.common.domain.Category
 import com.few.common.domain.Region
 import com.few.common.exception.BadRequestException
 import com.few.generator.core.scrapper.Scrapper
@@ -18,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
 
 @Component
-class GenSchedulingUseCase(
+class LocalGenSchedulingUseCase(
     private val rawContentsService: RawContentsService,
     private val provisioningService: ProvisioningService,
     private val genService: GenService,
@@ -33,11 +34,24 @@ class GenSchedulingUseCase(
     @Scheduled(cron = "\${scheduling.cron.generator}")
     @GeneratorTransactional
     fun execute() {
-        /** 0~15분 사이 랜덤으로 sleep 후 진행 **/
+        // 0~15분 사이 랜덤으로 sleep 후 진행
         Thread.sleep((0..15).random().toLong() * 60 * 1000)
 
         if (!isRunning.compareAndSet(false, true)) {
-            throw BadRequestException("Contents scheduling is already running. Please try again later.")
+            throw BadRequestException("Local News Contents scheduling is already running. Please try again later.")
+        }
+
+        try {
+            doExecute()
+        } finally {
+            isRunning.set(false)
+        }
+    }
+
+    @GeneratorTransactional
+    fun executeNow() {
+        if (!isRunning.compareAndSet(false, true)) {
+            throw BadRequestException("Local News Contents scheduling is already running. Please try again later.")
         }
 
         try {
@@ -95,24 +109,32 @@ class GenSchedulingUseCase(
 
         var successCnt = 0
         var failCnt = 0
+        val successCntByCategory = mutableMapOf<Category, Int>()
 
-        urlsByCategories.forEach { (category, urls) ->
-            var successCntByCategory = 0
+        val maxSize = urlsByCategories.values.maxOfOrNull { it.size } ?: 0
 
-            for (url in urls) {
-                try {
-                    val rawContent = rawContentsService.create(url, category, Region.LOCAL)
-                    val provisioningContent = provisioningService.create(rawContent)
-                    genService.create(rawContent, provisioningContent)
+        /**
+         * 각 카테고리의 뉴스를 1개씩 순회하여 카테고리가 골고루 섞이도록 처리
+         */
+        for (i in 0 until maxSize) {
+            urlsByCategories.forEach { (category, urls) ->
+                if (successCntByCategory.getOrDefault(category, 0) >= contentsCountByCategory) {
+                    return@forEach
+                }
 
-                    successCntByCategory++
-                    successCnt++
+                urls.elementAtOrNull(i)?.let { url ->
+                    try {
+                        val rawContent = rawContentsService.create(url, category, Region.LOCAL)
+                        val provisioningContent = provisioningService.create(rawContent)
+                        genService.create(rawContent, provisioningContent)
 
-                    if (successCntByCategory >= contentsCountByCategory) break
-                } catch (e: Exception) {
-                    failCnt++
-                    log.error(e) {
-                        "콘텐츠 생성 중 오류 발생하여 Skip 처리. URL: $url, 카테고리: ${category.title}"
+                        successCntByCategory[category] = successCntByCategory.getOrDefault(category, 0) + 1
+                        successCnt++
+                    } catch (e: Exception) {
+                        failCnt++
+                        log.error(e) {
+                            "콘텐츠 생성 중 오류 발생하여 Skip 처리. URL: $url, 카테고리: ${category.title}"
+                        }
                     }
                 }
             }

@@ -7,10 +7,10 @@ import com.few.common.exception.BadRequestException
 import com.few.generator.controller.request.ContentsSchedulingRequest
 import com.few.generator.controller.response.*
 import com.few.generator.usecase.BrowseContentsUseCase
-import com.few.generator.usecase.GenSchedulingUseCase
 import com.few.generator.usecase.GlobalGenSchedulingUseCase
 import com.few.generator.usecase.GroupGenBrowseUseCase
 import com.few.generator.usecase.GroupSchedulingUseCase
+import com.few.generator.usecase.LocalGenSchedulingUseCase
 import com.few.generator.usecase.RawContentsBrowseContentUseCase
 import com.few.generator.usecase.SendNewsletterUseCase
 import com.few.generator.usecase.input.BrowseContentsUseCaseIn
@@ -29,7 +29,7 @@ import java.time.LocalDate
 @RestController
 @RequestMapping("/api/v1")
 class ContentsGeneratorController(
-    private val genSchedulingUseCase: GenSchedulingUseCase,
+    private val localGenSchedulingUseCase: LocalGenSchedulingUseCase,
     private val globalGenSchedulingUseCase: GlobalGenSchedulingUseCase,
     private val newsletterSchedulingUseCase: SendNewsletterUseCase,
     private val rawContentsBrowseContentUseCase: RawContentsBrowseContentUseCase,
@@ -40,12 +40,12 @@ class ContentsGeneratorController(
     @PostMapping(
         value = ["/contents/schedule"],
     )
-    fun createAll(
+    fun createNewsContents(
         @Validated @RequestBody(required = false) request: ContentsSchedulingRequest,
     ): ApiResponse<ApiResponse.Success> {
         when (request.type.uppercase()) {
-            ContentsType.GLOBAL_NEWS.title.uppercase() -> globalGenSchedulingUseCase.execute()
-            ContentsType.LOCAL_NEWS.title.uppercase() -> genSchedulingUseCase.execute()
+            ContentsType.GLOBAL_NEWS.title.uppercase() -> globalGenSchedulingUseCase.executeNow()
+            ContentsType.LOCAL_NEWS.title.uppercase() -> localGenSchedulingUseCase.executeNow()
             else -> throw BadRequestException("Invalid Contents Type: ${request.type}")
         }
 
