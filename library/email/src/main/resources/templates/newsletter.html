@@ -1,3 +1,4 @@
+<!--/*@thymesVar id="model" type="com.few.email.NewsletterModel"*/-->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -26,7 +27,7 @@
             margin-bottom: 8px;
             color: #212531;">
             <td>
-            <p th:text="${date}">2025.09.07</p>
+            <p th:text="${model.dateString}">2025.09.07</p>
             </td>
         </tr>
         <!-- 배너 이미지 -->
@@ -43,8 +44,7 @@
         </tr>
 
         <!-- 카테고리 섹션 -->
-
-        <th:block th:each="categoryData : ${gensByCategory}">
+        <th:block th:each="categoryData : ${model.gensByCategory}">
             <tr style="background-color: #ffffff;">
                 <td>
                     <h2 style="margin-top: 40px; font-size: 18px; font-weight: 600; color: #0c121b;">
@@ -76,7 +76,7 @@
             cursor: pointer;
             text-align: center;
             text-decoration: none;
-            display: block;" th:href="|${webLink}?category=${categoryData.categoryCode}|">웹에서 더보기</a>
+            display: block;" th:href="|${model.landingPageUrl}?category=${categoryData.categoryCode}|">웹에서 더보기</a>
                 </td>
             </tr>
         </th:block>
@@ -103,7 +103,7 @@
 
         <tr>
             <td align="center">
-                <a th:href="${webLink}" style="margin-top: 16px; padding: 16px; color: #37404f; font-weight: 600; font-size: 14px; cursor: pointer; background-color: #eaf6ff; border-radius: 8px; display: block; position: relative; text-decoration: none;">웹에서 오늘의 TOP 뉴스 보기
+                <a th:href="${model.landingPageUrl}" style="margin-top: 16px; padding: 16px; color: #37404f; font-weight: 600; font-size: 14px; cursor: pointer; background-color: #eaf6ff; border-radius: 8px; display: block; position: relative; text-decoration: none;">웹에서 오늘의 TOP 뉴스 보기
                 <span style="position: absolute;
             right: 0; bottom: 0; width: 24px; height: 12px;
             border-top-left-radius: 8px;
@@ -116,14 +116,25 @@
     <table cellpadding="0" cellspacing="0" style="padding-bottom: 80px; background-color: #ffffff; width: 100%;">
         <tr>
             <td align="right" style="padding-right: 16px;">
-                <a th:href="${instaLink}" style="display: block; width: 36px; height: 36px; margin-top: 24px; cursor: pointer;">
+                <a th:href="${model.instagramUrl}" style="display: block; width: 36px; height: 36px; margin-top: 24px; cursor: pointer;">
                     <img src="https://few-bucket-6c253cf8965ce212.s3.ap-northeast-2.amazonaws.com/public/images/instagramLogo.png" alt="Instagram" style="width: 36px; height: 36px;" />
                 </a>
             </td>
             <td align="left" style="padding-left: 16px;">
-                <a th:href="${webLink}" style="display: block; width: 36px; height: 36px; margin-top: 24px; cursor: pointer; border-radius: 8px;">
+                <a th:href="${model.instagramUrl}" style="display: block; width: 36px; height: 36px; margin-top: 24px; cursor: pointer; border-radius: 8px;">
                     <img src="https://few-bucket-6c253cf8965ce212.s3.ap-northeast-2.amazonaws.com/public/images/webLinkLogo.png" alt="link" style="width: 36px; height: 36px;" />
                 </a>
+            </td>
+        </tr>
+        <!-- 구독취소 링크 -->
+        <tr>
+            <td align="center" colspan="2" style="padding-top: 16px; padding-bottom: 40px;">
+                <a th:href="${model.unsubscribeUrl}" style="
+                    font-size: 12px;
+                    color: #8b95a5;
+                    text-decoration: underline;
+                    cursor: pointer;
+                    font-weight: 400;">구독취소</a>
             </td>
         </tr>
     </table>
