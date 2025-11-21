@@ -65,8 +65,9 @@ class NewsletterDelivery(
             val message = newsletterEmailRenderer.render(templateModel)
             val subject = newsletterBusinessRules.generateSubject(subscription, data.gensByCategory)
 
+            val fromEmail = properties.fromEmail
             emailSendProvider.sendEmail(
-                from = properties.fromEmail,
+                from = "FEW Letter <$fromEmail>",
                 to = subscription.email,
                 subject = subject,
                 message = message,
