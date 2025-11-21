@@ -2,20 +2,3 @@ spring:
   config:
     import:
       - classpath:email-provider-prd.yml
-
-
-  mail:
-    protocol: smtp
-    host: email-smtp.ap-northeast-2.amazonaws.com
-    port: 587
-    username: ${AWS_SMTP_USERNAME}
-    password: ${AWS_SMTP_PASSWORD}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          debug: false
-          starttls:
-            enable: true
-          EnableSSL:
-            enable: true

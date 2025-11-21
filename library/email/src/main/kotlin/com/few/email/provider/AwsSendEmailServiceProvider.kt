@@ -43,6 +43,4 @@ class AwsSendEmailServiceProvider(
             return it.getOrThrow()
         }
     }
-
-    fun getWithConfigurationSetName(): String = configurationSetName
 }
