@@ -1,9 +1,9 @@
 package com.few.generator.service.specifics.newsletter
 
+import com.few.common.domain.Category
 import com.few.generator.config.NewsletterProperties
 import com.few.generator.domain.Gen
 import com.few.generator.domain.Subscription
-import com.few.generator.domain.vo.Categories
 import org.springframework.stereotype.Service
 
 @Service
@@ -14,9 +14,9 @@ class NewsletterBusinessRules(
         subscription: Subscription,
         gensByCategory: Map<Int, List<Gen>>,
     ): String {
-        val categories = Categories.from(subscription.categories)
-        val firstCategory = categories.values.firstOrNull() ?: return "${properties.subjectPrefix} 뉴스"
-        val firstGen = gensByCategory[firstCategory]?.firstOrNull()
+        val categories = Category.parseCategories(subscription.categories)
+        val firstCategoryCode = categories.firstOrNull()?.code ?: return "${properties.subjectPrefix} 뉴스"
+        val firstGen = gensByCategory[firstCategoryCode]?.firstOrNull()
         val headline = firstGen?.headline ?: "뉴스"
         return "${properties.subjectPrefix} $headline"
     }
@@ -25,8 +25,8 @@ class NewsletterBusinessRules(
         subscription: Subscription,
         availableGens: Map<Int, List<Gen>>,
     ): Boolean {
-        val categories = Categories.from(subscription.categories)
-        val todayGens = categories.values.flatMap { category -> availableGens[category].orEmpty() }
+        val categories = Category.parseCategories(subscription.categories)
+        val todayGens = categories.flatMap { category -> availableGens[category.code].orEmpty() }
         return todayGens.isNotEmpty()
     }
 
@@ -34,7 +34,7 @@ class NewsletterBusinessRules(
         subscription: Subscription,
         gensByCategory: Map<Int, List<Gen>>,
     ): List<Gen> {
-        val categories = Categories.from(subscription.categories)
-        return categories.values.flatMap { category -> gensByCategory[category].orEmpty() }
+        val categories = Category.parseCategories(subscription.categories)
+        return categories.flatMap { category -> gensByCategory[category.code].orEmpty() }
     }
 }
