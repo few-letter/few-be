@@ -1,4 +1,4 @@
-FROM  amazoncorretto:17.0.17-alpine3.22
+FROM  openjdk:18-ea-slim
 
 RUN mkdir -p /logs
 
