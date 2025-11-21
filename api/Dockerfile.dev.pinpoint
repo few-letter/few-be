@@ -1,4 +1,4 @@
-FROM  openjdk:18-oracle
+FROM  amazoncorretto:17.0.17-alpine3.22
 
 RUN mkdir -p /logs
 
