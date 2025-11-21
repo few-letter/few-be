@@ -2,19 +2,3 @@ spring:
   config:
     import:
       - classpath:email-provider-local.yml
-
-  mail:
-    protocol: smtp
-    host: smtp.gmail.com
-    port: 587
-    username: noreply@fewletter.store
-    password: ${EMAIL_PASSWORD:password}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          debug: true
-          starttls:
-            enable: true
-          EnableSSL:
-            enable: true

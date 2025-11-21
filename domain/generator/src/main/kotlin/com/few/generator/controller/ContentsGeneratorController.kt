@@ -12,7 +12,7 @@ import com.few.generator.usecase.GroupGenBrowseUseCase
 import com.few.generator.usecase.GroupSchedulingUseCase
 import com.few.generator.usecase.LocalGenSchedulingUseCase
 import com.few.generator.usecase.RawContentsBrowseContentUseCase
-import com.few.generator.usecase.SendNewsletterUseCase
+import com.few.generator.usecase.SendNewsletterSchedulingUseCase
 import com.few.generator.usecase.input.BrowseContentsUseCaseIn
 import com.few.web.ApiResponse
 import com.few.web.ApiResponseGenerator
@@ -31,7 +31,7 @@ import java.time.LocalDate
 class ContentsGeneratorController(
     private val localGenSchedulingUseCase: LocalGenSchedulingUseCase,
     private val globalGenSchedulingUseCase: GlobalGenSchedulingUseCase,
-    private val newsletterSchedulingUseCase: SendNewsletterUseCase,
+    private val newsletterSchedulingUseCase: SendNewsletterSchedulingUseCase,
     private val rawContentsBrowseContentUseCase: RawContentsBrowseContentUseCase,
     private val browseContentsUseCase: BrowseContentsUseCase,
     private val groupGenBrowseUseCase: GroupGenBrowseUseCase,

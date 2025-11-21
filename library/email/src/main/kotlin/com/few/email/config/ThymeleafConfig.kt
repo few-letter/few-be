@@ -14,7 +14,6 @@ import org.thymeleaf.templateresolver.StringTemplateResolver
 class ThymeleafConfig {
     companion object {
         const val HTML_TEMPLATE_ENGINE = MailConfig.BEAN_NAME_PREFIX + "HtmlTemplateEngine"
-        const val STRING_TEMPLATE_ENGINE = MailConfig.BEAN_NAME_PREFIX + "StringTemplateEngine"
         const val SPRING_RESOURCE_TEMPLATE_RESOLVER = MailConfig.BEAN_NAME_PREFIX + "SpringResourceTemplateResolver"
     }
 
@@ -35,13 +34,6 @@ class ThymeleafConfig {
         springResourceTemplateResolver.characterEncoding = "UTF-8"
         springResourceTemplateResolver.isCacheable = false
         return springResourceTemplateResolver
-    }
-
-    @Bean(name = [STRING_TEMPLATE_ENGINE])
-    fun stringTemplateEngine(): SpringTemplateEngine {
-        val templateEngine = SpringTemplateEngine()
-        templateEngine.addTemplateResolver(stringTemplateResolver())
-        return templateEngine
     }
 
     @Bean
