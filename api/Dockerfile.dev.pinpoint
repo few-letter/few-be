@@ -1,4 +1,4 @@
-FROM  openjdk:18-ea-slim
+FROM  amazoncorretto:21.0.9-al2023-headless
 
 RUN mkdir -p /logs
 
