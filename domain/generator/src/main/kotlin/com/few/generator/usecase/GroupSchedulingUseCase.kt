@@ -39,7 +39,7 @@ class GroupSchedulingUseCase(
     private val gson: Gson,
     private val groupGenMetrics: GroupGenMetrics,
     private val keywordExtractor: KeywordExtractor,
-    private val genGroupper: GenGroupper,
+    private val genGrouper: GenGroupper,
     private val groupContentGenerator: GroupContentGenerator,
 ) {
     private val log = KotlinLogging.logger {}
@@ -116,8 +116,7 @@ class GroupSchedulingUseCase(
                 results.add(groupGen)
                 log.info { "카테고리 ${category.title} 그룹 생성 완료" }
             } catch (e: Exception) {
-                log.error(e) { "카테고리 ${category.title} 그룹 생성 실패" }
-                throw e // 트랜잭션 롤백을 위해 예외 재던짐
+                log.error(e) { "카테고리 ${category.title} 그룹 생성 실패하여 Skip" }
             }
         }
 
@@ -145,8 +144,7 @@ class GroupSchedulingUseCase(
                     totalGens = internalResult.totalGens
                 } catch (e: Exception) {
                     log.error(e) { "그룹 생성 중 오류 발생: category=${category.title}, 전체 Gen 수: $totalGens" }
-                    result = groupContentGenerator.createEmptyGroupGen(category)
-                    processingError = e // 에러를 나중에 처리하기 위해 저장
+                    processingError = e
                 }
             }
 
@@ -167,7 +165,7 @@ class GroupSchedulingUseCase(
             updateSuccessMetrics(category, finalResult, keywordExtractionTime, totalProcessingTime, totalGens)
         }
 
-        return result ?: groupContentGenerator.createEmptyGroupGen(category)
+        return result ?: throw BadRequestException("Group Gen 생성 실패 - Cause: Unknown (카테고리: ${category.title})")
     }
 
     private suspend fun createGroupGenInternalWithMetrics(category: Category): GroupGenProcessingResult {
@@ -177,13 +175,13 @@ class GroupSchedulingUseCase(
             )
 
         if (gens.isEmpty()) {
-            log.warn { "카테고리 ${category.title}에 대한 Gen이 없습니다." }
-            return GroupGenProcessingResult(groupContentGenerator.createEmptyGroupGen(category), 0, 0)
+            throw BadRequestException("Group Gen 생성 실패 - Cause: 카테고리 ${category.title}에 대한 Gen이 없습니다.")
         }
 
         if (gens.size < groupingProperties.minGroupSize) {
-            log.warn { "카테고리 ${category.title}의 Gen 개수(${gens.size})가 최소 그룹 크기(${groupingProperties.minGroupSize})보다 작습니다." }
-            return GroupGenProcessingResult(groupContentGenerator.createEmptyGroupGen(category), 0, gens.size)
+            throw BadRequestException(
+                "Group Gen 생성 실패 - Cause: 카테고리 ${category.title}의 Gen 개수(${gens.size})가 최소 그룹 크기(${groupingProperties.minGroupSize})보다 작습니다.",
+            )
         }
 
         log.info { "카테고리 ${category.title}에서 ${gens.size}개 Gen 발견, 키워드 추출 시작" }
@@ -205,11 +203,11 @@ class GroupSchedulingUseCase(
         log.info { "키워드 추출 완료, 그룹화 시작" }
 
         // 그룹화 수행
-        val group = genGroupper.performGrouping(genDetails, category)
-        val validatedGroup = genGroupper.validateGroupSize(group)
+        val group = genGrouper.performGrouping(genDetails, category)
+        val validatedGroup = genGrouper.validateGroupSize(group)
 
         if (validatedGroup == null) {
-            return GroupGenProcessingResult(groupContentGenerator.createEmptyGroupGen(category), keywordExtractionTime, gens.size)
+            throw BadRequestException("Group Gen 생성 실패 - Cause: 카테고리 ${category.title} Gen Grouping 실패")
         }
 
         // 그룹 콘텐츠 생성
