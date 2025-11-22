@@ -84,18 +84,6 @@ class GroupContentGenerator(
         return groupGenRepository.save(groupGen)
     }
 
-    fun createEmptyGroupGen(category: Category): GroupGen =
-        groupGenRepository.save(
-            GroupGen(
-                category = category.code,
-                selectedGroupIds = gson.toJson(emptyList<Int>()),
-                headline = "",
-                summary = "",
-                highlightTexts = gson.toJson(emptyList<String>()),
-                groupSourceHeadlines = gson.toJson(emptyList<GroupSourceHeadline>()),
-            ),
-        )
-
     private fun generateGroupHeadline(selectedGenHeadlines: List<String>): Headline =
         try {
             log.debug { "그룹 헤드라인 생성 시작: ${selectedGenHeadlines.size}개 헤드라인" }
