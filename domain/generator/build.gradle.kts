@@ -36,4 +36,10 @@ dependencies {
 
     /** okhttp - Brotli compression **/
     implementation("com.squareup.okhttp3:okhttp-brotli:${DependencyVersion.OKHTTP}")
+
+    /** cache **/
+    implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation("org.ehcache:ehcache:${DependencyVersion.EHCACHE}")
+    implementation("javax.cache:cache-api:${DependencyVersion.CACHE_API}")
+    implementation("org.hibernate.orm:hibernate-jcache")
 }
