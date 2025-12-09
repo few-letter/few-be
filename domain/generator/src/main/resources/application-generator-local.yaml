@@ -17,6 +17,8 @@ spring:
                             - com.few.generator.config.feign.OpenAiRequestInterceptor
                         encoder: com.few.generator.config.feign.OpenAiEncoder
                         decoder: com.few.generator.config.feign.OpenAiDecoder
+    cache:
+        type: jcache
     generator:
         datasource:
             url: jdbc:mysql://localhost:13306/generator?allowPublicKeyRetrieval=true&rewriteBatchedStatements=true&allowMultiQueries=true&connectTimeout=10000&socketTimeout=1800000
@@ -30,6 +32,11 @@ spring:
                 hibernate:
                     format_sql: true
                     show_sql: true
+                    cache:
+                        use_second_level_cache: true
+                        use_query_cache: true
+                        region:
+                            factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
             show-sql: true
 
 scheduling:
