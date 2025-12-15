@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
 
 @Component
-class GroupSchedulingUseCase(
+class LocalGroupGenSchedulingUseCase(
     private val applicationEventPublisher: ApplicationEventPublisher,
     private val genService: GenService,
     private val provisioningService: ProvisioningService,
@@ -51,7 +51,20 @@ class GroupSchedulingUseCase(
     @GeneratorTransactional
     fun execute() {
         if (!isRunning.compareAndSet(false, true)) {
-            throw BadRequestException("Group scheduling is already running. Please try again later.")
+            throw BadRequestException("Local group scheduling is already running. Please try again later.")
+        }
+
+        try {
+            doExecute()
+        } finally {
+            isRunning.set(false)
+        }
+    }
+
+    @GeneratorTransactional
+    fun executeNow() {
+        if (!isRunning.compareAndSet(false, true)) {
+            throw BadRequestException("Local group scheduling is already running. Please try again later.")
         }
 
         try {
@@ -75,12 +88,12 @@ class GroupSchedulingUseCase(
                 }.msToSeconds()
         }.onFailure { ex ->
             isSuccess = false
-            log.error(ex) { "그룹 스케줄링 중 오류 발생" }
+            log.error(ex) { "Local 그룹 스케줄링 중 오류 발생" }
             exception = ex
         }.also {
             log.info {
                 buildString {
-                    appendLine("✅ Group Scheduling Result")
+                    appendLine("✅ Local Group Scheduling Result")
                     appendLine("✅ isSuccess: $isSuccess")
                     appendLine("✅ 시작 시간: $startTime")
                     appendLine("✅ 소요 시간: $creationTimeSec")
@@ -100,13 +113,13 @@ class GroupSchedulingUseCase(
             )
 
             if (!isSuccess) {
-                throw BadRequestException("그룹 스케줄링에 실패 : ${exception?.cause?.message}")
+                throw BadRequestException("Local 그룹 스케줄링에 실패 : ${exception?.cause?.message}")
             }
         }
     }
 
     fun createGroupGens(): List<GroupGen> {
-        log.info { "전체 카테고리 그룹 생성 시작" }
+        log.info { "LOCAL 전체 카테고리 그룹 생성 시작" }
 
         val results = mutableListOf<GroupGen>()
         val categories = Category.groupGenEntries()
@@ -115,18 +128,18 @@ class GroupSchedulingUseCase(
             try {
                 val groupGen = createGroupGen(category)
                 results.add(groupGen)
-                log.info { "카테고리 ${category.title} 그룹 생성 완료" }
+                log.info { "LOCAL 카테고리 ${category.title} 그룹 생성 완료" }
             } catch (e: Exception) {
-                log.error(e) { "카테고리 ${category.title} 그룹 생성 실패하여 Skip" }
+                log.error(e) { "LOCAL 카테고리 ${category.title} 그룹 생성 실패하여 Skip" }
             }
         }
 
-        log.info { "전체 카테고리 그룹 생성 완료: ${results.size}개" }
+        log.info { "LOCAL 전체 카테고리 그룹 생성 완료: ${results.size}개" }
         return results
     }
 
     fun createGroupGen(category: Category): GroupGen {
-        log.info { "그룹 생성 시작: category=${category.title}" }
+        log.info { "LOCAL 그룹 생성 시작: category=${category.title}" }
 
         var result: GroupGen? = null
         var keywordExtractionTime: Long = 0
@@ -144,7 +157,7 @@ class GroupSchedulingUseCase(
                     keywordExtractionTime = internalResult.keywordExtractionTime
                     totalGens = internalResult.totalGens
                 } catch (e: Exception) {
-                    log.error(e) { "그룹 생성 중 오류 발생: category=${category.title}, 전체 Gen 수: $totalGens" }
+                    log.error(e) { "LOCAL 그룹 생성 중 오류 발생: category=${category.title}, 전체 Gen 수: $totalGens" }
                     processingError = e
                 }
             }
@@ -158,7 +171,7 @@ class GroupSchedulingUseCase(
         val finalResult = result
         if (finalResult == null || (finalResult.headline.isEmpty() && finalResult.summary.isEmpty())) {
             log.warn {
-                "그룹 생성 실패 또는 빈 결과: category=${category.title}, headline=${finalResult?.headline?.isNotEmpty()}, summary=${finalResult?.summary?.isNotEmpty()}"
+                "LOCAL 그룹 생성 실패 또는 빈 결과: category=${category.title}, headline=${finalResult?.headline?.isNotEmpty()}, summary=${finalResult?.summary?.isNotEmpty()}"
             }
             groupGenMetrics.recordGroupGenError(category, "GroupGen creation failed", totalProcessingTime)
         } else {
@@ -166,26 +179,27 @@ class GroupSchedulingUseCase(
             updateSuccessMetrics(category, finalResult, keywordExtractionTime, totalProcessingTime, totalGens)
         }
 
-        return result ?: throw BadRequestException("Group Gen 생성 실패 - Cause: Unknown (카테고리: ${category.title})")
+        return result ?: throw BadRequestException("LOCAL Group Gen 생성 실패 - Cause: Unknown (카테고리: ${category.title})")
     }
 
     private suspend fun createGroupGenInternalWithMetrics(category: Category): GroupGenProcessingResult {
         val gens =
             genService.findAllByCreatedAtBetweenAndCategoryAndRegion(
                 category,
+                Region.LOCAL,
             )
 
         if (gens.isEmpty()) {
-            throw BadRequestException("Group Gen 생성 실패 - Cause: 카테고리 ${category.title}에 대한 Gen이 없습니다.")
+            throw BadRequestException("LOCAL Group Gen 생성 실패 - Cause: 카테고리 ${category.title}에 대한 Gen이 없습니다.")
         }
 
         if (gens.size < groupingProperties.minGroupSize) {
             throw BadRequestException(
-                "Group Gen 생성 실패 - Cause: 카테고리 ${category.title}의 Gen 개수(${gens.size})가 최소 그룹 크기(${groupingProperties.minGroupSize})보다 작습니다.",
+                "LOCAL Group Gen 생성 실패 - Cause: 카테고리 ${category.title}의 Gen 개수(${gens.size})가 최소 그룹 크기(${groupingProperties.minGroupSize})보다 작습니다.",
             )
         }
 
-        log.info { "카테고리 ${category.title}에서 ${gens.size}개 Gen 발견, 키워드 추출 시작" }
+        log.info { "LOCAL 카테고리 ${category.title}에서 ${gens.size}개 Gen 발견, 키워드 추출 시작" }
 
         // 배치로 ProvisioningContents 조회하여 N+1 쿼리 방지
         val provisioningContentsIds = gens.map { it.provisioningContentsId }
@@ -208,7 +222,7 @@ class GroupSchedulingUseCase(
         val validatedGroup = genGrouper.validateGroupSize(group)
 
         if (validatedGroup == null) {
-            throw BadRequestException("Group Gen 생성 실패 - Cause: 카테고리 ${category.title} Gen Grouping 실패")
+            throw BadRequestException("LOCAL Group Gen 생성 실패 - Cause: 카테고리 ${category.title} Gen Grouping 실패")
         }
 
         // 그룹 콘텐츠 생성
