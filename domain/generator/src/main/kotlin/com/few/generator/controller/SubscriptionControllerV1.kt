@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController
 @Validated
 @RestController
 @RequestMapping("/api/v1")
-class SubscriptionController(
+class SubscriptionControllerV1(
     private val enrollSubscriptionUseCase: EnrollSubscriptionUseCase,
     private val browseSubscriptionUseCase: BrowseSubscriptionUseCase,
     private val unsubscribeUseCase: UnsubscribeUseCase,

@@ -3,16 +3,10 @@ package com.few.generator.controller
 import com.few.common.domain.Category
 import com.few.common.domain.ContentsType
 import com.few.common.domain.Region
-import com.few.common.exception.BadRequestException
-import com.few.generator.controller.request.ContentsSchedulingRequest
 import com.few.generator.controller.response.*
 import com.few.generator.usecase.BrowseContentsUseCase
-import com.few.generator.usecase.GlobalGenSchedulingUseCase
 import com.few.generator.usecase.GroupGenBrowseUseCase
-import com.few.generator.usecase.GroupSchedulingUseCase
-import com.few.generator.usecase.LocalGenSchedulingUseCase
 import com.few.generator.usecase.RawContentsBrowseContentUseCase
-import com.few.generator.usecase.SendNewsletterSchedulingUseCase
 import com.few.generator.usecase.input.BrowseContentsUseCaseIn
 import com.few.web.ApiResponse
 import com.few.web.ApiResponseGenerator
@@ -28,54 +22,11 @@ import java.time.LocalDate
 @Validated
 @RestController
 @RequestMapping("/api/v1")
-class ContentsGeneratorController(
-    private val localGenSchedulingUseCase: LocalGenSchedulingUseCase,
-    private val globalGenSchedulingUseCase: GlobalGenSchedulingUseCase,
-    private val newsletterSchedulingUseCase: SendNewsletterSchedulingUseCase,
+class ContentsGeneratorControllerV1(
     private val rawContentsBrowseContentUseCase: RawContentsBrowseContentUseCase,
     private val browseContentsUseCase: BrowseContentsUseCase,
     private val groupGenBrowseUseCase: GroupGenBrowseUseCase,
-    private val groupSchedulingUseCase: GroupSchedulingUseCase,
 ) {
-    @PostMapping(
-        value = ["/contents/schedule"],
-    )
-    fun createNewsContents(
-        @Validated @RequestBody(required = false) request: ContentsSchedulingRequest,
-    ): ApiResponse<ApiResponse.Success> {
-        when (request.type.uppercase()) {
-            ContentsType.GLOBAL_NEWS.title.uppercase() -> globalGenSchedulingUseCase.executeNow()
-            ContentsType.LOCAL_NEWS.title.uppercase() -> localGenSchedulingUseCase.executeNow()
-            else -> throw BadRequestException("Invalid Contents Type: ${request.type}")
-        }
-
-        return ApiResponseGenerator.success(
-            HttpStatus.OK,
-        )
-    }
-
-    @PostMapping(
-        value = ["/contents/send"],
-    )
-    fun sendAll(): ApiResponse<ApiResponse.Success> {
-        newsletterSchedulingUseCase.execute()
-
-        return ApiResponseGenerator.success(
-            HttpStatus.OK,
-        )
-    }
-
-    @PostMapping(
-        value = ["/contents/groups/schedule"],
-    )
-    fun createAllGroupGen(): ApiResponse<ApiResponse.Success> {
-        groupSchedulingUseCase.execute()
-
-        return ApiResponseGenerator.success(
-            HttpStatus.OK,
-        )
-    }
-
     @Operation(
         summary = "사용 중단 예정 API",
         description =
@@ -88,7 +39,7 @@ class ContentsGeneratorController(
             "/contents",
         ],
     )
-    fun readLocalNewsContentsDeprecated(
+    fun readNewsContents(
         @RequestParam(
             value = "prevContentId",
             required = false,
@@ -135,7 +86,7 @@ class ContentsGeneratorController(
     }
 
     @GetMapping(value = ["/contents/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getByRawContents(
+    fun getContentsDetail(
         @PathVariable(value = "id")
         @Min(value = 1, message = "{min.id}")
         genId: Long,
@@ -210,7 +161,7 @@ class ContentsGeneratorController(
         deprecated = true,
     )
     @GetMapping(value = ["/contents/categories"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getCategoriesDeprecated(): ApiResponse<ApiResponse.SuccessBody<List<CodeValueResponse>>> =
+    fun getCategories(): ApiResponse<ApiResponse.SuccessBody<List<CodeValueResponse>>> =
         ApiResponseGenerator.success(
             Category.entries.map { CodeValueResponse(code = it.code, value = it.title) },
             HttpStatus.OK,
