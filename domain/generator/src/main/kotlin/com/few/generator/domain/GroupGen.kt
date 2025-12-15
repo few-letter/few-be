@@ -26,4 +26,6 @@ data class GroupGen(
     val highlightTexts: String = "[]",
     @Column(columnDefinition = "TEXT", nullable = false)
     val groupSourceHeadlines: String = "[]",
+    @Column(nullable = true)
+    val region: Int,
 ) : BaseEntity()

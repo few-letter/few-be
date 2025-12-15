@@ -5,8 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository
 import java.time.LocalDateTime
 
 interface GroupGenRepository : JpaRepository<GroupGen, Long> {
-    fun findAllByCreatedAtBetween(
+    fun findAllByCreatedAtBetweenAndRegion(
         start: LocalDateTime,
         end: LocalDateTime,
+        region: Int,
     ): List<GroupGen>
 }
