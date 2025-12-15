@@ -8,6 +8,7 @@ import com.few.generator.usecase.BrowseContentsUseCase
 import com.few.generator.usecase.GroupGenBrowseUseCase
 import com.few.generator.usecase.RawContentsBrowseContentUseCase
 import com.few.generator.usecase.input.BrowseContentsUseCaseIn
+import com.few.generator.usecase.input.BrowseGroupGenUseCaseIn
 import com.few.web.ApiResponse
 import com.few.web.ApiResponseGenerator
 import io.swagger.v3.oas.annotations.Operation
@@ -167,6 +168,13 @@ class ContentsGeneratorControllerV1(
             HttpStatus.OK,
         )
 
+    @Operation(
+        summary = "사용 중단 예정 API",
+        description =
+            "이 엔드포인트는 다음 버전에서 제거될 예정입니다. " +
+                "/api/v2/contents/local-news/groups 및 /api/v2/contents/global-news/groups 를 참고하세요",
+        deprecated = true,
+    )
     @GetMapping(value = ["/contents/groups"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getGroupGens(
         @RequestParam(
@@ -176,7 +184,10 @@ class ContentsGeneratorControllerV1(
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
         date: LocalDate?,
     ): ApiResponse<ApiResponse.SuccessBody<BrowseGroupGenResponses>> {
-        val response = groupGenBrowseUseCase.execute(date)
+        val response =
+            groupGenBrowseUseCase.execute(
+                BrowseGroupGenUseCaseIn(date, Region.LOCAL),
+            )
         return ApiResponseGenerator.success(response, HttpStatus.OK)
     }
 

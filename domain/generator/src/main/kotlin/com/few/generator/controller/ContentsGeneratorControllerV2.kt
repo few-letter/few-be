@@ -4,20 +4,25 @@ import com.few.common.domain.Category
 import com.few.common.domain.Region
 import com.few.generator.controller.response.*
 import com.few.generator.usecase.BrowseContentsUseCase
+import com.few.generator.usecase.GroupGenBrowseUseCase
 import com.few.generator.usecase.input.BrowseContentsUseCaseIn
+import com.few.generator.usecase.input.BrowseGroupGenUseCaseIn
 import com.few.web.ApiResponse
 import com.few.web.ApiResponseGenerator
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
+import java.time.LocalDate
 
 @Validated
 @RestController
 @RequestMapping("/api/v2")
 class ContentsGeneratorControllerV2(
     private val browseContentsUseCase: BrowseContentsUseCase,
+    private val groupGenBrowseUseCase: GroupGenBrowseUseCase,
 ) {
     @GetMapping(
         value = [
@@ -103,5 +108,29 @@ class ContentsGeneratorControllerV2(
                 HttpStatus.OK,
             )
         }
+    }
+
+    @GetMapping(
+        value = [
+            "/contents/local-news/groups",
+            "/contents/global-news/groups",
+        ],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
+    fun getGroupGens(
+        @RequestParam(
+            value = "date",
+            required = false,
+        )
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+        date: LocalDate?,
+    ): ApiResponse<ApiResponse.SuccessBody<BrowseGroupGenResponses>> {
+        val url =
+            ServletUriComponentsBuilder
+                .fromCurrentRequestUri()
+                .toUriString()
+        val region = if (url.contains("global-news")) Region.GLOBAL else Region.LOCAL
+        val response = groupGenBrowseUseCase.execute(BrowseGroupGenUseCaseIn(date, region))
+        return ApiResponseGenerator.success(response, HttpStatus.OK)
     }
 }

@@ -18,6 +18,10 @@ class ContentsSchedulingHandler(
                     listOf(
                         Block(
                             type = "section",
+                            text = Text(text = "📋 *작업*\n${event.title}"),
+                        ),
+                        Block(
+                            type = "section",
                             text = Text(text = "✅ *isSuccess*\n${event.isSuccess}"),
                         ),
                         Block(

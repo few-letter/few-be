@@ -31,6 +31,7 @@ abstract class AbstractGenSchedulingUseCase(
     abstract val region: Region
     abstract val regionName: String
     abstract val schedulingName: String
+    abstract val eventTitle: String
 
     @GeneratorTransactional
     protected fun executeInternal() {
@@ -90,6 +91,7 @@ abstract class AbstractGenSchedulingUseCase(
 
             applicationEventPublisher.publishEvent(
                 ContentsSchedulingEventDto(
+                    title = eventTitle,
                     isSuccess = isSuccess,
                     startTime = startTime,
                     totalTime = "%.3f".format(creationTimeSec),
