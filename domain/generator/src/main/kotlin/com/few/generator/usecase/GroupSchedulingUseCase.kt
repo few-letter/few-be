@@ -1,6 +1,7 @@
 package com.few.generator.usecase
 
 import com.few.common.domain.Category
+import com.few.common.domain.Region
 import com.few.common.exception.BadRequestException
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.config.GroupingProperties
@@ -211,7 +212,7 @@ class GroupSchedulingUseCase(
         }
 
         // 그룹 콘텐츠 생성
-        val result = groupContentGenerator.generateGroupContent(category, gens, validatedGroup, provisioningContentsMap)
+        val result = groupContentGenerator.generateGroupContent(category, gens, validatedGroup, provisioningContentsMap, Region.LOCAL)
         return GroupGenProcessingResult(result, keywordExtractionTime, gens.size)
     }
 

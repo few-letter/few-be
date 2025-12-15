@@ -226,7 +226,7 @@ class GlobalGroupGenSchedulingUseCase(
         }
 
         // 그룹 콘텐츠 생성
-        val result = groupContentGenerator.generateGroupContent(category, gens, validatedGroup, provisioningContentsMap)
+        val result = groupContentGenerator.generateGroupContent(category, gens, validatedGroup, provisioningContentsMap, Region.GLOBAL)
         return GroupGenProcessingResult(result, keywordExtractionTime, gens.size)
     }
 

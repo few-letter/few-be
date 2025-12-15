@@ -1,6 +1,7 @@
 package com.few.generator.service.specifics.groupgen
 
 import com.few.common.domain.Category
+import com.few.common.domain.Region
 import com.few.generator.config.GeneratorGsonConfig
 import com.few.generator.core.gpt.ChatGpt
 import com.few.generator.core.gpt.prompt.PromptGenerator
@@ -38,6 +39,7 @@ class GroupContentGenerator(
         gens: List<Gen>,
         group: Group,
         provisioningContentsMap: Map<Long, ProvisioningContents>,
+        region: Region,
     ): GroupGen {
         log.info { "그룹 콘텐츠 생성 시작: ${group.group.size}개 뉴스" }
 
@@ -79,7 +81,7 @@ class GroupContentGenerator(
                 summary = groupSummary.summary,
                 highlightTexts = gson.toJson(groupHighlights.highlightTexts),
                 groupSourceHeadlines = gson.toJson(groupSourceHeadlines),
-                region = 0,
+                region = region.code,
             )
 
         return groupGenRepository.save(groupGen)
