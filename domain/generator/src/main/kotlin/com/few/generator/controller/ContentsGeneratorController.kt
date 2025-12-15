@@ -16,13 +16,13 @@ import com.few.generator.usecase.SendNewsletterSchedulingUseCase
 import com.few.generator.usecase.input.BrowseContentsUseCaseIn
 import com.few.web.ApiResponse
 import com.few.web.ApiResponseGenerator
+import io.swagger.v3.oas.annotations.Operation
 import jakarta.validation.constraints.Min
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 import java.time.LocalDate
 
 @Validated
@@ -76,14 +76,19 @@ class ContentsGeneratorController(
         )
     }
 
+    @Operation(
+        summary = "사용 중단 예정 API",
+        description =
+            "이 엔드포인트는 다음 버전에서 제거될 예정입니다. " +
+                "/api/v2/contents/local-news 및 /api/v2/contents/global-news 를 참고하세요",
+        deprecated = true,
+    )
     @GetMapping(
         value = [
-            "/contents", // TODO: remove deprecated URL "contents"
-            "/contents/local-news",
-            "/contents/global-news",
+            "/contents",
         ],
     )
-    fun readLocalNewsContents(
+    fun readLocalNewsContentsDeprecated(
         @RequestParam(
             value = "prevContentId",
             required = false,
@@ -96,13 +101,8 @@ class ContentsGeneratorController(
         )
         categoryCode: Int?,
     ): ApiResponse<ApiResponse.SuccessBody<BrowseContentResponses>> {
-        val url =
-            ServletUriComponentsBuilder
-                .fromCurrentRequestUri()
-                .toUriString()
-        val region = if (url.contains("global-news")) Region.GLOBAL else Region.LOCAL
         val category = categoryCode?.let { Category.from(it) }
-        val ucOuts = browseContentsUseCase.execute(BrowseContentsUseCaseIn(prevGenId, category, region))
+        val ucOuts = browseContentsUseCase.execute(BrowseContentsUseCaseIn(prevGenId, category, Region.LOCAL))
 
         val response =
             BrowseContentResponses(
@@ -202,8 +202,15 @@ class ContentsGeneratorController(
         )
     }
 
+    @Operation(
+        summary = "사용 중단 예정 API",
+        description =
+            "이 엔드포인트는 다음 버전에서 제거될 예정입니다. " +
+                "/api/v2/contents/local-news/categories 및 /api/v2/contents/global-news/categories 를 참고하세요",
+        deprecated = true,
+    )
     @GetMapping(value = ["/contents/categories"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getCategories(): ApiResponse<ApiResponse.SuccessBody<List<CodeValueResponse>>> =
+    fun getCategoriesDeprecated(): ApiResponse<ApiResponse.SuccessBody<List<CodeValueResponse>>> =
         ApiResponseGenerator.success(
             Category.entries.map { CodeValueResponse(code = it.code, value = it.title) },
             HttpStatus.OK,
