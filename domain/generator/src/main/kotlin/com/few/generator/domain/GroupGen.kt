@@ -1,6 +1,8 @@
 package com.few.generator.domain
 
 import jakarta.persistence.*
+import org.hibernate.annotations.Cache
+import org.hibernate.annotations.CacheConcurrencyStrategy
 
 @Entity
 @Table(
@@ -10,6 +12,7 @@ import jakarta.persistence.*
         Index(name = "idx_group_gen_2", columnList = "created_at DESC"),
     ],
 )
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "groupGen")
 data class GroupGen(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
