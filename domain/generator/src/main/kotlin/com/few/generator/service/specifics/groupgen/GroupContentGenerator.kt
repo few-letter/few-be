@@ -79,6 +79,7 @@ class GroupContentGenerator(
                 summary = groupSummary.summary,
                 highlightTexts = gson.toJson(groupHighlights.highlightTexts),
                 groupSourceHeadlines = gson.toJson(groupSourceHeadlines),
+                region = 0,
             )
 
         return groupGenRepository.save(groupGen)
