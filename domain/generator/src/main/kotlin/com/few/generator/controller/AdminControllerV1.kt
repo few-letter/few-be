@@ -4,9 +4,8 @@ import com.few.common.domain.ContentsType
 import com.few.common.exception.BadRequestException
 import com.few.generator.controller.request.ContentsSchedulingRequest
 import com.few.generator.usecase.GlobalGenSchedulingUseCase
-import com.few.generator.usecase.GlobalGroupGenSchedulingUseCase
+import com.few.generator.usecase.GroupSchedulingUseCase
 import com.few.generator.usecase.LocalGenSchedulingUseCase
-import com.few.generator.usecase.LocalGroupGenSchedulingUseCase
 import com.few.generator.usecase.SendNewsletterSchedulingUseCase
 import com.few.web.ApiResponse
 import com.few.web.ApiResponseGenerator
@@ -21,8 +20,7 @@ class AdminControllerV1(
     private val localGenSchedulingUseCase: LocalGenSchedulingUseCase,
     private val globalGenSchedulingUseCase: GlobalGenSchedulingUseCase,
     private val newsletterSchedulingUseCase: SendNewsletterSchedulingUseCase,
-    private val localGroupGenSchedulingUseCase: LocalGroupGenSchedulingUseCase,
-    private val globalGroupGenSchedulingUseCase: GlobalGroupGenSchedulingUseCase,
+    private val groupSchedulingUseCase: GroupSchedulingUseCase,
 ) {
     @PostMapping(
         value = ["/contents/schedule"],
@@ -55,14 +53,8 @@ class AdminControllerV1(
     @PostMapping(
         value = ["/contents/groups/schedule"],
     )
-    fun createAllGroupGen(
-        @Validated @RequestBody(required = false) request: ContentsSchedulingRequest,
-    ): ApiResponse<ApiResponse.Success> {
-        when (request.type.uppercase()) {
-            ContentsType.GLOBAL_NEWS.title.uppercase() -> globalGroupGenSchedulingUseCase.executeNow()
-            ContentsType.LOCAL_NEWS.title.uppercase() -> localGroupGenSchedulingUseCase.executeNow()
-            else -> throw BadRequestException("Invalid Contents Type: ${request.type}")
-        }
+    fun createAllGroupGen(): ApiResponse<ApiResponse.Success> {
+        groupSchedulingUseCase.execute()
 
         return ApiResponseGenerator.success(
             HttpStatus.OK,
