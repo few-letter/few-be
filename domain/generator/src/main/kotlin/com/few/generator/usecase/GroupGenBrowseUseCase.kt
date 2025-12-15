@@ -5,6 +5,7 @@ import com.few.generator.controller.response.BrowseGroupGenResponse
 import com.few.generator.controller.response.BrowseGroupGenResponses
 import com.few.generator.controller.response.GroupSourceHeadlineData
 import com.few.generator.repository.GroupGenRepository
+import com.few.generator.usecase.input.BrowseGroupGenUseCaseIn
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.springframework.beans.factory.annotation.Qualifier
@@ -18,13 +19,13 @@ data class GroupGenBrowseUseCase(
     @Qualifier(GeneratorGsonConfig.GSON_BEAN_NAME)
     private val gson: Gson,
 ) {
-    fun execute(date: LocalDate?): BrowseGroupGenResponses {
-        val targetDate = date ?: LocalDate.now()
+    fun execute(useCaseIn: BrowseGroupGenUseCaseIn): BrowseGroupGenResponses {
+        val targetDate = useCaseIn.date ?: LocalDate.now()
         val start = targetDate.atStartOfDay()
         val end = targetDate.atTime(LocalTime.MAX)
         val groupGens =
             groupGenRepository
-                .findAllByCreatedAtBetween(start, end)
+                .findAllByCreatedAtBetweenAndRegion(start, end, useCaseIn.region.code)
                 .sortedByDescending { it.createdAt }
 
         return BrowseGroupGenResponses(
