@@ -41,6 +41,7 @@ class LocalGroupGenSchedulingUseCase(
     ) {
     override val region = Region.LOCAL
     override val regionName = "LOCAL"
+    override val eventTitle = "Local Group Gen 생성"
 
     @Scheduled(cron = "\${scheduling.cron.group}")
     @GeneratorTransactional

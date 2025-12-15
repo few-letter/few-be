@@ -31,6 +31,7 @@ class GlobalGenSchedulingUseCase(
     override val region = Region.GLOBAL
     override val regionName = "글로벌"
     override val schedulingName = "Global news contents scheduling"
+    override val eventTitle = "Global Gen 생성"
 
     @Scheduled(cron = "\${scheduling.cron.global-gen}")
     @GeneratorTransactional

@@ -31,6 +31,7 @@ class LocalGenSchedulingUseCase(
     override val region = Region.LOCAL
     override val regionName = "로컬"
     override val schedulingName = "Local News Contents scheduling"
+    override val eventTitle = "Local Gen 생성"
 
     @Scheduled(cron = "\${scheduling.cron.generator}")
     @GeneratorTransactional
