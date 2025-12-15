@@ -3,87 +3,43 @@ package com.few.generator.controller
 import com.few.common.domain.Category
 import com.few.common.domain.ContentsType
 import com.few.common.domain.Region
-import com.few.common.exception.BadRequestException
-import com.few.generator.controller.request.ContentsSchedulingRequest
 import com.few.generator.controller.response.*
 import com.few.generator.usecase.BrowseContentsUseCase
-import com.few.generator.usecase.GlobalGenSchedulingUseCase
 import com.few.generator.usecase.GroupGenBrowseUseCase
-import com.few.generator.usecase.GroupSchedulingUseCase
-import com.few.generator.usecase.LocalGenSchedulingUseCase
 import com.few.generator.usecase.RawContentsBrowseContentUseCase
-import com.few.generator.usecase.SendNewsletterSchedulingUseCase
 import com.few.generator.usecase.input.BrowseContentsUseCaseIn
 import com.few.web.ApiResponse
 import com.few.web.ApiResponseGenerator
+import io.swagger.v3.oas.annotations.Operation
 import jakarta.validation.constraints.Min
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 import java.time.LocalDate
 
 @Validated
 @RestController
 @RequestMapping("/api/v1")
-class ContentsGeneratorController(
-    private val localGenSchedulingUseCase: LocalGenSchedulingUseCase,
-    private val globalGenSchedulingUseCase: GlobalGenSchedulingUseCase,
-    private val newsletterSchedulingUseCase: SendNewsletterSchedulingUseCase,
+class ContentsGeneratorControllerV1(
     private val rawContentsBrowseContentUseCase: RawContentsBrowseContentUseCase,
     private val browseContentsUseCase: BrowseContentsUseCase,
     private val groupGenBrowseUseCase: GroupGenBrowseUseCase,
-    private val groupSchedulingUseCase: GroupSchedulingUseCase,
 ) {
-    @PostMapping(
-        value = ["/contents/schedule"],
+    @Operation(
+        summary = "사용 중단 예정 API",
+        description =
+            "이 엔드포인트는 다음 버전에서 제거될 예정입니다. " +
+                "/api/v2/contents/local-news 및 /api/v2/contents/global-news 를 참고하세요",
+        deprecated = true,
     )
-    fun createNewsContents(
-        @Validated @RequestBody(required = false) request: ContentsSchedulingRequest,
-    ): ApiResponse<ApiResponse.Success> {
-        when (request.type.uppercase()) {
-            ContentsType.GLOBAL_NEWS.title.uppercase() -> globalGenSchedulingUseCase.executeNow()
-            ContentsType.LOCAL_NEWS.title.uppercase() -> localGenSchedulingUseCase.executeNow()
-            else -> throw BadRequestException("Invalid Contents Type: ${request.type}")
-        }
-
-        return ApiResponseGenerator.success(
-            HttpStatus.OK,
-        )
-    }
-
-    @PostMapping(
-        value = ["/contents/send"],
-    )
-    fun sendAll(): ApiResponse<ApiResponse.Success> {
-        newsletterSchedulingUseCase.execute()
-
-        return ApiResponseGenerator.success(
-            HttpStatus.OK,
-        )
-    }
-
-    @PostMapping(
-        value = ["/contents/groups/schedule"],
-    )
-    fun createAllGroupGen(): ApiResponse<ApiResponse.Success> {
-        groupSchedulingUseCase.execute()
-
-        return ApiResponseGenerator.success(
-            HttpStatus.OK,
-        )
-    }
-
     @GetMapping(
         value = [
-            "/contents", // TODO: remove deprecated URL "contents"
-            "/contents/local-news",
-            "/contents/global-news",
+            "/contents",
         ],
     )
-    fun readLocalNewsContents(
+    fun readNewsContents(
         @RequestParam(
             value = "prevContentId",
             required = false,
@@ -96,13 +52,8 @@ class ContentsGeneratorController(
         )
         categoryCode: Int?,
     ): ApiResponse<ApiResponse.SuccessBody<BrowseContentResponses>> {
-        val url =
-            ServletUriComponentsBuilder
-                .fromCurrentRequestUri()
-                .toUriString()
-        val region = if (url.contains("global-news")) Region.GLOBAL else Region.LOCAL
         val category = categoryCode?.let { Category.from(it) }
-        val ucOuts = browseContentsUseCase.execute(BrowseContentsUseCaseIn(prevGenId, category, region))
+        val ucOuts = browseContentsUseCase.execute(BrowseContentsUseCaseIn(prevGenId, category, Region.LOCAL))
 
         val response =
             BrowseContentResponses(
@@ -135,7 +86,7 @@ class ContentsGeneratorController(
     }
 
     @GetMapping(value = ["/contents/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getByRawContents(
+    fun getContentsDetail(
         @PathVariable(value = "id")
         @Min(value = 1, message = "{min.id}")
         genId: Long,
@@ -202,6 +153,13 @@ class ContentsGeneratorController(
         )
     }
 
+    @Operation(
+        summary = "사용 중단 예정 API",
+        description =
+            "이 엔드포인트는 다음 버전에서 제거될 예정입니다. " +
+                "/api/v2/contents/local-news/categories 및 /api/v2/contents/global-news/categories 를 참고하세요",
+        deprecated = true,
+    )
     @GetMapping(value = ["/contents/categories"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getCategories(): ApiResponse<ApiResponse.SuccessBody<List<CodeValueResponse>>> =
         ApiResponseGenerator.success(
