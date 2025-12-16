@@ -43,7 +43,7 @@ class LocalGroupGenSchedulingUseCase(
     override val regionName = "LOCAL"
     override val eventTitle = "Local Group Gen 생성"
 
-    @Scheduled(cron = "\${scheduling.cron.group}")
+    @Scheduled(cron = "\${scheduling.cron.local-group-gen}")
     @GeneratorTransactional
     fun execute() {
         executeInternal()

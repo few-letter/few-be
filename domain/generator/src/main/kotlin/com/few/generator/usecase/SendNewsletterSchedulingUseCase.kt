@@ -23,7 +23,7 @@ class SendNewsletterSchedulingUseCase(
     private val log = KotlinLogging.logger {}
     private val isRunning = AtomicBoolean(false)
 
-    @Scheduled(cron = "\${scheduling.cron.send}", zone = "Asia/Seoul")
+    @Scheduled(cron = "\${scheduling.cron.email}", zone = "Asia/Seoul")
     @GeneratorTransactional
     fun scheduledSend() {
         if (!isRunning.compareAndSet(false, true)) {
