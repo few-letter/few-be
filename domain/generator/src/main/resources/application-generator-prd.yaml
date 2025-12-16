@@ -32,10 +32,11 @@ spring:
 
 scheduling:
     cron:
-        generator: "0 0 4 * * *"
-        group: "0 0 5 * * *"
-        send: "0 0 9 * * *"
-        global-gen: "0 0 14 * * *"
+        local-gen: "0 0 4 * * *"
+        local-group-gen: "0 0 5 * * *"
+        global-gen: "0 0 4 * * *"
+        global-group-gen: "0 0 14 * * *"
+        email: "0 0 9 * * *"
 
 urls:
     webhook:
