@@ -36,7 +36,7 @@ scheduling:
     cron:
         local-gen: "0 0 4 * * *"
         local-group-gen: "0 0 5 * * *"
-        global-gen: "0 0 4 * * *"
+        global-gen: "0 0 13 * * *"
         global-group-gen: "0 0 14 * * *"
         email: "0 0 9 * * *"
 
