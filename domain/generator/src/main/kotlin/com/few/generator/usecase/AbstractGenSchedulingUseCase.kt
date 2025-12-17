@@ -5,6 +5,7 @@ import com.few.common.domain.Region
 import com.few.common.exception.BadRequestException
 import com.few.generator.core.scrapper.Scrapper
 import com.few.generator.event.dto.ContentsSchedulingEventDto
+import com.few.generator.event.dto.GenSchedulingCompletedEventDto
 import com.few.generator.service.GenService
 import com.few.generator.service.ProvisioningService
 import com.few.generator.service.RawContentsService
@@ -103,6 +104,13 @@ abstract class AbstractGenSchedulingUseCase(
             if (!isSuccess) {
                 throw BadRequestException("$regionName 콘텐츠 스케줄링에 실패 : ${exception?.cause?.message}")
             }
+
+            // Gen 스케줄링 완료 이벤트 발행 (성공 시에만)
+            applicationEventPublisher.publishEvent(
+                GenSchedulingCompletedEventDto(
+                    region = region,
+                ),
+            )
         }
     }
 
