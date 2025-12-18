@@ -48,8 +48,8 @@ class LocalGroupGenSchedulingUseCase(
 
     @Scheduled(cron = "\${scheduling.cron.group}")
     @GeneratorTransactional
-    fun execute() {
-        executeInternal()
+    public override fun execute() {
+        super.execute()
     }
 
     @Async("groupGenSchedulingExecutor")
@@ -62,7 +62,7 @@ class LocalGroupGenSchedulingUseCase(
         log.info { "Local Gen 스케줄링 완료 감지, Local Group Gen 스케줄링 자동 시작" }
 
         try {
-            executeNow()
+            super.execute()
         } catch (e: Exception) {
             log.warn(e) { "Local Gen 완료 후 자동 Group Gen 실행 실패: ${e.message}" }
         }

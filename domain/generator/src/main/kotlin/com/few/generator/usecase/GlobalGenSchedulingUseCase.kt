@@ -35,7 +35,7 @@ class GlobalGenSchedulingUseCase(
 
     @Scheduled(cron = "\${scheduling.cron.global-gen}")
     @GeneratorTransactional
-    fun execute() {
-        executeInternal()
+    public override fun execute() {
+        super.execute()
     }
 }

@@ -24,6 +24,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.transaction.annotation.Propagation
 import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
@@ -48,7 +49,8 @@ abstract class AbstractGroupGenSchedulingUseCase(
     abstract val regionName: String
     abstract val eventTitle: String
 
-    protected fun executeInternal() {
+    @GeneratorTransactional(propagation = Propagation.REQUIRED)
+    protected open fun execute() {
         if (!isRunning.compareAndSet(false, true)) {
             throw BadRequestException("$regionName group scheduling is already running. Please try again later.")
         }
@@ -58,11 +60,6 @@ abstract class AbstractGroupGenSchedulingUseCase(
         } finally {
             isRunning.set(false)
         }
-    }
-
-    @GeneratorTransactional
-    fun executeNow() {
-        executeInternal()
     }
 
     protected fun doExecute() {

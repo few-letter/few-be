@@ -13,6 +13,7 @@ import com.few.generator.support.jpa.GeneratorTransactional
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.transaction.annotation.Propagation
 import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
@@ -34,24 +35,11 @@ abstract class AbstractGenSchedulingUseCase(
     abstract val schedulingName: String
     abstract val eventTitle: String
 
-    @GeneratorTransactional
-    protected fun executeInternal() {
+    @GeneratorTransactional(propagation = Propagation.REQUIRED)
+    protected open fun execute() {
         /** 0~15분 사이 랜덤으로 sleep 후 진행 **/
         Thread.sleep((0..15).random().toLong() * 60 * 1000)
 
-        if (!isRunning.compareAndSet(false, true)) {
-            throw BadRequestException("$schedulingName is already running. Please try again later.")
-        }
-
-        try {
-            doExecute()
-        } finally {
-            isRunning.set(false)
-        }
-    }
-
-    @GeneratorTransactional
-    fun executeNow() {
         if (!isRunning.compareAndSet(false, true)) {
             throw BadRequestException("$schedulingName is already running. Please try again later.")
         }
