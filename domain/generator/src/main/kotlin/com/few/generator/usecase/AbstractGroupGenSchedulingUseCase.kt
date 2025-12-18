@@ -48,7 +48,6 @@ abstract class AbstractGroupGenSchedulingUseCase(
     abstract val regionName: String
     abstract val eventTitle: String
 
-    @GeneratorTransactional
     protected fun executeInternal() {
         if (!isRunning.compareAndSet(false, true)) {
             throw BadRequestException("$regionName group scheduling is already running. Please try again later.")
