@@ -33,7 +33,7 @@ class LocalGenSchedulingUseCase(
     override val schedulingName = "Local News Contents scheduling"
     override val eventTitle = "Local Gen 생성"
 
-    @Scheduled(cron = "\${scheduling.cron.generator}")
+    @Scheduled(cron = "\${scheduling.cron.local-gen}")
     @GeneratorTransactional
     fun execute() {
         executeInternal()
