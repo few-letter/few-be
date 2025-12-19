@@ -19,4 +19,15 @@ class GeneratorAsyncConfig {
         executor.initialize()
         return executor
     }
+
+    @Bean(name = ["groupGenSchedulingExecutor"])
+    fun groupGenSchedulingExecutor(): Executor {
+        val executor = ThreadPoolTaskExecutor()
+        executor.corePoolSize = 2
+        executor.maxPoolSize = 2
+        executor.queueCapacity = 1
+        executor.setThreadNamePrefix("GroupGenScheduling-")
+        executor.initialize()
+        return executor
+    }
 }
