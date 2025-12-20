@@ -1,7 +1,7 @@
 package com.few.generator.event.handler
 
+import com.few.generator.event.EnrollSubscriptionEvent
 import com.few.generator.event.client.SlackWebhookClient
-import com.few.generator.event.dto.EnrollSubscriptionEventDto
 import com.few.web.client.Block
 import com.few.web.client.SlackBodyProperty
 import com.few.web.client.Text
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 class EnrollSubscriptionHandler(
     private val slackWebhookClient: SlackWebhookClient,
 ) {
-    fun handle(event: EnrollSubscriptionEventDto) {
+    fun handle(event: EnrollSubscriptionEvent) {
         val body =
             SlackBodyProperty(
                 blocks =
@@ -27,6 +27,10 @@ class EnrollSubscriptionHandler(
                         Block(
                             type = "section",
                             text = Text(text = "⏰ *구독 시간*\n${event.enrolledAt}"),
+                        ),
+                        Block(
+                            type = "section",
+                            text = Text(text = "🔔 *구독 컨텐츠 종류*\n${event.contentsType.title}"),
                         ),
                     ),
             )

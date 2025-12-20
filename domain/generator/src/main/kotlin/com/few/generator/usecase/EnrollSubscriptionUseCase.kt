@@ -4,7 +4,7 @@ import com.few.common.domain.Category
 import com.few.generator.domain.Subscription
 import com.few.generator.domain.SubscriptionAction
 import com.few.generator.domain.SubscriptionHis
-import com.few.generator.event.dto.EnrollSubscriptionEventDto
+import com.few.generator.event.EnrollSubscriptionEvent
 import com.few.generator.repository.SubscriptionHisRepository
 import com.few.generator.repository.SubscriptionRepository
 import com.few.generator.support.jpa.GeneratorTransactional
@@ -22,7 +22,7 @@ data class EnrollSubscriptionUseCase(
 ) {
     @GeneratorTransactional
     fun execute(input: EnrollSubscriptionUseCaseIn): BrowseSubscriptionUseCaseOut {
-        val existing = subscriptionRepository.findByEmail(input.email)
+        val existing = subscriptionRepository.findByEmailAndContentsType(input.email, input.contentsType)
 
         val joinedCategories = input.categoryCodes.distinct().joinToString(",") { it.toString() }
         val categories = input.categoryCodes.map { Category.Companion.from(it) }.toSet()
@@ -32,13 +32,15 @@ data class EnrollSubscriptionUseCase(
                 email = input.email,
                 categories = joinedCategories,
                 action = SubscriptionAction.ENROLL.code,
+                contentsType = input.contentsType,
             ),
         )
 
         applicationEventPublisher.publishEvent(
-            EnrollSubscriptionEventDto(
+            EnrollSubscriptionEvent(
                 email = input.email,
                 categories = categories.joinToString(", ") { it.title },
+                contentsType = input.contentsType,
                 enrolledAt = LocalDateTime.now(),
             ),
         )
@@ -48,7 +50,13 @@ data class EnrollSubscriptionUseCase(
             subscriptionRepository.save(existing)
             BrowseSubscriptionUseCaseOut(categories)
         } else {
-            subscriptionRepository.save(Subscription(email = input.email, categories = joinedCategories))
+            subscriptionRepository.save(
+                Subscription(
+                    email = input.email,
+                    categories = joinedCategories,
+                    contentsType = input.contentsType,
+                ),
+            )
             BrowseSubscriptionUseCaseOut(categories)
         }
     }

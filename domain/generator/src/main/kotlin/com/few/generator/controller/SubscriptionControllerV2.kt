@@ -20,12 +20,13 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @Validated
 @RestController
-@RequestMapping("/api/v1")
-class SubscriptionControllerV1(
+@RequestMapping("/api/v2")
+class SubscriptionControllerV2(
     private val enrollSubscriptionUseCase: EnrollSubscriptionUseCase,
     private val browseSubscriptionUseCase: BrowseSubscriptionUseCase,
     private val unsubscribeUseCase: UnsubscribeUseCase,
@@ -54,12 +55,14 @@ class SubscriptionControllerV1(
 
     @GetMapping("/subscriptions")
     fun browseSubscription(
-        @RequestHeader("email") email: String, // TODO: auth 적용
+        @RequestHeader("email") email: String,
+        @RequestParam("contentsType") contentsType: Int,
     ): ApiResponse<ApiResponse.SuccessBody<BrowseSubscriptionResponse>> {
         val ucOuts =
             browseSubscriptionUseCase.execute(
                 BrowseSubscriptionUseCaseIn(
-                    email,
+                    email = email,
+                    contentsType = ContentsType.fromCode(contentsType),
                 ),
             )
 
@@ -73,10 +76,14 @@ class SubscriptionControllerV1(
 
     @DeleteMapping("/subscriptions")
     fun unsubscribe(
-        @RequestHeader("email") email: String, // TODO: auth 적용
+        @RequestHeader("email") email: String,
+        @RequestParam("contentsType") contentsType: Int,
     ): ApiResponse<ApiResponse.SuccessBody<Unit>> {
         unsubscribeUseCase.execute(
-            UnsubscribeUseCaseIn(email),
+            UnsubscribeUseCaseIn(
+                email = email,
+                contentsType = ContentsType.fromCode(contentsType),
+            ),
         )
 
         return ApiResponseGenerator.success(

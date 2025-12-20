@@ -1,5 +1,7 @@
 package com.few.generator.domain
 
+import com.few.common.domain.ContentsType
+import com.few.generator.config.jpa.ContentsTypeConverter
 import jakarta.persistence.*
 
 @Entity
@@ -11,4 +13,7 @@ class SubscriptionHis(
     @Column var email: String,
     @Column(name = "categories", length = 100) var categories: String,
     @Column var action: Int,
+    @Convert(converter = ContentsTypeConverter::class)
+    @Column(name = "contents_type", nullable = false)
+    var contentsType: ContentsType,
 ) : BaseEntity()

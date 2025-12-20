@@ -4,8 +4,8 @@ import com.few.common.domain.Category
 import com.few.common.domain.Region
 import com.few.common.exception.BadRequestException
 import com.few.generator.core.scrapper.Scrapper
-import com.few.generator.event.dto.ContentsSchedulingEventDto
-import com.few.generator.event.dto.GenSchedulingCompletedEventDto
+import com.few.generator.event.ContentsSchedulingEvent
+import com.few.generator.event.GenSchedulingCompletedEvent
 import com.few.generator.service.GenService
 import com.few.generator.service.ProvisioningService
 import com.few.generator.service.RawContentsService
@@ -13,7 +13,6 @@ import com.few.generator.support.jpa.GeneratorTransactional
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
-import org.springframework.transaction.annotation.Propagation
 import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
@@ -35,7 +34,7 @@ abstract class AbstractGenSchedulingUseCase(
     abstract val schedulingName: String
     abstract val eventTitle: String
 
-    @GeneratorTransactional(propagation = Propagation.REQUIRED)
+    @GeneratorTransactional
     protected open fun execute() {
         /** 0~15분 사이 랜덤으로 sleep 후 진행 **/
         Thread.sleep((0..15).random().toLong() * 60 * 1000)
@@ -79,7 +78,7 @@ abstract class AbstractGenSchedulingUseCase(
             }
 
             applicationEventPublisher.publishEvent(
-                ContentsSchedulingEventDto(
+                ContentsSchedulingEvent(
                     title = eventTitle,
                     isSuccess = isSuccess,
                     startTime = startTime,
@@ -95,7 +94,7 @@ abstract class AbstractGenSchedulingUseCase(
 
             // Gen 스케줄링 완료 이벤트 발행 (성공 시에만)
             applicationEventPublisher.publishEvent(
-                GenSchedulingCompletedEventDto(
+                GenSchedulingCompletedEvent(
                     region = region,
                 ),
             )

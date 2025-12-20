@@ -4,7 +4,7 @@ import com.few.common.domain.Category
 import com.few.common.exception.BadRequestException
 import com.few.generator.domain.SubscriptionAction
 import com.few.generator.domain.SubscriptionHis
-import com.few.generator.event.dto.UnsubscribeEventDto
+import com.few.generator.event.UnsubscribeEvent
 import com.few.generator.repository.SubscriptionHisRepository
 import com.few.generator.repository.SubscriptionRepository
 import com.few.generator.support.jpa.GeneratorTransactional
@@ -22,7 +22,7 @@ data class UnsubscribeUseCase(
     @GeneratorTransactional
     fun execute(input: UnsubscribeUseCaseIn) {
         val existing =
-            subscriptionRepository.findByEmail(input.email)
+            subscriptionRepository.findByEmailAndContentsType(input.email, input.contentsType)
                 ?: throw BadRequestException("구독하지 않은 이메일입니다.")
 
         subscriptionHisRepository.save(
@@ -30,12 +30,13 @@ data class UnsubscribeUseCase(
                 email = input.email,
                 categories = existing.categories,
                 action = SubscriptionAction.CANCEL.code,
+                contentsType = input.contentsType,
             ),
         )
         subscriptionRepository.delete(existing)
 
         applicationEventPublisher.publishEvent(
-            UnsubscribeEventDto(
+            UnsubscribeEvent(
                 email = input.email,
                 categories =
                     existing.categories
@@ -43,6 +44,7 @@ data class UnsubscribeUseCase(
                         .mapNotNull { it.toIntOrNull() }
                         .map { Category.from(it) }
                         .joinToString(", ") { it.title },
+                contentsType = input.contentsType,
                 unsubscribedAt = LocalDateTime.now(),
             ),
         )

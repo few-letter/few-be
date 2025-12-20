@@ -91,64 +91,35 @@ class ContentsGeneratorControllerV1(
         @PathVariable(value = "id")
         @Min(value = 1, message = "{min.id}")
         genId: Long,
-    ): ApiResponse<ApiResponse.SuccessBody<BrowseContentsResponse>> {
+    ): ApiResponse<ApiResponse.SuccessBody<BrowseContentDetailResponse>> {
         val useCaseOut = rawContentsBrowseContentUseCase.execute(genId)
 
         return ApiResponseGenerator.success(
-            BrowseContentsResponse(
-                rawContents =
-                    BrowseRawContentsResponse(
-                        id = useCaseOut.rawContents.id!!,
-                        url = useCaseOut.rawContents.url,
-                        title = useCaseOut.rawContents.title,
-                        thumbnailImageUrl =
-                            useCaseOut.rawContents.thumbnailImageUrl,
-                        rawTexts = useCaseOut.rawContents.rawTexts,
-                        imageUrls = useCaseOut.rawContents.imageUrls,
-                        mediaType =
-                            CodeValueResponse(
-                                code =
-                                    useCaseOut
-                                        .rawContents
-                                        .mediaType
-                                        .code,
-                                value =
-                                    useCaseOut
-                                        .rawContents
-                                        .mediaType
-                                        .title,
-                            ),
-                        createdAt = useCaseOut.rawContents.createdAt,
+            BrowseContentDetailResponse(
+                id = useCaseOut.gen.id,
+                thumbnailImageUrl = useCaseOut.rawContents.thumbnailImageUrl,
+                mediaType =
+                    CodeValueResponse(
+                        code = useCaseOut.rawContents.mediaType.code,
+                        value = useCaseOut.rawContents.mediaType.title,
                     ),
-                provisioningContents =
-                    BrowseProvisioningContentsResponse(
-                        id = useCaseOut.provisioningContents.id,
-                        rawContentsId =
-                            useCaseOut.provisioningContents.rawContentsId,
-                        completionIds =
-                            useCaseOut.provisioningContents.completionIds,
-                        bodyTextsJson =
-                            useCaseOut.provisioningContents.bodyTextsJson,
-                        coreTextsJson =
-                            useCaseOut.provisioningContents.coreTextsJson,
-                        createdAt = useCaseOut.provisioningContents.createdAt,
+                url = useCaseOut.rawContents.url,
+                headline = useCaseOut.gen.headline,
+                summary = useCaseOut.gen.summary,
+                highlightTexts = useCaseOut.gen.highlightTexts,
+                category =
+                    CodeValueResponse(
+                        code = useCaseOut.gen.category.code,
+                        value = useCaseOut.gen.category.title,
                     ),
-                gen =
-                    BrowseGenResponse(
-                        id = useCaseOut.gen.id,
-                        provisioningContentsId =
-                            useCaseOut.gen.provisioningContentsId,
-                        completionIds = useCaseOut.gen.completionIds,
-                        headline = useCaseOut.gen.headline,
-                        summary = useCaseOut.gen.summary,
-                        highlightTexts = useCaseOut.gen.highlightTexts,
-                        category =
-                            CodeValueResponse(
-                                code = useCaseOut.gen.category.code,
-                                value = useCaseOut.gen.category.title,
-                            ),
-                        createdAt = useCaseOut.gen.createdAt,
-                    ),
+                region =
+                    useCaseOut.gen.region?.let {
+                        CodeValueResponse(
+                            code = it.code,
+                            value = it.name,
+                        )
+                    },
+                createdAt = useCaseOut.gen.createdAt,
             ),
             HttpStatus.OK,
         )
@@ -192,9 +163,9 @@ class ContentsGeneratorControllerV1(
     }
 
     @GetMapping(value = ["/contents/types"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getContentsTypes(): ApiResponse<ApiResponse.SuccessBody<List<String>>> =
+    fun getContentsTypes(): ApiResponse<ApiResponse.SuccessBody<List<CodeValueResponse>>> =
         ApiResponseGenerator.success(
-            ContentsType.entries.map { it.title },
+            ContentsType.entries.map { CodeValueResponse(code = it.code, value = it.title) },
             HttpStatus.OK,
         )
 }
