@@ -163,9 +163,9 @@ class ContentsGeneratorControllerV1(
     }
 
     @GetMapping(value = ["/contents/types"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getContentsTypes(): ApiResponse<ApiResponse.SuccessBody<List<String>>> =
+    fun getContentsTypes(): ApiResponse<ApiResponse.SuccessBody<List<CodeValueResponse>>> =
         ApiResponseGenerator.success(
-            ContentsType.entries.map { it.title },
+            ContentsType.entries.map { CodeValueResponse(code = it.code, value = it.title) },
             HttpStatus.OK,
         )
 }
