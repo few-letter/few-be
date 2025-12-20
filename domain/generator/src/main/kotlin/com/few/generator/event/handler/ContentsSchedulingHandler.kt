@@ -1,7 +1,7 @@
 package com.few.generator.event.handler
 
+import com.few.generator.event.ContentsSchedulingEvent
 import com.few.generator.event.client.SlackWebhookClient
-import com.few.generator.event.dto.ContentsSchedulingEventDto
 import com.few.web.client.Block
 import com.few.web.client.SlackBodyProperty
 import com.few.web.client.Text
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 class ContentsSchedulingHandler(
     private val slackWebhookClient: SlackWebhookClient,
 ) {
-    fun handle(event: ContentsSchedulingEventDto) {
+    fun handle(event: ContentsSchedulingEvent) {
         val body =
             SlackBodyProperty(
                 blocks =
