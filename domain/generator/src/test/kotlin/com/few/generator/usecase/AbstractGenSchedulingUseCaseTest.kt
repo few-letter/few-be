@@ -7,8 +7,8 @@ import com.few.generator.core.scrapper.Scrapper
 import com.few.generator.domain.Gen
 import com.few.generator.domain.ProvisioningContents
 import com.few.generator.domain.RawContents
-import com.few.generator.event.dto.ContentsSchedulingEventDto
-import com.few.generator.event.dto.GenSchedulingCompletedEventDto
+import com.few.generator.event.ContentsSchedulingEvent
+import com.few.generator.event.GenSchedulingCompletedEvent
 import com.few.generator.service.GenService
 import com.few.generator.service.ProvisioningService
 import com.few.generator.service.RawContentsService
@@ -138,7 +138,7 @@ class AbstractGenSchedulingUseCaseTest :
                     // Verify ContentsSchedulingEventDto published
                     verify {
                         applicationEventPublisher.publishEvent(
-                            match<ContentsSchedulingEventDto> {
+                            match<ContentsSchedulingEvent> {
                                 it.title == "[국내] 뉴스 스케줄링" &&
                                     it.isSuccess &&
                                     it.message == "None" &&
@@ -150,7 +150,7 @@ class AbstractGenSchedulingUseCaseTest :
                     // Verify GenSchedulingCompletedEventDto published
                     verify {
                         applicationEventPublisher.publishEvent(
-                            match<GenSchedulingCompletedEventDto> {
+                            match<GenSchedulingCompletedEvent> {
                                 it.region == Region.LOCAL
                             },
                         )
@@ -189,7 +189,7 @@ class AbstractGenSchedulingUseCaseTest :
 
                     verify {
                         applicationEventPublisher.publishEvent(
-                            match<ContentsSchedulingEventDto> {
+                            match<ContentsSchedulingEvent> {
                                 it.isSuccess &&
                                     it.result.contains("생성(1)") &&
                                     it.result.contains("스킵(1)")
@@ -243,7 +243,7 @@ class AbstractGenSchedulingUseCaseTest :
 
                     verify {
                         applicationEventPublisher.publishEvent(
-                            match<ContentsSchedulingEventDto> {
+                            match<ContentsSchedulingEvent> {
                                 it.result.contains("생성(2)")
                             },
                         )
