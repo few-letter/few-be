@@ -16,4 +16,6 @@ data class EnrollSubscriptionRequest
         @field:NotEmpty(message = "카테고리는 최소 1개 이상 선택해야 합니다")
         @JsonProperty("categoryCodes")
         val categoryCodes: List<Int>,
+        @JsonProperty("contentsType")
+        val contentsType: Int? = null,
     )
