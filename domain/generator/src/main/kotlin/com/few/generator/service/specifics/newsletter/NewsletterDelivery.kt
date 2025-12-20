@@ -1,5 +1,6 @@
 package com.few.generator.service.specifics.newsletter
 
+import com.few.common.domain.ContentsType
 import com.few.email.NewsletterEmailRenderer
 import com.few.email.provider.EmailSendProvider
 import com.few.generator.config.NewsletterProperties
@@ -29,7 +30,8 @@ class NewsletterDelivery(
         var page = 0
 
         do {
-            val subscriptionPage = subscriptionService.findAll(PageRequest.of(page, properties.pageSize))
+            val subscriptionPage = // TODO: ContentsType 국내, 해외 구분
+                subscriptionService.findAll(ContentsType.LOCAL_NEWS, PageRequest.of(page, properties.pageSize))
 
             subscriptionPage.content.forEach { subscription ->
                 val result = sendNewsletterToSubscriber(subscription, data)
