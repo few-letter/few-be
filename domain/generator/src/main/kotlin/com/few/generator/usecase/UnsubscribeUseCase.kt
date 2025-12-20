@@ -22,7 +22,7 @@ data class UnsubscribeUseCase(
     @GeneratorTransactional
     fun execute(input: UnsubscribeUseCaseIn) {
         val existing =
-            subscriptionRepository.findByEmail(input.email)
+            subscriptionRepository.findByEmailAndContentsType(input.email, input.contentsType)
                 ?: throw BadRequestException("구독하지 않은 이메일입니다.")
 
         subscriptionHisRepository.save(
@@ -30,6 +30,7 @@ data class UnsubscribeUseCase(
                 email = input.email,
                 categories = existing.categories,
                 action = SubscriptionAction.CANCEL.code,
+                contentsType = input.contentsType,
             ),
         )
         subscriptionRepository.delete(existing)
@@ -43,6 +44,7 @@ data class UnsubscribeUseCase(
                         .mapNotNull { it.toIntOrNull() }
                         .map { Category.from(it) }
                         .joinToString(", ") { it.title },
+                contentsType = input.contentsType,
                 unsubscribedAt = LocalDateTime.now(),
             ),
         )

@@ -13,7 +13,7 @@ data class BrowseSubscriptionUseCase(
 ) {
     @GeneratorTransactional(readOnly = true)
     fun execute(input: BrowseSubscriptionUseCaseIn): BrowseSubscriptionUseCaseOut {
-        val existing = subscriptionRepository.findByEmail(input.email)
+        val existing = subscriptionRepository.findByEmailAndContentsType(input.email, input.contentsType)
 
         return if (existing != null) {
             val categories =
