@@ -28,6 +28,10 @@ class UnsubscribeHandler(
                             type = "section",
                             text = Text(text = "⏰ *취소 시간*\n${event.unsubscribedAt}"),
                         ),
+                        Block(
+                            type = "section",
+                            text = Text(text = "🔔 *구독 컨텐츠 종류*\n${event.contentsType.title}"),
+                        ),
                     ),
             )
 
