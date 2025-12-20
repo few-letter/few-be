@@ -4,7 +4,7 @@ import com.few.common.domain.Category
 import com.few.generator.domain.Subscription
 import com.few.generator.domain.SubscriptionAction
 import com.few.generator.domain.SubscriptionHis
-import com.few.generator.event.dto.EnrollSubscriptionEventDto
+import com.few.generator.event.EnrollSubscriptionEvent
 import com.few.generator.repository.SubscriptionHisRepository
 import com.few.generator.repository.SubscriptionRepository
 import com.few.generator.support.jpa.GeneratorTransactional
@@ -37,7 +37,7 @@ data class EnrollSubscriptionUseCase(
         )
 
         applicationEventPublisher.publishEvent(
-            EnrollSubscriptionEventDto(
+            EnrollSubscriptionEvent(
                 email = input.email,
                 categories = categories.joinToString(", ") { it.title },
                 contentsType = input.contentsType,

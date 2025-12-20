@@ -1,6 +1,6 @@
 package com.few.generator.event.listener
 
-import com.few.generator.event.dto.UnsubscribeEventDto
+import com.few.generator.event.UnsubscribeEvent
 import com.few.generator.event.handler.UnsubscribeHandler
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
@@ -16,7 +16,7 @@ class UnsubscribeEventListener(
     private val log = KotlinLogging.logger {}
 
     @EventListener
-    fun handleEvent(event: UnsubscribeEventDto) {
+    fun handleEvent(event: UnsubscribeEvent) {
         notificationIoCoroutineScope.launch {
             unsubscribeHandler.handle(event)
         }

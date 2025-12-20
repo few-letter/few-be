@@ -8,7 +8,7 @@ import com.few.generator.config.GroupingProperties
 import com.few.generator.domain.GroupGen
 import com.few.generator.domain.vo.GenDetail
 import com.few.generator.domain.vo.GroupGenProcessingResult
-import com.few.generator.event.dto.ContentsSchedulingEventDto
+import com.few.generator.event.ContentsSchedulingEvent
 import com.few.generator.service.GenService
 import com.few.generator.service.ProvisioningService
 import com.few.generator.service.specifics.groupgen.GenGroupper
@@ -24,7 +24,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationEventPublisher
-import org.springframework.transaction.annotation.Propagation
 import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
@@ -49,8 +48,8 @@ abstract class AbstractGroupGenSchedulingUseCase(
     abstract val regionName: String
     abstract val eventTitle: String
 
-    @GeneratorTransactional(propagation = Propagation.REQUIRED)
-    protected open fun execute() {
+    @GeneratorTransactional
+    open fun execute() {
         if (!isRunning.compareAndSet(false, true)) {
             throw BadRequestException("$regionName group scheduling is already running. Please try again later.")
         }
@@ -91,7 +90,7 @@ abstract class AbstractGroupGenSchedulingUseCase(
             }
 
             applicationEventPublisher.publishEvent(
-                ContentsSchedulingEventDto(
+                ContentsSchedulingEvent(
                     title = eventTitle,
                     isSuccess = isSuccess,
                     startTime = startTime,

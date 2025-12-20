@@ -1,11 +1,11 @@
-package com.few.generator.event.dto
+package com.few.generator.event
 
 import com.few.common.domain.ContentsType
 import java.time.LocalDateTime
 
-data class EnrollSubscriptionEventDto(
+data class UnsubscribeEvent(
     val email: String,
     val categories: String,
     val contentsType: ContentsType,
-    val enrolledAt: LocalDateTime,
+    val unsubscribedAt: LocalDateTime,
 )

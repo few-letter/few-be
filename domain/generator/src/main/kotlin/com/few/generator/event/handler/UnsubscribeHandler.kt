@@ -1,7 +1,7 @@
 package com.few.generator.event.handler
 
+import com.few.generator.event.UnsubscribeEvent
 import com.few.generator.event.client.SlackWebhookClient
-import com.few.generator.event.dto.UnsubscribeEventDto
 import com.few.web.client.Block
 import com.few.web.client.SlackBodyProperty
 import com.few.web.client.Text
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 class UnsubscribeHandler(
     private val slackWebhookClient: SlackWebhookClient,
 ) {
-    fun handle(event: UnsubscribeEventDto) {
+    fun handle(event: UnsubscribeEvent) {
         val body =
             SlackBodyProperty(
                 blocks =

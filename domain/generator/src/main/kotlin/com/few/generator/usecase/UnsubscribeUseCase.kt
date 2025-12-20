@@ -4,7 +4,7 @@ import com.few.common.domain.Category
 import com.few.common.exception.BadRequestException
 import com.few.generator.domain.SubscriptionAction
 import com.few.generator.domain.SubscriptionHis
-import com.few.generator.event.dto.UnsubscribeEventDto
+import com.few.generator.event.UnsubscribeEvent
 import com.few.generator.repository.SubscriptionHisRepository
 import com.few.generator.repository.SubscriptionRepository
 import com.few.generator.support.jpa.GeneratorTransactional
@@ -36,7 +36,7 @@ data class UnsubscribeUseCase(
         subscriptionRepository.delete(existing)
 
         applicationEventPublisher.publishEvent(
-            UnsubscribeEventDto(
+            UnsubscribeEvent(
                 email = input.email,
                 categories =
                     existing.categories
