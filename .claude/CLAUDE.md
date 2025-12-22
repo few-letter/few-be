@@ -10,7 +10,6 @@ This is a Spring Boot Kotlin multi-module project using clean architecture princ
 - **api/**: Main Spring Boot application module that wires together domain modules
 - **domain/**: Business logic modules
   - **generator/**: Content generation domain (scraping, GPT processing, scheduling)
-  - **provider/**: Subscription management domain(You should only write code that is freely scalable, consisting of stateless logic.)
 - **library/**: Shared infrastructure modules
   - **common/**: Common configurations and utilities
   - **email/**: Email sending functionality (AWS SES, templates)
@@ -44,6 +43,7 @@ This is a Spring Boot Kotlin multi-module project using clean architecture princ
 
 ### Testing
 Uses Kotest framework. No tests currently exist in the codebase.
+If you modify code, you must also update the test code to match the changed source code. However, this does not apply if there is no test code for that code.
 
 ### Profiles
 - **local**: Local development (uses application-*-local.yml files)
@@ -54,12 +54,12 @@ Each domain/library module has its own application config files following the pa
 `application-{module-name}-{profile}.yml`
 
 ### UseCase Pattern
-Business logic is encapsulated in UseCase classes with input/output DTOs:
+Business logic is encapsulated in UseCase classes with UseCaseInt/UseCaseOut DTOs:
 ```kotlin
 // Example structure found in domain modules
-BrowseContentsUseCase(input: BrowseContentsUseCaseIn): BrowseContentsUseCaseOut
+fun execute(input: BrowseContentsUseCaseIn): BrowseContentsUsecaseOuts
 ```
 
 ### Transactional Annotations
-Custom transactional annotations per module (e.g., `@GeneratorTransactional`, `@ProviderTransactional`).
+Custom transactional annotations per module (e.g., `@GeneratorTransactional`).
 

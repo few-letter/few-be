@@ -22,7 +22,7 @@ class RawContentsService(
 ) {
     private val log = KotlinLogging.logger {}
 
-    fun create(
+    fun createRawContent(
         url: String,
         category: Category,
         region: Region,
@@ -33,19 +33,19 @@ class RawContentsService(
             throw BadRequestException("이미 생성된 컨텐츠가 있습니다. ID: ${it.id}, URL: ${scrappedResult.sourceUrl}")
         }
 
-        return rawContentsRepository.save(
-            RawContents(
-                url = scrappedResult.sourceUrl,
-                title = scrappedResult.title,
-                thumbnailImageUrl = scrappedResult.thumbnailImageUrl,
-                rawTexts = scrappedResult.rawTexts.joinToString("\n"),
-                imageUrls = gson.toJson(scrappedResult.images),
-                category = category.code,
-                mediaType = MediaType.find(scrappedResult.sourceUrl).code,
-                region = region.code,
-            ),
+        return RawContents(
+            url = scrappedResult.sourceUrl,
+            title = scrappedResult.title,
+            thumbnailImageUrl = scrappedResult.thumbnailImageUrl,
+            rawTexts = scrappedResult.rawTexts.joinToString("\n"),
+            imageUrls = gson.toJson(scrappedResult.images),
+            category = category.code,
+            mediaType = MediaType.find(scrappedResult.sourceUrl).code,
+            region = region.code,
         )
     }
+
+    fun createAll(rawContents: List<RawContents>): List<RawContents> = rawContentsRepository.saveAll(rawContents)
 
     fun findAllByIdIn(ids: List<Long>): List<RawContents> = rawContentsRepository.findAllByIdIn(ids)
 }

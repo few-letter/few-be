@@ -28,7 +28,7 @@ class GenService(
 ) {
     private val log = KotlinLogging.logger {}
 
-    fun create(
+    fun createGen(
         rawContent: RawContents,
         provisioningContent: ProvisioningContents,
     ): Gen {
@@ -50,18 +50,18 @@ class GenService(
         val highlightTextPrompt = promptGenerator.toKoreanHighlightText(summary.summary)
         val highlightText: HighlightText = chatGpt.ask(highlightTextPrompt) as HighlightText
 
-        return genRepository.save(
-            Gen(
-                provisioningContentsId = provisioningContent.id!!,
-                completionIds = mutableListOf(headline.completionId!!, summary.completionId!!, highlightText.completionId!!),
-                headline = headline.headline,
-                summary = summary.summary,
-                highlightTexts = gson.toJson(listOf(highlightText.highlightText)),
-                category = Category.from(provisioningContent.category).code,
-                region = provisioningContent.region,
-            ),
+        return Gen(
+            provisioningContentsId = provisioningContent.id!!,
+            completionIds = mutableListOf(headline.completionId!!, summary.completionId!!, highlightText.completionId!!),
+            headline = headline.headline,
+            summary = summary.summary,
+            highlightTexts = gson.toJson(listOf(highlightText.highlightText)),
+            category = Category.from(provisioningContent.category).code,
+            region = provisioningContent.region,
         )
     }
+
+    fun createAll(gens: List<Gen>): List<Gen> = genRepository.saveAll(gens)
 
     fun findLatestGen(): Gen = genRepository.findFirstLimit(1, Region.LOCAL.code)[0]
 

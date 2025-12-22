@@ -7,6 +7,8 @@ import org.springframework.data.repository.query.Param
 import java.time.LocalDateTime
 
 interface GenRepository : JpaRepository<Gen, Long> {
+    override fun <S : Gen> saveAll(entities: Iterable<S>): List<S>
+
     @Query(
         """
         SELECT g.* FROM gen g
