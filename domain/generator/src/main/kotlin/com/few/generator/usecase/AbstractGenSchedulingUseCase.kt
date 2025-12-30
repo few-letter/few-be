@@ -126,6 +126,12 @@ abstract class AbstractGenSchedulingUseCase(
                 urls.elementAtOrNull(i)?.let { url ->
                     try {
                         val rawContent = rawContentsService.createRawContent(url, category, region)
+
+                        // Check for duplicate URL in rawContentsToInsert
+                        if (rawContentsToInsert.any { it.url == rawContent.url }) {
+                            throw BadRequestException("Duplicate URL detected: ${rawContent.url}")
+                        }
+
                         rawContentsToInsert.add(rawContent)
 
                         successCntByCategory[category] = successCntByCategory.getOrDefault(category, 0) + 1
