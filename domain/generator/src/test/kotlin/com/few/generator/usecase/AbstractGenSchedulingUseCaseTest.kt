@@ -111,10 +111,6 @@ class AbstractGenSchedulingUseCaseTest :
         Given("정상적인 스케줄링 실행 시") {
             When("모든 카테고리에서 성공적으로 콘텐츠를 생성하는 경우") {
                 Then("성공 이벤트가 발행되고 GenSchedulingCompletedEvent도 발행된다") {
-                    val rawContents =
-                        mockk<RawContents>(relaxed = true) {
-                            every { id } returns 1L
-                        }
                     val provisioningContents =
                         mockk<ProvisioningContents>(relaxed = true) {
                             every { id } returns 1L
@@ -130,14 +126,28 @@ class AbstractGenSchedulingUseCaseTest :
 
                     every {
                         rawContentsService.createRawContent(any(), any(), Region.LOCAL)
-                    } returns rawContents
+                    } answers {
+                        val url = firstArg<String>()
+                        mockk<RawContents>(relaxed = true) {
+                            every { id } returns 1L
+                            every { this@mockk.url } returns url
+                        }
+                    }
 
                     every {
                         rawContentsService.createAll(any())
-                    } returns listOf(rawContents, rawContents, rawContents, rawContents)
+                    } answers {
+                        val input = firstArg<List<RawContents>>()
+                        input.map {
+                            mockk<RawContents>(relaxed = true) {
+                                every { id } returns 1L
+                                every { url } returns it.url
+                            }
+                        }
+                    }
 
                     every {
-                        provisioningService.createProvisioningContent(rawContents)
+                        provisioningService.createProvisioningContent(any())
                     } returns provisioningContents
 
                     every {
@@ -145,7 +155,7 @@ class AbstractGenSchedulingUseCaseTest :
                     } returns listOf(provisioningContents, provisioningContents, provisioningContents, provisioningContents)
 
                     every {
-                        genService.createGen(rawContents, provisioningContents)
+                        genService.createGen(any(), any())
                     } returns gen
 
                     every {
@@ -244,10 +254,6 @@ class AbstractGenSchedulingUseCaseTest :
         Given("카테고리별 최대 개수 제한이 있는 경우") {
             When("카테고리당 contentsCountByCategory만큼만 생성해야 하는 경우") {
                 Then("카테고리당 설정된 개수만큼만 생성된다") {
-                    val rawContents =
-                        mockk<RawContents>(relaxed = true) {
-                            every { id } returns 1L
-                        }
                     val provisioningContents =
                         mockk<ProvisioningContents>(relaxed = true) {
                             every { id } returns 1L
@@ -273,15 +279,27 @@ class AbstractGenSchedulingUseCaseTest :
                         rawContentsService.createRawContent(any(), Category.TECHNOLOGY, Region.LOCAL)
                     } answers {
                         callCount++
-                        rawContents
+                        val url = firstArg<String>()
+                        mockk<RawContents>(relaxed = true) {
+                            every { id } returns 1L
+                            every { this@mockk.url } returns url
+                        }
                     }
 
                     every {
                         rawContentsService.createAll(any())
-                    } returns listOf(rawContents, rawContents)
+                    } answers {
+                        val input = firstArg<List<RawContents>>()
+                        input.map {
+                            mockk<RawContents>(relaxed = true) {
+                                every { id } returns 1L
+                                every { url } returns it.url
+                            }
+                        }
+                    }
 
                     every {
-                        provisioningService.createProvisioningContent(rawContents)
+                        provisioningService.createProvisioningContent(any())
                     } returns provisioningContents
 
                     every {
@@ -289,7 +307,7 @@ class AbstractGenSchedulingUseCaseTest :
                     } returns listOf(provisioningContents, provisioningContents)
 
                     every {
-                        genService.createGen(rawContents, provisioningContents)
+                        genService.createGen(any(), any())
                     } returns gen
 
                     every {
@@ -336,10 +354,6 @@ class AbstractGenSchedulingUseCaseTest :
         Given("다양한 카테고리가 섞여 있는 경우") {
             When("여러 카테고리의 뉴스가 골고루 생성되어야 하는 경우") {
                 Then("카테고리가 골고루 섞여서 처리된다") {
-                    val rawContents =
-                        mockk<RawContents>(relaxed = true) {
-                            every { id } returns 1L
-                        }
                     val provisioningContents =
                         mockk<ProvisioningContents>(relaxed = true) {
                             every { id } returns 1L
@@ -362,12 +376,23 @@ class AbstractGenSchedulingUseCaseTest :
                         val url = firstArg<String>()
                         val category = secondArg<Category>()
                         creationOrder.add(url to category)
-                        rawContents
+                        mockk<RawContents>(relaxed = true) {
+                            every { id } returns 1L
+                            every { this@mockk.url } returns url
+                        }
                     }
 
                     every {
                         rawContentsService.createAll(any())
-                    } returns listOf(rawContents, rawContents, rawContents, rawContents, rawContents)
+                    } answers {
+                        val input = firstArg<List<RawContents>>()
+                        input.map {
+                            mockk<RawContents>(relaxed = true) {
+                                every { id } returns 1L
+                                every { url } returns it.url
+                            }
+                        }
+                    }
 
                     every {
                         provisioningService.createProvisioningContent(any())
