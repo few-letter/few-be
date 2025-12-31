@@ -70,3 +70,21 @@ logging:
     level:
         org.springframework.cache: INFO
         org.ehcache: WARN
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include: health,info,metrics,caches
+            base-path: /actuator
+    endpoint:
+        health:
+            show-details: when-authorized
+        caches:
+            enabled: true
+    metrics:
+        enable:
+            jvm: true
+            system: true
+            hikaricp: true
+            cache: true
