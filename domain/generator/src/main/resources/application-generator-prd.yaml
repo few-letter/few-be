@@ -1,4 +1,8 @@
 spring:
+    cache:
+        type: jcache
+        jcache:
+            config: classpath:ehcache.xml
     cloud:
         openfeign:
             client:
@@ -61,3 +65,8 @@ app:
         write-timeout: 15
         max-idle-connections: 1
         keep-alive-duration: 60
+
+logging:
+    level:
+        org.springframework.cache: INFO
+        org.ehcache: WARN
