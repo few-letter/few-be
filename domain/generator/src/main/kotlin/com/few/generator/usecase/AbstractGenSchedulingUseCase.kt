@@ -40,7 +40,7 @@ abstract class AbstractGenSchedulingUseCase(
     @GeneratorTransactional
     protected open fun execute() {
         // 0~15분 사이 랜덤으로 sleep 후 진행
-//        Thread.sleep((0..15).random().toLong() * 60 * 1000)
+        Thread.sleep((0..15).random().toLong() * 60 * 1000)
 
         if (!isRunning.compareAndSet(false, true)) {
             throw BadRequestException("$schedulingName is already running. Please try again later.")
@@ -126,6 +126,12 @@ abstract class AbstractGenSchedulingUseCase(
                 urls.elementAtOrNull(i)?.let { url ->
                     try {
                         val rawContent = rawContentsService.createRawContent(url, category, region)
+
+                        // Check for duplicate URL in rawContentsToInsert
+                        if (rawContentsToInsert.any { it.url == rawContent.url }) {
+                            throw BadRequestException("Duplicate URL detected: ${rawContent.url}")
+                        }
+
                         rawContentsToInsert.add(rawContent)
 
                         successCntByCategory[category] = successCntByCategory.getOrDefault(category, 0) + 1
