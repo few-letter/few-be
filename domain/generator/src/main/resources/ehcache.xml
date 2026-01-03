@@ -3,9 +3,6 @@
         xmlns="http://www.ehcache.org/v3"
         xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.10.xsd">
 
-    <!-- 디스크 저장 경로 설정 -->
-    <persistence directory="${java.io.tmpdir}/ehcache-data"/>
-
     <!-- Gen 엔티티 페이징 조회 캐시 -->
     <cache alias="genCache">
         <!-- 캐시 키/값 타입 -->
@@ -19,10 +16,8 @@
 
         <!-- 리소스 할당 -->
         <resources>
-            <!-- Heap: 메모리 내 최대 2000개 엔트리 -->
-            <heap unit="entries">2000</heap>
-            <!-- Off-heap: JVM 힙 외부 메모리 최대 20MB -->
-            <offheap unit="MB">20</offheap>
+            <!-- Heap: 메모리 내 최대 5000개 엔트리 (off-heap 제거로 용량 증가) -->
+            <heap unit="entries">5000</heap>
         </resources>
 
         <!-- 캐시 이벤트 리스너 (선택사항, 성능 모니터링용) -->
@@ -51,7 +46,6 @@
         </expiry>
         <resources>
             <heap unit="entries">1000</heap>
-            <offheap unit="MB">10</offheap>
         </resources>
     </cache-template>
 
