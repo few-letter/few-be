@@ -39,6 +39,7 @@ scheduling:
         local-gen: "0 0 4 * * *"
         global-gen: "0 0 13 * * *"
         email: "0 0 9 * * *"
+        cache-metrics: "0 0 3 * * *"
 
 urls:
     webhook:
