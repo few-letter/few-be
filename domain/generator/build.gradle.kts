@@ -40,7 +40,7 @@ dependencies {
 
     /** cache - Ehcache */
     implementation("org.springframework.boot:spring-boot-starter-cache")
-    implementation("javax.cache:cache-api:${DependencyVersion.CACHE_API}")
+    implementation("javax.cache:cache-api:${DependencyVersion.JAVA_CACHE_API}")
     implementation("org.ehcache:ehcache:${DependencyVersion.EHCACHE}") {
         capabilities {
             requireCapability("org.ehcache:ehcache-jakarta")

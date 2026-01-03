@@ -53,6 +53,6 @@ object DependencyVersion {
     const val OKHTTP = "4.12.0"
 
     /** Cache **/
-    const val CACHE_API = "1.1.1"
+    const val JAVA_CACHE_API = "1.1.1"
     const val EHCACHE = "3.10.8"
 }
