@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.ehcache.org/v3"
+        xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.10.xsd">
+
+    <!-- Gen 엔티티 페이징 조회 캐시 -->
+    <cache alias="genCache">
+        <!-- 캐시 키/값 타입 -->
+        <key-type>java.lang.Object</key-type>
+        <value-type>java.lang.Object</value-type>
+
+        <expiry>
+            <ttl unit="hours">24</ttl>
+        </expiry>
+
+        <!-- 리소스 할당 -->
+        <resources>
+            <!-- Heap: 메모리 내 최대 5000개 엔트리 (off-heap 제거로 용량 증가) -->
+            <heap unit="entries">3000</heap>
+        </resources>
+    </cache>
+
+</config>

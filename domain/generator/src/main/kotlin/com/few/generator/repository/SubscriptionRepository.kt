@@ -9,6 +9,10 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface SubscriptionRepository : JpaRepository<Subscription, Long> {
+    override fun <S : Subscription> save(entity: S): S
+
+    override fun delete(entity: Subscription)
+
     fun findByEmailAndContentsType(
         email: String,
         contentsType: ContentsType,
