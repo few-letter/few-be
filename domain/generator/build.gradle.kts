@@ -17,6 +17,7 @@ dependencies {
 
     /** starter */
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
 
     /** swagger */
@@ -36,4 +37,13 @@ dependencies {
 
     /** okhttp - Brotli compression **/
     implementation("com.squareup.okhttp3:okhttp-brotli:${DependencyVersion.OKHTTP}")
+
+    /** cache - Ehcache */
+    implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation("javax.cache:cache-api:${DependencyVersion.JAVA_CACHE_API}")
+    implementation("org.ehcache:ehcache:${DependencyVersion.EHCACHE}") {
+        capabilities {
+            requireCapability("org.ehcache:ehcache-jakarta")
+        }
+    }
 }

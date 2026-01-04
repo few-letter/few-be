@@ -99,6 +99,10 @@ class LocalDelegatedSecurityConfigurer(
                     AntPathRequestMatcher("/api/v1/workbooks/*/articles/*", HttpMethod.GET.name()),
                     AntPathRequestMatcher("/api/v1/problems/**", HttpMethod.GET.name()),
                     AntPathRequestMatcher("/api/v1/problems/*", HttpMethod.POST.name()),
+                    /** v1
+                     * TODO: v2는 우선 시큐리티 미적용
+                     * */
+                    AntPathRequestMatcher("/api/v1/**"),
                     /** v2
                      * TODO: v2는 우선 시큐리티 미적용
                      * */
@@ -118,6 +122,11 @@ class LocalDelegatedSecurityConfigurer(
                      * provider
                      */
                     AntPathRequestMatcher("/api/v1/subscriptions"),
+                    AntPathRequestMatcher("/api/v1/**"),
+                    /**
+                     * Spring actuator
+                     */
+                    AntPathRequestMatcher("/actuator/**"),
                 )
         }
 

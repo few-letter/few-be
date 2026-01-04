@@ -1,4 +1,8 @@
 spring:
+    cache:
+        type: jcache
+        jcache:
+            config: classpath:ehcache.xml
     cloud:
         openfeign:
             client:
@@ -37,11 +41,12 @@ scheduling:
         local-gen: "0 0 4 * * *"
         global-gen: "0 0 13 * * *"
         email: "0 0 9 * * *"
+        cache-metrics: "0 43 17 * * *"
 
 urls:
     webhook:
-        discord: "localhost:8080/webhook/discord/unused"
-        slack: "localhost:8080/webhook/slack/unused"
+        discord: "https://localhost:8080/webhook/discord/unused"
+        slack: ${WEBHOOK_SLACK}
 
 generator:
     scraping:
@@ -63,3 +68,27 @@ app:
         write-timeout: 15
         max-idle-connections: 1
         keep-alive-duration: 60
+
+logging:
+    level:
+        org.springframework.cache: DEBUG
+        org.ehcache: DEBUG
+        org.hibernate.SQL: DEBUG
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include: health,info,metrics,caches
+            base-path: /actuator
+    endpoint:
+        health:
+            show-details: always
+        caches:
+            enabled: true
+    metrics:
+        enable:
+            jvm: true
+            system: true
+            hikaricp: true
+            cache: true
