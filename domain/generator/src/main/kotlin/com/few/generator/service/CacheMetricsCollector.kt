@@ -70,7 +70,7 @@ class CacheMetricsCollector(
             .name("cache.gets")
             .tag("name", cacheName)
             .tag("result", result)
-            .counter()
+            .functionCounter()
             ?.count() ?: 0.0
 
     private fun getCachePuts(cacheName: String): Double =
@@ -78,7 +78,7 @@ class CacheMetricsCollector(
             .`in`(meterRegistry)
             .name("cache.puts")
             .tag("name", cacheName)
-            .counter()
+            .functionCounter()
             ?.count() ?: 0.0
 
     private fun getCacheEvictions(cacheName: String): Double =
@@ -86,6 +86,6 @@ class CacheMetricsCollector(
             .`in`(meterRegistry)
             .name("cache.evictions")
             .tag("name", cacheName)
-            .counter()
+            .functionCounter()
             ?.count() ?: 0.0
 }
