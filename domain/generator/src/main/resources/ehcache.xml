@@ -9,44 +9,15 @@
         <key-type>java.lang.Object</key-type>
         <value-type>java.lang.Object</value-type>
 
-        <!-- 만료 정책: TTL (Time To Live) 1시간 -->
         <expiry>
-            <ttl unit="hours">1</ttl>
+            <ttl unit="hours">24</ttl>
         </expiry>
 
         <!-- 리소스 할당 -->
         <resources>
             <!-- Heap: 메모리 내 최대 5000개 엔트리 (off-heap 제거로 용량 증가) -->
-            <heap unit="entries">5000</heap>
+            <heap unit="entries">3000</heap>
         </resources>
-
-        <!-- 캐시 이벤트 리스너 (선택사항, 성능 모니터링용) -->
-        <!--
-        <listeners>
-            <listener>
-                <class>com.few.generator.cache.CacheEventLogger</class>
-                <event-firing-mode>ASYNCHRONOUS</event-firing-mode>
-                <event-ordering-mode>UNORDERED</event-ordering-mode>
-                <events-to-fire-on>CREATED</events-to-fire-on>
-                <events-to-fire-on>UPDATED</events-to-fire-on>
-                <events-to-fire-on>EXPIRED</events-to-fire-on>
-                <events-to-fire-on>REMOVED</events-to-fire-on>
-                <events-to-fire-on>EVICTED</events-to-fire-on>
-            </listener>
-        </listeners>
-        -->
     </cache>
-
-    <!-- 디폴트 캐시 템플릿 (필요시 다른 캐시에서 재사용 가능) -->
-    <cache-template name="defaultCacheTemplate">
-        <key-type>java.lang.Object</key-type>
-        <value-type>java.lang.Object</value-type>
-        <expiry>
-            <ttl unit="minutes">30</ttl>
-        </expiry>
-        <resources>
-            <heap unit="entries">1000</heap>
-        </resources>
-    </cache-template>
 
 </config>
