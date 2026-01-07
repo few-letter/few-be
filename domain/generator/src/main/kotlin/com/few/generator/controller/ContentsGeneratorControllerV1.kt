@@ -13,12 +13,10 @@ import com.few.web.ApiResponse
 import com.few.web.ApiResponseGenerator
 import io.swagger.v3.oas.annotations.Operation
 import jakarta.validation.constraints.Min
-import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
-import java.time.LocalDate
 
 @Validated
 @RestController
@@ -147,17 +145,10 @@ class ContentsGeneratorControllerV1(
         deprecated = true,
     )
     @GetMapping(value = ["/contents/groups"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getGroupGens(
-        @RequestParam(
-            value = "date",
-            required = false,
-        )
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-        date: LocalDate?,
-    ): ApiResponse<ApiResponse.SuccessBody<BrowseGroupGenResponses>> {
+    fun getGroupGens(): ApiResponse<ApiResponse.SuccessBody<BrowseGroupGenResponses>> {
         val response =
             groupGenBrowseUseCase.execute(
-                BrowseGroupGenUseCaseIn(date, Region.LOCAL),
+                BrowseGroupGenUseCaseIn(Region.LOCAL),
             )
         return ApiResponseGenerator.success(response, HttpStatus.OK)
     }
