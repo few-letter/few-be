@@ -5,6 +5,7 @@ import com.few.generator.controller.response.BrowseGroupGenResponse
 import com.few.generator.controller.response.BrowseGroupGenResponses
 import com.few.generator.controller.response.GroupSourceHeadlineData
 import com.few.generator.repository.GroupGenRepository
+import com.few.generator.support.jpa.GeneratorTransactional
 import com.few.generator.usecase.input.BrowseGroupGenUseCaseIn
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -18,6 +19,7 @@ data class GroupGenBrowseUseCase(
     @Qualifier(GeneratorGsonConfig.GSON_BEAN_NAME)
     private val gson: Gson,
 ) {
+    @GeneratorTransactional(readOnly = true)
     fun execute(useCaseIn: BrowseGroupGenUseCaseIn): BrowseGroupGenResponses {
         val mostRecentGroupGen =
             groupGenRepository.findFirstByRegionOrderByCreatedAtDesc(useCaseIn.region.code)
