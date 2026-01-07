@@ -12,4 +12,6 @@ interface GroupGenRepository : JpaRepository<GroupGen, Long> {
         end: LocalDateTime,
         region: Int,
     ): List<GroupGen>
+
+    fun findFirstByRegionOrderByCreatedAtDesc(region: Int): GroupGen?
 }

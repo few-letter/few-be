@@ -5,12 +5,12 @@ import com.few.generator.controller.response.BrowseGroupGenResponse
 import com.few.generator.controller.response.BrowseGroupGenResponses
 import com.few.generator.controller.response.GroupSourceHeadlineData
 import com.few.generator.repository.GroupGenRepository
+import com.few.generator.support.jpa.GeneratorTransactional
 import com.few.generator.usecase.input.BrowseGroupGenUseCaseIn
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
-import java.time.LocalDate
 import java.time.LocalTime
 
 @Component
@@ -19,26 +19,30 @@ data class GroupGenBrowseUseCase(
     @Qualifier(GeneratorGsonConfig.GSON_BEAN_NAME)
     private val gson: Gson,
 ) {
+    @GeneratorTransactional(readOnly = true)
     fun execute(useCaseIn: BrowseGroupGenUseCaseIn): BrowseGroupGenResponses {
-        val targetDate = useCaseIn.date ?: LocalDate.now()
-        val start = targetDate.atStartOfDay()
-        val end = targetDate.atTime(LocalTime.MAX)
+        val mostRecentGroupGen =
+            groupGenRepository.findFirstByRegionOrderByCreatedAtDesc(useCaseIn.region.code)
+                ?: return BrowseGroupGenResponses(groups = emptyList())
+
+        val mostRecentDate = mostRecentGroupGen.createdAt!!.toLocalDate()
+        val start = mostRecentDate.atStartOfDay()
+        val end = mostRecentDate.atTime(LocalTime.MAX)
         val groupGens =
             groupGenRepository
                 .findAllByCreatedAtBetweenAndRegion(start, end, useCaseIn.region.code)
-                .sortedByDescending { it.createdAt }
 
         return BrowseGroupGenResponses(
             groups =
-                groupGens.map { it ->
+                groupGens.map { groupGen ->
                     BrowseGroupGenResponse(
-                        id = it.id!!,
-                        category = it.category,
-                        selectedGroupIds = it.selectedGroupIds,
-                        headline = it.headline,
-                        summary = it.summary,
+                        id = groupGen.id!!,
+                        category = groupGen.category,
+                        selectedGroupIds = groupGen.selectedGroupIds,
+                        headline = groupGen.headline,
+                        summary = groupGen.summary,
                         highlightTexts =
-                            it.highlightTexts.let { raw ->
+                            groupGen.highlightTexts.let { raw ->
                                 if (raw.isBlank()) {
                                     emptyList()
                                 } else {
@@ -53,11 +57,11 @@ data class GroupGenBrowseUseCase(
                         groupSourceHeadlines =
                             try {
                                 val type = object : TypeToken<List<GroupSourceHeadlineData>>() {}.type
-                                gson.fromJson<List<GroupSourceHeadlineData>>(it.groupSourceHeadlines, type) ?: emptyList()
+                                gson.fromJson<List<GroupSourceHeadlineData>>(groupGen.groupSourceHeadlines, type) ?: emptyList()
                             } catch (_: Exception) {
                                 emptyList()
                             },
-                        createdAt = it.createdAt!!,
+                        createdAt = groupGen.createdAt!!,
                     )
                 },
         )
