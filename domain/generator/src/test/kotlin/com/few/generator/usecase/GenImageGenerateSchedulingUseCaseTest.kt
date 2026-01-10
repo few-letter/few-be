@@ -26,7 +26,7 @@ class GenImageGenerateSchedulingUseCaseTest :
             val singleNewsCardGenerator = mockk<SingleNewsCardGenerator>()
             val gson = Gson()
             val useCase =
-                GenImageGenerateSchedulingUseCase(
+                GenCardNewsImageGenerateSchedulingUseCase(
                     genService = genService,
                     singleNewsCardGenerator = singleNewsCardGenerator,
                     gson = gson,
@@ -94,7 +94,7 @@ class GenImageGenerateSchedulingUseCaseTest :
             val singleNewsCardGenerator = mockk<SingleNewsCardGenerator>()
             val gson = Gson()
             val useCase =
-                GenImageGenerateSchedulingUseCase(
+                GenCardNewsImageGenerateSchedulingUseCase(
                     genService = genService,
                     singleNewsCardGenerator = singleNewsCardGenerator,
                     gson = gson,
@@ -121,7 +121,7 @@ class GenImageGenerateSchedulingUseCaseTest :
             val singleNewsCardGenerator = mockk<SingleNewsCardGenerator>()
             val gson = Gson()
             val useCase =
-                GenImageGenerateSchedulingUseCase(
+                GenCardNewsImageGenerateSchedulingUseCase(
                     genService = genService,
                     singleNewsCardGenerator = singleNewsCardGenerator,
                     gson = gson,
@@ -186,7 +186,7 @@ class GenImageGenerateSchedulingUseCaseTest :
             val singleNewsCardGenerator = mockk<SingleNewsCardGenerator>()
             val gson = Gson()
             val useCase =
-                GenImageGenerateSchedulingUseCase(
+                GenCardNewsImageGenerateSchedulingUseCase(
                     genService = genService,
                     singleNewsCardGenerator = singleNewsCardGenerator,
                     gson = gson,
@@ -230,7 +230,7 @@ class GenImageGenerateSchedulingUseCaseTest :
             val singleNewsCardGenerator = mockk<SingleNewsCardGenerator>()
             val gson = Gson()
             val useCase =
-                GenImageGenerateSchedulingUseCase(
+                GenCardNewsImageGenerateSchedulingUseCase(
                     genService = genService,
                     singleNewsCardGenerator = singleNewsCardGenerator,
                     gson = gson,
@@ -293,7 +293,7 @@ class GenImageGenerateSchedulingUseCaseTest :
             val singleNewsCardGenerator = mockk<SingleNewsCardGenerator>()
             val gson = Gson()
             val useCase =
-                GenImageGenerateSchedulingUseCase(
+                GenCardNewsImageGenerateSchedulingUseCase(
                     genService = genService,
                     singleNewsCardGenerator = singleNewsCardGenerator,
                     gson = gson,

@@ -3,7 +3,7 @@ package com.few.generator.controller
 import com.few.common.domain.ContentsType
 import com.few.common.exception.BadRequestException
 import com.few.generator.controller.request.ContentsSchedulingRequest
-import com.few.generator.usecase.GenImageGenerateSchedulingUseCase
+import com.few.generator.usecase.GenCardNewsImageGenerateSchedulingUseCase
 import com.few.generator.usecase.GlobalGenSchedulingUseCase
 import com.few.generator.usecase.GlobalGroupGenSchedulingUseCase
 import com.few.generator.usecase.LocalGenSchedulingUseCase
@@ -24,7 +24,7 @@ class AdminControllerV1(
     private val newsletterSchedulingUseCase: SendNewsletterSchedulingUseCase,
     private val localGroupGenSchedulingUseCase: LocalGroupGenSchedulingUseCase,
     private val globalGroupGenSchedulingUseCase: GlobalGroupGenSchedulingUseCase,
-    private val genImageGenerateSchedulingUseCase: GenImageGenerateSchedulingUseCase,
+    private val genCardNewsImageGenerateSchedulingUseCase: GenCardNewsImageGenerateSchedulingUseCase,
 ) {
     @PostMapping(
         value = ["/contents/schedule"],
@@ -75,7 +75,7 @@ class AdminControllerV1(
         value = ["/contents/cardnews/generate"],
     )
     fun createGenImages(): ApiResponse<ApiResponse.Success> {
-        genImageGenerateSchedulingUseCase.execute()
+        genCardNewsImageGenerateSchedulingUseCase.execute()
 
         return ApiResponseGenerator.success(
             HttpStatus.OK,

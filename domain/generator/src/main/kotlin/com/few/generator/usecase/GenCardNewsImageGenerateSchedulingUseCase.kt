@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
 
 @Component
-class GenImageGenerateSchedulingUseCase(
+class GenCardNewsImageGenerateSchedulingUseCase(
     private val genService: GenService,
     private val singleNewsCardGenerator: SingleNewsCardGenerator,
     @Qualifier(GSON_BEAN_NAME)
@@ -28,7 +28,7 @@ class GenImageGenerateSchedulingUseCase(
     private val log = KotlinLogging.logger {}
     private val isRunning = AtomicBoolean(false)
 
-    @Scheduled(cron = "0 0 5 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "\${scheduling.cron.gen-card-image}")
     @GeneratorTransactional(readOnly = true)
     fun scheduledExecute() {
         if (!isRunning.compareAndSet(false, true)) {

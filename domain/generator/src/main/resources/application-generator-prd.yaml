@@ -40,6 +40,7 @@ scheduling:
         global-gen: "0 0 13 * * *"
         email: "0 0 9 * * *"
         cache-metrics: "0 0 3 * * *"
+        gen-card-image: "0 0 5 * * *"
 
 urls:
     webhook:
