@@ -1,6 +1,7 @@
 package com.few.generator.usecase
 
 import com.few.common.domain.Category
+import com.few.common.domain.Region
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.service.GenService
 import com.few.generator.service.instagram.NewsContent
@@ -28,7 +29,7 @@ class GenImageGenerateSchedulingUseCase(
     private val isRunning = AtomicBoolean(false)
 
     @Scheduled(cron = "0 0 5 * * *", zone = "Asia/Seoul")
-    @GeneratorTransactional
+    @GeneratorTransactional(readOnly = true)
     fun scheduledExecute() {
         if (!isRunning.compareAndSet(false, true)) {
             log.warn { "이미지 생성 스케줄링이 이미 실행 중입니다." }
@@ -42,42 +43,76 @@ class GenImageGenerateSchedulingUseCase(
         }
     }
 
-    fun execute(): String {
-        val gen = genService.findLatestGen()
+    fun execute(): List<String> {
+        // 오늘 생성된 Gen 조회 (00:00:00 ~ 23:59:59)
+        val today = LocalDateTime.now()
+        val startOfDay =
+            today
+                .withHour(0)
+                .withMinute(0)
+                .withSecond(0)
+                .withNano(0)
+        val endOfDay =
+            today
+                .plusDays(1)
+                .withHour(0)
+                .withMinute(0)
+                .withSecond(0)
+                .withNano(0)
 
-        // Parse highlight texts from JSON
-        val highlightTexts =
-            try {
-                val type = object : TypeToken<List<String>>() {}.type
-                gson.fromJson<List<String>>(gen.highlightTexts, type)
-            } catch (e: Exception) {
-                log.warn(e) { "하이라이트 텍스트 파싱 실패, 빈 리스트 사용" }
-                emptyList()
-            }
+        val gens = genService.findAllByCreatedAtBetweenAndRegion(startOfDay, endOfDay, Region.LOCAL)
 
-        // Convert Gen to NewsContent
-        val newsContent =
-            NewsContent(
-                headline = gen.headline,
-                summary = gen.summary,
-                category = Category.from(gen.category).title,
-                createdAt = gen.createdAt ?: LocalDateTime.now(),
-                highlightTexts = highlightTexts,
-            )
-
-        // Generate image file path
-        val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
-        val fileName = "gen_images/gen_image_${gen.id}_$timestamp.png"
-
-        // Generate image using SingleNewsCardGenerator
-        val success = singleNewsCardGenerator.generateImage(newsContent, fileName)
-
-        if (!success) {
-            throw RuntimeException("이미지 생성 실패")
+        if (gens.isEmpty()) {
+            log.warn { "오늘 생성된 Gen이 없습니다." }
+            return emptyList()
         }
 
-        log.info { "이미지 생성 완료: $fileName" }
-        return fileName
+        log.info { "오늘 생성된 Gen ${gens.size}개를 찾았습니다. 이미지 생성을 시작합니다." }
+
+        val generatedImages = mutableListOf<String>()
+        val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
+
+        gens.forEachIndexed { index, gen ->
+            try {
+                // Parse highlight texts from JSON
+                val highlightTexts =
+                    try {
+                        val type = object : TypeToken<List<String>>() {}.type
+                        gson.fromJson<List<String>>(gen.highlightTexts, type)
+                    } catch (e: Exception) {
+                        log.warn(e) { "Gen ${gen.id} 하이라이트 텍스트 파싱 실패, 빈 리스트 사용" }
+                        emptyList()
+                    }
+
+                // Convert Gen to NewsContent
+                val newsContent =
+                    NewsContent(
+                        headline = gen.headline,
+                        summary = gen.summary,
+                        category = Category.from(gen.category).title,
+                        createdAt = gen.createdAt ?: LocalDateTime.now(),
+                        highlightTexts = highlightTexts,
+                    )
+
+                // Generate image file path
+                val fileName = "gen_images/gen_image_${gen.id}_$timestamp.png"
+
+                // Generate image using SingleNewsCardGenerator
+                val success = singleNewsCardGenerator.generateImage(newsContent, fileName)
+
+                if (success) {
+                    generatedImages.add(fileName)
+                    log.info { "[${index + 1}/${gens.size}] Gen ${gen.id} 이미지 생성 완료: $fileName" }
+                } else {
+                    log.error { "[${index + 1}/${gens.size}] Gen ${gen.id} 이미지 생성 실패" }
+                }
+            } catch (e: Exception) {
+                log.error(e) { "[${index + 1}/${gens.size}] Gen ${gen.id} 이미지 생성 중 예외 발생" }
+            }
+        }
+
+        log.info { "이미지 생성 완료: 총 ${gens.size}개 중 ${generatedImages.size}개 성공" }
+        return generatedImages
     }
 
     private fun executeWithLogging() {
@@ -85,12 +120,12 @@ class GenImageGenerateSchedulingUseCase(
         var isSuccess = true
         var executionTimeSec = 0.0
         var exception: Throwable? = null
-        var imagePath = ""
+        var imagePaths = emptyList<String>()
 
         runCatching {
             executionTimeSec =
                 measureTimeMillis {
-                    imagePath = execute()
+                    imagePaths = execute()
                 }.msToSeconds()
         }.onFailure { ex ->
             isSuccess = false
@@ -99,11 +134,19 @@ class GenImageGenerateSchedulingUseCase(
         }.also {
             log.info {
                 buildString {
-                    appendLine("🖼️ Gen 이미지 생성 완료")
+                    appendLine("🖼️ Gen 이미지 생성 스케줄링 완료")
                     appendLine("✅ 성공 여부: $isSuccess")
                     appendLine("✅ 시작 시간: $startTime")
                     appendLine("✅ 소요 시간: ${executionTimeSec}초")
-                    if (isSuccess) appendLine("✅ 이미지 경로: $imagePath")
+                    if (isSuccess) {
+                        appendLine("✅ 생성된 이미지 개수: ${imagePaths.size}")
+                        if (imagePaths.isNotEmpty()) {
+                            appendLine("✅ 생성된 이미지 경로:")
+                            imagePaths.forEach { path ->
+                                appendLine("   - $path")
+                            }
+                        }
+                    }
                     if (!isSuccess) appendLine("❌ 오류: ${exception?.message}")
                 }
             }

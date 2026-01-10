@@ -72,7 +72,7 @@ class AdminControllerV1(
     }
 
     @PostMapping(
-        value = ["/contents/gen/image"],
+        value = ["/contents/cardnews/generate"],
     )
     fun createGenImages(): ApiResponse<ApiResponse.Success> {
         genImageGenerateSchedulingUseCase.execute()
