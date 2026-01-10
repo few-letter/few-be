@@ -100,7 +100,7 @@ object ImageGeneratorUtils {
     }
 
     /**
-     * 텍스트를 여러 줄로 나누기 (한글 지원)
+     * 텍스트를 여러 줄로 나누기 (단어 단위 줄바꿈, 한글 지원)
      */
     fun wrapText(
         graphics: Graphics2D,
@@ -113,9 +113,60 @@ object ImageGeneratorUtils {
         graphics.font = font
         val metrics = graphics.fontMetrics
         val lines = mutableListOf<String>()
+
+        // 띄어쓰기로 단어 분리
+        val words = text.split(" ")
+        var currentLine = ""
+
+        for (word in words) {
+            // 단어 자체가 너무 길어서 한 줄에 들어가지 않는 경우
+            if (metrics.stringWidth(word) > maxWidth) {
+                // 현재 줄이 비어있지 않으면 저장
+                if (currentLine.isNotEmpty()) {
+                    lines.add(currentLine)
+                    currentLine = ""
+                }
+
+                // 긴 단어를 글자 단위로 분리
+                val wordLines = wrapLongWord(metrics, word, maxWidth)
+                // 마지막 줄을 제외하고 모두 추가
+                lines.addAll(wordLines.dropLast(1))
+                // 마지막 줄을 현재 줄로 설정
+                currentLine = wordLines.last()
+            } else {
+                // 일반적인 경우
+                val testLine = if (currentLine.isEmpty()) word else "$currentLine $word"
+                val testWidth = metrics.stringWidth(testLine)
+
+                if (testWidth > maxWidth && currentLine.isNotEmpty()) {
+                    // 현재 줄이 maxWidth를 초과하면 현재 줄 저장하고 새 줄 시작
+                    lines.add(currentLine)
+                    currentLine = word
+                } else {
+                    currentLine = testLine
+                }
+            }
+        }
+
+        if (currentLine.isNotEmpty()) {
+            lines.add(currentLine)
+        }
+
+        return lines
+    }
+
+    /**
+     * 너무 긴 단어를 글자 단위로 분리
+     */
+    private fun wrapLongWord(
+        metrics: java.awt.FontMetrics,
+        word: String,
+        maxWidth: Int,
+    ): List<String> {
+        val lines = mutableListOf<String>()
         var currentLine = StringBuilder()
 
-        for (char in text) {
+        for (char in word) {
             val testLine = currentLine.toString() + char
             val testWidth = metrics.stringWidth(testLine)
 

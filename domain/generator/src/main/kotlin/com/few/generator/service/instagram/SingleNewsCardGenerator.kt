@@ -36,7 +36,7 @@ class SingleNewsCardGenerator {
         private const val SOURCE_FONT_SIZE = 22
 
         private const val TITLE_LINE_SPACING = 1.2f
-        private const val BODY_LINE_SPACING = 1.4f
+        private const val BODY_LINE_SPACING = 1.25f
     }
 
     /**
@@ -137,7 +137,7 @@ class SingleNewsCardGenerator {
             themeColor.toColor(),
         )
 
-        return headerY + HEADER_HEIGHT + 40
+        return headerY + HEADER_HEIGHT + 80
     }
 
     /**
