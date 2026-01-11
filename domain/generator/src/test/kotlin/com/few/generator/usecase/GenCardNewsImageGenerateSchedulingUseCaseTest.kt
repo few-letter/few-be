@@ -74,7 +74,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
 
             When("execute를 호출하면") {
                 Then("모든 Gen에 대해 이미지가 생성되고 파일 경로 리스트가 반환된다") {
-                    val result = useCase.execute(Region.LOCAL)
+                    val result = useCase.doExecute(Region.LOCAL)
 
                     result shouldHaveSize 3
                     result[0] shouldContain "gen_image_1_"
@@ -104,7 +104,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
 
             When("execute를 호출하면") {
                 Then("빈 리스트가 반환된다") {
-                    val result = useCase.execute(Region.LOCAL)
+                    val result = useCase.doExecute(Region.LOCAL)
 
                     result.shouldBeEmpty()
 
@@ -169,7 +169,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
 
             When("execute를 호출하면") {
                 Then("성공한 이미지 경로만 반환된다") {
-                    val result = useCase.execute(Region.LOCAL)
+                    val result = useCase.doExecute(Region.LOCAL)
 
                     result shouldHaveSize 1
                     result[0] shouldContain "gen_image_1_"
@@ -210,7 +210,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
 
             When("execute를 호출하면") {
                 Then("빈 highlightTexts 리스트로 이미지가 생성된다") {
-                    val result = useCase.execute(Region.LOCAL)
+                    val result = useCase.doExecute(Region.LOCAL)
 
                     result shouldHaveSize 1
 
@@ -272,7 +272,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
 
             When("execute를 호출하면") {
                 Then("각 카테고리가 올바르게 변환되어 이미지가 생성된다") {
-                    val result = useCase.execute(Region.LOCAL)
+                    val result = useCase.doExecute(Region.LOCAL)
 
                     result shouldHaveSize 3
 
@@ -317,7 +317,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
             When("execute를 호출하면") {
                 Then("현재 시간을 사용하여 이미지가 생성된다") {
                     val beforeExecution = LocalDateTime.now()
-                    val result = useCase.execute(Region.LOCAL)
+                    val result = useCase.doExecute(Region.LOCAL)
                     val afterExecution = LocalDateTime.now()
 
                     result shouldHaveSize 1

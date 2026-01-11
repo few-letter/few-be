@@ -43,7 +43,7 @@ class GenCardNewsImageGenerateSchedulingUseCase(
         try {
             // 직전에 생성된 GEN이 commit되기를 기다림
             Thread.sleep(3000)
-            executeWithLogging(event.region)
+            execute(event.region)
         } catch (e: Exception) {
             log.error(e) { "${event.region.name} Gen 완료 후 자동 카드뉴스 이미지 생성 실패: ${e.message}" }
         } finally {
@@ -52,7 +52,7 @@ class GenCardNewsImageGenerateSchedulingUseCase(
     }
 
     @GeneratorTransactional(readOnly = true)
-    fun execute(region: Region): List<String> {
+    fun doExecute(region: Region): List<String> {
         // 오늘 생성된 Gen 조회 (00:00:00 ~ 23:59:59)
         val today = LocalDateTime.now()
         val startOfDay =
@@ -124,7 +124,7 @@ class GenCardNewsImageGenerateSchedulingUseCase(
         return generatedImages
     }
 
-    private fun executeWithLogging(region: Region) {
+    fun execute(region: Region) {
         val startTime = LocalDateTime.now()
         var isSuccess = true
         var executionTimeSec = 0.0
@@ -134,7 +134,7 @@ class GenCardNewsImageGenerateSchedulingUseCase(
         runCatching {
             executionTimeSec =
                 measureTimeMillis {
-                    imagePaths = execute(region)
+                    imagePaths = doExecute(region)
                 }.msToSeconds()
         }.onFailure { ex ->
             isSuccess = false
