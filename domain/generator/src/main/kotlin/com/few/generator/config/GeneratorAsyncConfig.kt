@@ -20,13 +20,13 @@ class GeneratorAsyncConfig {
         return executor
     }
 
-    @Bean(name = ["groupGenSchedulingExecutor"])
-    fun groupGenSchedulingExecutor(): Executor {
+    @Bean(name = ["generatorSchedulingExecutor"])
+    fun generatorSchedulingExecutor(): Executor {
         val executor = ThreadPoolTaskExecutor()
-        executor.corePoolSize = 2
-        executor.maxPoolSize = 2
+        executor.corePoolSize = 3
+        executor.maxPoolSize = 3
         executor.queueCapacity = 1
-        executor.setThreadNamePrefix("GroupGenScheduling-")
+        executor.setThreadNamePrefix("generatorScheduling-")
         executor.initialize()
         return executor
     }
