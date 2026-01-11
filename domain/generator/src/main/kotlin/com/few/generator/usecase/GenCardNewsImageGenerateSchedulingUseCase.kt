@@ -3,6 +3,7 @@ package com.few.generator.usecase
 import com.few.common.domain.Category
 import com.few.common.domain.Region
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
+import com.few.generator.event.GenSchedulingCompletedEvent
 import com.few.generator.service.GenService
 import com.few.generator.service.instagram.NewsContent
 import com.few.generator.service.instagram.SingleNewsCardGenerator
@@ -11,7 +12,8 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.context.event.EventListener
+import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -28,22 +30,27 @@ class GenCardNewsImageGenerateSchedulingUseCase(
     private val log = KotlinLogging.logger {}
     private val isRunning = AtomicBoolean(false)
 
-    @Scheduled(cron = "\${scheduling.cron.gen-card-image}")
+    @Async("generatorSchedulingExecutor")
+    @EventListener
     @GeneratorTransactional(readOnly = true)
-    fun scheduledExecute() {
+    fun onGenSchedulingCompleted(event: GenSchedulingCompletedEvent) {
+        log.info { "${event.region.name} Gen 스케줄링 완료 감지, 카드뉴스 이미지 생성 자동 시작" }
+
         if (!isRunning.compareAndSet(false, true)) {
-            log.warn { "이미지 생성 스케줄링이 이미 실행 중입니다." }
+            log.warn { "${event.region.name} 이미지 생성이 이미 실행 중입니다." }
             return
         }
 
         try {
-            executeWithLogging()
+            executeWithLogging(event.region)
+        } catch (e: Exception) {
+            log.error(e) { "${event.region.name} Gen 완료 후 자동 카드뉴스 이미지 생성 실패: ${e.message}" }
         } finally {
             isRunning.set(false)
         }
     }
 
-    fun execute(): List<String> {
+    fun execute(region: Region): List<String> {
         // 오늘 생성된 Gen 조회 (00:00:00 ~ 23:59:59)
         val today = LocalDateTime.now()
         val startOfDay =
@@ -60,7 +67,7 @@ class GenCardNewsImageGenerateSchedulingUseCase(
                 .withSecond(0)
                 .withNano(0)
 
-        val gens = genService.findAllByCreatedAtBetweenAndRegion(startOfDay, endOfDay, Region.LOCAL)
+        val gens = genService.findAllByCreatedAtBetweenAndRegion(startOfDay, endOfDay, region)
 
         if (gens.isEmpty()) {
             log.warn { "오늘 생성된 Gen이 없습니다." }
@@ -115,7 +122,7 @@ class GenCardNewsImageGenerateSchedulingUseCase(
         return generatedImages
     }
 
-    private fun executeWithLogging() {
+    private fun executeWithLogging(region: Region) {
         val startTime = LocalDateTime.now()
         var isSuccess = true
         var executionTimeSec = 0.0
@@ -125,16 +132,16 @@ class GenCardNewsImageGenerateSchedulingUseCase(
         runCatching {
             executionTimeSec =
                 measureTimeMillis {
-                    imagePaths = execute()
+                    imagePaths = execute(region)
                 }.msToSeconds()
         }.onFailure { ex ->
             isSuccess = false
-            log.error(ex) { "이미지 생성 중 오류 발생" }
+            log.error(ex) { "${region.name} 이미지 생성 중 오류 발생" }
             exception = ex
         }.also {
             log.info {
                 buildString {
-                    appendLine("🖼️ Gen 이미지 생성 스케줄링 완료")
+                    appendLine("🖼️ ${region.name} Gen 카드뉴스 이미지 생성 완료")
                     appendLine("✅ 성공 여부: $isSuccess")
                     appendLine("✅ 시작 시간: $startTime")
                     appendLine("✅ 소요 시간: ${executionTimeSec}초")

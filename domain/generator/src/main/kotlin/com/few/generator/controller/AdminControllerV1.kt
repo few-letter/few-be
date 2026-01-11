@@ -74,8 +74,17 @@ class AdminControllerV1(
     @PostMapping(
         value = ["/contents/cardnews/generate"],
     )
-    fun createGenImages(): ApiResponse<ApiResponse.Success> {
-        genCardNewsImageGenerateSchedulingUseCase.execute()
+    fun createGenImages(
+        @RequestParam region: String,
+    ): ApiResponse<ApiResponse.Success> {
+        val targetRegion =
+            when (region.uppercase()) {
+                "LOCAL" -> com.few.common.domain.Region.LOCAL
+                "GLOBAL" -> com.few.common.domain.Region.GLOBAL
+                else -> throw BadRequestException("Invalid region: $region. Must be LOCAL or GLOBAL.")
+            }
+
+        genCardNewsImageGenerateSchedulingUseCase.execute(targetRegion)
 
         return ApiResponseGenerator.success(
             HttpStatus.OK,
