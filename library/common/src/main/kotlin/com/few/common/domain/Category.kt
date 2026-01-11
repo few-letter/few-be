@@ -5,13 +5,14 @@ import com.few.common.exception.BadRequestException
 enum class Category(
     val code: Int,
     val title: String,
+    val englishName: String,
 ) {
-    TECHNOLOGY(1 shl 1, "기술"),
-    LIFE(1 shl 2, "생활"),
-    POLITICS(1 shl 3, "정치"),
-    ECONOMY(1 shl 4, "경제"),
-    SOCIETY(1 shl 5, "사회"),
-    ETC(0, "기타"),
+    TECHNOLOGY(1 shl 1, "기술", "technology"),
+    LIFE(1 shl 2, "생활", "life"),
+    POLITICS(1 shl 3, "정치", "politics"),
+    ECONOMY(1 shl 4, "경제", "economy"),
+    SOCIETY(1 shl 5, "사회", "society"),
+    ETC(0, "기타", "etc"),
 
     ;
 

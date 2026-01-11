@@ -3,6 +3,7 @@ package com.few.generator.usecase
 import com.few.common.domain.Category
 import com.few.common.domain.Region
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
+import com.few.generator.event.CardNewsImageGeneratedEvent
 import com.few.generator.event.GenSchedulingCompletedEvent
 import com.few.generator.service.GenService
 import com.few.generator.service.instagram.NewsContent
@@ -12,6 +13,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.event.EventListener
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
@@ -24,6 +26,7 @@ import kotlin.system.measureTimeMillis
 class GenCardNewsImageGenerateSchedulingUseCase(
     private val genService: GenService,
     private val singleNewsCardGenerator: SingleNewsCardGenerator,
+    private val applicationEventPublisher: ApplicationEventPublisher,
     @Qualifier(GSON_BEAN_NAME)
     private val gson: Gson,
 ) {
@@ -79,7 +82,6 @@ class GenCardNewsImageGenerateSchedulingUseCase(
         log.info { "오늘 생성된 Gen ${gens.size}개를 찾았습니다. 이미지 생성을 시작합니다." }
 
         val generatedImages = mutableListOf<String>()
-        val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
 
         gens.forEachIndexed { index, gen ->
             try {
@@ -93,18 +95,22 @@ class GenCardNewsImageGenerateSchedulingUseCase(
                         emptyList()
                     }
 
+                // Get category
+                val category = Category.from(gen.category)
+
                 // Convert Gen to NewsContent
                 val newsContent =
                     NewsContent(
                         headline = gen.headline,
                         summary = gen.summary,
-                        category = Category.from(gen.category).title,
+                        category = category.title,
                         createdAt = gen.createdAt ?: LocalDateTime.now(),
                         highlightTexts = highlightTexts,
                     )
 
-                // Generate image file path
-                val fileName = "gen_images/gen_image_${gen.id}_$timestamp.png"
+                // Generate image file path: {date}_{categoryEnglish}_{genId}.png
+                val dateStr = (gen.createdAt ?: LocalDateTime.now()).format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+                val fileName = "gen_images/${dateStr}_${category.englishName}_${gen.id}.png"
 
                 // Generate image using SingleNewsCardGenerator
                 val success = singleNewsCardGenerator.generateImage(newsContent, fileName)
@@ -158,6 +164,17 @@ class GenCardNewsImageGenerateSchedulingUseCase(
                     }
                     if (!isSuccess) appendLine("❌ 오류: ${exception?.message}")
                 }
+            }
+
+            // 이미지 생성 성공 시 S3 업로드 이벤트 발행
+            if (isSuccess && imagePaths.isNotEmpty()) {
+                applicationEventPublisher.publishEvent(
+                    CardNewsImageGeneratedEvent(
+                        region = region,
+                        imagePaths = imagePaths,
+                    ),
+                )
+                log.info { "${region.name} 카드뉴스 이미지 생성 완료 이벤트 발행: ${imagePaths.size}개" }
             }
         }
     }

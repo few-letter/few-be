@@ -4,6 +4,14 @@ spring:
         jcache:
             config: classpath:ehcache.xml
     cloud:
+        aws:
+            s3:
+                bucket: gen-cards
+            region:
+                static: ap-northeast-2
+            credentials:
+                access-key: ${AWS_ACCESS_KEY_ID}
+                secret-key: ${AWS_SECRET_ACCESS_KEY}
         openfeign:
             client:
                 config:

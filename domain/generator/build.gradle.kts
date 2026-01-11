@@ -46,4 +46,7 @@ dependencies {
             requireCapability("org.ehcache:ehcache-jakarta")
         }
     }
+
+    /** Spring Cloud AWS */
+    implementation("io.awspring.cloud:spring-cloud-aws-starter-s3:${DependencyVersion.SPRING_CLOUD_AWS}")
 }
