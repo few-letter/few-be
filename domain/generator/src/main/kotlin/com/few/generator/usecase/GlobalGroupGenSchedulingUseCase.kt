@@ -44,7 +44,7 @@ class GlobalGroupGenSchedulingUseCase(
     override val regionName = "GLOBAL"
     override val eventTitle = "Global Group Gen 생성"
 
-    @Async("groupGenSchedulingExecutor")
+    @Async("generatorSchedulingExecutor")
     @EventListener
     fun onGenSchedulingCompleted(event: GenSchedulingCompletedEvent) {
         if (event.region != Region.GLOBAL) {

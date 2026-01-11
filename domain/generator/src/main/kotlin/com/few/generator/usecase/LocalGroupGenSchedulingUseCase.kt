@@ -44,7 +44,7 @@ class LocalGroupGenSchedulingUseCase(
     override val regionName = "LOCAL"
     override val eventTitle = "Local Group Gen 생성"
 
-    @Async("groupGenSchedulingExecutor")
+    @Async("generatorSchedulingExecutor")
     @EventListener
     fun onGenSchedulingCompleted(event: GenSchedulingCompletedEvent) {
         if (event.region != Region.LOCAL) {
