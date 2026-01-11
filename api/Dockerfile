@@ -1,5 +1,20 @@
 FROM  amazoncorretto:21.0.9-al2023-headless
 
+# Install fontconfig and NanumGothic font for card news image generation (if not exists)
+RUN if ! fc-list 2>/dev/null | grep -qi "NanumGothic"; then \
+        dnf install -y fontconfig wget unzip && \
+        mkdir -p /usr/share/fonts/nanumgothic && \
+        cd /tmp && \
+        wget https://github.com/naver/nanumfont/releases/download/VER2.6/NanumGothic.zip && \
+        unzip NanumGothic.zip -d /usr/share/fonts/nanumgothic && \
+        rm NanumGothic.zip && \
+        fc-cache -fv && \
+        dnf clean all && \
+        echo "NanumGothic font installed successfully"; \
+    else \
+        echo "NanumGothic font already exists, skipping installation"; \
+    fi
+
 RUN mkdir -p /logs
 
 ENV	PROFILE default

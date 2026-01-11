@@ -32,7 +32,6 @@ class GenCardNewsImageGenerateSchedulingUseCase(
 
     @Async("generatorSchedulingExecutor")
     @EventListener
-    @GeneratorTransactional(readOnly = true)
     fun onGenSchedulingCompleted(event: GenSchedulingCompletedEvent) {
         log.info { "${event.region.name} Gen 스케줄링 완료 감지, 카드뉴스 이미지 생성 자동 시작" }
 
@@ -42,6 +41,8 @@ class GenCardNewsImageGenerateSchedulingUseCase(
         }
 
         try {
+            // 직전에 생성된 GEN이 commit되기를 기다림
+            Thread.sleep(3000)
             executeWithLogging(event.region)
         } catch (e: Exception) {
             log.error(e) { "${event.region.name} Gen 완료 후 자동 카드뉴스 이미지 생성 실패: ${e.message}" }
@@ -50,6 +51,7 @@ class GenCardNewsImageGenerateSchedulingUseCase(
         }
     }
 
+    @GeneratorTransactional(readOnly = true)
     fun execute(region: Region): List<String> {
         // 오늘 생성된 Gen 조회 (00:00:00 ~ 23:59:59)
         val today = LocalDateTime.now()

@@ -55,7 +55,7 @@ object ImageGeneratorUtils {
     }
 
     /**
-     * 한글 폰트 로드 (시스템 폰트 사용)
+     * 한글 폰트 로드 (NanumGothic 사용)
      */
     fun loadKoreanFont(
         size: Int,
@@ -63,18 +63,14 @@ object ImageGeneratorUtils {
     ): Font {
         val style = if (bold) Font.BOLD else Font.PLAIN
 
-        // macOS용 한글 폰트
-        val macFonts =
-            listOf(
-                "Apple SD Gothic Neo",
-                "AppleGothic",
-            )
+        // NanumGothic 폰트 시도
+        val fontCandidates = listOf("NanumGothic", "Nanum Gothic")
 
-        // 사용 가능한 폰트 찾기
-        for (fontName in macFonts) {
+        for (fontName in fontCandidates) {
             try {
                 val font = Font(fontName, style, size)
                 if (font.canDisplayUpTo("한글테스트") == -1) {
+                    log.debug { "한글 폰트 로드 성공: $fontName" }
                     return font
                 }
             } catch (e: Exception) {
@@ -82,7 +78,8 @@ object ImageGeneratorUtils {
             }
         }
 
-        // 기본 폰트 반환 (한글 지원)
+        // NanumGothic을 찾지 못한 경우 경고 로그 및 기본 폰트 사용
+        log.warn { "NanumGothic 폰트를 찾지 못했습니다. SansSerif 폰트를 사용합니다. 폰트가 설치되어 있는지 확인하세요." }
         return Font("SansSerif", style, size)
     }
 
