@@ -47,6 +47,6 @@ dependencies {
         }
     }
 
-    // Spring Cloud AWS Starter
-    implementation("io.awspring.cloud:spring-cloud-aws-starter-s3:3.1.1")
+    /** Spring Cloud AWS */
+    implementation("io.awspring.cloud:spring-cloud-aws-starter-s3:${DependencyVersion.SPRING_CLOUD_AWS}")
 }
