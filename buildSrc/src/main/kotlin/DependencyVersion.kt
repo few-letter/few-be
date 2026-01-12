@@ -57,5 +57,5 @@ object DependencyVersion {
     const val EHCACHE = "3.10.8"
 
     /** spring-cloud-aws **/
-    const val SPRING_CLOUD_AWS = "3.1.1"
+    const val SPRING_CLOUD_AWS = "3.4.2"
 }
