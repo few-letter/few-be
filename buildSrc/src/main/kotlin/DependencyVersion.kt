@@ -55,4 +55,7 @@ object DependencyVersion {
     /** Cache **/
     const val JAVA_CACHE_API = "1.1.1"
     const val EHCACHE = "3.10.8"
+
+    /** spring-cloud-aws **/
+    const val SPRING_CLOUD_AWS = "3.4.2"
 }

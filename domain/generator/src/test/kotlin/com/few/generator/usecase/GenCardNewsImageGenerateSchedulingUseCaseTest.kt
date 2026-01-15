@@ -16,6 +16,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import org.springframework.context.ApplicationEventPublisher
 import java.time.LocalDateTime
 
 class GenCardNewsImageGenerateSchedulingUseCaseTest :
@@ -24,11 +25,13 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
         Given("오늘 생성된 Gen이 여러 개 있는 경우") {
             val genService = mockk<GenService>()
             val singleNewsCardGenerator = mockk<SingleNewsCardGenerator>()
+            val applicationEventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
             val gson = Gson()
             val useCase =
                 GenCardNewsImageGenerateSchedulingUseCase(
                     genService = genService,
                     singleNewsCardGenerator = singleNewsCardGenerator,
+                    applicationEventPublisher = applicationEventPublisher,
                     gson = gson,
                 )
 
@@ -77,9 +80,9 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     val result = useCase.doExecute(Region.LOCAL)
 
                     result shouldHaveSize 3
-                    result[0] shouldContain "gen_image_1_"
-                    result[1] shouldContain "gen_image_2_"
-                    result[2] shouldContain "gen_image_3_"
+                    result[0] shouldContain "20260110_technology_1.png"
+                    result[1] shouldContain "20260110_economy_2.png"
+                    result[2] shouldContain "20260110_politics_3.png"
 
                     // Verify that SingleNewsCardGenerator.generateImage was called 3 times
                     verify(exactly = 3) {
@@ -92,11 +95,13 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
         Given("오늘 생성된 Gen이 없는 경우") {
             val genService = mockk<GenService>()
             val singleNewsCardGenerator = mockk<SingleNewsCardGenerator>()
+            val applicationEventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
             val gson = Gson()
             val useCase =
                 GenCardNewsImageGenerateSchedulingUseCase(
                     genService = genService,
                     singleNewsCardGenerator = singleNewsCardGenerator,
+                    applicationEventPublisher = applicationEventPublisher,
                     gson = gson,
                 )
 
@@ -119,11 +124,13 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
         Given("일부 Gen의 이미지 생성이 실패하는 경우") {
             val genService = mockk<GenService>()
             val singleNewsCardGenerator = mockk<SingleNewsCardGenerator>()
+            val applicationEventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
             val gson = Gson()
             val useCase =
                 GenCardNewsImageGenerateSchedulingUseCase(
                     genService = genService,
                     singleNewsCardGenerator = singleNewsCardGenerator,
+                    applicationEventPublisher = applicationEventPublisher,
                     gson = gson,
                 )
 
@@ -172,7 +179,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     val result = useCase.doExecute(Region.LOCAL)
 
                     result shouldHaveSize 1
-                    result[0] shouldContain "gen_image_1_"
+                    result[0] shouldContain "_technology_1.png"
 
                     verify(exactly = 2) {
                         singleNewsCardGenerator.generateImage(any(), any())
@@ -184,11 +191,13 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
         Given("highlightTexts JSON 파싱이 실패하는 경우") {
             val genService = mockk<GenService>()
             val singleNewsCardGenerator = mockk<SingleNewsCardGenerator>()
+            val applicationEventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
             val gson = Gson()
             val useCase =
                 GenCardNewsImageGenerateSchedulingUseCase(
                     genService = genService,
                     singleNewsCardGenerator = singleNewsCardGenerator,
+                    applicationEventPublisher = applicationEventPublisher,
                     gson = gson,
                 )
 
@@ -228,11 +237,13 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
         Given("다양한 카테고리의 Gen이 있는 경우") {
             val genService = mockk<GenService>()
             val singleNewsCardGenerator = mockk<SingleNewsCardGenerator>()
+            val applicationEventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
             val gson = Gson()
             val useCase =
                 GenCardNewsImageGenerateSchedulingUseCase(
                     genService = genService,
                     singleNewsCardGenerator = singleNewsCardGenerator,
+                    applicationEventPublisher = applicationEventPublisher,
                     gson = gson,
                 )
 
@@ -291,11 +302,13 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
         Given("Gen의 createdAt이 null인 경우") {
             val genService = mockk<GenService>()
             val singleNewsCardGenerator = mockk<SingleNewsCardGenerator>()
+            val applicationEventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
             val gson = Gson()
             val useCase =
                 GenCardNewsImageGenerateSchedulingUseCase(
                     genService = genService,
                     singleNewsCardGenerator = singleNewsCardGenerator,
+                    applicationEventPublisher = applicationEventPublisher,
                     gson = gson,
                 )
 
