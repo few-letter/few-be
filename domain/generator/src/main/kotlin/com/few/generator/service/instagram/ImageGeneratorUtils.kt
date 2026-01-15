@@ -63,8 +63,7 @@ object ImageGeneratorUtils {
     ): Font {
         val style = if (bold) Font.BOLD else Font.PLAIN
 
-        // NanumGothic 폰트 시도
-        val fontCandidates = listOf("NanumGothic", "Nanum Gothic")
+        val fontCandidates = listOf("Noto Sans CJK KR")
 
         for (fontName in fontCandidates) {
             try {
