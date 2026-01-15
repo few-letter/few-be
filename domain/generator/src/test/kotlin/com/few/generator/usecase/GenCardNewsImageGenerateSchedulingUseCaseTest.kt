@@ -80,9 +80,9 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     val result = useCase.doExecute(Region.LOCAL)
 
                     result shouldHaveSize 3
-                    result[0] shouldContain "gen_image_1_"
-                    result[1] shouldContain "gen_image_2_"
-                    result[2] shouldContain "gen_image_3_"
+                    result[0] shouldContain "20260110_technology_1.png"
+                    result[1] shouldContain "20260110_economy_2.png"
+                    result[2] shouldContain "20260110_politics_3.png"
 
                     // Verify that SingleNewsCardGenerator.generateImage was called 3 times
                     verify(exactly = 3) {
@@ -179,7 +179,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     val result = useCase.doExecute(Region.LOCAL)
 
                     result shouldHaveSize 1
-                    result[0] shouldContain "gen_image_1_"
+                    result[0] shouldContain "_technology_1.png"
 
                     verify(exactly = 2) {
                         singleNewsCardGenerator.generateImage(any(), any())
