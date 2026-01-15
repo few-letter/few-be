@@ -1,16 +1,20 @@
 package com.few.generator.usecase
 
 import com.few.generator.event.CardNewsImageGeneratedEvent
+import com.few.generator.event.CardNewsS3UploadedEvent
 import com.few.generator.support.aws.S3Provider
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.event.EventListener
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import java.io.File
+import java.time.LocalDateTime
 
 @Component
 class UploadGenCardNewsS3UseCase(
     private val s3Provider: S3Provider,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
     private val log = KotlinLogging.logger {}
 
@@ -19,9 +23,22 @@ class UploadGenCardNewsS3UseCase(
     fun onCardNewsImageGenerated(event: CardNewsImageGeneratedEvent) {
         log.info { "${event.region.name} 카드뉴스 이미지 생성 완료 감지, S3 업로드 시작" }
 
+        val uploadTime = LocalDateTime.now()
+        val totalCount = event.imagePaths.size
         val uploadedCount = uploadImagesToS3(event.imagePaths)
 
-        log.info { "${event.region.name} 카드뉴스 S3 업로드 완료: $uploadedCount/${event.imagePaths.size}개 성공" }
+        log.info { "${event.region.name} 카드뉴스 S3 업로드 완료: $uploadedCount/$totalCount개 성공" }
+
+        // S3 업로드 완료 이벤트 발행
+        applicationEventPublisher.publishEvent(
+            CardNewsS3UploadedEvent(
+                region = event.region,
+                uploadedCount = uploadedCount,
+                totalCount = totalCount,
+                uploadTime = uploadTime,
+            ),
+        )
+        log.info { "${event.region.name} 카드뉴스 S3 업로드 완료 이벤트 발행: $uploadedCount/$totalCount개" }
     }
 
     private fun uploadImagesToS3(imagePaths: List<String>): Int =
