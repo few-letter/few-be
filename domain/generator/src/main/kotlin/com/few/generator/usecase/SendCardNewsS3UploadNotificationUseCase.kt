@@ -55,50 +55,73 @@ class SendCardNewsS3UploadNotificationUseCase(
             }
 
         val blocks =
-            listOf(
-                Block(
-                    type = "section",
-                    text =
-                        Text(
-                            type = "mrkdwn",
-                            text = "$emoji *Card News S3 Upload Complete*",
-                        ),
-                ),
-                Block(
-                    type = "section",
-                    text =
-                        Text(
-                            type = "mrkdwn",
-                            text = "*Region:* ${event.region.name}",
-                        ),
-                ),
-                Block(type = "divider"),
-                Block(
-                    type = "section",
-                    text =
-                        Text(
-                            type = "mrkdwn",
+            buildList {
+                add(
+                    Block(
+                        type = "section",
+                        text =
+                            Text(
+                                type = "mrkdwn",
+                                text = "$emoji *Card News S3 Upload Complete*",
+                            ),
+                    ),
+                )
+                add(
+                    Block(
+                        type = "section",
+                        text =
+                            Text(
+                                type = "mrkdwn",
+                                text = "*Region:* ${event.region.name}",
+                            ),
+                    ),
+                )
+                add(Block(type = "divider"))
+                add(
+                    Block(
+                        type = "section",
+                        text =
+                            Text(
+                                type = "mrkdwn",
+                                text =
+                                    buildString {
+                                        appendLine("*Upload Summary*")
+                                        appendLine("• Uploaded: *${event.uploadedCount}* / ${event.totalCount} images")
+                                        appendLine("• Success Rate: *${String.format("%.1f%%", successRate)}*")
+                                        appendLine(
+                                            "• Upload Time: ${event.uploadTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}",
+                                        )
+                                    },
+                            ),
+                    ),
+                )
+                add(Block(type = "divider"))
+                add(
+                    Block(
+                        type = "section",
+                        text =
+                            Text(
+                                type = "mrkdwn",
+                                text = "$emoji *Status:* $statusMessage",
+                            ),
+                    ),
+                )
+
+                // 에러 메시지가 있으면 추가
+                event.errorMessage?.let { error ->
+                    add(Block(type = "divider"))
+                    add(
+                        Block(
+                            type = "section",
                             text =
-                                buildString {
-                                    appendLine("*Upload Summary*")
-                                    appendLine("• Uploaded: *${event.uploadedCount}* / ${event.totalCount} images")
-                                    appendLine("• Success Rate: *${String.format("%.1f%%", successRate)}*")
-                                    appendLine(
-                                        "• Upload Time: ${event.uploadTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}",
-                                    )
-                                },
+                                Text(
+                                    type = "mrkdwn",
+                                    text = ":warning: *Error Details:*\n```$error```",
+                                ),
                         ),
-                ),
-                Block(type = "divider"),
-                Block(
-                    type = "section",
-                    text =
-                        Text(
-                            type = "mrkdwn",
-                            text = "$emoji *Status:* $statusMessage",
-                        ),
-                ),
-            )
+                    )
+                }
+            }
 
         val slackBody = SlackBodyProperty(blocks = blocks)
         slackWebhookClient.sendAsync(slackBody)
