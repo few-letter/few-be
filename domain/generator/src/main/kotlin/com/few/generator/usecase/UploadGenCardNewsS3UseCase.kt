@@ -25,9 +25,9 @@ class UploadGenCardNewsS3UseCase(
 
         val uploadTime = LocalDateTime.now()
         val totalCount = event.imagePaths.size
-        val uploadedCount = uploadImagesToS3(event.imagePaths)
+        val (uploadedCount, errorMessage) = uploadImagesToS3(event.imagePaths)
 
-        log.info { "${event.region.name} 카드뉴스 S3 업로드 완료: ${uploadedCount / totalCount}개 성공" }
+        log.info { "${event.region.name} 카드뉴스 S3 업로드 완료: $uploadedCount/$totalCount개 성공" }
 
         // S3 업로드 완료 이벤트 발행
         applicationEventPublisher.publishEvent(
@@ -36,12 +36,13 @@ class UploadGenCardNewsS3UseCase(
                 uploadedCount = uploadedCount,
                 totalCount = totalCount,
                 uploadTime = uploadTime,
+                errorMessage = errorMessage,
             ),
         )
-        log.info { "${event.region.name} 카드뉴스 S3 업로드 완료 이벤트 발행: ${uploadedCount / totalCount}개" }
+        log.info { "${event.region.name} 카드뉴스 S3 업로드 완료 이벤트 발행: $uploadedCount/$totalCount개" }
     }
 
-    private fun uploadImagesToS3(imagePaths: List<String>): Int =
+    private fun uploadImagesToS3(imagePaths: List<String>): Pair<Int, String?> =
         try {
             // S3에 업로드 (s3Provider.uploadImages 사용)
             val uploadedUrls = s3Provider.uploadImages(imagePaths)
@@ -60,9 +61,10 @@ class UploadGenCardNewsS3UseCase(
                 }
             }
 
-            uploadedUrls.size
+            Pair(uploadedUrls.size, null)
         } catch (e: Exception) {
-            log.error(e) { "S3 업로드 중 예외 발생" }
-            0
+            val errorMsg = "S3 업로드 중 예외 발생: ${e.javaClass.simpleName} - ${e.message}"
+            log.error(e) { errorMsg }
+            Pair(0, errorMsg)
         }
 }
