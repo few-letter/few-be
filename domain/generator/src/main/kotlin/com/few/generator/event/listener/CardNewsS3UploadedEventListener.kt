@@ -1,4 +1,4 @@
-package com.few.generator.usecase
+package com.few.generator.event.listener
 
 import com.few.generator.event.CardNewsS3UploadedEvent
 import com.few.generator.event.client.SlackWebhookClient
@@ -6,27 +6,30 @@ import com.few.web.client.Block
 import com.few.web.client.SlackBodyProperty
 import com.few.web.client.Text
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.springframework.context.event.EventListener
-import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import java.time.format.DateTimeFormatter
 
 @Component
-class SendCardNewsS3UploadNotificationUseCase(
+class CardNewsS3UploadedEventListener(
     private val slackWebhookClient: SlackWebhookClient,
+    private val notificationIoCoroutineScope: CoroutineScope,
 ) {
     private val log = KotlinLogging.logger {}
 
-    @Async("generatorSchedulingExecutor")
     @EventListener
-    fun onCardNewsS3Uploaded(event: CardNewsS3UploadedEvent) {
-        log.info { "${event.region.name} 카드뉴스 S3 업로드 완료 감지, Slack 알림 발송 시작" }
+    fun handleEvent(event: CardNewsS3UploadedEvent) {
+        notificationIoCoroutineScope.launch {
+            log.info { "${event.region.name} 카드뉴스 S3 업로드 완료 감지, Slack 알림 발송 시작" }
 
-        try {
-            sendSlackNotification(event)
-            log.info { "${event.region.name} 카드뉴스 S3 업로드 Slack 알림 발송 완료" }
-        } catch (e: Exception) {
-            log.error(e) { "${event.region.name} Slack 알림 발송 실패" }
+            try {
+                sendSlackNotification(event)
+                log.info { "${event.region.name} 카드뉴스 S3 업로드 Slack 알림 발송 완료" }
+            } catch (e: Exception) {
+                log.error(e) { "${event.region.name} Slack 알림 발송 실패" }
+            }
         }
     }
 
