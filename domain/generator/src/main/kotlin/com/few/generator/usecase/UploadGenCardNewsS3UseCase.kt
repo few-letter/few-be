@@ -27,7 +27,7 @@ class UploadGenCardNewsS3UseCase(
         val totalCount = event.imagePaths.size
         val (uploadedCount, errorMessage) = uploadImagesToS3(event.imagePaths)
 
-        log.info { "${event.region.name} 카드뉴스 S3 업로드 완료: $uploadedCount/$totalCount개 성공" }
+        log.info { "${event.region.name} 카드뉴스 S3 업로드 완료: ${uploadedCount / totalCount}개 성공" }
 
         // S3 업로드 완료 이벤트 발행
         applicationEventPublisher.publishEvent(
@@ -39,7 +39,7 @@ class UploadGenCardNewsS3UseCase(
                 errorMessage = errorMessage,
             ),
         )
-        log.info { "${event.region.name} 카드뉴스 S3 업로드 완료 이벤트 발행: $uploadedCount/$totalCount개" }
+        log.info { "${event.region.name} 카드뉴스 S3 업로드 완료 이벤트 발행: ${uploadedCount / totalCount}개" }
     }
 
     private fun uploadImagesToS3(imagePaths: List<String>): Pair<Int, String?> =
