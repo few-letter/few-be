@@ -27,6 +27,8 @@ class UploadGenCardNewsS3UseCase(
         val totalCount = event.imagePaths.size
         val (uploadedCount, errorMessage) = uploadImagesToS3(event.imagePaths)
 
+        removeImageFiles(event.imagePaths)
+
         log.info { "${event.region.name} 카드뉴스 S3 업로드 완료: $uploadedCount / ${totalCount}개 성공" }
 
         // S3 업로드 완료 이벤트 발행
@@ -42,6 +44,19 @@ class UploadGenCardNewsS3UseCase(
         log.info { "${event.region.name} 카드뉴스 S3 업로드 완료 이벤트 발행: $uploadedCount / ${totalCount}개" }
     }
 
+    private fun removeImageFiles(imagePaths: List<String>) {
+        imagePaths.forEach { path ->
+            val file = File(path)
+            if (file.exists()) {
+                if (file.delete()) {
+                    log.debug { "로컬 파일 삭제 성공: $path" }
+                } else {
+                    log.warn { "로컬 파일 삭제 실패: $path" }
+                }
+            }
+        }
+    }
+
     private fun uploadImagesToS3(imagePaths: List<String>): Pair<Int, String?> {
         // S3에 업로드 (파일별 개별 처리)
         val result = s3Provider.uploadImages(imagePaths)
@@ -53,18 +68,6 @@ class UploadGenCardNewsS3UseCase(
         // 실패한 업로드가 있으면 로그 출력
         if (result.failedCount > 0) {
             log.warn { "업로드 실패 파일 목록:\n${result.getErrorMessage()}" }
-        }
-
-        // 업로드 성공한 파일만 로컬에서 삭제
-        result.successfulUploads.forEach { upload ->
-            val file = File(upload.path)
-            if (file.exists()) {
-                if (file.delete()) {
-                    log.debug { "로컬 파일 삭제 성공: ${upload.path}" }
-                } else {
-                    log.warn { "로컬 파일 삭제 실패: ${upload.path}" }
-                }
-            }
         }
 
         return Pair(result.uploadedCount, result.getErrorMessage())
