@@ -10,8 +10,8 @@ spring:
             region:
                 static: ap-northeast-2
             credentials:
-                access-key: ${AWS_ACCESS_KEY_ID}
-                secret-key: ${AWS_SECRET_ACCESS_KEY}
+                access-key: ${STORAGE_ACCESS_KEY}
+                secret-key: ${STORAGE_SECRET_KEY}
         openfeign:
             client:
                 config:

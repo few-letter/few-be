@@ -21,6 +21,26 @@ object ImageGeneratorUtils {
     val WHITE_COLOR = ColorRGBA(r = 255, g = 255, b = 255, a = 255)
     val HEADER_COLOR = ColorRGBA(r = 191, g = 199, b = 212, a = 255)
 
+    // 폰트 상수
+    private const val FONT_NAME = "Noto Sans CJK KR"
+
+    // Base 폰트 (한 번만 로드)
+    private val baseFont: Font by lazy {
+        try {
+            val font = Font(FONT_NAME, Font.PLAIN, 12) // 기본 크기는 의미 없음 (derive 시 변경됨)
+            if (font.canDisplayUpTo("한글테스트") == -1) {
+                log.info { "한글 폰트 로드 성공: $FONT_NAME" }
+                font
+            } else {
+                log.warn { "$FONT_NAME 폰트를 사용할 수 없습니다. SansSerif 폰트를 사용합니다." }
+                Font("SansSerif", Font.PLAIN, 12)
+            }
+        } catch (e: Exception) {
+            log.warn(e) { "$FONT_NAME 폰트 로드 실패. SansSerif 폰트를 사용합니다." }
+            Font("SansSerif", Font.PLAIN, 12)
+        }
+    }
+
     /**
      * 리소스에서 이미지 로드
      */
@@ -55,31 +75,15 @@ object ImageGeneratorUtils {
     }
 
     /**
-     * 한글 폰트 로드 (NanumGothic 사용)
+     * 한글 폰트 로드 (Noto Sans CJK KR 사용)
+     * Base 폰트를 한 번만 로드하고 재사용하여 성능 최적화
      */
     fun loadKoreanFont(
         size: Int,
         bold: Boolean = false,
     ): Font {
         val style = if (bold) Font.BOLD else Font.PLAIN
-
-        val fontCandidates = listOf("Noto Sans CJK KR")
-
-        for (fontName in fontCandidates) {
-            try {
-                val font = Font(fontName, style, size)
-                if (font.canDisplayUpTo("한글테스트") == -1) {
-                    log.debug { "한글 폰트 로드 성공: $fontName" }
-                    return font
-                }
-            } catch (e: Exception) {
-                continue
-            }
-        }
-
-        // NanumGothic을 찾지 못한 경우 경고 로그 및 기본 폰트 사용
-        log.warn { "NanumGothic 폰트를 찾지 못했습니다. SansSerif 폰트를 사용합니다. 폰트가 설치되어 있는지 확인하세요." }
-        return Font("SansSerif", style, size)
+        return baseFont.deriveFont(style, size.toFloat())
     }
 
     /**
