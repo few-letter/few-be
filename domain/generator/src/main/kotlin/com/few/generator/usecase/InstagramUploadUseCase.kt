@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import java.util.Random
 
 @Component
 class InstagramUploadUseCase(
@@ -22,6 +23,7 @@ class InstagramUploadUseCase(
     private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
     private val log = KotlinLogging.logger {}
+    private val random = Random()
 
     companion object {
         private val DATE_FORMATTER = DateTimeFormatter.ofPattern("M월 d일", Locale.KOREAN)
@@ -43,6 +45,7 @@ class InstagramUploadUseCase(
                 Category.POLITICS to "#정치뉴스 #정치 #국정 #정부 #정책 #뉴스 #fewletter",
                 Category.ECONOMY to "#경제뉴스 #경제 #금융 #투자 #비즈니스 #뉴스 #fewletter",
                 Category.SOCIETY to "#사회뉴스 #사회 #사회이슈 #시사 #이슈 #뉴스 #fewletter",
+                Category.LIFE to "#생활뉴스 #생활 #생활이슈 #이슈 #뉴스 #fewletter",
             )
     }
 
@@ -160,6 +163,11 @@ class InstagramUploadUseCase(
             }
             log.info { "[${category.title}] Parent 컨테이너 생성 성공: creationId=$parentCreationId" }
 
+            // 600초(10분) ~ 1800초(30분) 사이 랜덤 추출
+            val waitSeconds = random.nextInt(600, 1801)
+            log.info { "✅ 성공! ${waitSeconds / 60}분 후 다음 작업 진행" }
+            Thread.sleep(waitSeconds * 1000L)
+
             // 3단계: 게시물 게시
             val publishSuccess = instagramUploader.publishMedia(parentCreationId)
             return if (publishSuccess) {
@@ -171,6 +179,17 @@ class InstagramUploadUseCase(
             }
         } catch (e: Exception) {
             log.error(e) { "[${category.title}] Instagram carousel 업로드 중 오류 발생: ${e.message}" }
+
+            val errorMsg = e.message ?: ""
+
+            if (errorMsg.contains("Application request limit reached")) {
+                log.info { "⚠️ [한도 초과] API 제한에 도달했습니다. 1시간 동안 대기합니다..." }
+                Thread.sleep(3600 * 1000L) // 1시간 휴식
+            } else {
+                log.info { "❌ [에러] 예상치 못한 오류 발생: $errorMsg" }
+                Thread.sleep(60 * 1000L) // 일반 에러는 1분 후 재시도
+            }
+
             return UploadResult(success = false, errorMessage = e.message)
         }
     }
