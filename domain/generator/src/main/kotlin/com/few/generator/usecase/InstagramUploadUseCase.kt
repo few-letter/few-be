@@ -35,7 +35,7 @@ class InstagramUploadUseCase(
 
         try {
             // 1단계: 미디어 컨테이너 생성
-            val creationId = instagramUploader.createMediaContainer(imageUrl, caption)
+            val creationId = instagramUploader.createChildMediaContainer(imageUrl, caption)
             if (creationId == null) {
                 log.error { "Instagram 미디어 컨테이너 생성 실패: $imageUrl" }
                 return

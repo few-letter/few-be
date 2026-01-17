@@ -22,18 +22,15 @@ class InstagramUploader(
     @Qualifier(GSON_BEAN_NAME)
     private val gson: Gson,
 ) {
-    // 1단계: 미디어 컨테이너 생성 및 Creation ID 획득
-    fun createMediaContainer(
-        imageUrl: String,
-        caption: String,
-    ): String? {
+    // 1단계: 개별 이미지용 컨테이너 생성
+    fun createChildMediaContainer(imageUrl: String): String? {
         val url =
             "https://graph.instagram.com/$accountId/media"
                 .toHttpUrlOrNull()
                 ?.newBuilder()
-                ?.addQueryParameter("image_url", imageUrl)
-                ?.addQueryParameter("caption", caption)
                 ?.addQueryParameter("access_token", accessToken)
+                ?.addQueryParameter("image_url", imageUrl)
+                ?.addQueryParameter("is_carousel_item", "true")
                 ?.build()
 
         val request =
@@ -46,7 +43,7 @@ class InstagramUploader(
         instagramOkHttpClient.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 throw RuntimeException(
-                    "[Instagram] Creation of MediaContainer Failed : HTTP ${response.code} ${response.message} for URL: ${request.url}",
+                    "[Instagram][Step1] Creation of Child MediaContainer Failed : HTTP ${response.code} ${response.message} for URL: ${request.url}",
                 )
             }
             // JSON 응답에서 "id" 필드를 파싱하세요 (예: {"id": "123456789"})
@@ -54,14 +51,19 @@ class InstagramUploader(
         }
     }
 
-    // 2단계: 최종 게시
-    fun publishMedia(creationId: String): Boolean {
+    // 2단계: 캐러셀용 부모 컨테이너 생성
+    fun createParentMediaContainer(
+        imageUrls: List<String>,
+        caption: String,
+    ): String? {
         val url =
-            "https://graph.instagram.com/$accountId/media_publish"
+            "https://graph.instagram.com/$accountId/media"
                 .toHttpUrlOrNull()
                 ?.newBuilder()
-                ?.addQueryParameter("creation_id", creationId)
                 ?.addQueryParameter("access_token", accessToken)
+                ?.addQueryParameter("children", imageUrls.joinToString(separator = ","))
+                ?.addQueryParameter("caption", caption)
+                ?.addQueryParameter("media_type", "CAROUSEL")
                 ?.build()
 
         val request =
@@ -74,7 +76,35 @@ class InstagramUploader(
         instagramOkHttpClient.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 throw RuntimeException(
-                    "[Instagram] Publishing Media Failed : HTTP ${response.code} ${response.message} for URL: ${request.url}",
+                    "[Instagram][Step2] Creation of Parent MediaContainer Failed : HTTP ${response.code} ${response.message} for URL: ${request.url}",
+                )
+            }
+            // JSON 응답에서 "id" 필드를 파싱하세요 (예: {"id": "123456789"})
+            return response.body?.string()?.let { parseJsonForId(it).id }
+        }
+    }
+
+    // 3단계: 최종 게시
+    fun publishMedia(creationId: String): Boolean {
+        val url =
+            "https://graph.instagram.com/$accountId/media_publish"
+                .toHttpUrlOrNull()
+                ?.newBuilder()
+                ?.addQueryParameter("access_token", accessToken)
+                ?.addQueryParameter("creation_id", creationId)
+                ?.build()
+
+        val request =
+            Request
+                .Builder()
+                .url(url!!)
+                .post(RequestBody.create(null, ""))
+                .build()
+
+        instagramOkHttpClient.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                throw RuntimeException(
+                    "[Instagram][Step3] Publishing Media Failed : HTTP ${response.code} ${response.message} for URL: ${request.url}",
                 )
             }
             return response.isSuccessful
