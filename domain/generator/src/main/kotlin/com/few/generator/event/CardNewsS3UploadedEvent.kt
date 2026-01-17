@@ -8,5 +8,6 @@ data class CardNewsS3UploadedEvent(
     val uploadedCount: Int,
     val totalCount: Int,
     val uploadTime: LocalDateTime,
+    val uploadedUrls: List<String> = emptyList(),
     val errorMessage: String? = null,
 )

@@ -25,7 +25,7 @@ class UploadGenCardNewsS3UseCase(
 
         val uploadTime = LocalDateTime.now()
         val totalCount = event.imagePaths.size
-        val (uploadedCount, errorMessage) = uploadImagesToS3(event.imagePaths)
+        val (uploadedCount, uploadedUrls, errorMessage) = uploadImagesToS3(event.imagePaths)
 
         removeImageFiles(event.imagePaths)
 
@@ -38,6 +38,7 @@ class UploadGenCardNewsS3UseCase(
                 uploadedCount = uploadedCount,
                 totalCount = totalCount,
                 uploadTime = uploadTime,
+                uploadedUrls = uploadedUrls,
                 errorMessage = errorMessage,
             ),
         )
@@ -57,7 +58,7 @@ class UploadGenCardNewsS3UseCase(
         }
     }
 
-    private fun uploadImagesToS3(imagePaths: List<String>): Pair<Int, String?> {
+    private fun uploadImagesToS3(imagePaths: List<String>): Triple<Int, List<String>, String?> {
         // S3에 업로드 (파일별 개별 처리)
         val result = s3Provider.uploadImages(imagePaths)
 
@@ -70,6 +71,7 @@ class UploadGenCardNewsS3UseCase(
             log.warn { "업로드 실패 파일 목록:\n${result.getErrorMessage()}" }
         }
 
-        return Pair(result.uploadedCount, result.getErrorMessage())
+        val uploadedUrls = result.successfulUploads.map { it.url }
+        return Triple(result.uploadedCount, uploadedUrls, result.getErrorMessage())
     }
 }
