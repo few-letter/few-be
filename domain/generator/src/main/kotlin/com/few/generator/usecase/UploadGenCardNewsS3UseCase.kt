@@ -26,26 +26,40 @@ class UploadGenCardNewsS3UseCase(
 
         val uploadTime = LocalDateTime.now()
         val totalCount = event.imagePathsByCategory.values.sumOf { it.size }
-        val (uploadedCount, uploadedUrlsByCategory, errorMessage) = uploadImagesToS3ByCategory(event.imagePathsByCategory)
+        var uploadedCount = 0
+        var uploadedUrlsByCategory: Map<Category, List<String>> = emptyMap()
+        var errorMessage: String? = null
 
-        // 모든 이미지 파일 삭제
-        val allImagePaths = event.imagePathsByCategory.values.flatten()
-        removeImageFiles(allImagePaths)
+        try {
+            val result = uploadImagesToS3ByCategory(event.imagePathsByCategory)
+            uploadedCount = result.first
+            uploadedUrlsByCategory = result.second
+            errorMessage = result.third
 
-        log.info { "${event.region.name} 카드뉴스 S3 업로드 완료: $uploadedCount / ${totalCount}개 성공 (${uploadedUrlsByCategory.size}개 카테고리)" }
+            log.info { "${event.region.name} 카드뉴스 S3 업로드 완료: $uploadedCount / ${totalCount}개 성공 (${uploadedUrlsByCategory.size}개 카테고리)" }
+        } catch (e: Exception) {
+            log.error(e) { "${event.region.name} 카드뉴스 S3 업로드 중 예외 발생: ${e.message}" }
+            errorMessage = e.message ?: "알 수 없는 오류"
+        } finally {
+            // 모든 이미지 파일 삭제
+            val allImagePaths = event.imagePathsByCategory.values.flatten()
+            removeImageFiles(allImagePaths)
 
-        // S3 업로드 완료 이벤트 발행
-        applicationEventPublisher.publishEvent(
-            CardNewsS3UploadedEvent(
-                region = event.region,
-                uploadedCount = uploadedCount,
-                totalCount = totalCount,
-                uploadTime = uploadTime,
-                uploadedUrlsByCategory = uploadedUrlsByCategory,
-                errorMessage = errorMessage,
-            ),
-        )
-        log.info { "${event.region.name} 카드뉴스 S3 업로드 완료 이벤트 발행: $uploadedCount / ${totalCount}개 (${uploadedUrlsByCategory.size}개 카테고리)" }
+            // 예외 발생 여부와 관계없이 S3 업로드 완료 이벤트 발행
+            applicationEventPublisher.publishEvent(
+                CardNewsS3UploadedEvent(
+                    region = event.region,
+                    uploadedCount = uploadedCount,
+                    totalCount = totalCount,
+                    uploadTime = uploadTime,
+                    uploadedUrlsByCategory = uploadedUrlsByCategory,
+                    errorMessage = errorMessage,
+                ),
+            )
+            log.info {
+                "${event.region.name} 카드뉴스 S3 업로드 완료 이벤트 발행: $uploadedCount / ${totalCount}개 (${uploadedUrlsByCategory.size}개 카테고리)"
+            }
+        }
     }
 
     private fun removeImageFiles(imagePaths: List<String>) {

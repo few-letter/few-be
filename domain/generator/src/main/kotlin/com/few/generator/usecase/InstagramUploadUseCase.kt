@@ -61,29 +61,39 @@ class InstagramUploadUseCase(
         val failedCategories = mutableListOf<Category>()
         val errorMessages = mutableMapOf<Category, String>()
 
-        // 카테고리별로 carousel 업로드 수행
-        event.uploadedUrlsByCategory.forEach { (category, imageUrls) ->
-            val caption = generateCaption(category, event.region, event.uploadTime)
-            val result = uploadCarouselByCategory(category, imageUrls, caption)
-            if (result.success) {
-                successCategories.add(category)
-            } else {
-                failedCategories.add(category)
-                result.errorMessage?.let { errorMessages[category] = it }
+        try {
+            // 카테고리별로 carousel 업로드 수행
+            event.uploadedUrlsByCategory.forEach { (category, imageUrls) ->
+                try {
+                    val caption = generateCaption(category, event.region, event.uploadTime)
+                    val result = uploadCarouselByCategory(category, imageUrls, caption)
+                    if (result.success) {
+                        successCategories.add(category)
+                    } else {
+                        failedCategories.add(category)
+                        result.errorMessage?.let { errorMessages[category] = it }
+                    }
+                } catch (e: Exception) {
+                    log.error(e) { "[${category.title}] Instagram 업로드 처리 중 예외 발생: ${e.message}" }
+                    failedCategories.add(category)
+                    errorMessages[category] = e.message ?: "알 수 없는 오류"
+                }
             }
+        } catch (e: Exception) {
+            log.error(e) { "${event.region.name} Instagram 업로드 중 예외 발생: ${e.message}" }
+        } finally {
+            // 예외 발생 여부와 관계없이 이벤트 발행
+            applicationEventPublisher.publishEvent(
+                InstagramUploadCompletedEvent(
+                    region = event.region,
+                    uploadTime = event.uploadTime,
+                    successCategories = successCategories,
+                    failedCategories = failedCategories,
+                    errorMessages = errorMessages,
+                ),
+            )
+            log.info { "${event.region.name} Instagram 업로드 완료 이벤트 발행: 성공 ${successCategories.size}개, 실패 ${failedCategories.size}개" }
         }
-
-        // Instagram 업로드 완료 이벤트 발행
-        applicationEventPublisher.publishEvent(
-            InstagramUploadCompletedEvent(
-                region = event.region,
-                uploadTime = event.uploadTime,
-                successCategories = successCategories,
-                failedCategories = failedCategories,
-                errorMessages = errorMessages,
-            ),
-        )
-        log.info { "${event.region.name} Instagram 업로드 완료 이벤트 발행: 성공 ${successCategories.size}개, 실패 ${failedCategories.size}개" }
     }
 
     @Transactional(readOnly = true)
