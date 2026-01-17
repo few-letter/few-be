@@ -1,5 +1,7 @@
 package com.few.generator.service.instagram
 
+import com.few.generator.core.instagram.NewsContent
+import com.few.generator.core.instagram.SingleNewsCardGenerator
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.io.File

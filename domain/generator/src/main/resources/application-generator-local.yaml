@@ -68,6 +68,9 @@ generator:
         minGroupSize: 3
         maxGroupSize: 10
         similarityThreshold: 0.7
+    instagram:
+        access-token: ${INSTAGRAM_ACCESS_TOKEN}
+        account-id: ${INSTAGRAM_ACCOUNT_ID}
 
 app:
     http:

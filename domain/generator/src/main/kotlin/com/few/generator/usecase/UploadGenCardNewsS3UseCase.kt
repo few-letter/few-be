@@ -1,5 +1,6 @@
 package com.few.generator.usecase
 
+import com.few.common.domain.Category
 import com.few.generator.event.CardNewsImageGeneratedEvent
 import com.few.generator.event.CardNewsS3UploadedEvent
 import com.few.generator.support.aws.S3Provider
@@ -24,24 +25,41 @@ class UploadGenCardNewsS3UseCase(
         log.info { "${event.region.name} 카드뉴스 이미지 생성 완료 감지, S3 업로드 시작" }
 
         val uploadTime = LocalDateTime.now()
-        val totalCount = event.imagePaths.size
-        val (uploadedCount, errorMessage) = uploadImagesToS3(event.imagePaths)
+        val totalCount = event.imagePathsByCategory.values.sumOf { it.size }
+        var uploadedCount = 0
+        var uploadedUrlsByCategory: Map<Category, List<String>> = emptyMap()
+        var errorMessage: String? = null
 
-        removeImageFiles(event.imagePaths)
+        try {
+            val result = uploadImagesToS3ByCategory(event.imagePathsByCategory)
+            uploadedCount = result.first
+            uploadedUrlsByCategory = result.second
+            errorMessage = result.third
 
-        log.info { "${event.region.name} 카드뉴스 S3 업로드 완료: $uploadedCount / ${totalCount}개 성공" }
+            log.info { "${event.region.name} 카드뉴스 S3 업로드 완료: $uploadedCount / ${totalCount}개 성공 (${uploadedUrlsByCategory.size}개 카테고리)" }
+        } catch (e: Exception) {
+            log.error(e) { "${event.region.name} 카드뉴스 S3 업로드 중 예외 발생: ${e.message}" }
+            errorMessage = e.message ?: "알 수 없는 오류"
+        } finally {
+            // 모든 이미지 파일 삭제
+            val allImagePaths = event.imagePathsByCategory.values.flatten()
+            removeImageFiles(allImagePaths)
 
-        // S3 업로드 완료 이벤트 발행
-        applicationEventPublisher.publishEvent(
-            CardNewsS3UploadedEvent(
-                region = event.region,
-                uploadedCount = uploadedCount,
-                totalCount = totalCount,
-                uploadTime = uploadTime,
-                errorMessage = errorMessage,
-            ),
-        )
-        log.info { "${event.region.name} 카드뉴스 S3 업로드 완료 이벤트 발행: $uploadedCount / ${totalCount}개" }
+            // 예외 발생 여부와 관계없이 S3 업로드 완료 이벤트 발행
+            applicationEventPublisher.publishEvent(
+                CardNewsS3UploadedEvent(
+                    region = event.region,
+                    uploadedCount = uploadedCount,
+                    totalCount = totalCount,
+                    uploadTime = uploadTime,
+                    uploadedUrlsByCategory = uploadedUrlsByCategory,
+                    errorMessage = errorMessage,
+                ),
+            )
+            log.info {
+                "${event.region.name} 카드뉴스 S3 업로드 완료 이벤트 발행: $uploadedCount / ${totalCount}개 (${uploadedUrlsByCategory.size}개 카테고리)"
+            }
+        }
     }
 
     private fun removeImageFiles(imagePaths: List<String>) {
@@ -57,19 +75,33 @@ class UploadGenCardNewsS3UseCase(
         }
     }
 
-    private fun uploadImagesToS3(imagePaths: List<String>): Pair<Int, String?> {
-        // S3에 업로드 (파일별 개별 처리)
-        val result = s3Provider.uploadImages(imagePaths)
+    private fun uploadImagesToS3ByCategory(
+        imagePathsByCategory: Map<Category, List<String>>,
+    ): Triple<Int, Map<Category, List<String>>, String?> {
+        val uploadedUrlsByCategory = mutableMapOf<Category, List<String>>()
+        val errorMessages = mutableListOf<String>()
+        var totalUploadedCount = 0
 
-        log.info {
-            "S3 업로드 완료: ${result.uploadedCount}개 성공, ${result.failedCount}개 실패 (총 ${result.totalCount}개)"
+        imagePathsByCategory.forEach { (category, imagePaths) ->
+            val result = s3Provider.uploadImages(imagePaths)
+
+            log.info {
+                "[${category.title}] S3 업로드 완료: ${result.uploadedCount}개 성공, ${result.failedCount}개 실패 (총 ${result.totalCount}개)"
+            }
+
+            if (result.successfulUploads.isNotEmpty()) {
+                uploadedUrlsByCategory[category] = result.successfulUploads.map { it.url }
+            }
+
+            totalUploadedCount += result.uploadedCount
+
+            if (result.failedCount > 0) {
+                log.warn { "[${category.title}] 업로드 실패 파일 목록:\n${result.getErrorMessage()}" }
+                result.getErrorMessage()?.let { errorMessages.add("[${category.title}] $it") }
+            }
         }
 
-        // 실패한 업로드가 있으면 로그 출력
-        if (result.failedCount > 0) {
-            log.warn { "업로드 실패 파일 목록:\n${result.getErrorMessage()}" }
-        }
-
-        return Pair(result.uploadedCount, result.getErrorMessage())
+        val combinedErrorMessage = if (errorMessages.isNotEmpty()) errorMessages.joinToString("\n") else null
+        return Triple(totalUploadedCount, uploadedUrlsByCategory, combinedErrorMessage)
     }
 }
