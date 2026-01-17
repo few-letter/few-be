@@ -2,14 +2,15 @@ package com.few.generator.usecase
 
 import com.few.common.domain.Category
 import com.few.common.domain.Region
+import com.few.generator.core.instagram.NewsContent
+import com.few.generator.core.instagram.SingleNewsCardGenerator
 import com.few.generator.domain.Gen
 import com.few.generator.service.GenService
-import com.few.generator.service.instagram.NewsContent
-import com.few.generator.service.instagram.SingleNewsCardGenerator
 import com.google.gson.Gson
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.maps.shouldBeEmpty
+import io.kotest.matchers.maps.shouldContainKey
+import io.kotest.matchers.maps.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.mockk.every
@@ -76,13 +77,16 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
             every { singleNewsCardGenerator.generateImage(any(), any()) } returns true
 
             When("execute를 호출하면") {
-                Then("모든 Gen에 대해 이미지가 생성되고 파일 경로 리스트가 반환된다") {
+                Then("모든 Gen에 대해 이미지가 생성되고 카테고리별 파일 경로 맵이 반환된다") {
                     val result = useCase.doExecute(Region.LOCAL)
 
                     result shouldHaveSize 3
-                    result[0] shouldContain "20260110_technology_1.png"
-                    result[1] shouldContain "20260110_economy_2.png"
-                    result[2] shouldContain "20260110_politics_3.png"
+                    result shouldContainKey Category.TECHNOLOGY
+                    result shouldContainKey Category.ECONOMY
+                    result shouldContainKey Category.POLITICS
+                    result[Category.TECHNOLOGY]!![0] shouldContain "20260110_technology_1.png"
+                    result[Category.ECONOMY]!![0] shouldContain "20260110_economy_2.png"
+                    result[Category.POLITICS]!![0] shouldContain "20260110_politics_3.png"
 
                     // Verify that SingleNewsCardGenerator.generateImage was called 3 times
                     verify(exactly = 3) {
@@ -108,7 +112,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
             every { genService.findAllByCreatedAtBetweenAndRegion(any(), any(), Region.LOCAL) } returns emptyList()
 
             When("execute를 호출하면") {
-                Then("빈 리스트가 반환된다") {
+                Then("빈 맵이 반환된다") {
                     val result = useCase.doExecute(Region.LOCAL)
 
                     result.shouldBeEmpty()
@@ -179,7 +183,8 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     val result = useCase.doExecute(Region.LOCAL)
 
                     result shouldHaveSize 1
-                    result[0] shouldContain "_technology_1.png"
+                    result shouldContainKey Category.TECHNOLOGY
+                    result[Category.TECHNOLOGY]!![0] shouldContain "_technology_1.png"
 
                     verify(exactly = 2) {
                         singleNewsCardGenerator.generateImage(any(), any())
@@ -222,6 +227,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     val result = useCase.doExecute(Region.LOCAL)
 
                     result shouldHaveSize 1
+                    result shouldContainKey Category.POLITICS
 
                     val newsContentSlot = slot<NewsContent>()
                     verify(exactly = 1) {
@@ -286,6 +292,9 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     val result = useCase.doExecute(Region.LOCAL)
 
                     result shouldHaveSize 3
+                    result shouldContainKey Category.TECHNOLOGY
+                    result shouldContainKey Category.ECONOMY
+                    result shouldContainKey Category.SOCIETY
 
                     val newsContentSlots = mutableListOf<NewsContent>()
                     verify(exactly = 3) {
@@ -334,6 +343,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     val afterExecution = LocalDateTime.now()
 
                     result shouldHaveSize 1
+                    result shouldContainKey Category.LIFE
 
                     val newsContentSlot = slot<NewsContent>()
                     verify(exactly = 1) {

@@ -172,7 +172,7 @@ abstract class AbstractGroupGenSchedulingUseCase(
 
     private suspend fun createGroupGenInternalWithMetrics(category: Category): GroupGenProcessingResult {
         val gens =
-            genService.findAllByCreatedAtBetweenAndCategoryAndRegion(
+            genService.findAllByCreatedAtTodayAndCategoryAndRegion(
                 category,
                 region,
             )

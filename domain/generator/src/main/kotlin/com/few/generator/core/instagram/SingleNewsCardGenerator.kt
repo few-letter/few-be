@@ -1,18 +1,19 @@
-package com.few.generator.service.instagram
+package com.few.generator.core.instagram
 
-import com.few.generator.service.instagram.CategoryConstants.getCategoryColor
-import com.few.generator.service.instagram.CategoryConstants.getCategoryText
-import com.few.generator.service.instagram.CategoryConstants.getValidCategory
-import com.few.generator.service.instagram.ImageGeneratorUtils.drawMultilineHighlightedText
-import com.few.generator.service.instagram.ImageGeneratorUtils.drawText
-import com.few.generator.service.instagram.ImageGeneratorUtils.getWeekdayText
-import com.few.generator.service.instagram.ImageGeneratorUtils.loadImageResource
-import com.few.generator.service.instagram.ImageGeneratorUtils.loadKoreanFont
-import com.few.generator.service.instagram.ImageGeneratorUtils.resizeImage
-import com.few.generator.service.instagram.ImageGeneratorUtils.saveImage
-import com.few.generator.service.instagram.ImageGeneratorUtils.setupGraphics
+import com.few.generator.core.instagram.CategoryConstants.getCategoryColor
+import com.few.generator.core.instagram.CategoryConstants.getCategoryText
+import com.few.generator.core.instagram.CategoryConstants.getValidCategory
+import com.few.generator.core.instagram.ImageGeneratorUtils.drawMultilineHighlightedText
+import com.few.generator.core.instagram.ImageGeneratorUtils.drawText
+import com.few.generator.core.instagram.ImageGeneratorUtils.getWeekdayText
+import com.few.generator.core.instagram.ImageGeneratorUtils.loadImageResource
+import com.few.generator.core.instagram.ImageGeneratorUtils.loadKoreanFont
+import com.few.generator.core.instagram.ImageGeneratorUtils.resizeImage
+import com.few.generator.core.instagram.ImageGeneratorUtils.saveImage
+import com.few.generator.core.instagram.ImageGeneratorUtils.setupGraphics
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
+import java.awt.Graphics2D
 import java.awt.image.BufferedImage
 
 /**
@@ -32,7 +33,7 @@ class SingleNewsCardGenerator {
 
         private const val HEADER_FONT_SIZE = 24
         private const val TITLE_FONT_SIZE = 50
-        private const val BODY_FONT_SIZE = 28
+        private const val BODY_FONT_SIZE = 26
         private const val SOURCE_FONT_SIZE = 22
 
         private const val TITLE_LINE_SPACING = 1.2f
@@ -90,7 +91,7 @@ class SingleNewsCardGenerator {
      * 헤더 배경 및 텍스트 그리기
      */
     private fun drawHeaderBackground(
-        graphics: java.awt.Graphics2D,
+        graphics: Graphics2D,
         category: String,
         dateStr: String,
         categoryText: String,
@@ -144,7 +145,7 @@ class SingleNewsCardGenerator {
      * 제목 그리기
      */
     private fun drawTitle(
-        graphics: java.awt.Graphics2D,
+        graphics: Graphics2D,
         title: String,
         currentY: Int,
         highlightTexts: List<String>,
@@ -169,14 +170,14 @@ class SingleNewsCardGenerator {
                 TITLE_LINE_SPACING,
             )
 
-        return endY + 30
+        return endY + 20
     }
 
     /**
      * 본문 그리기
      */
     private fun drawBody(
-        graphics: java.awt.Graphics2D,
+        graphics: Graphics2D,
         body: String,
         currentY: Int,
         highlightTexts: List<String>,
@@ -207,7 +208,7 @@ class SingleNewsCardGenerator {
     /**
      * 로고 추가
      */
-    private fun drawLogo(graphics: java.awt.Graphics2D) {
+    private fun drawLogo(graphics: Graphics2D) {
         val logoImage = loadImageResource("few_logo.png") ?: return
 
         // 로고 크기 조정
