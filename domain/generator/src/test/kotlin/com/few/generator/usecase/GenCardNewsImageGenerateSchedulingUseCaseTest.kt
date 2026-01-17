@@ -2,10 +2,10 @@ package com.few.generator.usecase
 
 import com.few.common.domain.Category
 import com.few.common.domain.Region
+import com.few.generator.core.instagram.NewsContent
+import com.few.generator.core.instagram.SingleNewsCardGenerator
 import com.few.generator.domain.Gen
 import com.few.generator.service.GenService
-import com.few.generator.service.instagram.NewsContent
-import com.few.generator.service.instagram.SingleNewsCardGenerator
 import com.google.gson.Gson
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty

@@ -1,4 +1,4 @@
-package com.few.generator.service.instagram
+package com.few.generator.core.instagram
 
 import java.time.LocalDateTime
 

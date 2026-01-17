@@ -1,13 +1,15 @@
-package com.few.generator.service.instagram
+package com.few.generator.core.instagram
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.awt.Color
 import java.awt.Font
+import java.awt.FontMetrics
 import java.awt.Graphics2D
 import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
+import kotlin.text.iterator
 
 /**
  * 인스타그램 카드 이미지 생성을 위한 공통 유틸리티 클래스
@@ -159,7 +161,7 @@ object ImageGeneratorUtils {
      * 너무 긴 단어를 글자 단위로 분리
      */
     private fun wrapLongWord(
-        metrics: java.awt.FontMetrics,
+        metrics: FontMetrics,
         word: String,
         maxWidth: Int,
     ): List<String> {

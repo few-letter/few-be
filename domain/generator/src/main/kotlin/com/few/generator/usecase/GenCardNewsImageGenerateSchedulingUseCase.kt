@@ -3,11 +3,11 @@ package com.few.generator.usecase
 import com.few.common.domain.Category
 import com.few.common.domain.Region
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
+import com.few.generator.core.instagram.NewsContent
+import com.few.generator.core.instagram.SingleNewsCardGenerator
 import com.few.generator.event.CardNewsImageGeneratedEvent
 import com.few.generator.event.GenSchedulingCompletedEvent
 import com.few.generator.service.GenService
-import com.few.generator.service.instagram.NewsContent
-import com.few.generator.service.instagram.SingleNewsCardGenerator
 import com.few.generator.support.jpa.GeneratorTransactional
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
