@@ -1,8 +1,9 @@
 package com.few.generator.event
 
+import com.few.common.domain.Category
 import com.few.common.domain.Region
 
 data class CardNewsImageGeneratedEvent(
     val region: Region,
-    val imagePaths: List<String>,
+    val imagePathsByCategory: Map<Category, List<String>>,
 )
