@@ -32,7 +32,7 @@ class SingleNewsCardGenerator {
 
         private const val HEADER_FONT_SIZE = 24
         private const val TITLE_FONT_SIZE = 50
-        private const val BODY_FONT_SIZE = 28
+        private const val BODY_FONT_SIZE = 26
         private const val SOURCE_FONT_SIZE = 22
 
         private const val TITLE_LINE_SPACING = 1.2f
@@ -169,7 +169,7 @@ class SingleNewsCardGenerator {
                 TITLE_LINE_SPACING,
             )
 
-        return endY + 30
+        return endY + 20
     }
 
     /**
