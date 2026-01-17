@@ -16,6 +16,8 @@ import com.google.gson.Gson
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Service
@@ -71,6 +73,7 @@ class GenService(
         region: Region = Region.LOCAL,
     ): List<Gen> = genRepository.findAllByCreatedAtBetweenAndRegion(start, end, region.code)
 
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     fun findAllByCreatedAtTodayAndCategoryAndRegion(
         category: Category,
         region: Region = Region.LOCAL,

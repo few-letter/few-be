@@ -11,7 +11,6 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.event.EventListener
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -96,7 +95,6 @@ class InstagramUploadUseCase(
         }
     }
 
-    @Transactional(readOnly = true)
     fun generateCaption(
         category: Category,
         region: Region,
