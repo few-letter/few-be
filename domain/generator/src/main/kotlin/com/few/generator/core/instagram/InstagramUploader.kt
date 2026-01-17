@@ -9,6 +9,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import java.util.Random
 
 data class InstagramResponse(
     val id: String,
@@ -37,6 +38,7 @@ class InstagramUploader(
     private val gson: Gson,
 ) {
     private val log = KotlinLogging.logger {}
+    private val random = Random()
 
     // 1단계: 개별 이미지용 컨테이너 생성
     fun createChildMediaContainer(imageUrl: String): String? {
@@ -65,7 +67,10 @@ class InstagramUploader(
                     "[Instagram][Step1] Creation of Child MediaContainer Failed: ${errorResponse?.error?.message ?: "Unknown error"}",
                 )
             }
-            Thread.sleep(5000) // TODO: 이미지 컨테이너 올라갔는지 폴링하도록 변경
+            // 5~10초 사이 랜덤 추출 TODO: 이미지 컨테이너 올라갔는지 폴링하도록 변경
+            val waitSeconds = random.nextInt(5, 10)
+            Thread.sleep(waitSeconds * 1000L)
+
             return responseBody?.let { parseJsonForId(it).id }
         }
     }
@@ -101,7 +106,10 @@ class InstagramUploader(
                     "[Instagram][Step2] Creation of Parent MediaContainer Failed: ${errorResponse?.error?.message ?: "Unknown error"}",
                 )
             }
-            Thread.sleep(5000) // TODO: 이미지 컨테이너 올라갔는지 폴링하도록 변경
+            // 5~10초 사이 랜덤 추출 TODO: 이미지 컨테이너 올라갔는지 폴링하도록 변경
+            val waitSeconds = random.nextInt(5, 10)
+            Thread.sleep(waitSeconds * 1000L)
+
             return responseBody?.let { parseJsonForId(it).id }
         }
     }
