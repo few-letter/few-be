@@ -158,7 +158,7 @@ class AbstractGroupGenSchedulingUseCaseTest :
                         )
 
                     every {
-                        genService.findAllByCreatedAtBetweenAndCategoryAndRegion(any(), Region.GLOBAL)
+                        genService.findAllByCreatedAtTodayAndCategoryAndRegion(any(), Region.GLOBAL)
                     } returns gens
 
                     every {
@@ -193,7 +193,7 @@ class AbstractGroupGenSchedulingUseCaseTest :
             When("카테고리에 Gen이 없는 경우") {
                 Then("BadRequestException이 발생한다") {
                     every {
-                        genService.findAllByCreatedAtBetweenAndCategoryAndRegion(Category.TECHNOLOGY, Region.GLOBAL)
+                        genService.findAllByCreatedAtTodayAndCategoryAndRegion(Category.TECHNOLOGY, Region.GLOBAL)
                     } returns emptyList()
 
                     shouldThrow<BadRequestException> {
@@ -220,7 +220,7 @@ class AbstractGroupGenSchedulingUseCaseTest :
                         }
 
                     every {
-                        genService.findAllByCreatedAtBetweenAndCategoryAndRegion(Category.TECHNOLOGY, Region.GLOBAL)
+                        genService.findAllByCreatedAtTodayAndCategoryAndRegion(Category.TECHNOLOGY, Region.GLOBAL)
                     } returns gens
 
                     shouldThrow<BadRequestException> {
@@ -262,7 +262,7 @@ class AbstractGroupGenSchedulingUseCaseTest :
                         }
 
                     every {
-                        genService.findAllByCreatedAtBetweenAndCategoryAndRegion(Category.TECHNOLOGY, Region.GLOBAL)
+                        genService.findAllByCreatedAtTodayAndCategoryAndRegion(Category.TECHNOLOGY, Region.GLOBAL)
                     } returns gens
 
                     every {
@@ -334,7 +334,7 @@ class AbstractGroupGenSchedulingUseCaseTest :
                         )
 
                     every {
-                        genService.findAllByCreatedAtBetweenAndCategoryAndRegion(Category.TECHNOLOGY, Region.GLOBAL)
+                        genService.findAllByCreatedAtTodayAndCategoryAndRegion(Category.TECHNOLOGY, Region.GLOBAL)
                     } returns gens
 
                     every {

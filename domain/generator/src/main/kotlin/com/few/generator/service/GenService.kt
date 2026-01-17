@@ -71,7 +71,7 @@ class GenService(
         region: Region = Region.LOCAL,
     ): List<Gen> = genRepository.findAllByCreatedAtBetweenAndRegion(start, end, region.code)
 
-    fun findAllByCreatedAtBetweenAndCategoryAndRegion(
+    fun findAllByCreatedAtTodayAndCategoryAndRegion(
         category: Category,
         region: Region = Region.LOCAL,
     ): List<Gen> =
