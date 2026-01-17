@@ -45,6 +45,7 @@ class InstagramUploadUseCase(
                 Category.POLITICS to "#정치뉴스 #정치 #국정 #정부 #정책 #뉴스 #fewletter",
                 Category.ECONOMY to "#경제뉴스 #경제 #금융 #투자 #비즈니스 #뉴스 #fewletter",
                 Category.SOCIETY to "#사회뉴스 #사회 #사회이슈 #시사 #이슈 #뉴스 #fewletter",
+                Category.LIFE to "#생활뉴스 #생활 #생활이슈 #이슈 #뉴스 #fewletter",
             )
     }
 
