@@ -1,5 +1,6 @@
 package com.few.generator.usecase
 
+import com.few.common.domain.Category
 import com.few.generator.core.instagram.InstagramUploader
 import com.few.generator.event.CardNewsS3UploadedEvent
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -22,35 +23,67 @@ class InstagramUploadUseCase(
     @Async("generatorSchedulingExecutor")
     @EventListener
     fun onCardNewsS3Uploaded(event: CardNewsS3UploadedEvent) {
-        if (event.uploadedUrls.isEmpty()) {
+        if (event.uploadedUrlsByCategory.isEmpty()) {
             log.warn { "${event.region.name} S3 업로드된 이미지가 없어 Instagram 업로드를 건너뜁니다." }
             return
         }
 
-        log.info { "${event.region.name} S3 업로드 완료 감지, Instagram 업로드 시작" }
+        log.info { "${event.region.name} S3 업로드 완료 감지, Instagram 업로드 시작 (${event.uploadedUrlsByCategory.size}개 카테고리)" }
 
-        // 첫 번째 이미지만 업로드 (추후 확장 예정)
-        val imageUrl = event.uploadedUrls.first()
-        val caption = "${event.uploadTime.format(DATE_FORMATTER)} 주요 뉴스"
+        // 카테고리별로 carousel 업로드 수행
+        event.uploadedUrlsByCategory.forEach { (category, imageUrls) ->
+            val caption = "${event.uploadTime.format(DATE_FORMATTER)} 주요 ${category.title} 뉴스"
+            uploadCarouselByCategory(category, imageUrls, caption)
+        }
+    }
+
+    private fun uploadCarouselByCategory(
+        category: Category,
+        imageUrls: List<String>,
+        caption: String,
+    ) {
+        if (imageUrls.isEmpty()) {
+            log.warn { "[${category.title}] 업로드할 이미지가 없습니다." }
+            return
+        }
+
+        log.info { "[${category.title}] Instagram carousel 업로드 시작: ${imageUrls.size}개 이미지" }
 
         try {
-            // 1단계: 미디어 컨테이너 생성
-            val creationId = instagramUploader.createChildMediaContainer(imageUrl, caption)
-            if (creationId == null) {
-                log.error { "Instagram 미디어 컨테이너 생성 실패: $imageUrl" }
+            // 1단계: 각 이미지에 대해 Child Media Container 생성
+            val childCreationIds = mutableListOf<String>()
+            imageUrls.forEachIndexed { index, imageUrl ->
+                val childCreationId = instagramUploader.createChildMediaContainer(imageUrl)
+                if (childCreationId != null) {
+                    childCreationIds.add(childCreationId)
+                    log.info { "[${category.title}] Child 컨테이너 생성 성공 [${index + 1}/${imageUrls.size}]: creationId=$childCreationId" }
+                } else {
+                    log.error { "[${category.title}] Child 컨테이너 생성 실패 [${index + 1}/${imageUrls.size}]: $imageUrl" }
+                }
+            }
+
+            if (childCreationIds.isEmpty()) {
+                log.error { "[${category.title}] 생성된 Child 컨테이너가 없어 carousel 업로드를 건너뜁니다." }
                 return
             }
-            log.info { "Instagram 미디어 컨테이너 생성 성공: creationId=$creationId" }
 
-            // 2단계: 게시물 게시
-            val publishSuccess = instagramUploader.publishMedia(creationId)
+            // 2단계: Parent Media Container 생성 (Carousel)
+            val parentCreationId = instagramUploader.createParentMediaContainer(childCreationIds, caption)
+            if (parentCreationId == null) {
+                log.error { "[${category.title}] Parent 컨테이너 생성 실패" }
+                return
+            }
+            log.info { "[${category.title}] Parent 컨테이너 생성 성공: creationId=$parentCreationId" }
+
+            // 3단계: 게시물 게시
+            val publishSuccess = instagramUploader.publishMedia(parentCreationId)
             if (publishSuccess) {
-                log.info { "Instagram 게시물 게시 성공: $imageUrl" }
+                log.info { "[${category.title}] Instagram carousel 게시 성공: ${imageUrls.size}개 이미지" }
             } else {
-                log.error { "Instagram 게시물 게시 실패: creationId=$creationId" }
+                log.error { "[${category.title}] Instagram carousel 게시 실패: parentCreationId=$parentCreationId" }
             }
         } catch (e: Exception) {
-            log.error(e) { "Instagram 업로드 중 오류 발생: ${e.message}" }
+            log.error(e) { "[${category.title}] Instagram carousel 업로드 중 오류 발생: ${e.message}" }
         }
     }
 }

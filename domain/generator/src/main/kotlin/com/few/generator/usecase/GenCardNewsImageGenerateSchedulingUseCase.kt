@@ -55,7 +55,7 @@ class GenCardNewsImageGenerateSchedulingUseCase(
     }
 
     @GeneratorTransactional(readOnly = true)
-    fun doExecute(region: Region): List<String> {
+    fun doExecute(region: Region): Map<Category, List<String>> {
         // 오늘 생성된 Gen 조회 (00:00:00 ~ 23:59:59)
         val today = LocalDateTime.now()
         val startOfDay =
@@ -76,12 +76,12 @@ class GenCardNewsImageGenerateSchedulingUseCase(
 
         if (gens.isEmpty()) {
             log.warn { "오늘 생성된 Gen이 없습니다." }
-            return emptyList()
+            return emptyMap()
         }
 
         log.info { "오늘 생성된 Gen ${gens.size}개를 찾았습니다. 이미지 생성을 시작합니다." }
 
-        val generatedImages = mutableListOf<String>()
+        val generatedImagesByCategory = mutableMapOf<Category, MutableList<String>>()
 
         gens.forEachIndexed { index, gen ->
             try {
@@ -116,8 +116,8 @@ class GenCardNewsImageGenerateSchedulingUseCase(
                 val success = singleNewsCardGenerator.generateImage(newsContent, fileName)
 
                 if (success) {
-                    generatedImages.add(fileName)
-                    log.info { "[${index + 1}/${gens.size}] Gen ${gen.id} 이미지 생성 완료: $fileName" }
+                    generatedImagesByCategory.getOrPut(category) { mutableListOf() }.add(fileName)
+                    log.info { "[${index + 1}/${gens.size}] Gen ${gen.id} 이미지 생성 완료: $fileName (카테고리: ${category.title})" }
                 } else {
                     log.error { "[${index + 1}/${gens.size}] Gen ${gen.id} 이미지 생성 실패" }
                 }
@@ -126,8 +126,9 @@ class GenCardNewsImageGenerateSchedulingUseCase(
             }
         }
 
-        log.info { "이미지 생성 완료: 총 ${gens.size}개 중 ${generatedImages.size}개 성공" }
-        return generatedImages
+        val totalGenerated = generatedImagesByCategory.values.sumOf { it.size }
+        log.info { "이미지 생성 완료: 총 ${gens.size}개 중 ${totalGenerated}개 성공 (${generatedImagesByCategory.size}개 카테고리)" }
+        return generatedImagesByCategory
     }
 
     fun execute(region: Region) {
@@ -135,18 +136,19 @@ class GenCardNewsImageGenerateSchedulingUseCase(
         var isSuccess = true
         var executionTimeSec = 0.0
         var exception: Throwable? = null
-        var imagePaths = emptyList<String>()
+        var imagePathsByCategory = emptyMap<Category, List<String>>()
 
         runCatching {
             executionTimeSec =
                 measureTimeMillis {
-                    imagePaths = doExecute(region)
+                    imagePathsByCategory = doExecute(region)
                 }.msToSeconds()
         }.onFailure { ex ->
             isSuccess = false
             log.error(ex) { "${region.name} 이미지 생성 중 오류 발생" }
             exception = ex
         }.also {
+            val totalImages = imagePathsByCategory.values.sumOf { it.size }
             log.info {
                 buildString {
                     appendLine("🖼️ ${region.name} Gen 카드뉴스 이미지 생성 완료")
@@ -154,11 +156,14 @@ class GenCardNewsImageGenerateSchedulingUseCase(
                     appendLine("✅ 시작 시간: $startTime")
                     appendLine("✅ 소요 시간: ${executionTimeSec}초")
                     if (isSuccess) {
-                        appendLine("✅ 생성된 이미지 개수: ${imagePaths.size}")
-                        if (imagePaths.isNotEmpty()) {
-                            appendLine("✅ 생성된 이미지 경로:")
-                            imagePaths.forEach { path ->
-                                appendLine("   - $path")
+                        appendLine("✅ 생성된 이미지 개수: $totalImages (${imagePathsByCategory.size}개 카테고리)")
+                        if (imagePathsByCategory.isNotEmpty()) {
+                            appendLine("✅ 카테고리별 생성된 이미지:")
+                            imagePathsByCategory.forEach { (category, paths) ->
+                                appendLine("   [${category.title}] ${paths.size}개")
+                                paths.forEach { path ->
+                                    appendLine("      - $path")
+                                }
                             }
                         }
                     }
@@ -167,14 +172,15 @@ class GenCardNewsImageGenerateSchedulingUseCase(
             }
 
             // 이미지 생성 성공 시 S3 업로드 이벤트 발행
-            if (isSuccess && imagePaths.isNotEmpty()) {
+            if (isSuccess && imagePathsByCategory.isNotEmpty()) {
                 applicationEventPublisher.publishEvent(
                     CardNewsImageGeneratedEvent(
                         region = region,
-                        imagePaths = imagePaths,
+                        imagePathsByCategory = imagePathsByCategory,
                     ),
                 )
-                log.info { "${region.name} 카드뉴스 이미지 생성 완료 이벤트 발행: ${imagePaths.size}개" }
+                val totalCount = imagePathsByCategory.values.sumOf { it.size }
+                log.info { "${region.name} 카드뉴스 이미지 생성 완료 이벤트 발행: ${totalCount}개 (${imagePathsByCategory.size}개 카테고리)" }
             }
         }
     }
