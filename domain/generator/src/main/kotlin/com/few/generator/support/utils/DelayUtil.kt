@@ -12,6 +12,9 @@ object DelayUtil {
         fromSec: Int,
         toSec: Int,
     ) {
+        require(fromSec >= 0 && toSec >= 0) { "fromSec/toSec는 0 이상이어야 합니다." }
+        require(fromSec <= toSec) { "fromSec는 toSec 이하여야 합니다." }
+
         // 1. from과 to 사이의 랜덤한 밀리초(ms) 계산
         val range = (fromSec.toLong() * 1000)..(toSec.toLong() * 1000)
         val delayMillis = range.random()
