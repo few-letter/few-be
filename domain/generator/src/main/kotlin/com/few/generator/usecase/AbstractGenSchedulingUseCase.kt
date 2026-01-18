@@ -143,12 +143,9 @@ abstract class AbstractGenSchedulingUseCase(
 
         /**
          * cache evict를 위해 gen save는 한번에 수행
+         * gen insert 중 발생하는 에러는 전파되어 롤백되어야 함
          */
-        try {
-            genService.saveAll(gensToInsert)
-        } catch (e: Exception) {
-            throw BadRequestException("\uD83D\uDD34 Critical: $regionName GEN insert 중 오류 발생하여 전체 실패 처리.")
-        }
+        genService.saveAll(gensToInsert)
 
         return successCnt to failCnt
     }
