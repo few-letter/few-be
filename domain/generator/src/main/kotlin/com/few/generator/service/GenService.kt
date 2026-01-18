@@ -30,7 +30,7 @@ class GenService(
 ) {
     private val log = KotlinLogging.logger {}
 
-    fun createGen(
+    fun create(
         rawContent: RawContents,
         provisioningContent: ProvisioningContents,
     ): Gen {
@@ -63,7 +63,7 @@ class GenService(
         )
     }
 
-    fun createAll(gens: List<Gen>): List<Gen> = genRepository.saveAll(gens)
+    fun saveAll(gens: List<Gen>): List<Gen> = genRepository.saveAll(gens)
 
     fun findLatestGen(): Gen = genRepository.findFirstLimit(1, Region.LOCAL.code)[0]
 
