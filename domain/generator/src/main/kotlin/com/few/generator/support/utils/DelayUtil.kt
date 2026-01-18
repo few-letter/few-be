@@ -21,7 +21,7 @@ object DelayUtil {
 
         try {
             // 2. 해당 시간만큼 스레드 정지
-            log.info { "Thread will be Delayed... ${delayMillis}초 후 다음 작업 진행" }
+            log.info { "Thread will be Delayed... ${delayMillis}ms 후 다음 작업 진행" }
             Thread.sleep(delayMillis)
         } catch (e: InterruptedException) {
             // 3. 인터럽트 발생 시 현재 스레드의 상태 재설정
