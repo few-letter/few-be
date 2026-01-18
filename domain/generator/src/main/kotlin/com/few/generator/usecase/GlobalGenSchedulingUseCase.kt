@@ -5,6 +5,7 @@ import com.few.generator.core.scrapper.Scrapper
 import com.few.generator.service.GenService
 import com.few.generator.service.ProvisioningService
 import com.few.generator.service.RawContentsService
+import com.few.generator.support.common.ContentsGeneratorDelayHandler
 import com.few.generator.support.jpa.GeneratorTransactional
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
@@ -20,6 +21,7 @@ class GlobalGenSchedulingUseCase(
     scrapper: Scrapper,
     @Value("\${generator.contents.countByCategory}")
     contentsCountByCategory: Int,
+    delayHandler: ContentsGeneratorDelayHandler,
 ) : AbstractGenSchedulingUseCase(
         rawContentsService,
         provisioningService,
@@ -27,6 +29,7 @@ class GlobalGenSchedulingUseCase(
         applicationEventPublisher,
         scrapper,
         contentsCountByCategory,
+        delayHandler,
     ) {
     override val region = Region.GLOBAL
     override val regionName = "글로벌"
