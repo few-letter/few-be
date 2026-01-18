@@ -1,6 +1,7 @@
 package com.few.generator.core.instagram
 
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
+import com.few.generator.support.utils.DelayUtil
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -68,8 +69,7 @@ class InstagramUploader(
                 )
             }
             // 5~10초 사이 랜덤 추출 TODO: 이미지 컨테이너 올라갔는지 폴링하도록 변경
-            val waitSeconds = random.nextInt(5, 10)
-            Thread.sleep(waitSeconds * 1000L)
+            DelayUtil.randomDelay(5, 10)
 
             return responseBody?.let { parseJsonForId(it).id }
         }
@@ -107,8 +107,7 @@ class InstagramUploader(
                 )
             }
             // 5~10초 사이 랜덤 추출 TODO: 이미지 컨테이너 올라갔는지 폴링하도록 변경
-            val waitSeconds = random.nextInt(5, 10)
-            Thread.sleep(waitSeconds * 1000L)
+            DelayUtil.randomDelay(5, 10)
 
             return responseBody?.let { parseJsonForId(it).id }
         }

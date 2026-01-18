@@ -6,6 +6,7 @@ import com.few.generator.core.instagram.InstagramUploader
 import com.few.generator.event.CardNewsS3UploadedEvent
 import com.few.generator.event.InstagramUploadCompletedEvent
 import com.few.generator.service.GenService
+import com.few.generator.support.utils.DelayUtil
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.event.EventListener
@@ -130,14 +131,17 @@ class InstagramUploadUseCase(
         imageUrls: List<String>,
         caption: String,
     ): UploadResult {
-        if (imageUrls.isEmpty()) {
-            log.warn { "[${category.title}] 업로드할 이미지가 없습니다." }
-            return UploadResult(success = false, errorMessage = "업로드할 이미지가 없습니다.")
-        }
-
         log.info { "[${category.title}] Instagram carousel 업로드 시작: ${imageUrls.size}개 이미지" }
 
         try {
+            // 0단계: 조건 체크
+            if (imageUrls.size !in 2..10) {
+                return UploadResult(
+                    success = false,
+                    errorMessage = "${category.title} 카테고리 이미지 개수 유효하지 않음: ${imageUrls.size}",
+                )
+            }
+
             // 1단계: 각 이미지에 대해 Child Media Container 생성
             val childCreationIds = mutableListOf<String>()
             imageUrls.forEachIndexed { index, imageUrl ->
@@ -163,10 +167,7 @@ class InstagramUploadUseCase(
             }
             log.info { "[${category.title}] Parent 컨테이너 생성 성공: creationId=$parentCreationId" }
 
-            // 600초(10분) ~ 1800초(30분) 사이 랜덤 추출
-            val waitSeconds = random.nextInt(600, 1801)
-            log.info { "✅ 성공! ${waitSeconds / 60}분 후 다음 작업 진행" }
-            Thread.sleep(waitSeconds * 1000L)
+            DelayUtil.randomDelay(600, 1801)
 
             // 3단계: 게시물 게시
             val publishSuccess = instagramUploader.publishMedia(parentCreationId)
@@ -183,11 +184,11 @@ class InstagramUploadUseCase(
             val errorMsg = e.message ?: ""
 
             if (errorMsg.contains("Application request limit reached")) {
-                log.info { "⚠️ [한도 초과] API 제한에 도달했습니다. 1시간 동안 대기합니다..." }
-                Thread.sleep(3600 * 1000L) // 1시간 휴식
+                log.info { "⚠️ [한도 초과] API 제한에 도달했습니다. 약 1시간 동안 대기합니다..." }
+                DelayUtil.randomDelay(3600, 4000)
             } else {
                 log.info { "❌ [에러] 예상치 못한 오류 발생: $errorMsg" }
-                Thread.sleep(60 * 1000L) // 일반 에러는 1분 후 재시도
+                DelayUtil.randomDelay(600, 700)
             }
 
             return UploadResult(success = false, errorMessage = e.message)
