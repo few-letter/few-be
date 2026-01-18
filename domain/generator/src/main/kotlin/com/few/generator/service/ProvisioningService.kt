@@ -23,7 +23,7 @@ class ProvisioningService(
 ) {
     private val log = KotlinLogging.logger {}
 
-    fun createProvisioningContent(rawContents: RawContents): ProvisioningContents {
+    fun createAndSave(rawContents: RawContents): ProvisioningContents {
         provisioningContentsRepository.findByRawContentsId(rawContents.id!!)?.let {
             throw BadRequestException("이미 생성된 프로비저닝 컨텐츠가 있습니다. ID: ${it.id}")
         }
@@ -31,22 +31,21 @@ class ProvisioningService(
         val bodyTexts: Texts = makeBodyTexts(rawContents.title, rawContents.rawTexts)
         val coreTexts: Texts = makeCoreTexts(rawContents.title, bodyTexts)
 
-        return ProvisioningContents(
-            rawContentsId = rawContents.id!!,
-            completionIds =
-                mutableListOf(
-                    bodyTexts.completionId!!,
-                    coreTexts.completionId!!,
-                ),
-            bodyTextsJson = gson.toJson(bodyTexts.texts), // TODO: DB 저장 타입 등 정의, 수정 필요
-            coreTextsJson = gson.toJson(coreTexts.texts),
-            category = rawContents.category,
-            region = rawContents.region,
+        return provisioningContentsRepository.save(
+            ProvisioningContents(
+                rawContentsId = rawContents.id!!,
+                completionIds =
+                    mutableListOf(
+                        bodyTexts.completionId!!,
+                        coreTexts.completionId!!,
+                    ),
+                bodyTextsJson = gson.toJson(bodyTexts.texts), // TODO: DB 저장 타입 등 정의, 수정 필요
+                coreTextsJson = gson.toJson(coreTexts.texts),
+                category = rawContents.category,
+                region = rawContents.region,
+            ),
         )
     }
-
-    fun createAll(provisioningContents: List<ProvisioningContents>): List<ProvisioningContents> =
-        provisioningContentsRepository.saveAll(provisioningContents)
 
     private fun makeBodyTexts(
         title: String,

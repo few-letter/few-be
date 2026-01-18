@@ -12,6 +12,7 @@ import com.few.generator.event.GenSchedulingCompletedEvent
 import com.few.generator.service.GenService
 import com.few.generator.service.ProvisioningService
 import com.few.generator.service.RawContentsService
+import com.few.generator.support.common.ContentsGeneratorDelayHandler
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -27,6 +28,7 @@ class AbstractGenSchedulingUseCaseTest :
         val applicationEventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
         val scrapper = mockk<Scrapper>()
         val contentsCountByCategory = 2
+        val delayHandler = mockk<ContentsGeneratorDelayHandler>(relaxed = true)
 
         // Test implementation of abstract class
         class TestGenSchedulingUseCase(
@@ -36,6 +38,7 @@ class AbstractGenSchedulingUseCaseTest :
             applicationEventPublisher: ApplicationEventPublisher,
             scrapper: Scrapper,
             contentsCountByCategory: Int,
+            delayHandler: ContentsGeneratorDelayHandler,
         ) : AbstractGenSchedulingUseCase(
                 rawContentsService,
                 provisioningService,
@@ -43,6 +46,7 @@ class AbstractGenSchedulingUseCaseTest :
                 applicationEventPublisher,
                 scrapper,
                 contentsCountByCategory,
+                delayHandler,
             ) {
             override val region: Region = Region.LOCAL
             override val regionName: String = "국내"
@@ -51,7 +55,7 @@ class AbstractGenSchedulingUseCaseTest :
 
             // Override execute to remove sleep for testing
             public override fun execute() {
-                // Skip the random sleep for testing
+                // Skip the delay for testing
                 if (!isRunning.compareAndSet(false, true)) {
                     throw BadRequestException("$schedulingName is already running. Please try again later.")
                 }
@@ -85,6 +89,7 @@ class AbstractGenSchedulingUseCaseTest :
                 applicationEventPublisher,
                 scrapper,
                 contentsCountByCategory,
+                delayHandler,
             )
 
         beforeEach {
@@ -125,7 +130,7 @@ class AbstractGenSchedulingUseCaseTest :
                         )
 
                     every {
-                        rawContentsService.createRawContent(any(), any(), Region.LOCAL)
+                        rawContentsService.createAndSave(any(), any(), Region.LOCAL)
                     } answers {
                         val url = firstArg<String>()
                         mockk<RawContents>(relaxed = true) {
@@ -135,31 +140,15 @@ class AbstractGenSchedulingUseCaseTest :
                     }
 
                     every {
-                        rawContentsService.createAll(any())
-                    } answers {
-                        val input = firstArg<List<RawContents>>()
-                        input.map {
-                            mockk<RawContents>(relaxed = true) {
-                                every { id } returns 1L
-                                every { url } returns it.url
-                            }
-                        }
-                    }
-
-                    every {
-                        provisioningService.createProvisioningContent(any())
+                        provisioningService.createAndSave(any<RawContents>())
                     } returns provisioningContents
 
                     every {
-                        provisioningService.createAll(any())
-                    } returns listOf(provisioningContents, provisioningContents, provisioningContents, provisioningContents)
-
-                    every {
-                        genService.createGen(any(), any())
+                        genService.create(any(), any())
                     } returns gen
 
                     every {
-                        genService.createAll(any())
+                        genService.saveAll(any())
                     } returns listOf(gen, gen, gen, gen)
 
                     useCase.execute()
@@ -201,6 +190,7 @@ class AbstractGenSchedulingUseCaseTest :
                             every { id } returns 1L
                             every { rawContentsId } returns 1L
                         }
+                    val gen = mockk<Gen>()
 
                     every { scrapper.extractUrlsByCategories(Region.LOCAL) } returns
                         mapOf(
@@ -209,32 +199,24 @@ class AbstractGenSchedulingUseCaseTest :
                         )
 
                     every {
-                        rawContentsService.createRawContent("https://example.com/tech1", Category.TECHNOLOGY, Region.LOCAL)
+                        rawContentsService.createAndSave("https://example.com/tech1", Category.TECHNOLOGY, Region.LOCAL)
                     } returns rawContents
 
                     every {
-                        rawContentsService.createRawContent("https://example.com/econ1", Category.ECONOMY, Region.LOCAL)
+                        rawContentsService.createAndSave("https://example.com/econ1", Category.ECONOMY, Region.LOCAL)
                     } throws RuntimeException("Failed to create raw content")
 
                     every {
-                        rawContentsService.createAll(any())
-                    } returns listOf(rawContents)
-
-                    every {
-                        provisioningService.createProvisioningContent(any())
+                        provisioningService.createAndSave(any<RawContents>())
                     } returns provisioningContents
 
                     every {
-                        provisioningService.createAll(any())
-                    } returns listOf(provisioningContents)
+                        genService.create(any(), any())
+                    } returns gen
 
                     every {
-                        genService.createGen(any(), any())
-                    } returns mockk()
-
-                    every {
-                        genService.createAll(any())
-                    } returns listOf(mockk())
+                        genService.saveAll(any())
+                    } returns listOf(gen)
 
                     useCase.execute()
 
@@ -276,7 +258,7 @@ class AbstractGenSchedulingUseCaseTest :
                         )
 
                     every {
-                        rawContentsService.createRawContent(any(), Category.TECHNOLOGY, Region.LOCAL)
+                        rawContentsService.createAndSave(any(), Category.TECHNOLOGY, Region.LOCAL)
                     } answers {
                         callCount++
                         val url = firstArg<String>()
@@ -287,31 +269,15 @@ class AbstractGenSchedulingUseCaseTest :
                     }
 
                     every {
-                        rawContentsService.createAll(any())
-                    } answers {
-                        val input = firstArg<List<RawContents>>()
-                        input.map {
-                            mockk<RawContents>(relaxed = true) {
-                                every { id } returns 1L
-                                every { url } returns it.url
-                            }
-                        }
-                    }
-
-                    every {
-                        provisioningService.createProvisioningContent(any())
+                        provisioningService.createAndSave(any<RawContents>())
                     } returns provisioningContents
 
                     every {
-                        provisioningService.createAll(any())
-                    } returns listOf(provisioningContents, provisioningContents)
-
-                    every {
-                        genService.createGen(any(), any())
+                        genService.create(any(), any())
                     } returns gen
 
                     every {
-                        genService.createAll(any())
+                        genService.saveAll(any())
                     } returns listOf(gen, gen)
 
                     useCase.execute()
@@ -359,6 +325,7 @@ class AbstractGenSchedulingUseCaseTest :
                             every { id } returns 1L
                             every { rawContentsId } returns 1L
                         }
+                    val gen = mockk<Gen>()
 
                     every { scrapper.extractUrlsByCategories(Region.LOCAL) } returns
                         mapOf(
@@ -371,7 +338,7 @@ class AbstractGenSchedulingUseCaseTest :
                     val creationOrder = mutableListOf<Pair<String, Category>>()
 
                     every {
-                        rawContentsService.createRawContent(any(), any(), Region.LOCAL)
+                        rawContentsService.createAndSave(any(), any(), Region.LOCAL)
                     } answers {
                         val url = firstArg<String>()
                         val category = secondArg<Category>()
@@ -383,33 +350,16 @@ class AbstractGenSchedulingUseCaseTest :
                     }
 
                     every {
-                        rawContentsService.createAll(any())
-                    } answers {
-                        val input = firstArg<List<RawContents>>()
-                        input.map {
-                            mockk<RawContents>(relaxed = true) {
-                                every { id } returns 1L
-                                every { url } returns it.url
-                            }
-                        }
-                    }
-
-                    every {
-                        provisioningService.createProvisioningContent(any())
+                        provisioningService.createAndSave(any<RawContents>())
                     } returns provisioningContents
 
                     every {
-                        provisioningService.createAll(any())
-                    } returns
-                        listOf(provisioningContents, provisioningContents, provisioningContents, provisioningContents, provisioningContents)
+                        genService.create(any(), any())
+                    } returns gen
 
                     every {
-                        genService.createGen(any(), any())
-                    } returns mockk()
-
-                    every {
-                        genService.createAll(any())
-                    } returns listOf(mockk(), mockk(), mockk(), mockk(), mockk())
+                        genService.saveAll(any())
+                    } returns listOf(gen, gen, gen, gen, gen)
 
                     useCase.execute()
 
