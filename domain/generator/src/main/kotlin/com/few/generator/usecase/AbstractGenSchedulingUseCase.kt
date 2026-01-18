@@ -147,9 +147,7 @@ abstract class AbstractGenSchedulingUseCase(
         try {
             genService.saveAll(gensToInsert)
         } catch (e: Exception) {
-            log.error(e) { "$regionName GEN 생성 중 오류 발생하여 전체 실패 처리." }
-            failCnt += successCnt
-            successCnt = 0
+            throw BadRequestException("\uD83D\uDD34 Critical: $regionName GEN insert 중 오류 발생하여 전체 실패 처리.")
         }
 
         return successCnt to failCnt
