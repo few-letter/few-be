@@ -135,8 +135,11 @@ class InstagramUploadUseCase(
 
         try {
             // 0단계: 조건 체크
-            if (imageUrls.isEmpty() || imageUrls.size == 1 || imageUrls.size > 10) {
-                throw RuntimeException("${category.title} 카테고리 아미지 개수 유효하지 않음: ${imageUrls.size}")
+            if (imageUrls.size !in 2..10) {
+                return UploadResult(
+                    success = false,
+                    errorMessage = "${category.title} 카테고리 이미지 개수 유효하지 않음: ${imageUrls.size}",
+                )
             }
 
             // 1단계: 각 이미지에 대해 Child Media Container 생성
