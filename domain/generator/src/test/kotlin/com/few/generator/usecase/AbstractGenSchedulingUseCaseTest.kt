@@ -144,12 +144,8 @@ class AbstractGenSchedulingUseCaseTest :
                     } returns provisioningContents
 
                     every {
-                        genService.create(any(), any())
+                        genService.createAndSave(any(), any())
                     } returns gen
-
-                    every {
-                        genService.saveAll(any())
-                    } returns listOf(gen, gen, gen, gen)
 
                     useCase.execute()
 
@@ -211,12 +207,8 @@ class AbstractGenSchedulingUseCaseTest :
                     } returns provisioningContents
 
                     every {
-                        genService.create(any(), any())
+                        genService.createAndSave(any(), any())
                     } returns gen
-
-                    every {
-                        genService.saveAll(any())
-                    } returns listOf(gen)
 
                     useCase.execute()
 
@@ -273,12 +265,8 @@ class AbstractGenSchedulingUseCaseTest :
                     } returns provisioningContents
 
                     every {
-                        genService.create(any(), any())
+                        genService.createAndSave(any(), any())
                     } returns gen
-
-                    every {
-                        genService.saveAll(any())
-                    } returns listOf(gen, gen)
 
                     useCase.execute()
 
@@ -354,12 +342,8 @@ class AbstractGenSchedulingUseCaseTest :
                     } returns provisioningContents
 
                     every {
-                        genService.create(any(), any())
+                        genService.createAndSave(any(), any())
                     } returns gen
-
-                    every {
-                        genService.saveAll(any())
-                    } returns listOf(gen, gen, gen, gen, gen)
 
                     useCase.execute()
 
