@@ -4,7 +4,6 @@ import com.few.common.domain.Category
 import com.few.common.domain.Region
 import com.few.common.exception.BadRequestException
 import com.few.generator.core.scrapper.Scrapper
-import com.few.generator.domain.Gen
 import com.few.generator.event.ContentsSchedulingEvent
 import com.few.generator.event.GenSchedulingCompletedEvent
 import com.few.generator.service.GenService
@@ -112,8 +111,6 @@ abstract class AbstractGenSchedulingUseCase(
 
         val maxSize = urlsByCategories.values.maxOfOrNull { it.size } ?: 0
 
-        val gensToInsert = mutableListOf<Gen>()
-
         /**
          * 각 카테고리의 뉴스를 1개씩 순회하여 카테고리가 골고루 섞이도록 처리
          */
@@ -127,7 +124,7 @@ abstract class AbstractGenSchedulingUseCase(
                     try {
                         val rawContent = rawContentsService.createAndSave(url, category, region)
                         val provisioningContent = provisioningService.createAndSave(rawContent)
-                        gensToInsert.add(genService.create(rawContent, provisioningContent))
+                        genService.createAndSave(rawContent, provisioningContent)
 
                         successCntByCategory[category] = successCntByCategory.getOrDefault(category, 0) + 1
                         successCnt++
@@ -140,12 +137,6 @@ abstract class AbstractGenSchedulingUseCase(
                 }
             }
         }
-
-        /**
-         * cache evict를 위해 gen save는 한번에 수행
-         * gen insert 중 발생하는 에러는 전파되어 롤백되어야 함
-         */
-        genService.saveAll(gensToInsert)
 
         return successCnt to failCnt
     }

@@ -30,7 +30,7 @@ class GenService(
 ) {
     private val log = KotlinLogging.logger {}
 
-    fun create(
+    fun createAndSave(
         rawContent: RawContents,
         provisioningContent: ProvisioningContents,
     ): Gen {
@@ -52,14 +52,21 @@ class GenService(
         val highlightTextPrompt = promptGenerator.toKoreanHighlightText(summary.summary)
         val highlightText: HighlightText = chatGpt.ask(highlightTextPrompt) as HighlightText
 
-        return Gen(
-            provisioningContentsId = provisioningContent.id!!,
-            completionIds = mutableListOf(headline.completionId!!, summary.completionId!!, highlightText.completionId!!),
-            headline = headline.headline,
-            summary = summary.summary,
-            highlightTexts = gson.toJson(listOf(highlightText.highlightText)),
-            category = Category.from(provisioningContent.category).code,
-            region = provisioningContent.region,
+        return genRepository.save(
+            Gen(
+                provisioningContentsId = provisioningContent.id!!,
+                completionIds =
+                    mutableListOf(
+                        headline.completionId!!,
+                        summary.completionId!!,
+                        highlightText.completionId!!,
+                    ),
+                headline = headline.headline,
+                summary = summary.summary,
+                highlightTexts = gson.toJson(listOf(highlightText.highlightText)),
+                category = Category.from(provisioningContent.category).code,
+                region = provisioningContent.region,
+            ),
         )
     }
 
