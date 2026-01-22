@@ -6,27 +6,23 @@ import com.few.common.exception.BadRequestException
 import com.few.generator.core.scrapper.Scrapper
 import com.few.generator.event.ContentsSchedulingEvent
 import com.few.generator.event.GenSchedulingCompletedEvent
-import com.few.generator.service.GenService
-import com.few.generator.service.ProvisioningService
-import com.few.generator.service.RawContentsService
+import com.few.generator.service.ContentsCommonGenerationService
 import com.few.generator.support.common.ContentsGeneratorDelayHandler
-import com.few.generator.support.jpa.GeneratorTransactional
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.scheduling.annotation.Async
 import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
 
 abstract class AbstractGenSchedulingUseCase(
-    protected val rawContentsService: RawContentsService,
-    protected val provisioningService: ProvisioningService,
-    protected val genService: GenService,
     protected val applicationEventPublisher: ApplicationEventPublisher,
     protected val scrapper: Scrapper,
     @Value("\${generator.contents.countByCategory}")
     protected val contentsCountByCategory: Int,
     protected val delayHandler: ContentsGeneratorDelayHandler,
+    protected val contentsCommonGenerationService: ContentsCommonGenerationService,
 ) {
     protected val log = KotlinLogging.logger {}
     protected val isRunning = AtomicBoolean(false)
@@ -36,8 +32,8 @@ abstract class AbstractGenSchedulingUseCase(
     abstract val schedulingName: String
     abstract val eventTitle: String
 
-    @GeneratorTransactional
-    protected open fun execute() {
+    @Async("generatorSchedulingExecutor")
+    open fun executeAsync() {
         delayHandler.delay()
 
         if (!isRunning.compareAndSet(false, true)) {
@@ -122,9 +118,7 @@ abstract class AbstractGenSchedulingUseCase(
 
                 urls.elementAtOrNull(i)?.let { url ->
                     try {
-                        val rawContent = rawContentsService.createAndSave(url, category, region)
-                        val provisioningContent = provisioningService.createAndSave(rawContent)
-                        genService.createAndSave(rawContent, provisioningContent)
+                        contentsCommonGenerationService.createSingleContents(url, category, region)
 
                         successCntByCategory[category] = successCntByCategory.getOrDefault(category, 0) + 1
                         successCnt++
