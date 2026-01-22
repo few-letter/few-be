@@ -23,9 +23,9 @@ class GeneratorAsyncConfig {
     @Bean(name = ["generatorSchedulingExecutor"])
     fun generatorSchedulingExecutor(): Executor {
         val executor = ThreadPoolTaskExecutor()
-        executor.corePoolSize = 3
-        executor.maxPoolSize = 3
-        executor.queueCapacity = 1
+        executor.corePoolSize = 5
+        executor.maxPoolSize = 5
+        executor.queueCapacity = 3
         executor.setThreadNamePrefix("generatorScheduling-")
         executor.initialize()
         return executor

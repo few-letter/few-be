@@ -4,14 +4,9 @@ import com.few.common.domain.Category
 import com.few.common.domain.Region
 import com.few.common.exception.BadRequestException
 import com.few.generator.core.scrapper.Scrapper
-import com.few.generator.domain.Gen
-import com.few.generator.domain.ProvisioningContents
-import com.few.generator.domain.RawContents
 import com.few.generator.event.ContentsSchedulingEvent
 import com.few.generator.event.GenSchedulingCompletedEvent
-import com.few.generator.service.GenService
-import com.few.generator.service.ProvisioningService
-import com.few.generator.service.RawContentsService
+import com.few.generator.service.ContentsCommonGenerationService
 import com.few.generator.support.common.ContentsGeneratorDelayHandler
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -22,39 +17,33 @@ import org.springframework.context.ApplicationEventPublisher
 
 class AbstractGenSchedulingUseCaseTest :
     BehaviorSpec({
-        val rawContentsService = mockk<RawContentsService>()
-        val provisioningService = mockk<ProvisioningService>()
-        val genService = mockk<GenService>()
         val applicationEventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
         val scrapper = mockk<Scrapper>()
         val contentsCountByCategory = 2
         val delayHandler = mockk<ContentsGeneratorDelayHandler>(relaxed = true)
+        val contentsCommonGenerationService = mockk<ContentsCommonGenerationService>()
 
         // Test implementation of abstract class
         class TestGenSchedulingUseCase(
-            rawContentsService: RawContentsService,
-            provisioningService: ProvisioningService,
-            genService: GenService,
             applicationEventPublisher: ApplicationEventPublisher,
             scrapper: Scrapper,
             contentsCountByCategory: Int,
             delayHandler: ContentsGeneratorDelayHandler,
+            contentsCommonGenerationService: ContentsCommonGenerationService,
         ) : AbstractGenSchedulingUseCase(
-                rawContentsService,
-                provisioningService,
-                genService,
                 applicationEventPublisher,
                 scrapper,
                 contentsCountByCategory,
                 delayHandler,
+                contentsCommonGenerationService,
             ) {
             override val region: Region = Region.LOCAL
             override val regionName: String = "국내"
             override val schedulingName: String = "국내 뉴스 스케줄링"
             override val eventTitle: String = "[국내] 뉴스 스케줄링"
 
-            // Override execute to remove sleep for testing
-            public override fun execute() {
+            // Override executeAsync to remove sleep for testing
+            public override fun executeAsync() {
                 // Skip the delay for testing
                 if (!isRunning.compareAndSet(false, true)) {
                     throw BadRequestException("$schedulingName is already running. Please try again later.")
@@ -83,18 +72,17 @@ class AbstractGenSchedulingUseCaseTest :
 
         val useCase =
             TestGenSchedulingUseCase(
-                rawContentsService,
-                provisioningService,
-                genService,
                 applicationEventPublisher,
                 scrapper,
                 contentsCountByCategory,
                 delayHandler,
+                contentsCommonGenerationService,
             )
 
         beforeEach {
             // Reset isRunning flag before each test
             useCase.setIsRunning(false)
+            clearMocks(contentsCommonGenerationService)
         }
 
         Given("스케줄링이 이미 실행 중인 경우") {
@@ -105,7 +93,7 @@ class AbstractGenSchedulingUseCaseTest :
 
                     val exception =
                         shouldThrow<BadRequestException> {
-                            useCase.execute()
+                            useCase.executeAsync()
                         }
 
                     exception.message shouldContain "is already running"
@@ -116,13 +104,6 @@ class AbstractGenSchedulingUseCaseTest :
         Given("정상적인 스케줄링 실행 시") {
             When("모든 카테고리에서 성공적으로 콘텐츠를 생성하는 경우") {
                 Then("성공 이벤트가 발행되고 GenSchedulingCompletedEvent도 발행된다") {
-                    val provisioningContents =
-                        mockk<ProvisioningContents>(relaxed = true) {
-                            every { id } returns 1L
-                            every { rawContentsId } returns 1L
-                        }
-                    val gen = mockk<Gen>()
-
                     every { scrapper.extractUrlsByCategories(Region.LOCAL) } returns
                         mapOf(
                             Category.TECHNOLOGY to listOf("https://example.com/tech1", "https://example.com/tech2"),
@@ -130,24 +111,10 @@ class AbstractGenSchedulingUseCaseTest :
                         )
 
                     every {
-                        rawContentsService.createAndSave(any(), any(), Region.LOCAL)
-                    } answers {
-                        val url = firstArg<String>()
-                        mockk<RawContents>(relaxed = true) {
-                            every { id } returns 1L
-                            every { this@mockk.url } returns url
-                        }
-                    }
+                        contentsCommonGenerationService.createSingleContents(any(), any(), Region.LOCAL)
+                    } just Runs
 
-                    every {
-                        provisioningService.createAndSave(any<RawContents>())
-                    } returns provisioningContents
-
-                    every {
-                        genService.createAndSave(any(), any())
-                    } returns gen
-
-                    useCase.execute()
+                    useCase.executeAsync()
 
                     // Verify ContentsSchedulingEventDto published
                     verify {
@@ -177,17 +144,6 @@ class AbstractGenSchedulingUseCaseTest :
 
             When("일부 카테고리에서 실패하는 경우") {
                 Then("성공한 콘텐츠만 카운트되고 실패는 로그로 남긴다") {
-                    val rawContents =
-                        mockk<RawContents>(relaxed = true) {
-                            every { id } returns 1L
-                        }
-                    val provisioningContents =
-                        mockk<ProvisioningContents>(relaxed = true) {
-                            every { id } returns 1L
-                            every { rawContentsId } returns 1L
-                        }
-                    val gen = mockk<Gen>()
-
                     every { scrapper.extractUrlsByCategories(Region.LOCAL) } returns
                         mapOf(
                             Category.TECHNOLOGY to listOf("https://example.com/tech1"),
@@ -195,22 +151,14 @@ class AbstractGenSchedulingUseCaseTest :
                         )
 
                     every {
-                        rawContentsService.createAndSave("https://example.com/tech1", Category.TECHNOLOGY, Region.LOCAL)
-                    } returns rawContents
+                        contentsCommonGenerationService.createSingleContents("https://example.com/tech1", Category.TECHNOLOGY, Region.LOCAL)
+                    } just Runs
 
                     every {
-                        rawContentsService.createAndSave("https://example.com/econ1", Category.ECONOMY, Region.LOCAL)
-                    } throws RuntimeException("Failed to create raw content")
+                        contentsCommonGenerationService.createSingleContents("https://example.com/econ1", Category.ECONOMY, Region.LOCAL)
+                    } throws RuntimeException("Failed to create content")
 
-                    every {
-                        provisioningService.createAndSave(any<RawContents>())
-                    } returns provisioningContents
-
-                    every {
-                        genService.createAndSave(any(), any())
-                    } returns gen
-
-                    useCase.execute()
+                    useCase.executeAsync()
 
                     verify {
                         applicationEventPublisher.publishEvent(
@@ -228,12 +176,6 @@ class AbstractGenSchedulingUseCaseTest :
         Given("카테고리별 최대 개수 제한이 있는 경우") {
             When("카테고리당 contentsCountByCategory만큼만 생성해야 하는 경우") {
                 Then("카테고리당 설정된 개수만큼만 생성된다") {
-                    val provisioningContents =
-                        mockk<ProvisioningContents>(relaxed = true) {
-                            every { id } returns 1L
-                            every { rawContentsId } returns 1L
-                        }
-                    val gen = mockk<Gen>()
                     var callCount = 0
 
                     // 5개의 URL이 있지만 contentsCountByCategory=2이므로 2개만 처리되어야 함
@@ -250,25 +192,12 @@ class AbstractGenSchedulingUseCaseTest :
                         )
 
                     every {
-                        rawContentsService.createAndSave(any(), Category.TECHNOLOGY, Region.LOCAL)
+                        contentsCommonGenerationService.createSingleContents(any(), Category.TECHNOLOGY, Region.LOCAL)
                     } answers {
                         callCount++
-                        val url = firstArg<String>()
-                        mockk<RawContents>(relaxed = true) {
-                            every { id } returns 1L
-                            every { this@mockk.url } returns url
-                        }
                     }
 
-                    every {
-                        provisioningService.createAndSave(any<RawContents>())
-                    } returns provisioningContents
-
-                    every {
-                        genService.createAndSave(any(), any())
-                    } returns gen
-
-                    useCase.execute()
+                    useCase.executeAsync()
 
                     // Verify that only contentsCountByCategory items were processed
                     callCount shouldBe contentsCountByCategory
@@ -291,7 +220,7 @@ class AbstractGenSchedulingUseCaseTest :
 
                     val exception =
                         shouldThrow<BadRequestException> {
-                            useCase.execute()
+                            useCase.executeAsync()
                         }
 
                     exception.message shouldContain "스케줄링에 실패"
@@ -308,13 +237,6 @@ class AbstractGenSchedulingUseCaseTest :
         Given("다양한 카테고리가 섞여 있는 경우") {
             When("여러 카테고리의 뉴스가 골고루 생성되어야 하는 경우") {
                 Then("카테고리가 골고루 섞여서 처리된다") {
-                    val provisioningContents =
-                        mockk<ProvisioningContents>(relaxed = true) {
-                            every { id } returns 1L
-                            every { rawContentsId } returns 1L
-                        }
-                    val gen = mockk<Gen>()
-
                     every { scrapper.extractUrlsByCategories(Region.LOCAL) } returns
                         mapOf(
                             Category.TECHNOLOGY to listOf("https://example.com/tech1", "https://example.com/tech2"),
@@ -326,26 +248,14 @@ class AbstractGenSchedulingUseCaseTest :
                     val creationOrder = mutableListOf<Pair<String, Category>>()
 
                     every {
-                        rawContentsService.createAndSave(any(), any(), Region.LOCAL)
+                        contentsCommonGenerationService.createSingleContents(any(), any(), Region.LOCAL)
                     } answers {
                         val url = firstArg<String>()
                         val category = secondArg<Category>()
                         creationOrder.add(url to category)
-                        mockk<RawContents>(relaxed = true) {
-                            every { id } returns 1L
-                            every { this@mockk.url } returns url
-                        }
                     }
 
-                    every {
-                        provisioningService.createAndSave(any<RawContents>())
-                    } returns provisioningContents
-
-                    every {
-                        genService.createAndSave(any(), any())
-                    } returns gen
-
-                    useCase.execute()
+                    useCase.executeAsync()
 
                     // 첫 번째 라운드: 각 카테고리에서 1개씩
                     creationOrder[0].second shouldBe Category.TECHNOLOGY

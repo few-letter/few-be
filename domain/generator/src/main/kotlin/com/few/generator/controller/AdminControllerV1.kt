@@ -33,8 +33,8 @@ class AdminControllerV1(
         @Validated @RequestBody(required = false) request: ContentsSchedulingRequest,
     ): ApiResponse<ApiResponse.Success> {
         when (request.type.uppercase()) {
-            ContentsType.GLOBAL_NEWS.title.uppercase() -> globalGenSchedulingUseCase.execute()
-            ContentsType.LOCAL_NEWS.title.uppercase() -> localGenSchedulingUseCase.execute()
+            ContentsType.GLOBAL_NEWS.title.uppercase() -> globalGenSchedulingUseCase.executeAsync()
+            ContentsType.LOCAL_NEWS.title.uppercase() -> localGenSchedulingUseCase.executeAsync()
             else -> throw BadRequestException("Invalid Contents Type: ${request.type}")
         }
 
