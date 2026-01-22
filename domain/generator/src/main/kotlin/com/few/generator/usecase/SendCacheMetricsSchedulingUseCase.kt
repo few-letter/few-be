@@ -7,7 +7,6 @@ import com.few.web.client.Block
 import com.few.web.client.SlackBodyProperty
 import com.few.web.client.Text
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -27,8 +26,7 @@ class SendCacheMetricsSchedulingUseCase(
      * 참고: Micrometer의 cache metrics는 애플리케이션 시작 이후 누적 통계입니다.
      * 일별 통계를 원한다면 별도의 저장소에 이전 값을 저장하고 차이를 계산해야 합니다.
      */
-    @Scheduled(cron = "\${scheduling.cron.cache-metrics}", zone = "Asia/Seoul")
-    fun scheduledSendCacheMetrics() {
+    fun sendCacheMetrics() {
         if (!isRunning.compareAndSet(false, true)) {
             log.warn { "캐시 메트릭 전송이 이미 실행 중입니다." }
             return
