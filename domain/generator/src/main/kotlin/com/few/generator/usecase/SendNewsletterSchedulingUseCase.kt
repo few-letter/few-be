@@ -6,9 +6,7 @@ import com.few.generator.service.specifics.newsletter.NewsletterContentAggregato
 import com.few.generator.service.specifics.newsletter.NewsletterDelivery
 import com.few.generator.support.jpa.GeneratorTransactional
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
-import java.time.Clock
 import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
@@ -18,14 +16,12 @@ class SendNewsletterSchedulingUseCase(
     private val genService: GenService,
     private val newsletterContentAggregator: NewsletterContentAggregator,
     private val newsletterDeliveryService: NewsletterDelivery,
-    private val clock: Clock = Clock.systemDefaultZone(),
 ) {
     private val log = KotlinLogging.logger {}
     private val isRunning = AtomicBoolean(false)
 
-    @Scheduled(cron = "\${scheduling.cron.email}", zone = "Asia/Seoul")
     @GeneratorTransactional
-    fun scheduledSend() {
+    fun send() {
         if (!isRunning.compareAndSet(false, true)) {
             log.warn { "뉴스레터 스케줄링이 이미 실행 중입니다." }
             return
