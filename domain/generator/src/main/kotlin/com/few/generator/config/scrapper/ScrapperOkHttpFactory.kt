@@ -95,7 +95,7 @@ class ScrapperOkHttpFactory {
                 val response = chain.proceed(request)
                 val endTime = System.currentTimeMillis()
 
-                log.info { "🌐 ${request.method} ${request.url} - ${response.code} (${endTime - startTime}ms)" }
+                log.debug { "🌐 ${request.method} ${request.url} - ${response.code} (${endTime - startTime}ms)" }
                 response
             }.addNetworkInterceptor { chain ->
                 val response = chain.proceed(chain.request())
