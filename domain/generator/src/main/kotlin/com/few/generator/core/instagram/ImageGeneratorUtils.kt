@@ -31,7 +31,7 @@ object ImageGeneratorUtils {
         try {
             val font = Font(FONT_NAME, Font.PLAIN, 12) // 기본 크기는 의미 없음 (derive 시 변경됨)
             if (font.canDisplayUpTo("한글테스트") == -1) {
-                log.info { "한글 폰트 로드 성공: $FONT_NAME" }
+                log.debug { "한글 폰트 로드 성공: $FONT_NAME" }
                 font
             } else {
                 log.warn { "$FONT_NAME 폰트를 사용할 수 없습니다. SansSerif 폰트를 사용합니다." }
@@ -379,7 +379,7 @@ object ImageGeneratorUtils {
             val outputFile = File(outputPath)
             outputFile.parentFile?.mkdirs()
             ImageIO.write(image, "PNG", outputFile)
-            log.info { "이미지 저장 완료: $outputPath" }
+            log.debug { "이미지 저장 완료: $outputPath" }
             true
         } catch (e: Exception) {
             log.error(e) { "이미지 저장 실패: $outputPath" }
