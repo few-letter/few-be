@@ -47,7 +47,7 @@ class SingleNewsCardGenerator {
         content: NewsContent,
         outputPath: String,
     ): Boolean {
-        log.info { "단일 뉴스 카드 이미지 생성 시작: ${content.headline}" }
+        log.debug { "단일 뉴스 카드 이미지 생성 시작: ${content.headline}" }
 
         val image = BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB)
         val graphics = image.createGraphics()
