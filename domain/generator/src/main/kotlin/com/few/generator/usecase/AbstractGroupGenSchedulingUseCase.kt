@@ -13,6 +13,7 @@ import com.google.gson.Gson
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Qualifier
@@ -21,6 +22,7 @@ import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
 
+@OptIn(ExperimentalCoroutinesApi::class)
 abstract class AbstractGroupGenSchedulingUseCase(
     protected val applicationEventPublisher: ApplicationEventPublisher,
     protected val genService: GenService,
@@ -31,7 +33,7 @@ abstract class AbstractGroupGenSchedulingUseCase(
 ) {
     protected val log = KotlinLogging.logger {}
     protected val isRunning = AtomicBoolean(false)
-    protected val groupGenScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    protected val groupGenScope = CoroutineScope(SupervisorJob() + Dispatchers.IO.limitedParallelism(1))
 
     abstract val region: Region
     abstract val regionName: String
