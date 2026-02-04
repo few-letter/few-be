@@ -6,8 +6,8 @@ spring:
         group:
             local:
                 # library
-                - email-local
-                - security-local
+#                - email-local
+#                - security-local
                 - storage-local
                 - web-local
                 # domain
