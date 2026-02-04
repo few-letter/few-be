@@ -8,8 +8,8 @@ spring:
                 # library
 #                - email-local
 #                - security-local
-                - storage-local
-                - web-local
+#                - storage-local
+#                - web-local
                 # domain
                 - generator-local
                 - provider-local
