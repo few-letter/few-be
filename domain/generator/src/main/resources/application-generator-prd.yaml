@@ -48,6 +48,7 @@ scheduling:
         global-gen: "0 0 13 * * *"
         email: "0 0 9 * * *"
         cache-metrics: "0 0 3 * * *"
+        instagram-token-refresh: "0 0 2 * * MON"
 
 urls:
     webhook:
@@ -67,7 +68,6 @@ generator:
         maxGroupSize: 10
         similarityThreshold: 0.7
     instagram:
-        access-token: ${INSTAGRAM_ACCESS_TOKEN}
         account-id: ${INSTAGRAM_ACCOUNT_ID}
 
 app:
