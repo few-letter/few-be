@@ -2,7 +2,6 @@ package com.few.generator.usecase
 
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.service.InstagramTokenService
-import com.few.generator.support.jpa.GeneratorTransactional
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -30,7 +29,6 @@ class RefreshInstagramTokenUseCase(
 ) {
     private val log = KotlinLogging.logger {}
 
-    @GeneratorTransactional
     fun execute() {
         val currentToken = instagramTokenService.getLatestAccessToken()
 
@@ -53,7 +51,7 @@ class RefreshInstagramTokenUseCase(
 
         instagramOkHttpClient.newCall(request).execute().use { response ->
             val responseBody = response.body?.string()
-            if (!response.isSuccessful) {
+            if (responseBody == null || !response.isSuccessful) {
                 log.error { "Instagram 토큰 갱신 실패 (HTTP ${response.code}): $responseBody" }
                 throw RuntimeException("Instagram 토큰 갱신 실패: HTTP ${response.code}")
             }
