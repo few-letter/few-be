@@ -315,6 +315,41 @@ class PromptGenerator(
         )
     }
 
+    fun toInstagramHashtags(
+        headlines: List<String>,
+        maxHashtagCount: Int,
+    ): Prompt {
+        val systemPrompt =
+            """
+            당신은 인스타그램 마케팅 및 해시태그 전문가입니다. 뉴스 헤드라인을 분석하여 인스타그램에서 노출과 도달에 효과적인 해시태그 키워드를 추출합니다.
+            """.trimIndent()
+
+        val headlineList = headlines.mapIndexed { index, headline -> "${index + 1}. $headline" }.joinToString("\n")
+
+        val userPrompt =
+            """
+            ## Instructions
+            1. 주어진 뉴스 헤드라인들을 분석하여 인스타그램 해시태그로 적합한 키워드를 추출해주세요.
+            2. 최대 ${maxHashtagCount}개의 키워드를 추출하세요.
+            3. 고유명사(기업명, 인물명, 기관명 등)를 우선적으로 포함하세요.
+            4. 각 키워드는 '#' 기호 없이 순수 키워드만 반환하세요.
+            5. 한국어 조사(은, 는, 이, 가, 을, 를, 의 등)가 포함되지 않은 깔끔한 명사 형태로 추출하세요.
+            6. 일반적이거나 의미가 약한 단어는 제외하세요.
+
+            ## 헤드라인 목록
+            $headlineList
+            """.trimIndent()
+
+        return Prompt(
+            messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
+            responseFormat =
+                ResponseFormat(
+                    jsonSchema = JsonSchema(Keywords.name, Keywords.schema),
+                    responseClassType = Keywords::class.java,
+                ),
+        )
+    }
+
     fun toGroupHighlightPrompt(groupSummary: String): Prompt {
         val systemPrompt =
             """

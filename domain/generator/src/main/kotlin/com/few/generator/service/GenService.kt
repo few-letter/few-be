@@ -12,12 +12,12 @@ import com.few.generator.domain.Gen
 import com.few.generator.domain.ProvisioningContents
 import com.few.generator.domain.RawContents
 import com.few.generator.repository.GenRepository
+import com.few.generator.support.jpa.GeneratorTransactional
 import com.google.gson.Gson
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
-import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Service
@@ -74,13 +74,14 @@ class GenService(
 
     fun findLatestGen(): Gen = genRepository.findFirstLimit(1, Region.LOCAL.code)[0]
 
+    @GeneratorTransactional(readOnly = true, propagation = Propagation.REQUIRED)
     fun findAllByCreatedAtBetweenAndRegion(
         start: LocalDateTime,
         end: LocalDateTime,
         region: Region = Region.LOCAL,
     ): List<Gen> = genRepository.findAllByCreatedAtBetweenAndRegion(start, end, region.code)
 
-    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
+    @GeneratorTransactional(readOnly = true, propagation = Propagation.REQUIRED)
     fun findAllByCreatedAtTodayAndCategoryAndRegion(
         category: Category,
         region: Region = Region.LOCAL,
