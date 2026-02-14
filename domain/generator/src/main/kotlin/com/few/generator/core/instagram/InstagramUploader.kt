@@ -1,6 +1,7 @@
 package com.few.generator.core.instagram
 
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
+import com.few.generator.service.InstagramTokenService
 import com.few.generator.support.utils.DelayUtil
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
@@ -30,8 +31,7 @@ data class InstagramError(
 
 @Component
 class InstagramUploader(
-    @Value("\${generator.instagram.access-token}")
-    private val accessToken: String,
+    private val instagramTokenService: InstagramTokenService,
     @Value("\${generator.instagram.account-id}")
     private val accountId: String,
     private val instagramOkHttpClient: OkHttpClient,
@@ -47,7 +47,7 @@ class InstagramUploader(
             "https://graph.instagram.com/$accountId/media"
                 .toHttpUrlOrNull()
                 ?.newBuilder()
-                ?.addQueryParameter("access_token", accessToken)
+                ?.addQueryParameter("access_token", instagramTokenService.getLatestAccessToken())
                 ?.addQueryParameter("image_url", imageUrl)
                 ?.addQueryParameter("is_carousel_item", "true")
                 ?.build()
@@ -84,7 +84,7 @@ class InstagramUploader(
             "https://graph.instagram.com/$accountId/media"
                 .toHttpUrlOrNull()
                 ?.newBuilder()
-                ?.addQueryParameter("access_token", accessToken)
+                ?.addQueryParameter("access_token", instagramTokenService.getLatestAccessToken())
                 ?.addQueryParameter("children", imageUrls.joinToString(separator = ","))
                 ?.addQueryParameter("caption", caption)
                 ?.addQueryParameter("media_type", "CAROUSEL")
@@ -119,7 +119,7 @@ class InstagramUploader(
             "https://graph.instagram.com/$accountId/media_publish"
                 .toHttpUrlOrNull()
                 ?.newBuilder()
-                ?.addQueryParameter("access_token", accessToken)
+                ?.addQueryParameter("access_token", instagramTokenService.getLatestAccessToken())
                 ?.addQueryParameter("creation_id", creationId)
                 ?.build()
 
