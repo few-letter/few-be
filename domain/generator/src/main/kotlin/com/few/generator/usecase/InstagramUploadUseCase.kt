@@ -2,6 +2,9 @@ package com.few.generator.usecase
 
 import com.few.common.domain.Category
 import com.few.common.domain.Region
+import com.few.generator.core.gpt.ChatGpt
+import com.few.generator.core.gpt.prompt.PromptGenerator
+import com.few.generator.core.gpt.prompt.schema.Keywords
 import com.few.generator.core.instagram.InstagramUploader
 import com.few.generator.event.CardNewsS3UploadedEvent
 import com.few.generator.event.InstagramUploadCompletedEvent
@@ -22,11 +25,14 @@ class InstagramUploadUseCase(
     private val instagramUploader: InstagramUploader,
     private val genService: GenService,
     private val applicationEventPublisher: ApplicationEventPublisher,
+    private val chatGpt: ChatGpt,
+    private val promptGenerator: PromptGenerator,
 ) {
     private val log = KotlinLogging.logger {}
     private val random = Random()
 
     companion object {
+        private const val MAX_HASHTAGS_PER_CATEGORY = 5
         private val DATE_FORMATTER = DateTimeFormatter.ofPattern("M월 d일", Locale.KOREAN)
 
         // 카테고리별 이모티콘
@@ -37,16 +43,6 @@ class InstagramUploadUseCase(
                 Category.ECONOMY to "💰",
                 Category.SOCIETY to "🌍",
                 Category.LIFE to "🏠",
-            )
-
-        // 카테고리별 해시태그
-        private val CATEGORY_HASHTAG_MAP =
-            mapOf(
-                Category.TECHNOLOGY to "#기술뉴스 #테크 #IT #혁신 #기술트렌드 #뉴스 #fewletter",
-                Category.POLITICS to "#정치뉴스 #정치 #국정 #정부 #정책 #뉴스 #fewletter",
-                Category.ECONOMY to "#경제뉴스 #경제 #금융 #투자 #비즈니스 #뉴스 #fewletter",
-                Category.SOCIETY to "#사회뉴스 #사회 #사회이슈 #시사 #이슈 #뉴스 #fewletter",
-                Category.LIFE to "#생활뉴스 #생활 #생활이슈 #이슈 #뉴스 #fewletter",
             )
     }
 
@@ -106,7 +102,8 @@ class InstagramUploadUseCase(
     ): String {
         val gens = genService.findAllByCreatedAtTodayAndCategoryAndRegion(category, region)
         val emoji = CATEGORY_EMOJI_MAP[category] ?: "📰"
-        val hashtags = CATEGORY_HASHTAG_MAP[category] ?: ""
+        val dynamicHashtags = generateDynamicHashtags(gens.map { it.headline })
+        val allHashtags = dynamicHashtags.joinToString(" ") { "#$it" }
 
         return buildString {
             // 첫 줄: 제목
@@ -118,11 +115,26 @@ class InstagramUploadUseCase(
                 appendLine("$emoji ${gen.headline}")
             }
 
-            // 해시태그 추가
-            if (hashtags.isNotEmpty()) {
+            // 해시태그 추가 (동적)
+            if (allHashtags.isNotEmpty()) {
                 appendLine()
-                append(hashtags)
+                append(allHashtags)
             }
+        }
+    }
+
+    private fun generateDynamicHashtags(headlines: List<String>): List<String> {
+        if (headlines.isEmpty() || MAX_HASHTAGS_PER_CATEGORY <= 0) return emptyList()
+
+        return try {
+            val prompt = promptGenerator.toInstagramHashtags(headlines, MAX_HASHTAGS_PER_CATEGORY)
+            val keywords =
+                chatGpt.ask(prompt) as? Keywords
+                    ?: throw IllegalStateException("ChatGPT 응답을 Keywords로 변환할 수 없습니다")
+            keywords.keywords.take(MAX_HASHTAGS_PER_CATEGORY)
+        } catch (e: Exception) {
+            log.warn(e) { "GPT를 통한 동적 해시태그 생성 실패, 빈 해시태그로 대체합니다: ${e.message}" }
+            emptyList()
         }
     }
 
