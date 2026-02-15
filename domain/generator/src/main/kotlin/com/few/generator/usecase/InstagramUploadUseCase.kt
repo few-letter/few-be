@@ -131,7 +131,11 @@ class InstagramUploadUseCase(
             val keywords =
                 chatGpt.ask(prompt) as? Keywords
                     ?: throw IllegalStateException("ChatGPT 응답을 Keywords로 변환할 수 없습니다")
-            keywords.keywords.take(MAX_HASHTAGS_PER_CATEGORY)
+            /**
+             * 해시테그 내 공백 대체
+             * ex. "삼성 전자" -> "삼성전자"
+             */
+            keywords.keywords.map { it.replace(" ", "") }.take(MAX_HASHTAGS_PER_CATEGORY)
         } catch (e: Exception) {
             log.warn(e) { "GPT를 통한 동적 해시태그 생성 실패, 빈 해시태그로 대체합니다: ${e.message}" }
             emptyList()
