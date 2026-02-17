@@ -3,6 +3,7 @@ package com.few.generator.usecase
 import com.few.common.domain.Category
 import com.few.common.domain.Region
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
+import com.few.generator.core.instagram.MainPageCardGenerator
 import com.few.generator.core.instagram.NewsContent
 import com.few.generator.core.instagram.SingleNewsCardGenerator
 import com.few.generator.event.CardNewsImageGeneratedEvent
@@ -26,6 +27,7 @@ import kotlin.system.measureTimeMillis
 class GenCardNewsImageGenerateSchedulingUseCase(
     private val genService: GenService,
     private val singleNewsCardGenerator: SingleNewsCardGenerator,
+    private val mainPageCardGenerator: MainPageCardGenerator,
     private val applicationEventPublisher: ApplicationEventPublisher,
     @Qualifier(GSON_BEAN_NAME)
     private val gson: Gson,
@@ -55,7 +57,7 @@ class GenCardNewsImageGenerateSchedulingUseCase(
     }
 
     @GeneratorTransactional(readOnly = true)
-    fun doExecute(region: Region): Map<Category, List<String>> {
+    fun doExecute(region: Region): Pair<Map<Category, List<String>>, Map<Category, String>> {
         // 오늘 생성된 Gen 조회 (00:00:00 ~ 23:59:59)
         val today = LocalDateTime.now()
         val startOfDay =
@@ -76,7 +78,7 @@ class GenCardNewsImageGenerateSchedulingUseCase(
 
         if (gens.isEmpty()) {
             log.warn { "오늘 생성된 Gen이 없습니다." }
-            return emptyMap()
+            return Pair(emptyMap(), emptyMap())
         }
 
         log.info { "오늘 생성된 Gen ${gens.size}개를 찾았습니다. 이미지 생성을 시작합니다." }
@@ -128,7 +130,32 @@ class GenCardNewsImageGenerateSchedulingUseCase(
 
         val totalGenerated = generatedImagesByCategory.values.sumOf { it.size }
         log.info { "이미지 생성 완료: 총 ${gens.size}개 중 ${totalGenerated}개 성공 (${generatedImagesByCategory.size}개 카테고리)" }
-        return generatedImagesByCategory
+
+        val mainPageImagePathsByCategory = generateMainPageImages(generatedImagesByCategory.keys)
+
+        return Pair(generatedImagesByCategory, mainPageImagePathsByCategory)
+    }
+
+    fun generateMainPageImages(categories: Set<Category>): Map<Category, String> {
+        val mainPageImagePathsByCategory = mutableMapOf<Category, String>()
+        val dateStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+
+        categories.forEach { category ->
+            try {
+                val mainPagePath = "gen_images/${dateStr}_${category.englishName}_main.png"
+                val success = mainPageCardGenerator.generateMainPageImage(category, mainPagePath)
+                if (success) {
+                    mainPageImagePathsByCategory[category] = mainPagePath
+                    log.info { "[${category.title}] 표지 이미지 생성 완료: $mainPagePath" }
+                } else {
+                    log.error { "[${category.title}] 표지 이미지 생성 실패" }
+                }
+            } catch (e: Exception) {
+                log.error(e) { "[${category.title}] 표지 이미지 생성 중 예외 발생" }
+            }
+        }
+
+        return mainPageImagePathsByCategory
     }
 
     fun execute(region: Region) {
@@ -137,11 +164,14 @@ class GenCardNewsImageGenerateSchedulingUseCase(
         var executionTimeSec = 0.0
         var exception: Throwable? = null
         var imagePathsByCategory = emptyMap<Category, List<String>>()
+        var mainPageImagePathsByCategory = emptyMap<Category, String>()
 
         runCatching {
             executionTimeSec =
                 measureTimeMillis {
-                    imagePathsByCategory = doExecute(region)
+                    val result = doExecute(region)
+                    imagePathsByCategory = result.first
+                    mainPageImagePathsByCategory = result.second
                 }.msToSeconds()
         }.onFailure { ex ->
             isSuccess = false
@@ -157,6 +187,7 @@ class GenCardNewsImageGenerateSchedulingUseCase(
                     appendLine("✅ 소요 시간: ${executionTimeSec}초")
                     if (isSuccess) {
                         appendLine("✅ 생성된 이미지 개수: $totalImages (${imagePathsByCategory.size}개 카테고리)")
+                        appendLine("✅ 표지 이미지 개수: ${mainPageImagePathsByCategory.size}개")
                         if (imagePathsByCategory.isNotEmpty()) {
                             appendLine("✅ 카테고리별 생성된 이미지:")
                             imagePathsByCategory.forEach { (category, paths) ->
@@ -177,6 +208,7 @@ class GenCardNewsImageGenerateSchedulingUseCase(
                     CardNewsImageGeneratedEvent(
                         region = region,
                         imagePathsByCategory = imagePathsByCategory,
+                        mainPageImagePathsByCategory = mainPageImagePathsByCategory,
                     ),
                 )
                 val totalCount = imagePathsByCategory.values.sumOf { it.size }
