@@ -11,6 +11,7 @@ import com.few.generator.event.InstagramUploadCompletedEvent
 import com.few.generator.service.GenService
 import com.few.generator.support.utils.DelayUtil
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.event.EventListener
 import org.springframework.scheduling.annotation.Async
@@ -27,6 +28,8 @@ class InstagramUploadUseCase(
     private val applicationEventPublisher: ApplicationEventPublisher,
     private val chatGpt: ChatGpt,
     private val promptGenerator: PromptGenerator,
+    @Value("\${generator.contents.countByCategory}")
+    protected val contentsCountByCategory: Int,
 ) {
     private val log = KotlinLogging.logger {}
     private val random = Random()
@@ -151,7 +154,7 @@ class InstagramUploadUseCase(
 
         try {
             // 0단계: 조건 체크
-            if (imageUrls.size !in 2..10) {
+            if (imageUrls.size !in 2..contentsCountByCategory) {
                 return UploadResult(
                     success = false,
                     errorMessage = "${category.title} 카테고리 이미지 개수 유효하지 않음: ${imageUrls.size}",
