@@ -65,7 +65,7 @@ generator:
     grouping:
         targetPercentage: 30
         minGroupSize: 3
-        maxGroupSize: 9
+        maxGroupSize: 10
         similarityThreshold: 0.7
     instagram:
         account-id: ${INSTAGRAM_ACCOUNT_ID}
