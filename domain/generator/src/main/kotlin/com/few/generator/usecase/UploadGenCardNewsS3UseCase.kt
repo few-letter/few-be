@@ -28,6 +28,7 @@ class UploadGenCardNewsS3UseCase(
         val totalCount = event.imagePathsByCategory.values.sumOf { it.size }
         var uploadedCount = 0
         var uploadedUrlsByCategory: Map<Category, List<String>> = emptyMap()
+        var mainPageUrlsByCategory: Map<Category, String> = emptyMap()
         var errorMessage: String? = null
 
         try {
@@ -36,14 +37,20 @@ class UploadGenCardNewsS3UseCase(
             uploadedUrlsByCategory = result.second
             errorMessage = result.third
 
-            log.info { "${event.region.name} 카드뉴스 S3 업로드 완료: $uploadedCount / ${totalCount}개 성공 (${uploadedUrlsByCategory.size}개 카테고리)" }
+            // 표지 이미지 S3 업로드
+            mainPageUrlsByCategory = uploadMainPageImagesToS3(event.mainPageImagePathsByCategory)
+
+            log.info {
+                "${event.region.name} 카드뉴스 S3 업로드 완료: $uploadedCount / ${totalCount}개 성공 (${uploadedUrlsByCategory.size}개 카테고리), 표지 ${mainPageUrlsByCategory.size}개"
+            }
         } catch (e: Exception) {
             log.error(e) { "${event.region.name} 카드뉴스 S3 업로드 중 예외 발생: ${e.message}" }
             errorMessage = e.message ?: "알 수 없는 오류"
         } finally {
-            // 모든 이미지 파일 삭제
+            // 모든 이미지 파일 삭제 (카드뉴스 + 표지)
             val allImagePaths = event.imagePathsByCategory.values.flatten()
-            removeImageFiles(allImagePaths)
+            val allMainPagePaths = event.mainPageImagePathsByCategory.values.toList()
+            removeImageFiles(allImagePaths + allMainPagePaths)
 
             // 예외 발생 여부와 관계없이 S3 업로드 완료 이벤트 발행
             applicationEventPublisher.publishEvent(
@@ -53,6 +60,7 @@ class UploadGenCardNewsS3UseCase(
                     totalCount = totalCount,
                     uploadTime = uploadTime,
                     uploadedUrlsByCategory = uploadedUrlsByCategory,
+                    mainPageUrlsByCategory = mainPageUrlsByCategory,
                     errorMessage = errorMessage,
                 ),
             )
@@ -73,6 +81,22 @@ class UploadGenCardNewsS3UseCase(
                 }
             }
         }
+    }
+
+    private fun uploadMainPageImagesToS3(mainPageImagePathsByCategory: Map<Category, String>): Map<Category, String> {
+        val mainPageUrlsByCategory = mutableMapOf<Category, String>()
+
+        mainPageImagePathsByCategory.forEach { (category, imagePath) ->
+            val result = s3Provider.uploadImages(listOf(imagePath))
+            if (result.successfulUploads.isNotEmpty()) {
+                mainPageUrlsByCategory[category] = result.successfulUploads.first().url
+                log.info { "[${category.title}] 표지 이미지 S3 업로드 성공" }
+            } else {
+                log.warn { "[${category.title}] 표지 이미지 S3 업로드 실패: ${result.getErrorMessage()}" }
+            }
+        }
+
+        return mainPageUrlsByCategory
     }
 
     private fun uploadImagesToS3ByCategory(

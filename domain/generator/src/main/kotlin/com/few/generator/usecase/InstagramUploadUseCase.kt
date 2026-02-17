@@ -67,8 +67,18 @@ class InstagramUploadUseCase(
             // 카테고리별로 carousel 업로드 수행
             event.uploadedUrlsByCategory.forEach { (category, imageUrls) ->
                 try {
+                    // 표지 이미지를 가장 앞에 추가
+                    val mainPageUrl = event.mainPageUrlsByCategory[category]
+                    val allImageUrls =
+                        if (mainPageUrl != null) {
+                            listOf(mainPageUrl) + imageUrls
+                        } else {
+                            imageUrls
+                        }
+                    val hasMainPage = mainPageUrl != null
+
                     val caption = generateCaption(category, event.region, event.uploadTime)
-                    val result = uploadCarouselByCategory(category, imageUrls, caption)
+                    val result = uploadCarouselByCategory(category, allImageUrls, caption, hasMainPage)
                     if (result.success) {
                         successCategories.add(category)
                     } else {
@@ -149,15 +159,17 @@ class InstagramUploadUseCase(
         category: Category,
         imageUrls: List<String>,
         caption: String,
+        hasMainPage: Boolean = false,
     ): UploadResult {
-        log.info { "[${category.title}] Instagram carousel 업로드 시작: ${imageUrls.size}개 이미지" }
+        log.info { "[${category.title}] Instagram carousel 업로드 시작: ${imageUrls.size}개 이미지 (표지 포함: $hasMainPage)" }
 
         try {
-            // 0단계: 조건 체크
-            if (imageUrls.size !in 2..contentsCountByCategory) {
+            // 0단계: 조건 체크 (표지 이미지는 콘텐츠 개수에서 제외)
+            val contentImageCount = if (hasMainPage) imageUrls.size - 1 else imageUrls.size
+            if (contentImageCount !in 2..contentsCountByCategory) {
                 return UploadResult(
                     success = false,
-                    errorMessage = "${category.title} 카테고리 이미지 개수 유효하지 않음: ${imageUrls.size}",
+                    errorMessage = "${category.title} 카테고리 이미지 개수 유효하지 않음: $contentImageCount",
                 )
             }
 
