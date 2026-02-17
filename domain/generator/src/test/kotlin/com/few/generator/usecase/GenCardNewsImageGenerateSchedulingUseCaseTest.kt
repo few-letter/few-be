@@ -2,6 +2,7 @@ package com.few.generator.usecase
 
 import com.few.common.domain.Category
 import com.few.common.domain.Region
+import com.few.generator.core.instagram.MainPageCardGenerator
 import com.few.generator.core.instagram.NewsContent
 import com.few.generator.core.instagram.SingleNewsCardGenerator
 import com.few.generator.domain.Gen
@@ -13,6 +14,7 @@ import io.kotest.matchers.maps.shouldContainKey
 import io.kotest.matchers.maps.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -26,12 +28,14 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
         Given("오늘 생성된 Gen이 여러 개 있는 경우") {
             val genService = mockk<GenService>()
             val singleNewsCardGenerator = mockk<SingleNewsCardGenerator>()
+            val mainPageCardGenerator = mockk<MainPageCardGenerator>()
             val applicationEventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
             val gson = Gson()
             val useCase =
                 GenCardNewsImageGenerateSchedulingUseCase(
                     genService = genService,
                     singleNewsCardGenerator = singleNewsCardGenerator,
+                    mainPageCardGenerator = mainPageCardGenerator,
                     applicationEventPublisher = applicationEventPublisher,
                     gson = gson,
                 )
@@ -75,10 +79,11 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
 
             every { genService.findAllByCreatedAtBetweenAndRegion(any(), any(), Region.LOCAL) } returns gens
             every { singleNewsCardGenerator.generateImage(any(), any()) } returns true
+            every { mainPageCardGenerator.generateMainPageImage(any(), any()) } returns true
 
             When("execute를 호출하면") {
                 Then("모든 Gen에 대해 이미지가 생성되고 카테고리별 파일 경로 맵이 반환된다") {
-                    val result = useCase.doExecute(Region.LOCAL)
+                    val (result, mainPages) = useCase.doExecute(Region.LOCAL)
 
                     result shouldHaveSize 3
                     result shouldContainKey Category.TECHNOLOGY
@@ -88,9 +93,17 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     result[Category.ECONOMY]!![0] shouldContain "20260110_economy_2.png"
                     result[Category.POLITICS]!![0] shouldContain "20260110_politics_3.png"
 
-                    // Verify that SingleNewsCardGenerator.generateImage was called 3 times
+                    // 표지 이미지도 생성되었는지 확인
+                    mainPages shouldHaveSize 3
+                    mainPages shouldContainKey Category.TECHNOLOGY
+                    mainPages shouldContainKey Category.ECONOMY
+                    mainPages shouldContainKey Category.POLITICS
+
                     verify(exactly = 3) {
                         singleNewsCardGenerator.generateImage(any(), any())
+                    }
+                    verify(exactly = 3) {
+                        mainPageCardGenerator.generateMainPageImage(any(), any())
                     }
                 }
             }
@@ -99,12 +112,14 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
         Given("오늘 생성된 Gen이 없는 경우") {
             val genService = mockk<GenService>()
             val singleNewsCardGenerator = mockk<SingleNewsCardGenerator>()
+            val mainPageCardGenerator = mockk<MainPageCardGenerator>()
             val applicationEventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
             val gson = Gson()
             val useCase =
                 GenCardNewsImageGenerateSchedulingUseCase(
                     genService = genService,
                     singleNewsCardGenerator = singleNewsCardGenerator,
+                    mainPageCardGenerator = mainPageCardGenerator,
                     applicationEventPublisher = applicationEventPublisher,
                     gson = gson,
                 )
@@ -113,13 +128,16 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
 
             When("execute를 호출하면") {
                 Then("빈 맵이 반환된다") {
-                    val result = useCase.doExecute(Region.LOCAL)
+                    val (result, mainPages) = useCase.doExecute(Region.LOCAL)
 
                     result.shouldBeEmpty()
+                    mainPages.shouldBeEmpty()
 
-                    // Verify that image generation was not called
                     verify(exactly = 0) {
                         singleNewsCardGenerator.generateImage(any(), any())
+                    }
+                    verify(exactly = 0) {
+                        mainPageCardGenerator.generateMainPageImage(any(), any())
                     }
                 }
             }
@@ -128,12 +146,14 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
         Given("일부 Gen의 이미지 생성이 실패하는 경우") {
             val genService = mockk<GenService>()
             val singleNewsCardGenerator = mockk<SingleNewsCardGenerator>()
+            val mainPageCardGenerator = mockk<MainPageCardGenerator>()
             val applicationEventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
             val gson = Gson()
             val useCase =
                 GenCardNewsImageGenerateSchedulingUseCase(
                     genService = genService,
                     singleNewsCardGenerator = singleNewsCardGenerator,
+                    mainPageCardGenerator = mainPageCardGenerator,
                     applicationEventPublisher = applicationEventPublisher,
                     gson = gson,
                 )
@@ -177,17 +197,25 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     any(),
                 )
             } returns false
+            every { mainPageCardGenerator.generateMainPageImage(any(), any()) } returns true
 
             When("execute를 호출하면") {
                 Then("성공한 이미지 경로만 반환된다") {
-                    val result = useCase.doExecute(Region.LOCAL)
+                    val (result, mainPages) = useCase.doExecute(Region.LOCAL)
 
                     result shouldHaveSize 1
                     result shouldContainKey Category.TECHNOLOGY
                     result[Category.TECHNOLOGY]!![0] shouldContain "_technology_1.png"
 
+                    // 성공한 카테고리에 대해서만 표지 이미지 생성
+                    mainPages shouldHaveSize 1
+                    mainPages shouldContainKey Category.TECHNOLOGY
+
                     verify(exactly = 2) {
                         singleNewsCardGenerator.generateImage(any(), any())
+                    }
+                    verify(exactly = 1) {
+                        mainPageCardGenerator.generateMainPageImage(any(), any())
                     }
                 }
             }
@@ -196,12 +224,14 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
         Given("highlightTexts JSON 파싱이 실패하는 경우") {
             val genService = mockk<GenService>()
             val singleNewsCardGenerator = mockk<SingleNewsCardGenerator>()
+            val mainPageCardGenerator = mockk<MainPageCardGenerator>()
             val applicationEventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
             val gson = Gson()
             val useCase =
                 GenCardNewsImageGenerateSchedulingUseCase(
                     genService = genService,
                     singleNewsCardGenerator = singleNewsCardGenerator,
+                    mainPageCardGenerator = mainPageCardGenerator,
                     applicationEventPublisher = applicationEventPublisher,
                     gson = gson,
                 )
@@ -221,10 +251,11 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
 
             every { genService.findAllByCreatedAtBetweenAndRegion(any(), any(), Region.LOCAL) } returns listOf(gen)
             every { singleNewsCardGenerator.generateImage(any(), any()) } returns true
+            every { mainPageCardGenerator.generateMainPageImage(any(), any()) } returns true
 
             When("execute를 호출하면") {
                 Then("빈 highlightTexts 리스트로 이미지가 생성된다") {
-                    val result = useCase.doExecute(Region.LOCAL)
+                    val (result, _) = useCase.doExecute(Region.LOCAL)
 
                     result shouldHaveSize 1
                     result shouldContainKey Category.POLITICS
@@ -243,12 +274,14 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
         Given("다양한 카테고리의 Gen이 있는 경우") {
             val genService = mockk<GenService>()
             val singleNewsCardGenerator = mockk<SingleNewsCardGenerator>()
+            val mainPageCardGenerator = mockk<MainPageCardGenerator>()
             val applicationEventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
             val gson = Gson()
             val useCase =
                 GenCardNewsImageGenerateSchedulingUseCase(
                     genService = genService,
                     singleNewsCardGenerator = singleNewsCardGenerator,
+                    mainPageCardGenerator = mainPageCardGenerator,
                     applicationEventPublisher = applicationEventPublisher,
                     gson = gson,
                 )
@@ -286,10 +319,11 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
 
             every { genService.findAllByCreatedAtBetweenAndRegion(any(), any(), Region.LOCAL) } returns gens
             every { singleNewsCardGenerator.generateImage(any(), any()) } returns true
+            every { mainPageCardGenerator.generateMainPageImage(any(), any()) } returns true
 
             When("execute를 호출하면") {
                 Then("각 카테고리가 올바르게 변환되어 이미지가 생성된다") {
-                    val result = useCase.doExecute(Region.LOCAL)
+                    val (result, _) = useCase.doExecute(Region.LOCAL)
 
                     result shouldHaveSize 3
                     result shouldContainKey Category.TECHNOLOGY
@@ -311,12 +345,14 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
         Given("Gen의 createdAt이 null인 경우") {
             val genService = mockk<GenService>()
             val singleNewsCardGenerator = mockk<SingleNewsCardGenerator>()
+            val mainPageCardGenerator = mockk<MainPageCardGenerator>()
             val applicationEventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
             val gson = Gson()
             val useCase =
                 GenCardNewsImageGenerateSchedulingUseCase(
                     genService = genService,
                     singleNewsCardGenerator = singleNewsCardGenerator,
+                    mainPageCardGenerator = mainPageCardGenerator,
                     applicationEventPublisher = applicationEventPublisher,
                     gson = gson,
                 )
@@ -335,11 +371,12 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
 
             every { genService.findAllByCreatedAtBetweenAndRegion(any(), any(), Region.LOCAL) } returns listOf(gen)
             every { singleNewsCardGenerator.generateImage(any(), any()) } returns true
+            every { mainPageCardGenerator.generateMainPageImage(any(), any()) } returns true
 
             When("execute를 호출하면") {
                 Then("현재 시간을 사용하여 이미지가 생성된다") {
                     val beforeExecution = LocalDateTime.now()
-                    val result = useCase.doExecute(Region.LOCAL)
+                    val (result, _) = useCase.doExecute(Region.LOCAL)
                     val afterExecution = LocalDateTime.now()
 
                     result shouldHaveSize 1
@@ -354,6 +391,109 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     val createdAt = newsContentSlot.captured.createdAt
                     createdAt.isAfter(beforeExecution.minusSeconds(1)) shouldBe true
                     createdAt.isBefore(afterExecution.plusSeconds(1)) shouldBe true
+                }
+            }
+        }
+
+        Given("generateMainPageImages 메서드 테스트") {
+            val genService = mockk<GenService>()
+            val singleNewsCardGenerator = mockk<SingleNewsCardGenerator>()
+            val mainPageCardGenerator = mockk<MainPageCardGenerator>()
+            val applicationEventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
+            val gson = Gson()
+            val useCase =
+                GenCardNewsImageGenerateSchedulingUseCase(
+                    genService = genService,
+                    singleNewsCardGenerator = singleNewsCardGenerator,
+                    mainPageCardGenerator = mainPageCardGenerator,
+                    applicationEventPublisher = applicationEventPublisher,
+                    gson = gson,
+                )
+
+            When("모든 카테고리의 표지 이미지 생성이 성공하면") {
+                every { mainPageCardGenerator.generateMainPageImage(any(), any()) } returns true
+
+                Then("모든 카테고리에 대해 표지 이미지 경로가 반환된다") {
+                    val categories = setOf(Category.TECHNOLOGY, Category.ECONOMY, Category.POLITICS)
+                    val result = useCase.generateMainPageImages(categories)
+
+                    result shouldHaveSize 3
+                    result shouldContainKey Category.TECHNOLOGY
+                    result shouldContainKey Category.ECONOMY
+                    result shouldContainKey Category.POLITICS
+                    result[Category.TECHNOLOGY]!! shouldContain "_technology_main.png"
+                    result[Category.ECONOMY]!! shouldContain "_economy_main.png"
+                    result[Category.POLITICS]!! shouldContain "_politics_main.png"
+
+                    verify(exactly = 3) {
+                        mainPageCardGenerator.generateMainPageImage(any(), any())
+                    }
+                }
+            }
+
+            When("일부 카테고리의 표지 이미지 생성이 실패하면") {
+                clearMocks(mainPageCardGenerator)
+                every {
+                    mainPageCardGenerator.generateMainPageImage(
+                        match { it == Category.TECHNOLOGY },
+                        any(),
+                    )
+                } returns true
+                every {
+                    mainPageCardGenerator.generateMainPageImage(
+                        match { it == Category.ECONOMY },
+                        any(),
+                    )
+                } returns false
+
+                Then("성공한 카테고리만 반환된다") {
+                    val categories = setOf(Category.TECHNOLOGY, Category.ECONOMY)
+                    val result = useCase.generateMainPageImages(categories)
+
+                    result shouldHaveSize 1
+                    result shouldContainKey Category.TECHNOLOGY
+
+                    verify(exactly = 2) {
+                        mainPageCardGenerator.generateMainPageImage(any(), any())
+                    }
+                }
+            }
+
+            When("빈 카테고리 셋이 주어지면") {
+                clearMocks(mainPageCardGenerator)
+
+                Then("빈 맵이 반환된다") {
+                    val result = useCase.generateMainPageImages(emptySet())
+
+                    result.shouldBeEmpty()
+
+                    verify(exactly = 0) {
+                        mainPageCardGenerator.generateMainPageImage(any(), any())
+                    }
+                }
+            }
+
+            When("표지 이미지 생성 중 예외가 발생하면") {
+                clearMocks(mainPageCardGenerator)
+                every {
+                    mainPageCardGenerator.generateMainPageImage(
+                        match { it == Category.TECHNOLOGY },
+                        any(),
+                    )
+                } throws RuntimeException("이미지 생성 오류")
+                every {
+                    mainPageCardGenerator.generateMainPageImage(
+                        match { it == Category.ECONOMY },
+                        any(),
+                    )
+                } returns true
+
+                Then("예외가 발생한 카테고리를 제외하고 나머지가 반환된다") {
+                    val categories = setOf(Category.TECHNOLOGY, Category.ECONOMY)
+                    val result = useCase.generateMainPageImages(categories)
+
+                    result shouldHaveSize 1
+                    result shouldContainKey Category.ECONOMY
                 }
             }
         }
