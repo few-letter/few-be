@@ -1,6 +1,7 @@
 package com.few.generator.usecase
 
 import com.few.common.domain.Category
+import com.few.common.domain.MediaType
 import com.few.common.domain.Region
 import com.few.common.exception.BadRequestException
 import com.few.generator.config.GroupingProperties
@@ -126,6 +127,9 @@ class AbstractGroupGenSchedulingUseCaseTest :
                                 headline = "Headline $id",
                                 summary = "Summary $id",
                                 highlightTexts = """["highlight"]""",
+                                url = "https://example.com/article-$id",
+                                thumbnailImageUrl = null,
+                                mediaType = MediaType.CHOSUN.code,
                             ).apply {
                                 createdAt = LocalDateTime.now()
                             }
@@ -135,7 +139,6 @@ class AbstractGroupGenSchedulingUseCaseTest :
                         (1L..5L).map { id ->
                             ProvisioningContents(
                                 id = id,
-                                rawContentsId = id,
                                 category = Category.TECHNOLOGY.code,
                                 region = Region.GLOBAL.code,
                             )
@@ -178,7 +181,7 @@ class AbstractGroupGenSchedulingUseCaseTest :
                     } returns group
 
                     every {
-                        groupContentGenerator.generateGroupContent(any(), gens, group, any(), Region.GLOBAL)
+                        groupContentGenerator.generateGroupContent(any(), gens, group, Region.GLOBAL)
                     } returns groupGen
 
                     useCase.execute()
@@ -214,6 +217,9 @@ class AbstractGroupGenSchedulingUseCaseTest :
                                 headline = "Headline $id",
                                 summary = "Summary $id",
                                 highlightTexts = """["highlight"]""",
+                                url = "https://example.com/article-$id",
+                                thumbnailImageUrl = null,
+                                mediaType = MediaType.CHOSUN.code,
                             ).apply {
                                 createdAt = LocalDateTime.now()
                             }
@@ -241,6 +247,9 @@ class AbstractGroupGenSchedulingUseCaseTest :
                                 headline = "Headline $id",
                                 summary = "Summary $id",
                                 highlightTexts = """["highlight"]""",
+                                url = "https://example.com/article-$id",
+                                thumbnailImageUrl = null,
+                                mediaType = MediaType.CHOSUN.code,
                             ).apply {
                                 createdAt = LocalDateTime.now()
                             }
@@ -250,7 +259,6 @@ class AbstractGroupGenSchedulingUseCaseTest :
                         (1L..5L).map { id ->
                             ProvisioningContents(
                                 id = id,
-                                rawContentsId = id,
                                 category = Category.TECHNOLOGY.code,
                                 region = Region.GLOBAL.code,
                             )
@@ -302,6 +310,9 @@ class AbstractGroupGenSchedulingUseCaseTest :
                                 headline = "Headline $id",
                                 summary = "Summary $id",
                                 highlightTexts = """["highlight"]""",
+                                url = "https://example.com/article-$id",
+                                thumbnailImageUrl = null,
+                                mediaType = MediaType.CHOSUN.code,
                             ).apply {
                                 createdAt = LocalDateTime.now()
                             }
@@ -311,7 +322,6 @@ class AbstractGroupGenSchedulingUseCaseTest :
                         (1L..5L).map { id ->
                             ProvisioningContents(
                                 id = id,
-                                rawContentsId = id,
                                 category = Category.TECHNOLOGY.code,
                                 region = Region.GLOBAL.code,
                             )
@@ -354,7 +364,7 @@ class AbstractGroupGenSchedulingUseCaseTest :
                     } returns group
 
                     every {
-                        groupContentGenerator.generateGroupContent(Category.TECHNOLOGY, gens, group, any(), Region.GLOBAL)
+                        groupContentGenerator.generateGroupContent(Category.TECHNOLOGY, gens, group, Region.GLOBAL)
                     } returns groupGen
 
                     // Just verify it doesn't throw an exception

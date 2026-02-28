@@ -4,8 +4,6 @@ import com.few.common.domain.Category
 import com.few.common.domain.MediaType
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.repository.GenRepository
-import com.few.generator.repository.ProvisioningContentsRepository
-import com.few.generator.repository.RawContentsRepository
 import com.few.generator.support.jpa.GeneratorTransactional
 import com.few.generator.usecase.input.BrowseContentsUseCaseIn
 import com.few.generator.usecase.out.BrowseContentsUsecaseOuts
@@ -19,8 +17,6 @@ import java.time.LocalDateTime
 
 @Component
 data class BrowseContentsUseCase(
-    private val rawContentsRepository: RawContentsRepository,
-    private val provisioningContentsRepository: ProvisioningContentsRepository,
     private val genRepository: GenRepository,
     @Qualifier(GSON_BEAN_NAME)
     private val gson: Gson,
@@ -54,22 +50,14 @@ data class BrowseContentsUseCase(
             )
         }
 
-        val joinedContents =
-            gens.mapNotNull { gen ->
-                val provisioning = provisioningContentsRepository.findById(gen.provisioningContentsId).orElse(null)
-                val rawContentsId = provisioning?.rawContentsId ?: return@mapNotNull null
-                val rawContents = rawContentsRepository.findById(rawContentsId).orElse(null)
-                if (rawContents != null) Triple(gen, provisioning, rawContents) else null
-            }
-
         return BrowseContentsUsecaseOuts(
             contents =
-                joinedContents.map { (gen, _, raw) ->
+                gens.map { gen ->
                     ContentsUsecaseOut(
                         id = gen.id!!,
-                        url = raw.url,
-                        thumbnailImageUrl = raw.thumbnailImageUrl,
-                        mediaType = MediaType.from(raw.mediaType),
+                        url = gen.url,
+                        thumbnailImageUrl = gen.thumbnailImageUrl,
+                        mediaType = MediaType.from(gen.mediaType),
                         headline = gen.headline,
                         summary = gen.summary,
                         highlightTexts = gson.fromJson(gen.highlightTexts, object : TypeToken<List<String>>() {}.type),

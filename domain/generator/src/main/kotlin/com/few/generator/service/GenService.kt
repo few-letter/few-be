@@ -66,6 +66,9 @@ class GenService(
                 highlightTexts = gson.toJson(listOf(highlightText.highlightText)),
                 category = Category.from(provisioningContent.category).code,
                 region = provisioningContent.region,
+                url = rawContent.url,
+                thumbnailImageUrl = rawContent.thumbnailImageUrl,
+                mediaType = rawContent.mediaType,
             ),
         )
     }

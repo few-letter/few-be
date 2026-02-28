@@ -1,6 +1,5 @@
 package com.few.generator.service
 
-import com.few.common.exception.BadRequestException
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.core.gpt.ChatGpt
 import com.few.generator.core.gpt.prompt.PromptGenerator
@@ -24,16 +23,11 @@ class ProvisioningService(
     private val log = KotlinLogging.logger {}
 
     fun createAndSave(rawContents: RawContents): ProvisioningContents {
-        provisioningContentsRepository.findByRawContentsId(rawContents.id!!)?.let {
-            throw BadRequestException("이미 생성된 프로비저닝 컨텐츠가 있습니다. ID: ${it.id}")
-        }
-
         val bodyTexts: Texts = makeBodyTexts(rawContents.title, rawContents.rawTexts)
         val coreTexts: Texts = makeCoreTexts(rawContents.title, bodyTexts)
 
         return provisioningContentsRepository.save(
             ProvisioningContents(
-                rawContentsId = rawContents.id!!,
                 completionIds =
                     mutableListOf(
                         bodyTexts.completionId!!,
