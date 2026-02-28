@@ -1,6 +1,7 @@
 package com.few.generator.usecase
 
 import com.few.common.domain.Category
+import com.few.common.domain.MediaType
 import com.few.common.domain.Region
 import com.few.generator.core.instagram.MainPageCardGenerator
 import com.few.generator.core.instagram.NewsContent
@@ -50,6 +51,8 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                         headline = "AI 기술의 미래",
                         summary = "인공지능 기술이 빠르게 발전하고 있습니다.",
                         highlightTexts = """["인공지능", "기술"]""",
+                        url = "https://example.com",
+                        mediaType = MediaType.CHOSUN.code,
                     ).apply {
                         createdAt = LocalDateTime.of(2026, 1, 10, 10, 0)
                     },
@@ -61,6 +64,8 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                         headline = "경제 뉴스",
                         summary = "경제 동향을 알려드립니다.",
                         highlightTexts = """["경제"]""",
+                        url = "https://example.com",
+                        mediaType = MediaType.CHOSUN.code,
                     ).apply {
                         createdAt = LocalDateTime.of(2026, 1, 10, 11, 0)
                     },
@@ -72,6 +77,8 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                         headline = "정치 뉴스",
                         summary = "정치 동향을 알려드립니다.",
                         highlightTexts = """["정치"]""",
+                        url = "https://example.com",
+                        mediaType = MediaType.CHOSUN.code,
                     ).apply {
                         createdAt = LocalDateTime.of(2026, 1, 10, 12, 0)
                     },
@@ -168,6 +175,8 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                         headline = "성공 케이스",
                         summary = "성공할 이미지",
                         highlightTexts = """[]""",
+                        url = "https://example.com",
+                        mediaType = MediaType.CHOSUN.code,
                     ).apply {
                         createdAt = LocalDateTime.now()
                     },
@@ -179,6 +188,8 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                         headline = "실패 케이스",
                         summary = "실패할 이미지",
                         highlightTexts = """[]""",
+                        url = "https://example.com",
+                        mediaType = MediaType.CHOSUN.code,
                     ).apply {
                         createdAt = LocalDateTime.now()
                     },
@@ -244,7 +255,9 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     region = 0,
                     headline = "정치 뉴스",
                     summary = "정치 동향을 알려드립니다.",
-                    highlightTexts = """invalid json""",
+                    highlightTexts = "invalid json",
+                    url = "https://example.com",
+                    mediaType = MediaType.CHOSUN.code,
                 ).apply {
                     createdAt = LocalDateTime.now()
                 }
@@ -296,6 +309,8 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                         headline = "기술",
                         summary = "테스트",
                         highlightTexts = """[]""",
+                        url = "https://example.com",
+                        mediaType = MediaType.CHOSUN.code,
                     ).apply { createdAt = LocalDateTime.now() },
                     Gen(
                         id = 2L,
@@ -305,6 +320,8 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                         headline = "경제",
                         summary = "테스트",
                         highlightTexts = """[]""",
+                        url = "https://example.com",
+                        mediaType = MediaType.CHOSUN.code,
                     ).apply { createdAt = LocalDateTime.now() },
                     Gen(
                         id = 3L,
@@ -314,6 +331,8 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                         headline = "사회",
                         summary = "테스트",
                         highlightTexts = """[]""",
+                        url = "https://example.com",
+                        mediaType = MediaType.CHOSUN.code,
                     ).apply { createdAt = LocalDateTime.now() },
                 )
 
@@ -366,6 +385,8 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     headline = "생활 뉴스",
                     summary = "생활 정보를 알려드립니다.",
                     highlightTexts = """[]""",
+                    url = "https://example.com",
+                    mediaType = MediaType.CHOSUN.code,
                 )
             // createdAt을 설정하지 않음 (null)
 

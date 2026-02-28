@@ -1,6 +1,7 @@
 package com.few.generator.usecase
 
 import com.few.common.domain.Category
+import com.few.common.domain.MediaType
 import com.few.common.domain.Region
 import com.few.generator.core.gpt.ChatGpt
 import com.few.generator.core.gpt.prompt.PromptGenerator
@@ -53,6 +54,8 @@ class InstagramUploadUseCaseTest :
                         headline = "앤트로픽, 크리스 리델 이사 선임",
                         summary = "앤트로픽은 크리스 리델을 이사로 선임했다고 발표했습니다.",
                         highlightTexts = """["책임 있는 AI 개발이 중요하다"]""",
+                        url = "https://example.com",
+                        mediaType = MediaType.CHOSUN.code,
                     ),
                     Gen(
                         id = 2L,
@@ -62,6 +65,8 @@ class InstagramUploadUseCaseTest :
                         headline = "삼성전자 새로운 반도체 공장 착공",
                         summary = "삼성전자가 새로운 반도체 공장을 착공했습니다.",
                         highlightTexts = """["삼성전자 반도체"]""",
+                        url = "https://example.com",
+                        mediaType = MediaType.CHOSUN.code,
                     ),
                 )
 
@@ -106,6 +111,8 @@ class InstagramUploadUseCaseTest :
                         headline = "테스트 헤드라인",
                         summary = "summary",
                         highlightTexts = "[]",
+                        url = "https://example.com",
+                        mediaType = MediaType.CHOSUN.code,
                     ),
                 )
 
@@ -148,6 +155,8 @@ class InstagramUploadUseCaseTest :
                         headline = "한국은행 금리 인하",
                         summary = "summary",
                         highlightTexts = "[]",
+                        url = "https://example.com",
+                        mediaType = MediaType.CHOSUN.code,
                     ),
                 )
 
@@ -199,6 +208,8 @@ class InstagramUploadUseCaseTest :
                         headline = "대통령 국무회의 개최",
                         summary = "summary",
                         highlightTexts = "[]",
+                        url = "https://example.com",
+                        mediaType = MediaType.CHOSUN.code,
                     ),
                 )
 
@@ -244,6 +255,8 @@ class InstagramUploadUseCaseTest :
                         headline = "테스트 헤드라인",
                         summary = "summary",
                         highlightTexts = "[]",
+                        url = "https://example.com",
+                        mediaType = MediaType.CHOSUN.code,
                     )
 
                 every {
@@ -271,6 +284,8 @@ class InstagramUploadUseCaseTest :
                         headline = "서울시 대중교통 무료화 추진",
                         summary = "summary",
                         highlightTexts = "[]",
+                        url = "https://example.com",
+                        mediaType = MediaType.CHOSUN.code,
                     ),
                 )
 
