@@ -24,4 +24,7 @@ data class Gen( // TODO: DB컬럼 타입 변경 필요
     @Column(columnDefinition = "TEXT", nullable = false) val highlightTexts: String = "[]",
     @Column(nullable = false) val category: Int,
     @Column(nullable = true) val region: Int,
+    @Column(nullable = false) val url: String,
+    @Column(nullable = true) val thumbnailImageUrl: String? = null,
+    @Column(nullable = false) val mediaType: Int,
 ) : BaseEntity()
