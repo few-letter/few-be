@@ -28,13 +28,9 @@ data class BrowseContentDetailResponse(
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class BrowseRawContentsResponse(
-    val id: Long,
     val url: String,
-    val title: String,
     val thumbnailImageUrl: String? = null,
     val mediaType: CodeValueResponse,
-    val rawTexts: String,
-    val imageUrls: List<String>,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     val createdAt: LocalDateTime,
 )
@@ -42,7 +38,6 @@ data class BrowseRawContentsResponse(
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class BrowseProvisioningContentsResponse(
     val id: Long,
-    val rawContentsId: Long,
     val completionIds: List<String>,
     val bodyTextsJson: List<String>,
     val coreTextsJson: List<String>,
