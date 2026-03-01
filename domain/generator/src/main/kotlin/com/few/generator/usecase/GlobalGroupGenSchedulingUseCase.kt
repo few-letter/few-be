@@ -2,14 +2,10 @@ package com.few.generator.usecase
 
 import com.few.common.domain.Region
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
-import com.few.generator.config.GroupingProperties
 import com.few.generator.event.GenSchedulingCompletedEvent
+import com.few.generator.service.ContentsCommonGenerationService
 import com.few.generator.service.GenService
-import com.few.generator.service.ProvisioningService
-import com.few.generator.service.specifics.groupgen.GenGroupper
-import com.few.generator.service.specifics.groupgen.GroupContentGenerator
 import com.few.generator.service.specifics.groupgen.GroupGenMetrics
-import com.few.generator.service.specifics.groupgen.KeywordExtractor
 import com.google.gson.Gson
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationEventPublisher
@@ -21,24 +17,16 @@ import org.springframework.stereotype.Component
 class GlobalGroupGenSchedulingUseCase(
     applicationEventPublisher: ApplicationEventPublisher,
     genService: GenService,
-    provisioningService: ProvisioningService,
-    groupingProperties: GroupingProperties,
     @Qualifier(GSON_BEAN_NAME)
     gson: Gson,
     groupGenMetrics: GroupGenMetrics,
-    keywordExtractor: KeywordExtractor,
-    genGrouper: GenGroupper,
-    groupContentGenerator: GroupContentGenerator,
+    contentsCommonGenerationService: ContentsCommonGenerationService,
 ) : AbstractGroupGenSchedulingUseCase(
         applicationEventPublisher,
         genService,
-        provisioningService,
-        groupingProperties,
         gson,
         groupGenMetrics,
-        keywordExtractor,
-        genGrouper,
-        groupContentGenerator,
+        contentsCommonGenerationService,
     ) {
     override val region = Region.GLOBAL
     override val regionName = "GLOBAL"
