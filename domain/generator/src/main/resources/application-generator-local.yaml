@@ -19,6 +19,18 @@ spring:
                         connectTimeout: 10000
                         readTimeout: 60000
                         loggerLevel: full
+                    kis-token:
+                        url: ${KIS_API_URL}
+                        defaultRequestHeaders:
+                            Content-Type: "application/json"
+                            appkey: ${KIS_APP_KEY}
+                            appsecret: ${KIS_APP_SECRET}
+                    kis:
+                        url: ${KIS_API_URL}
+                        defaultRequestHeaders:
+                            Content-Type: "application/json"
+                            appkey: ${KIS_APP_KEY}
+                            appsecret: ${KIS_APP_SECRET}
                     openai:
                         url: https://api.openai.com
                         errorDecoder: com.few.generator.config.feign.OpenAiErrorDecoder
@@ -51,6 +63,7 @@ scheduling:
         email: "0 0 9 * * *"
         cache-metrics: "0 43 17 * * *"
         instagram-token-refresh: "0 0 2 * * MON"
+        nasdaq-stock: "0 0 6 * * *"
 
 urls:
     webhook:
