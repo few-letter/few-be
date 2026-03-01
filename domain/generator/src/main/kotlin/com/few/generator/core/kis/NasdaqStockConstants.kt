@@ -25,13 +25,14 @@ object NasdaqStockConstants {
     val TSLA = NasdaqStock("TSLA", "테슬라", EXCD_NAS)
 
     /** ETF 개별 종목 */
-    val SPY = NasdaqStock("SPY", "S&P500 ETF", EXCD_AMS)
-    val QQQ = NasdaqStock("QQQ", "나스닥100 ETF", EXCD_NAS)
+    val SPY = NasdaqStock("SPY", "S&P500", EXCD_AMS)
+    val QQQ = NasdaqStock("QQQ", "나스닥100", EXCD_NAS)
+    val SCHD = NasdaqStock("SCHD", "미국배당다우존스", EXCD_AMS)
 
 
     val STOCK_GROUP_MAP: Map<StockGroup, List<NasdaqStock>> =
         mapOf(
-            StockGroup.ETF to listOf(SPY, QQQ),
+            StockGroup.ETF to listOf(SPY, QQQ, SCHD),
             StockGroup.M7 to listOf(AAPL, MSFT, GOOGL, AMZN, NVDA, META, TSLA),
         )
 
