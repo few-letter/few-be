@@ -5,7 +5,6 @@ import com.few.generator.core.kis.dto.KisTokenResponse
 import feign.FeignException
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
@@ -51,7 +50,7 @@ class KisStockFetcherTest :
 
         // 모든 종목을 주어진 changeRate로 세팅
         fun stubAllStocks(changeRate: String = "+1.00") {
-            NasdaqStockConstants.ALL_STOCKS.forEach { stock ->
+            NasdaqStockConstants.STOCK_GROUP_MAP.values.flatten().forEach { stock ->
                 every {
                     kisClient.getStockPrice(
                         authorization = any(),
@@ -65,7 +64,7 @@ class KisStockFetcherTest :
 
         // AAPL만 다른 changeRate, 나머지는 보합으로 세팅
         fun stubAllStocksWithAaplRate(aaplRate: String) {
-            NasdaqStockConstants.ALL_STOCKS.forEach { stock ->
+            NasdaqStockConstants.STOCK_GROUP_MAP.values.flatten().forEach { stock ->
                 val rate = if (stock.symbol == "AAPL") aaplRate else "0.00"
                 every {
                     kisClient.getStockPrice(
@@ -90,7 +89,7 @@ class KisStockFetcherTest :
             When("fetchAll()을 호출하면") {
                 Then("전체 종목 수만큼 결과를 반환한다") {
                     val result = fetcher.fetchAll()
-                    result shouldHaveSize NasdaqStockConstants.ALL_STOCKS.size
+                    result.values.sumOf { it.size } shouldBe NasdaqStockConstants.STOCK_GROUP_MAP.values.flatten().size
                 }
 
                 Then("토큰 발급을 1회만 호출한다") {
@@ -100,7 +99,7 @@ class KisStockFetcherTest :
 
                 Then("AAPL 데이터가 올바르게 매핑된다") {
                     val result = fetcher.fetchAll()
-                    val aapl = result.first { it.symbol == "AAPL" }
+                    val aapl = result.values.flatten().first { it.symbol == "AAPL" }
                     aapl.koreanName shouldBe "애플"
                     aapl.currentPrice shouldBe "100.00"
                     aapl.changeRate shouldBe "+1.00"
@@ -117,7 +116,7 @@ class KisStockFetcherTest :
             When("fetchAll()을 호출하면") {
                 Then("AAPL의 isRise가 true이다") {
                     val result = fetcher.fetchAll()
-                    result.first { it.symbol == "AAPL" }.isRise shouldBe true
+                    result.values.flatten().first { it.symbol == "AAPL" }.isRise shouldBe true
                 }
             }
         }
@@ -131,7 +130,7 @@ class KisStockFetcherTest :
             When("fetchAll()을 호출하면") {
                 Then("AAPL의 isRise가 false이다") {
                     val result = fetcher.fetchAll()
-                    result.first { it.symbol == "AAPL" }.isRise shouldBe false
+                    result.values.flatten().first { it.symbol == "AAPL" }.isRise shouldBe false
                 }
             }
         }
@@ -145,7 +144,7 @@ class KisStockFetcherTest :
             When("fetchAll()을 호출하면") {
                 Then("AAPL의 isRise가 null이다") {
                     val result = fetcher.fetchAll()
-                    result.first { it.symbol == "AAPL" }.isRise.shouldBeNull()
+                    result.values.flatten().first { it.symbol == "AAPL" }.isRise.shouldBeNull()
                 }
             }
         }
@@ -153,7 +152,7 @@ class KisStockFetcherTest :
         Given("일부 종목 API 호출이 FeignException으로 실패할 때") {
             beforeEach {
                 every { kisTokenClient.getToken(any()) } returns mockTokenResponse
-                NasdaqStockConstants.ALL_STOCKS.forEachIndexed { index, stock ->
+                NasdaqStockConstants.STOCK_GROUP_MAP.values.flatten().forEachIndexed { index, stock ->
                     if (index % 2 == 0) {
                         every {
                             kisClient.getStockPrice(any(), any(), stock.excd, stock.symbol)
@@ -169,8 +168,8 @@ class KisStockFetcherTest :
             When("fetchAll()을 호출하면") {
                 Then("성공한 종목만 반환한다") {
                     val result = fetcher.fetchAll()
-                    val expectedCount = NasdaqStockConstants.ALL_STOCKS.filterIndexed { index, _ -> index % 2 == 0 }.size
-                    result shouldHaveSize expectedCount
+                    val expectedCount = NasdaqStockConstants.STOCK_GROUP_MAP.values.flatten().filterIndexed { index, _ -> index % 2 == 0 }.size
+                    result.values.sumOf { it.size } shouldBe expectedCount
                 }
             }
         }
@@ -178,7 +177,7 @@ class KisStockFetcherTest :
         Given("모든 종목이 rt_cd 실패 응답을 반환할 때") {
             beforeEach {
                 every { kisTokenClient.getToken(any()) } returns mockTokenResponse
-                NasdaqStockConstants.ALL_STOCKS.forEach { stock ->
+                NasdaqStockConstants.STOCK_GROUP_MAP.values.flatten().forEach { stock ->
                     every {
                         kisClient.getStockPrice(any(), any(), stock.excd, stock.symbol)
                     } returns KisStockPriceResponse(rtCd = "1", msg1 = "오류", output = null)
@@ -188,7 +187,7 @@ class KisStockFetcherTest :
             When("fetchAll()을 호출하면") {
                 Then("빈 리스트를 반환한다") {
                     val result = fetcher.fetchAll()
-                    result shouldHaveSize 0
+                    result.values.sumOf { it.size } shouldBe 0
                 }
             }
         }

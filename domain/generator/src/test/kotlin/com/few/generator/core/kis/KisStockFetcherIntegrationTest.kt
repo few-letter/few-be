@@ -77,24 +77,28 @@ class KisStockFetcherIntegrationTest :
 
             val fetcher = buildFetcher()
             val result = fetcher.fetchAll()
+            val allStocks = result.values.flatten()
 
-            println("=== KIS API 조회 결과 (${result.size}개) ===")
-            result.forEach { stock ->
-                val arrow =
-                    when (stock.isRise) {
-                        true -> "▲"
-                        false -> "▼"
-                        null -> "-"
-                    }
-                println(
-                    "${stock.symbol.padEnd(
-                        6,
-                    )} | ${stock.koreanName.padEnd(10)} | \$${stock.currentPrice.padStart(10)} | $arrow ${stock.changeRate}%",
-                )
+            println("=== KIS API 조회 결과 (${allStocks.size}개) ===")
+            result.forEach { (group, stocks) ->
+                println("--- $group ---")
+                stocks.forEach { stock ->
+                    val arrow =
+                        when (stock.isRise) {
+                            true -> "▲"
+                            false -> "▼"
+                            null -> "-"
+                        }
+                    println(
+                        "${stock.symbol.padEnd(
+                            6,
+                        )} | ${stock.koreanName.padEnd(10)} | \$${stock.currentPrice.padStart(10)} | $arrow ${stock.changeRate}%",
+                    )
+                }
             }
 
-            result.shouldNotBeEmpty()
-            result.forEach { stock ->
+            allStocks.shouldNotBeEmpty()
+            allStocks.forEach { stock ->
                 stock.symbol.shouldNotBeBlank()
                 stock.currentPrice.shouldNotBeBlank()
                 stock.changeRate.shouldNotBeBlank()

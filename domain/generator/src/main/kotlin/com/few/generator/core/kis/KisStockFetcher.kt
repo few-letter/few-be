@@ -16,36 +16,38 @@ class KisStockFetcher(
 ) {
     private val log = KotlinLogging.logger {}
 
-    fun fetchAll(): List<NasdaqStockData> {
+    fun fetchAll(): Map<NasdaqStockConstants.StockGroup, List<NasdaqStockData>> {
         val accessToken = issueToken()
         val authorization = "Bearer $accessToken"
 
-        return NasdaqStockConstants.ALL_STOCKS.mapNotNull { stock ->
-            runCatching {
-                val response =
-                    kisClient.getStockPrice(
-                        authorization = authorization,
-                        trId = NasdaqStockConstants.OVERSEA_PRICE_DETAIL_TR_ID,
-                        excd = stock.excd,
-                        symb = stock.symbol,
+        return NasdaqStockConstants.STOCK_GROUP_MAP.mapValues { (_, stocks) ->
+            stocks.mapNotNull { stock ->
+                runCatching {
+                    val response =
+                        kisClient.getStockPrice(
+                            authorization = authorization,
+                            trId = NasdaqStockConstants.OVERSEA_PRICE_DETAIL_TR_ID,
+                            excd = stock.excd,
+                            symb = stock.symbol,
+                        )
+
+                    if (!response.isSuccess() || response.output == null) {
+                        log.warn { "[${stock.symbol}] KIS API 응답 실패: rt_cd=${response.rtCd}, msg=${response.msg1}" }
+                        return@runCatching null
+                    }
+
+                    val output = response.output
+
+                    NasdaqStockData(
+                        symbol = stock.symbol,
+                        koreanName = stock.koreanName,
+                        currentPrice = output.last,
+                        changeRate = output.t_xrat,
                     )
-
-                if (!response.isSuccess() || response.output == null) {
-                    log.warn { "[${stock.symbol}] KIS API 응답 실패: rt_cd=${response.rtCd}, msg=${response.msg1}" }
-                    return@runCatching null
-                }
-
-                val output = response.output
-
-                NasdaqStockData(
-                    symbol = stock.symbol,
-                    koreanName = stock.koreanName,
-                    currentPrice = output.last,
-                    changeRate = output.t_xrat,
-                )
-            }.onFailure { e ->
-                log.error(e) { "[${stock.symbol}] KIS 주식 데이터 조회 실패: ${e.message}" }
-            }.getOrNull()
+                }.onFailure { e ->
+                    log.error(e) { "[${stock.symbol}] KIS 주식 데이터 조회 실패: ${e.message}" }
+                }.getOrNull()
+            }
         }
     }
 

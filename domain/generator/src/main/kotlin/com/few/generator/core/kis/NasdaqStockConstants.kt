@@ -7,28 +7,32 @@ object NasdaqStockConstants {
     const val EXCD_NAS = "NAS" // 나스닥
     const val EXCD_AMS = "AMS" // 아멕스
 
+    enum class StockGroup { M7, ETF }
+
     data class NasdaqStock(
         val symbol: String,
         val koreanName: String,
         val excd: String,
     )
 
-    val M7_STOCKS =
-        listOf(
-            NasdaqStock("AAPL", "애플", EXCD_NAS),
-            NasdaqStock("MSFT", "마이크로소프트", EXCD_NAS),
-            NasdaqStock("GOOGL", "알파벳", EXCD_NAS),
-            NasdaqStock("AMZN", "아마존", EXCD_NAS),
-            NasdaqStock("NVDA", "엔비디아", EXCD_NAS),
-            NasdaqStock("META", "메타", EXCD_NAS),
-            NasdaqStock("TSLA", "테슬라", EXCD_NAS),
+    /** M7 개별 종목 */
+    val AAPL = NasdaqStock("AAPL", "애플", EXCD_NAS)
+    val MSFT = NasdaqStock("MSFT", "마이크로소프트", EXCD_NAS)
+    val GOOGL = NasdaqStock("GOOGL", "알파벳", EXCD_NAS)
+    val AMZN = NasdaqStock("AMZN", "아마존", EXCD_NAS)
+    val NVDA = NasdaqStock("NVDA", "엔비디아", EXCD_NAS)
+    val META = NasdaqStock("META", "메타", EXCD_NAS)
+    val TSLA = NasdaqStock("TSLA", "테슬라", EXCD_NAS)
+
+    /** ETF 개별 종목 */
+    val SPY = NasdaqStock("SPY", "S&P500 ETF", EXCD_AMS)
+    val QQQ = NasdaqStock("QQQ", "나스닥100 ETF", EXCD_NAS)
+
+
+    val STOCK_GROUP_MAP: Map<StockGroup, List<NasdaqStock>> =
+        mapOf(
+            StockGroup.ETF to listOf(SPY, QQQ),
+            StockGroup.M7 to listOf(AAPL, MSFT, GOOGL, AMZN, NVDA, META, TSLA),
         )
 
-    val ETF_STOCKS =
-        listOf(
-            NasdaqStock("SPY", "S&P500 ETF", EXCD_AMS),
-            NasdaqStock("QQQ", "나스닥100 ETF", EXCD_NAS),
-        )
-
-    val ALL_STOCKS = M7_STOCKS + ETF_STOCKS
 }
