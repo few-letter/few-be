@@ -21,7 +21,7 @@ object OverseaStockConstants {
     /** ETF 개별 종목 */
     val SPY = Stock("SPY", "S&P500", EXCD_AMS)
     val QQQ = Stock("QQQ", "나스닥100", EXCD_NAS)
-    val SCHD = Stock("SCHD", "미국배당다우존스", EXCD_AMS)
+    val SCHD = Stock("SCHD", "다우존스", EXCD_AMS)
 
     val DAILY_NASDAQ_STOCK_GROUP_MAP: Map<StockGroup, List<Stock>> =
         mapOf(

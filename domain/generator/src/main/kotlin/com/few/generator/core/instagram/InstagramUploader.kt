@@ -75,6 +75,42 @@ class InstagramUploader(
         }
     }
 
+    // 단일 이미지 컨테이너 생성 (캐러셀 아님)
+    fun createSingleMediaContainer(
+        imageUrl: String,
+        caption: String,
+    ): String? {
+        val url =
+            "https://graph.instagram.com/$accountId/media"
+                .toHttpUrlOrNull()
+                ?.newBuilder()
+                ?.addQueryParameter("access_token", instagramTokenService.getLatestAccessToken())
+                ?.addQueryParameter("image_url", imageUrl)
+                ?.addQueryParameter("caption", caption)
+                ?.build()
+
+        val request =
+            Request
+                .Builder()
+                .url(url!!)
+                .post(RequestBody.create(null, ""))
+                .build()
+
+        instagramOkHttpClient.newCall(request).execute().use { response ->
+            val responseBody = response.body?.string()
+            if (!response.isSuccessful) {
+                val errorResponse = parseErrorResponse(responseBody)
+                logErrorResponse("[SingleMedia] MediaContainer", response.code, errorResponse)
+                throw RuntimeException(
+                    "[Instagram][SingleMedia] Creation of MediaContainer Failed: ${errorResponse?.error?.message ?: "Unknown error"}",
+                )
+            }
+            DelayUtil.randomDelay(5, 10)
+
+            return responseBody?.let { parseJsonForId(it).id }
+        }
+    }
+
     // 2단계: 캐러셀용 부모 컨테이너 생성
     fun createParentMediaContainer(
         imageUrls: List<String>,

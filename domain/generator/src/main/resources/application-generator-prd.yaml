@@ -61,7 +61,7 @@ scheduling:
         email: "0 0 9 * * *"
         cache-metrics: "0 0 3 * * *"
         instagram-token-refresh: "0 0 2 * * MON"
-        nasdaq-stock: "0 0 6 * * *"
+        nasdaq-daily-stock: "0 0 6 * * *"
 
 urls:
     webhook:
