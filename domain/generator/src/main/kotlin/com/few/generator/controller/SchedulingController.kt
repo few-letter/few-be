@@ -2,6 +2,7 @@ package com.few.generator.controller
 
 import com.few.generator.usecase.GlobalGenSchedulingUseCase
 import com.few.generator.usecase.LocalGenSchedulingUseCase
+import com.few.generator.usecase.NasdaqDailyStockCardSchedulingUseCase
 import com.few.generator.usecase.RefreshInstagramTokenUseCase
 import com.few.generator.usecase.SendCacheMetricsSchedulingUseCase
 import com.few.generator.usecase.SendNewsletterSchedulingUseCase
@@ -16,6 +17,7 @@ class SchedulingController(
     private val sendCacheMetricsSchedulingUseCase: SendCacheMetricsSchedulingUseCase,
     private val sendNewsletterSchedulingUseCase: SendNewsletterSchedulingUseCase,
     private val refreshInstagramTokenUseCase: RefreshInstagramTokenUseCase,
+    private val nasdaqDailyStockCardSchedulingUseCase: NasdaqDailyStockCardSchedulingUseCase,
 ) {
     private val log = KotlinLogging.logger {}
 
@@ -46,5 +48,10 @@ class SchedulingController(
         } catch (e: Exception) {
             log.error(e) { "Instagram 토큰 갱신 스케줄 실행 중 오류 발생: ${e.message}" }
         }
+    }
+
+    @Scheduled(cron = "\${scheduling.cron.nasdaq-daily-stock}", zone = "Asia/Seoul")
+    fun nasdaqDailyStockScheduling() {
+        nasdaqDailyStockCardSchedulingUseCase.execute()
     }
 }

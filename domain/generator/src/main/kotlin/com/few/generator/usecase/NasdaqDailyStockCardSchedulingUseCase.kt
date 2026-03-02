@@ -4,10 +4,12 @@ import com.few.generator.core.instagram.InstagramUploader
 import com.few.generator.core.instagram.NasdaqDailyStockCardGenerator
 import com.few.generator.core.kis.KisStockFetcher
 import com.few.generator.support.aws.S3Provider
+import com.few.generator.support.common.NyseMarketCalendar
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 import java.io.File
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Component
@@ -16,10 +18,17 @@ class NasdaqDailyStockCardSchedulingUseCase(
     private val nasdaqDailyStockCardGenerator: NasdaqDailyStockCardGenerator,
     private val s3Provider: S3Provider,
     private val instagramUploader: InstagramUploader,
+    private val nyseMarketCalendar: NyseMarketCalendar,
 ) {
     private val log = KotlinLogging.logger {}
 
     fun execute() {
+        val usDate = LocalDate.now(ZoneId.of("America/New_York"))
+        if (!nyseMarketCalendar.isTradingDay(usDate)) {
+            log.info { "NYSE 휴장일($usDate)이므로 스케줄링을 건너뜁니다." }
+            return
+        }
+
         val date = LocalDate.now()
         val dateStr = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"))
         val outputPath = "gen_images/${dateStr}_nasdaq_daily_stock.png"

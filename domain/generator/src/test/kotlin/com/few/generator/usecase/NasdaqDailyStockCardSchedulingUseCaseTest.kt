@@ -9,6 +9,7 @@ import com.few.generator.support.aws.FailedUpload
 import com.few.generator.support.aws.S3Provider
 import com.few.generator.support.aws.S3UploadResult
 import com.few.generator.support.aws.SuccessfulUpload
+import com.few.generator.support.common.NyseMarketCalendar
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -36,16 +37,19 @@ class NasdaqDailyStockCardSchedulingUseCaseTest :
             val nasdaqDailyStockCardGenerator = mockk<NasdaqDailyStockCardGenerator>()
             val s3Provider = mockk<S3Provider>()
             val instagramUploader = mockk<InstagramUploader>()
+            val nyseMarketCalendar = mockk<NyseMarketCalendar>()
             val useCase =
                 NasdaqDailyStockCardSchedulingUseCase(
                     kisStockFetcher = kisStockFetcher,
                     nasdaqDailyStockCardGenerator = nasdaqDailyStockCardGenerator,
                     s3Provider = s3Provider,
                     instagramUploader = instagramUploader,
+                    nyseMarketCalendar = nyseMarketCalendar,
                 )
 
             val s3Url = "https://gen-cards.s3.ap-northeast-2.amazonaws.com/image.png"
 
+            every { nyseMarketCalendar.isTradingDay(any()) } returns true
             every { kisStockFetcher.fetchAll() } returns dummyStocks
             every { nasdaqDailyStockCardGenerator.generateImage(any(), any(), any()) } returns true
             every { s3Provider.uploadImages(any()) } returns
@@ -74,14 +78,17 @@ class NasdaqDailyStockCardSchedulingUseCaseTest :
             val nasdaqDailyStockCardGenerator = mockk<NasdaqDailyStockCardGenerator>()
             val s3Provider = mockk<S3Provider>()
             val instagramUploader = mockk<InstagramUploader>()
+            val nyseMarketCalendar = mockk<NyseMarketCalendar>()
             val useCase =
                 NasdaqDailyStockCardSchedulingUseCase(
                     kisStockFetcher = kisStockFetcher,
                     nasdaqDailyStockCardGenerator = nasdaqDailyStockCardGenerator,
                     s3Provider = s3Provider,
                     instagramUploader = instagramUploader,
+                    nyseMarketCalendar = nyseMarketCalendar,
                 )
 
+            every { nyseMarketCalendar.isTradingDay(any()) } returns true
             every { kisStockFetcher.fetchAll() } returns dummyStocks
             every { nasdaqDailyStockCardGenerator.generateImage(any(), any(), any()) } returns false
 
@@ -100,14 +107,17 @@ class NasdaqDailyStockCardSchedulingUseCaseTest :
             val nasdaqDailyStockCardGenerator = mockk<NasdaqDailyStockCardGenerator>()
             val s3Provider = mockk<S3Provider>()
             val instagramUploader = mockk<InstagramUploader>()
+            val nyseMarketCalendar = mockk<NyseMarketCalendar>()
             val useCase =
                 NasdaqDailyStockCardSchedulingUseCase(
                     kisStockFetcher = kisStockFetcher,
                     nasdaqDailyStockCardGenerator = nasdaqDailyStockCardGenerator,
                     s3Provider = s3Provider,
                     instagramUploader = instagramUploader,
+                    nyseMarketCalendar = nyseMarketCalendar,
                 )
 
+            every { nyseMarketCalendar.isTradingDay(any()) } returns true
             every { kisStockFetcher.fetchAll() } returns dummyStocks
             every { nasdaqDailyStockCardGenerator.generateImage(any(), any(), any()) } returns true
             every { s3Provider.uploadImages(any()) } returns
@@ -131,16 +141,19 @@ class NasdaqDailyStockCardSchedulingUseCaseTest :
             val nasdaqDailyStockCardGenerator = mockk<NasdaqDailyStockCardGenerator>()
             val s3Provider = mockk<S3Provider>()
             val instagramUploader = mockk<InstagramUploader>()
+            val nyseMarketCalendar = mockk<NyseMarketCalendar>()
             val useCase =
                 NasdaqDailyStockCardSchedulingUseCase(
                     kisStockFetcher = kisStockFetcher,
                     nasdaqDailyStockCardGenerator = nasdaqDailyStockCardGenerator,
                     s3Provider = s3Provider,
                     instagramUploader = instagramUploader,
+                    nyseMarketCalendar = nyseMarketCalendar,
                 )
 
             val s3Url = "https://gen-cards.s3.ap-northeast-2.amazonaws.com/image.png"
 
+            every { nyseMarketCalendar.isTradingDay(any()) } returns true
             every { kisStockFetcher.fetchAll() } returns dummyStocks
             every { nasdaqDailyStockCardGenerator.generateImage(any(), any(), any()) } returns true
             every { s3Provider.uploadImages(any()) } returns
@@ -164,17 +177,20 @@ class NasdaqDailyStockCardSchedulingUseCaseTest :
             val nasdaqDailyStockCardGenerator = mockk<NasdaqDailyStockCardGenerator>()
             val s3Provider = mockk<S3Provider>()
             val instagramUploader = mockk<InstagramUploader>()
+            val nyseMarketCalendar = mockk<NyseMarketCalendar>()
             val useCase =
                 NasdaqDailyStockCardSchedulingUseCase(
                     kisStockFetcher = kisStockFetcher,
                     nasdaqDailyStockCardGenerator = nasdaqDailyStockCardGenerator,
                     s3Provider = s3Provider,
                     instagramUploader = instagramUploader,
+                    nyseMarketCalendar = nyseMarketCalendar,
                 )
 
             val s3Url = "https://gen-cards.s3.ap-northeast-2.amazonaws.com/image.png"
             val captionSlot = mutableListOf<String>()
 
+            every { nyseMarketCalendar.isTradingDay(any()) } returns true
             every { kisStockFetcher.fetchAll() } returns dummyStocks
             every { nasdaqDailyStockCardGenerator.generateImage(any(), any(), any()) } returns true
             every { s3Provider.uploadImages(any()) } returns
@@ -193,6 +209,36 @@ class NasdaqDailyStockCardSchedulingUseCaseTest :
                     caption.contains("나스닥 데일리") shouldBe true
                     caption.contains("#나스닥") shouldBe true
                     caption.contains("#NASDAQ") shouldBe true
+                }
+            }
+        }
+
+        Given("NYSE 휴장일인 경우") {
+            val kisStockFetcher = mockk<KisStockFetcher>()
+            val nasdaqDailyStockCardGenerator = mockk<NasdaqDailyStockCardGenerator>()
+            val s3Provider = mockk<S3Provider>()
+            val instagramUploader = mockk<InstagramUploader>()
+            val nyseMarketCalendar = mockk<NyseMarketCalendar>()
+            val useCase =
+                NasdaqDailyStockCardSchedulingUseCase(
+                    kisStockFetcher = kisStockFetcher,
+                    nasdaqDailyStockCardGenerator = nasdaqDailyStockCardGenerator,
+                    s3Provider = s3Provider,
+                    instagramUploader = instagramUploader,
+                    nyseMarketCalendar = nyseMarketCalendar,
+                )
+
+            every { nyseMarketCalendar.isTradingDay(any()) } returns false
+
+            When("execute를 호출하면") {
+                Then("모든 다운스트림 작업이 호출되지 않는다") {
+                    useCase.execute()
+
+                    verify(exactly = 0) { kisStockFetcher.fetchAll() }
+                    verify(exactly = 0) { nasdaqDailyStockCardGenerator.generateImage(any(), any(), any()) }
+                    verify(exactly = 0) { s3Provider.uploadImages(any()) }
+                    verify(exactly = 0) { instagramUploader.createSingleMediaContainer(any(), any()) }
+                    verify(exactly = 0) { instagramUploader.publishMedia(any()) }
                 }
             }
         }
