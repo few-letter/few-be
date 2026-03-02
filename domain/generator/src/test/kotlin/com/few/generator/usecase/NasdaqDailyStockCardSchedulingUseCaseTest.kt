@@ -1,7 +1,7 @@
 package com.few.generator.usecase
 
 import com.few.generator.core.instagram.InstagramUploader
-import com.few.generator.core.instagram.StockCardGenerator
+import com.few.generator.core.instagram.NasdaqDailyStockCardGenerator
 import com.few.generator.core.kis.KisStockFetcher
 import com.few.generator.core.kis.OverseaStockConstants
 import com.few.generator.core.kis.StockQuote
@@ -33,13 +33,13 @@ class NasdaqDailyStockCardSchedulingUseCaseTest :
 
         Given("KIS API 조회, 이미지 생성, S3 업로드, Instagram 게시가 모두 성공하는 경우") {
             val kisStockFetcher = mockk<KisStockFetcher>()
-            val stockCardGenerator = mockk<StockCardGenerator>()
+            val nasdaqDailyStockCardGenerator = mockk<NasdaqDailyStockCardGenerator>()
             val s3Provider = mockk<S3Provider>()
             val instagramUploader = mockk<InstagramUploader>()
             val useCase =
                 NasdaqDailyStockCardSchedulingUseCase(
                     kisStockFetcher = kisStockFetcher,
-                    stockCardGenerator = stockCardGenerator,
+                    nasdaqDailyStockCardGenerator = nasdaqDailyStockCardGenerator,
                     s3Provider = s3Provider,
                     instagramUploader = instagramUploader,
                 )
@@ -47,7 +47,7 @@ class NasdaqDailyStockCardSchedulingUseCaseTest :
             val s3Url = "https://gen-cards.s3.ap-northeast-2.amazonaws.com/image.png"
 
             every { kisStockFetcher.fetchAll() } returns dummyStocks
-            every { stockCardGenerator.generateImage(any(), any(), any()) } returns true
+            every { nasdaqDailyStockCardGenerator.generateImage(any(), any(), any()) } returns true
             every { s3Provider.uploadImages(any()) } returns
                 S3UploadResult(
                     successfulUploads = listOf(SuccessfulUpload(path = "gen_images/test.png", url = s3Url)),
@@ -61,7 +61,7 @@ class NasdaqDailyStockCardSchedulingUseCaseTest :
                     useCase.execute()
 
                     verify(exactly = 1) { kisStockFetcher.fetchAll() }
-                    verify(exactly = 1) { stockCardGenerator.generateImage(any(), any(), any()) }
+                    verify(exactly = 1) { nasdaqDailyStockCardGenerator.generateImage(any(), any(), any()) }
                     verify(exactly = 1) { s3Provider.uploadImages(any()) }
                     verify(exactly = 1) { instagramUploader.createSingleMediaContainer(s3Url, any()) }
                     verify(exactly = 1) { instagramUploader.publishMedia("container-id-123") }
@@ -71,19 +71,19 @@ class NasdaqDailyStockCardSchedulingUseCaseTest :
 
         Given("이미지 생성이 실패하는 경우") {
             val kisStockFetcher = mockk<KisStockFetcher>()
-            val stockCardGenerator = mockk<StockCardGenerator>()
+            val nasdaqDailyStockCardGenerator = mockk<NasdaqDailyStockCardGenerator>()
             val s3Provider = mockk<S3Provider>()
             val instagramUploader = mockk<InstagramUploader>()
             val useCase =
                 NasdaqDailyStockCardSchedulingUseCase(
                     kisStockFetcher = kisStockFetcher,
-                    stockCardGenerator = stockCardGenerator,
+                    nasdaqDailyStockCardGenerator = nasdaqDailyStockCardGenerator,
                     s3Provider = s3Provider,
                     instagramUploader = instagramUploader,
                 )
 
             every { kisStockFetcher.fetchAll() } returns dummyStocks
-            every { stockCardGenerator.generateImage(any(), any(), any()) } returns false
+            every { nasdaqDailyStockCardGenerator.generateImage(any(), any(), any()) } returns false
 
             When("execute를 호출하면") {
                 Then("RuntimeException이 발생하고 S3 업로드는 호출되지 않는다") {
@@ -97,19 +97,19 @@ class NasdaqDailyStockCardSchedulingUseCaseTest :
 
         Given("S3 업로드가 실패하는 경우") {
             val kisStockFetcher = mockk<KisStockFetcher>()
-            val stockCardGenerator = mockk<StockCardGenerator>()
+            val nasdaqDailyStockCardGenerator = mockk<NasdaqDailyStockCardGenerator>()
             val s3Provider = mockk<S3Provider>()
             val instagramUploader = mockk<InstagramUploader>()
             val useCase =
                 NasdaqDailyStockCardSchedulingUseCase(
                     kisStockFetcher = kisStockFetcher,
-                    stockCardGenerator = stockCardGenerator,
+                    nasdaqDailyStockCardGenerator = nasdaqDailyStockCardGenerator,
                     s3Provider = s3Provider,
                     instagramUploader = instagramUploader,
                 )
 
             every { kisStockFetcher.fetchAll() } returns dummyStocks
-            every { stockCardGenerator.generateImage(any(), any(), any()) } returns true
+            every { nasdaqDailyStockCardGenerator.generateImage(any(), any(), any()) } returns true
             every { s3Provider.uploadImages(any()) } returns
                 S3UploadResult(
                     successfulUploads = emptyList(),
@@ -128,13 +128,13 @@ class NasdaqDailyStockCardSchedulingUseCaseTest :
 
         Given("Instagram 컨테이너 생성이 실패하는 경우 (containerId가 null)") {
             val kisStockFetcher = mockk<KisStockFetcher>()
-            val stockCardGenerator = mockk<StockCardGenerator>()
+            val nasdaqDailyStockCardGenerator = mockk<NasdaqDailyStockCardGenerator>()
             val s3Provider = mockk<S3Provider>()
             val instagramUploader = mockk<InstagramUploader>()
             val useCase =
                 NasdaqDailyStockCardSchedulingUseCase(
                     kisStockFetcher = kisStockFetcher,
-                    stockCardGenerator = stockCardGenerator,
+                    nasdaqDailyStockCardGenerator = nasdaqDailyStockCardGenerator,
                     s3Provider = s3Provider,
                     instagramUploader = instagramUploader,
                 )
@@ -142,7 +142,7 @@ class NasdaqDailyStockCardSchedulingUseCaseTest :
             val s3Url = "https://gen-cards.s3.ap-northeast-2.amazonaws.com/image.png"
 
             every { kisStockFetcher.fetchAll() } returns dummyStocks
-            every { stockCardGenerator.generateImage(any(), any(), any()) } returns true
+            every { nasdaqDailyStockCardGenerator.generateImage(any(), any(), any()) } returns true
             every { s3Provider.uploadImages(any()) } returns
                 S3UploadResult(
                     successfulUploads = listOf(SuccessfulUpload(path = "gen_images/test.png", url = s3Url)),
@@ -161,13 +161,13 @@ class NasdaqDailyStockCardSchedulingUseCaseTest :
 
         Given("buildCaption이 올바른 캡션을 생성하는 경우") {
             val kisStockFetcher = mockk<KisStockFetcher>()
-            val stockCardGenerator = mockk<StockCardGenerator>()
+            val nasdaqDailyStockCardGenerator = mockk<NasdaqDailyStockCardGenerator>()
             val s3Provider = mockk<S3Provider>()
             val instagramUploader = mockk<InstagramUploader>()
             val useCase =
                 NasdaqDailyStockCardSchedulingUseCase(
                     kisStockFetcher = kisStockFetcher,
-                    stockCardGenerator = stockCardGenerator,
+                    nasdaqDailyStockCardGenerator = nasdaqDailyStockCardGenerator,
                     s3Provider = s3Provider,
                     instagramUploader = instagramUploader,
                 )
@@ -176,7 +176,7 @@ class NasdaqDailyStockCardSchedulingUseCaseTest :
             val captionSlot = mutableListOf<String>()
 
             every { kisStockFetcher.fetchAll() } returns dummyStocks
-            every { stockCardGenerator.generateImage(any(), any(), any()) } returns true
+            every { nasdaqDailyStockCardGenerator.generateImage(any(), any(), any()) } returns true
             every { s3Provider.uploadImages(any()) } returns
                 S3UploadResult(
                     successfulUploads = listOf(SuccessfulUpload(path = "gen_images/test.png", url = s3Url)),

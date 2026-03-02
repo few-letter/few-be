@@ -29,7 +29,7 @@ import java.util.Locale
  *  Y= 975 ~ 1080 : 푸터 – Market Mood (선택) + few_logo.png
  */
 @Component
-class StockCardGenerator {
+class NasdaqDailyStockCardGenerator {
     private val log = KotlinLogging.logger {}
 
     companion object {

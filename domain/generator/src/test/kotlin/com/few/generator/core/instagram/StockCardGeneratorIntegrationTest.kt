@@ -107,7 +107,7 @@ class StockCardGeneratorIntegrationTest :
             val dateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
             val outputPath = "gen_images/${dateStr}_nasdaq_stock_test.png"
 
-            val generator = StockCardGenerator()
+            val generator = NasdaqDailyStockCardGenerator()
             val success = generator.generateImage(stocks, outputPath)
 
             // 3. 결과 출력 및 검증

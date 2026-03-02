@@ -1,6 +1,6 @@
 package com.few.generator.usecase
 
-import com.few.generator.core.instagram.StockCardGenerator
+import com.few.generator.core.instagram.NasdaqDailyStockCardGenerator
 import com.few.generator.core.kis.KisClient
 import com.few.generator.core.kis.KisStockFetcher
 import com.few.generator.core.kis.KisTokenClient
@@ -157,7 +157,7 @@ class NasdaqStockCardS3UploadIntegrationTest :
             val dateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
             val outputPath = "gen_images/${dateStr}_nasdaq_daily_stock_s3_test.png"
 
-            val generator = StockCardGenerator()
+            val generator = NasdaqDailyStockCardGenerator()
             val generated = generator.generateImage(stocks, outputPath)
             println("=== 이미지 생성 결과 ===")
             println("성공 여부: $generated / 경로: ${File(outputPath).absolutePath}")

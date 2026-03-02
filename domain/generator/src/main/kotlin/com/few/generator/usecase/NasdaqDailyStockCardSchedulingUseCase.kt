@@ -1,7 +1,7 @@
 package com.few.generator.usecase
 
 import com.few.generator.core.instagram.InstagramUploader
-import com.few.generator.core.instagram.StockCardGenerator
+import com.few.generator.core.instagram.NasdaqDailyStockCardGenerator
 import com.few.generator.core.kis.KisStockFetcher
 import com.few.generator.support.aws.S3Provider
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter
 @Component
 class NasdaqDailyStockCardSchedulingUseCase(
     private val kisStockFetcher: KisStockFetcher,
-    private val stockCardGenerator: StockCardGenerator,
+    private val nasdaqDailyStockCardGenerator: NasdaqDailyStockCardGenerator,
     private val s3Provider: S3Provider,
     private val instagramUploader: InstagramUploader,
 ) {
@@ -31,7 +31,7 @@ class NasdaqDailyStockCardSchedulingUseCase(
 
         // Step 2: 카드 이미지 생성
         log.info { "주식 카드 이미지 생성 시작: $outputPath" }
-        val generated = stockCardGenerator.generateImage(stocks, outputPath, date)
+        val generated = nasdaqDailyStockCardGenerator.generateImage(stocks, outputPath, date)
         if (!generated) {
             throw RuntimeException("주식 카드 이미지 생성 실패: $outputPath")
         }
@@ -74,7 +74,7 @@ class NasdaqDailyStockCardSchedulingUseCase(
 
             M7 · ETF 주요 종목 시황
 
-            #나스닥 #해외주식 #미국주식 #NASDAQ #M7 #ETF
+            #나스닥 #미국주식 #NASDAQ #M7 #ETF
         """.trimIndent()
     }
 }
