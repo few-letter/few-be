@@ -89,7 +89,10 @@ class KisStockFetcherTest :
             When("fetchAll()을 호출하면") {
                 Then("전체 종목 수만큼 결과를 반환한다") {
                     val result = fetcher.fetchAll()
-                    result.values.sumOf { it.size } shouldBe OverseaStockConstants.DAILY_NASDAQ_STOCK_GROUP_MAP.values.flatten().size
+                    result.values.sumOf { it.size } shouldBe
+                        OverseaStockConstants.DAILY_NASDAQ_STOCK_GROUP_MAP.values
+                            .flatten()
+                            .size
                 }
 
                 Then("토큰 발급을 1회만 호출한다") {
@@ -116,7 +119,10 @@ class KisStockFetcherTest :
             When("fetchAll()을 호출하면") {
                 Then("AAPL의 isRise가 true이다") {
                     val result = fetcher.fetchAll()
-                    result.values.flatten().first { it.symbol == "AAPL" }.isRise shouldBe true
+                    result.values
+                        .flatten()
+                        .first { it.symbol == "AAPL" }
+                        .isRise shouldBe true
                 }
             }
         }
@@ -130,7 +136,10 @@ class KisStockFetcherTest :
             When("fetchAll()을 호출하면") {
                 Then("AAPL의 isRise가 false이다") {
                     val result = fetcher.fetchAll()
-                    result.values.flatten().first { it.symbol == "AAPL" }.isRise shouldBe false
+                    result.values
+                        .flatten()
+                        .first { it.symbol == "AAPL" }
+                        .isRise shouldBe false
                 }
             }
         }
@@ -144,7 +153,11 @@ class KisStockFetcherTest :
             When("fetchAll()을 호출하면") {
                 Then("AAPL의 isRise가 null이다") {
                     val result = fetcher.fetchAll()
-                    result.values.flatten().first { it.symbol == "AAPL" }.isRise.shouldBeNull()
+                    result.values
+                        .flatten()
+                        .first { it.symbol == "AAPL" }
+                        .isRise
+                        .shouldBeNull()
                 }
             }
         }
@@ -168,7 +181,14 @@ class KisStockFetcherTest :
             When("fetchAll()을 호출하면") {
                 Then("성공한 종목만 반환한다") {
                     val result = fetcher.fetchAll()
-                    val expectedCount = OverseaStockConstants.DAILY_NASDAQ_STOCK_GROUP_MAP.values.flatten().filterIndexed { index, _ -> index % 2 == 0 }.size
+                    val expectedCount =
+                        OverseaStockConstants.DAILY_NASDAQ_STOCK_GROUP_MAP.values
+                            .flatten()
+                            .filterIndexed { index, _ ->
+                                index %
+                                    2 ==
+                                    0
+                            }.size
                     result.values.sumOf { it.size } shouldBe expectedCount
                 }
             }

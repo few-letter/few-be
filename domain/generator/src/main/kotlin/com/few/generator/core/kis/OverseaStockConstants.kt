@@ -23,11 +23,9 @@ object OverseaStockConstants {
     val QQQ = Stock("QQQ", "나스닥100", EXCD_NAS)
     val SCHD = Stock("SCHD", "미국배당다우존스", EXCD_AMS)
 
-
     val DAILY_NASDAQ_STOCK_GROUP_MAP: Map<StockGroup, List<Stock>> =
         mapOf(
             StockGroup.ETF to listOf(SPY, QQQ, SCHD),
             StockGroup.M7 to listOf(AAPL, MSFT, GOOGL, AMZN, NVDA, META, TSLA),
         )
-
 }

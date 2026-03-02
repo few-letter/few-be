@@ -9,6 +9,7 @@ import com.few.generator.core.kis.OverseaStockConstants
 import com.few.generator.core.kis.StockQuote
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
+import java.awt.AlphaComposite
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Graphics2D
@@ -18,73 +19,69 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 /**
- * 나스닥 주요 종목 주식 카드 이미지 생성기 (800 x 950)
+ * 나스닥 주요 종목 주식 카드 이미지 생성기 (1080 × 1080 – 1:1 인스타그램)
  *
  * 레이아웃:
- *  Y=  0 ~  87 : 헤더바 (보라색) - "나스닥 주요 종목 | 날짜"
- *  Y= 87 ~ 117 : ETF 섹션 레이블
- *  Y=117 ~ 217 : ETF 종목 2개 수평 배치 (koreanName 위 / changeRate 아래)
- *  Y=217 ~ 232 : 섹션 구분 여백
- *  Y=232 ~ 262 : M7 섹션 레이블
- *  Y=262 ~ 822 : M7 종목 행 × 7 (행 높이 80px, 로고 + koreanName + price + changeRate)
- *  Y=822 ~ 842 : 로고 상단 여백
- *  Y=842 ~ 892 : few 로고
- *  Y=892 ~ 950 : 하단 여백
+ *  Y=   0 ~  120 : 헤더 (딥네이비 #1F2333) – "NASDAQ DAILY" + 날짜
+ *  Y= 120 ~  320 : ETF 라운드 카드 3개 수평 배치 (상단 패딩 30 + 카드 160 + 하단 간격 10)
+ *  Y= 320 ~  375 : M7 섹션 타이틀 (아쿠아 + 밑줄)
+ *  Y= 375 ~  970 : M7 종목 7행 × 85px (로고 | 이름 | 가격 | 등락률), 세로 중앙 정렬
+ *  Y= 975 ~ 1080 : 푸터 – Market Mood (선택) + few_logo.png
  */
 @Component
 class StockCardGenerator {
     private val log = KotlinLogging.logger {}
 
     companion object {
-        private const val IMAGE_WIDTH = 800
-        private const val IMAGE_HEIGHT = 950
+        private const val IMAGE_WIDTH = 1080
+        private const val IMAGE_HEIGHT = 1080
 
-        private const val HEADER_HEIGHT = 87
-        private const val HEADER_FONT_SIZE = 24
+        // ── Header ───────────────────────────────────────────────────────────
+        private const val HEADER_HEIGHT = 120
+        private const val HEADER_TITLE_X = 100
 
-        private const val SECTION_LABEL_HEIGHT = 30
-        private const val SECTION_LABEL_FONT_SIZE = 14
-        private const val SECTION_ACCENT_WIDTH = 5
+        // ── ETF ──────────────────────────────────────────────────────────────
+        private const val ETF_SECTION_Y = HEADER_HEIGHT // 120
+        private const val ETF_CARDS_Y = ETF_SECTION_Y + 30 // 150
+        private const val ETF_CARD_HEIGHT = 160
+        private const val ETF_CARD_CORNER = 20
+        private const val ETF_SIDE_MARGIN = 30
+        private const val ETF_CARD_GAP = 12
 
-        // ETF 섹션
-        private const val ETF_SECTION_Y = HEADER_HEIGHT // 87
-        private const val ETF_ROW_START_Y = ETF_SECTION_Y + SECTION_LABEL_HEIGHT // 117
-        private const val ETF_CONTENT_HEIGHT = 100
-        private const val ETF_NAME_Y_OFFSET = 34  // koreanName Y = ETF_ROW_START_Y + 34
-        private const val ETF_RATE_Y_OFFSET = 74  // changeRate Y = ETF_ROW_START_Y + 74
+        // ── M7 ───────────────────────────────────────────────────────────────
+        private const val M7_SECTION_Y = ETF_CARDS_Y + ETF_CARD_HEIGHT + 10 // 320
+        private const val M7_TITLE_AREA_H = 55
+        private const val M7_TITLE_X = 100
+        private const val M7_ROW_HEIGHT = 85
 
-        // M7 섹션
-        private const val M7_SECTION_GAP = 15
-        private const val M7_SECTION_Y = ETF_ROW_START_Y + ETF_CONTENT_HEIGHT + M7_SECTION_GAP // 232
-        private const val M7_ROW_START_Y = M7_SECTION_Y + SECTION_LABEL_HEIGHT // 262
-        private const val M7_ROW_HEIGHT = 80
+        // M7 row column positions
         private const val COMPANY_LOGO_SIZE = 44
+        private const val M7_COL_LOGO = 100
+        private const val M7_COL_NAME = M7_COL_LOGO + COMPANY_LOGO_SIZE + 20 // 114
+        private const val M7_COL_PRICE = 610
+        private const val M7_COL_CHANGE = 850
 
-        private const val MARGIN_X = 40
+        // ── Footer ────────────────────────────────────────────────────────────
+        private const val FOOTER_START_Y = 975
+        private const val FEW_LOGO_MAX_SIZE = 40
 
-        // M7 컬럼 (symbol 제거, koreanName이 logo 바로 옆에 위치)
-        private const val M7_COL_LOGO = 40
-        private const val M7_COL_KOREAN_NAME = 96  // 40 + 44 + 12
-        private const val M7_COL_PRICE = 440
-        private const val M7_COL_CHANGE_RATE = 615
+        // ── Font sizes ────────────────────────────────────────────────────────
+        private const val NAME_FONT_SIZE = 22
+        private const val PRICE_FONT_SIZE = 20
+        private const val CHANGE_FONT_SIZE = 20
 
-        private const val NAME_FONT_SIZE = 24   // koreanName: symbol과 동일한 굵은 스타일
-        private const val PRICE_FONT_SIZE = 22
+        // ── Colors ────────────────────────────────────────────────────────────
+        private val HEADER_BG_COLOR = Color(0x1F, 0x23, 0x33)
+        private val AQUA_BLUE = Color(0x63, 0xC7, 0xE6)
+        private val BG_COLOR = Color(0xF4, 0xF6, 0xF8)
+        private val RISE_COLOR = Color(0xE0, 0x57, 0x57)
+        private val FALL_COLOR = Color(0x2C, 0x4A, 0x6E)
+        private val NEUTRAL_COLOR = Color(0x99, 0x99, 0x99)
+        private val TEXT_COLOR = Color(0x33, 0x33, 0x33)
+        private val DIVIDER_COLOR = Color(0xE0, 0xE4, 0xE8)
 
-        // few 로고
-        private const val FEW_LOGO_Y = M7_ROW_START_Y + M7_ROW_HEIGHT * 7 + 20 // 842
-        private const val FEW_LOGO_MAX_SIZE = 50
+        private val DATE_FORMATTER = DateTimeFormatter.ofPattern("M월 d일  |  E요일", Locale.KOREAN)
 
-        // 등락 색상
-        private val RISE_COLOR = Color(255, 59, 63)
-        private val FALL_COLOR = Color(56, 118, 229)
-        private val NEUTRAL_COLOR = Color(130, 130, 130)
-        private val DIVIDER_COLOR = Color(230, 230, 230)
-        private val SECTION_BG_COLOR = Color(245, 240, 255)
-
-        private val DATE_FORMATTER = DateTimeFormatter.ofPattern("M월 d일 E요일", Locale.KOREAN)
-
-        /** 종목별 브랜드 색상 (로고 이미지 없을 때 원형 배지에 사용) */
         private val BRAND_COLORS: Map<String, Color> =
             mapOf(
                 "AAPL" to Color(100, 100, 100),
@@ -101,15 +98,16 @@ class StockCardGenerator {
         stocks: Map<OverseaStockConstants.StockGroup, List<StockQuote>>,
         outputPath: String,
         date: LocalDate = LocalDate.now(),
+        marketMood: String = "",
     ): Boolean {
         log.debug { "나스닥 주식 카드 이미지 생성 시작 (종목 수: ${stocks.values.sumOf { it.size }})" }
 
-        val image = BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB)
+        val image = BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB)
         val graphics = image.createGraphics()
         setupGraphics(graphics)
 
         try {
-            graphics.color = ImageGeneratorUtils.WHITE_COLOR.toColor()
+            graphics.color = BG_COLOR
             graphics.fillRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT)
 
             drawHeader(graphics, date)
@@ -117,13 +115,9 @@ class StockCardGenerator {
             val etfStocks = stocks[OverseaStockConstants.StockGroup.ETF] ?: emptyList()
             val m7Stocks = stocks[OverseaStockConstants.StockGroup.M7] ?: emptyList()
 
-            drawSectionLabel(graphics, "ETF", ETF_SECTION_Y)
-            drawEtfSection(graphics, etfStocks)
-
-            drawSectionLabel(graphics, "Magnificent 7", M7_SECTION_Y)
-            drawM7Rows(graphics, m7Stocks)
-
-            drawFewLogo(graphics)
+            drawEtfCards(graphics, etfStocks)
+            drawM7Section(graphics, m7Stocks)
+            drawFooter(graphics, marketMood)
 
             return saveImage(image, outputPath)
         } finally {
@@ -135,99 +129,167 @@ class StockCardGenerator {
         graphics: Graphics2D,
         date: LocalDate,
     ) {
-        graphics.color = ImageGeneratorUtils.THEME_COLOR.toColor()
+        graphics.color = HEADER_BG_COLOR
         graphics.fillRect(0, 0, IMAGE_WIDTH, HEADER_HEIGHT)
 
-        val font = loadKoreanFont(HEADER_FONT_SIZE, bold = true)
-        val textY = (HEADER_HEIGHT + HEADER_FONT_SIZE) / 2
+        val labelFont = loadKoreanFont(32, bold = true)
+        val dateFont = loadKoreanFont(20, bold = false)
 
-        val title = "나스닥 주요 종목"
-        drawText(graphics, title, MARGIN_X, textY, font, ImageGeneratorUtils.WHITE_COLOR.toColor())
+        drawText(graphics, "NASDAQ DAILY", HEADER_TITLE_X, 55, labelFont, AQUA_BLUE)
 
-        val dateStr = date.format(DATE_FORMATTER)
-        val titleWidth = ImageGeneratorUtils.getTextWidth(graphics, title, font)
-        val separator = "  |  "
-        val separatorWidth = ImageGeneratorUtils.getTextWidth(graphics, separator, font)
-        drawText(graphics, separator, MARGIN_X + titleWidth, textY, font, Color(200, 180, 255))
-        drawText(graphics, dateStr, MARGIN_X + titleWidth + separatorWidth, textY, font, ImageGeneratorUtils.WHITE_COLOR.toColor())
-    }
-
-    private fun drawSectionLabel(
-        graphics: Graphics2D,
-        label: String,
-        sectionY: Int,
-    ) {
-        graphics.color = SECTION_BG_COLOR
-        graphics.fillRect(0, sectionY, IMAGE_WIDTH, SECTION_LABEL_HEIGHT)
-
-        graphics.color = ImageGeneratorUtils.THEME_COLOR.toColor()
-        graphics.fillRect(0, sectionY, SECTION_ACCENT_WIDTH, SECTION_LABEL_HEIGHT)
-
-        val font = loadKoreanFont(SECTION_LABEL_FONT_SIZE, bold = true)
-        val textY = sectionY + (SECTION_LABEL_HEIGHT + SECTION_LABEL_FONT_SIZE) / 2
-        drawText(graphics, label, MARGIN_X, textY, font, ImageGeneratorUtils.THEME_COLOR.toColor())
+        val orig = graphics.composite
+        graphics.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.8f)
+        drawText(graphics, date.format(DATE_FORMATTER), HEADER_TITLE_X, 95, dateFont, Color.WHITE)
+        graphics.composite = orig
     }
 
     /**
-     * ETF 종목 수평 배치. ETF 개수에 따라 너비를 동적으로 분할.
-     * 각 카드: koreanName (위) → changeRate (아래)
-     * 카드 사이에 수직 구분선.
+     * ETF 종목을 라운드 흰색 카드 3개로 수평 배치.
+     * 각 카드: 인덱스명 (위) + 등락률 (아래), 모두 중앙 정렬.
      */
-    private fun drawEtfSection(
+    private fun drawEtfCards(
         graphics: Graphics2D,
         stocks: List<StockQuote>,
     ) {
         if (stocks.isEmpty()) return
 
-        val nameFont = loadKoreanFont(NAME_FONT_SIZE, bold = true)
-        val rateFont = loadKoreanFont(PRICE_FONT_SIZE, bold = true)
+        val n = stocks.size
+        val totalCardWidth = IMAGE_WIDTH - ETF_SIDE_MARGIN * 2 - ETF_CARD_GAP * (n - 1)
+        val cardWidth = totalCardWidth / n
 
-        val cardWidth = IMAGE_WIDTH / stocks.size
-        val nameY = ETF_ROW_START_Y + ETF_NAME_Y_OFFSET
-        val rateY = ETF_ROW_START_Y + ETF_RATE_Y_OFFSET
+        val nameFont = loadKoreanFont(32, bold = true)
+        val rateFont = loadKoreanFont(24, bold = true)
 
-        stocks.forEachIndexed { index, stock ->
-            val textX = index * cardWidth + MARGIN_X
-            drawText(graphics, stock.koreanName, textX, nameY, nameFont, ImageGeneratorUtils.TEXT_COLOR.toColor())
+        // 두 텍스트 블록을 카드 높이 기준으로 세로 중앙 정렬
+        graphics.font = nameFont
+        val nameMetrics = graphics.fontMetrics
+        graphics.font = rateFont
+        val rateMetrics = graphics.fontMetrics
+        val textGap = 10
+        val blockH = nameMetrics.height + textGap + rateMetrics.height
+        val blockStartY = ETF_CARDS_Y + (ETF_CARD_HEIGHT - blockH) / 2
+        val nameBaselineY = blockStartY + nameMetrics.ascent
+        val rateBaselineY = blockStartY + nameMetrics.height + textGap + rateMetrics.ascent
 
+        stocks.forEachIndexed { i, stock ->
+            val cardX = ETF_SIDE_MARGIN + i * (cardWidth + ETF_CARD_GAP)
+
+            // Subtle drop shadow
+            val origComposite = graphics.composite
+            graphics.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.08f)
+            graphics.color = Color.BLACK
+            graphics.fillRoundRect(cardX + 2, ETF_CARDS_Y + 4, cardWidth, ETF_CARD_HEIGHT, ETF_CARD_CORNER, ETF_CARD_CORNER)
+            graphics.composite = origComposite
+
+            // Card background
+            graphics.color = Color.WHITE
+            graphics.fillRoundRect(cardX, ETF_CARDS_Y, cardWidth, ETF_CARD_HEIGHT, ETF_CARD_CORNER, ETF_CARD_CORNER)
+
+            // Index name – horizontally centered, vertically centered
+            graphics.font = nameFont
+            val nameW = graphics.fontMetrics.stringWidth(stock.koreanName)
+            val nameX = cardX + (cardWidth - nameW) / 2
+            drawText(graphics, stock.koreanName, nameX, nameBaselineY, nameFont, TEXT_COLOR)
+
+            // Change rate – horizontally centered, vertically centered
             val (arrow, changeColor) = changeArrow(stock)
-            drawText(graphics, "$arrow ${stock.changeRate}%", textX, rateY, rateFont, changeColor)
-        }
-
-        // 카드 사이 수직 구분선
-        graphics.color = DIVIDER_COLOR
-        graphics.stroke = BasicStroke(1f)
-        repeat(stocks.size - 1) { i ->
-            val dividerX = cardWidth * (i + 1)
-            graphics.drawLine(dividerX, ETF_ROW_START_Y, dividerX, ETF_ROW_START_Y + ETF_CONTENT_HEIGHT)
+            val rateText = "$arrow ${stock.changeRate}%"
+            graphics.font = rateFont
+            val rateW = graphics.fontMetrics.stringWidth(rateText)
+            val rateX = cardX + (cardWidth - rateW) / 2
+            drawText(graphics, rateText, rateX, rateBaselineY, rateFont, changeColor)
         }
     }
 
     /**
-     * M7 종목 행: 회사 로고 + koreanName (bold) + 현재가 + 등락률
+     * M7 섹션: "M7" 타이틀 + 아쿠아 밑줄 + 7개 종목 행.
+     * 각 행: 한국어 종목명 | 현재가 | 등락률 | 우측 로고.
      */
-    private fun drawM7Rows(
+    private fun drawM7Section(
         graphics: Graphics2D,
         stocks: List<StockQuote>,
     ) {
-        val nameFont = loadKoreanFont(NAME_FONT_SIZE, bold = true)
-        val priceFont = loadKoreanFont(PRICE_FONT_SIZE, bold = true)
+        // Title
+        val titleFont = loadKoreanFont(28, bold = true)
+        val titleTextY = M7_SECTION_Y + 40
+        drawText(graphics, "M7", M7_TITLE_X, titleTextY, titleFont, AQUA_BLUE)
 
-        stocks.forEachIndexed { index, stock ->
-            val rowY = M7_ROW_START_Y + index * M7_ROW_HEIGHT
+        // Underline
+        val titleW = ImageGeneratorUtils.getTextWidth(graphics, "M7", titleFont)
+        graphics.color = AQUA_BLUE
+        graphics.stroke = BasicStroke(2f)
+        graphics.drawLine(M7_TITLE_X, titleTextY + 6, M7_TITLE_X + titleW, titleTextY + 6)
+
+        // Center rows vertically in available space
+        val totalRowsH = stocks.size * M7_ROW_HEIGHT
+        val available = FOOTER_START_Y - M7_SECTION_Y - M7_TITLE_AREA_H
+        val rowsStartY = M7_SECTION_Y + M7_TITLE_AREA_H + (available - totalRowsH).coerceAtLeast(0) / 2
+
+        val nameFont = loadKoreanFont(NAME_FONT_SIZE, bold = true)
+        val priceFont = loadKoreanFont(PRICE_FONT_SIZE, bold = false)
+        val changeFont = loadKoreanFont(CHANGE_FONT_SIZE, bold = true)
+
+        stocks.forEachIndexed { idx, stock ->
+            val rowY = rowsStartY + idx * M7_ROW_HEIGHT
             val textY = rowY + (M7_ROW_HEIGHT + PRICE_FONT_SIZE) / 2
             val logoY = rowY + (M7_ROW_HEIGHT - COMPANY_LOGO_SIZE) / 2
 
-            drawCompanyLogo(graphics, stock.symbol, M7_COL_LOGO, logoY, COMPANY_LOGO_SIZE)
-            drawText(graphics, stock.koreanName, M7_COL_KOREAN_NAME, textY, nameFont, ImageGeneratorUtils.TEXT_COLOR.toColor())
-            drawText(graphics, "$${stock.currentPrice}", M7_COL_PRICE, textY, priceFont, ImageGeneratorUtils.TEXT_COLOR.toColor())
-
             val (arrow, changeColor) = changeArrow(stock)
-            drawText(graphics, "$arrow ${stock.changeRate}%", M7_COL_CHANGE_RATE, textY, priceFont, changeColor)
 
-            if (index < stocks.size - 1) {
-                drawDivider(graphics, rowY + M7_ROW_HEIGHT)
+            // Korean company name
+            drawText(graphics, stock.koreanName, M7_COL_NAME, textY, nameFont, TEXT_COLOR)
+
+            // Current price
+            drawText(graphics, "$${stock.currentPrice}", M7_COL_PRICE, textY, priceFont, TEXT_COLOR)
+
+            // Change rate with direction arrow
+            drawText(graphics, "$arrow ${stock.changeRate}%", M7_COL_CHANGE, textY, changeFont, changeColor)
+
+            // Company logo (far right)
+            drawCompanyLogo(graphics, stock.symbol, M7_COL_LOGO, logoY, COMPANY_LOGO_SIZE)
+
+            // Row divider (skip last row)
+            if (idx < stocks.size - 1) {
+                graphics.color = DIVIDER_COLOR
+                graphics.stroke = BasicStroke(1f)
+                graphics.drawLine(40, rowY + M7_ROW_HEIGHT, IMAGE_WIDTH - 40, rowY + M7_ROW_HEIGHT)
             }
+        }
+    }
+
+    private fun drawFooter(
+        graphics: Graphics2D,
+        marketMood: String,
+    ) {
+        // Thin separator line
+        graphics.color = DIVIDER_COLOR
+        graphics.stroke = BasicStroke(1f)
+        graphics.drawLine(40, FOOTER_START_Y + 10, IMAGE_WIDTH - 40, FOOTER_START_Y + 10)
+
+        // Market Mood (optional)
+        if (marketMood.isNotBlank()) {
+            val moodFont = loadKoreanFont(15, bold = false)
+            val moodText = "Market Mood  |  $marketMood"
+            graphics.font = moodFont
+            val moodW = graphics.fontMetrics.stringWidth(moodText)
+            val moodX = (IMAGE_WIDTH - moodW) / 2
+            drawText(graphics, moodText, moodX, FOOTER_START_Y + 40, moodFont, Color(0x88, 0x88, 0x88))
+        }
+
+        // few_logo.png centered
+        val logoImage = loadImageResource("few_logo.png")
+        if (logoImage != null) {
+            val aspectRatio = logoImage.width.toDouble() / logoImage.height.toDouble()
+            val (newWidth, newHeight) =
+                if (logoImage.width > logoImage.height) {
+                    Pair(FEW_LOGO_MAX_SIZE, (FEW_LOGO_MAX_SIZE / aspectRatio).toInt())
+                } else {
+                    Pair((FEW_LOGO_MAX_SIZE * aspectRatio).toInt(), FEW_LOGO_MAX_SIZE)
+                }
+            val resizedLogo = ImageGeneratorUtils.resizeImage(logoImage, newWidth, newHeight)
+            val logoX = (IMAGE_WIDTH - newWidth) / 2
+            val logoY = if (marketMood.isNotBlank()) FOOTER_START_Y + 58 else FOOTER_START_Y + 35
+            graphics.drawImage(resizedLogo, logoX, logoY, null)
         }
     }
 
@@ -238,10 +300,19 @@ class StockCardGenerator {
         y: Int,
         size: Int,
     ) {
-        val logoImage = loadImageResource("${symbol.lowercase()}_logo.png")
+        val logoImage = loadImageResource("m7/${symbol.lowercase()}_logo.png")
         if (logoImage != null) {
-            val resized = ImageGeneratorUtils.resizeImage(logoImage, size, size)
-            graphics.drawImage(resized, x, y, null)
+            val aspectRatio = logoImage.width.toDouble() / logoImage.height.toDouble()
+            val (newWidth, newHeight) =
+                if (aspectRatio >= 1.0) {
+                    Pair(size, (size / aspectRatio).toInt())
+                } else {
+                    Pair((size * aspectRatio).toInt(), size)
+                }
+            val resized = ImageGeneratorUtils.resizeImage(logoImage, newWidth, newHeight)
+            val offsetX = (size - newWidth) / 2
+            val offsetY = (size - newHeight) / 2
+            graphics.drawImage(resized, x + offsetX, y + offsetY, null)
         } else {
             drawCompanyBadge(graphics, symbol, x, y, size)
         }
@@ -254,8 +325,7 @@ class StockCardGenerator {
         y: Int,
         size: Int,
     ) {
-        val brandColor = BRAND_COLORS[symbol] ?: ImageGeneratorUtils.THEME_COLOR.toColor()
-
+        val brandColor = BRAND_COLORS[symbol] ?: AQUA_BLUE
         graphics.color = brandColor
         graphics.fillOval(x, y, size, size)
 
@@ -269,35 +339,10 @@ class StockCardGenerator {
         graphics.drawString(letter, letterX, letterY)
     }
 
-    private fun drawDivider(
-        graphics: Graphics2D,
-        dividerY: Int,
-    ) {
-        graphics.color = DIVIDER_COLOR
-        graphics.stroke = BasicStroke(1f)
-        graphics.drawLine(MARGIN_X, dividerY, IMAGE_WIDTH - MARGIN_X, dividerY)
-    }
-
     private fun changeArrow(stock: StockQuote): Pair<String, Color> =
         when (stock.isRise) {
             true -> "▲" to RISE_COLOR
             false -> "▼" to FALL_COLOR
             null -> "-" to NEUTRAL_COLOR
         }
-
-    private fun drawFewLogo(graphics: Graphics2D) {
-        val logoImage = loadImageResource("few_logo.png") ?: return
-
-        val aspectRatio = logoImage.width.toDouble() / logoImage.height.toDouble()
-        val (newWidth, newHeight) =
-            if (logoImage.width > logoImage.height) {
-                Pair(FEW_LOGO_MAX_SIZE, (FEW_LOGO_MAX_SIZE / aspectRatio).toInt())
-            } else {
-                Pair((FEW_LOGO_MAX_SIZE * aspectRatio).toInt(), FEW_LOGO_MAX_SIZE)
-            }
-
-        val resizedLogo = ImageGeneratorUtils.resizeImage(logoImage, newWidth, newHeight)
-        val logoX = (IMAGE_WIDTH - newWidth) / 2
-        graphics.drawImage(resizedLogo, logoX, FEW_LOGO_Y, null)
-    }
 }
