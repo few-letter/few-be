@@ -5,8 +5,8 @@ import com.few.generator.core.instagram.ImageGeneratorUtils.loadImageResource
 import com.few.generator.core.instagram.ImageGeneratorUtils.loadKoreanFont
 import com.few.generator.core.instagram.ImageGeneratorUtils.saveImage
 import com.few.generator.core.instagram.ImageGeneratorUtils.setupGraphics
-import com.few.generator.core.kis.NasdaqStockConstants
-import com.few.generator.core.kis.NasdaqStockData
+import com.few.generator.core.kis.OverseaStockConstants
+import com.few.generator.core.kis.StockQuote
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 import java.awt.BasicStroke
@@ -98,7 +98,7 @@ class StockCardGenerator {
     }
 
     fun generateImage(
-        stocks: Map<NasdaqStockConstants.StockGroup, List<NasdaqStockData>>,
+        stocks: Map<OverseaStockConstants.StockGroup, List<StockQuote>>,
         outputPath: String,
         date: LocalDate = LocalDate.now(),
     ): Boolean {
@@ -114,8 +114,8 @@ class StockCardGenerator {
 
             drawHeader(graphics, date)
 
-            val etfStocks = stocks[NasdaqStockConstants.StockGroup.ETF] ?: emptyList()
-            val m7Stocks = stocks[NasdaqStockConstants.StockGroup.M7] ?: emptyList()
+            val etfStocks = stocks[OverseaStockConstants.StockGroup.ETF] ?: emptyList()
+            val m7Stocks = stocks[OverseaStockConstants.StockGroup.M7] ?: emptyList()
 
             drawSectionLabel(graphics, "ETF", ETF_SECTION_Y)
             drawEtfSection(graphics, etfStocks)
@@ -175,7 +175,7 @@ class StockCardGenerator {
      */
     private fun drawEtfSection(
         graphics: Graphics2D,
-        stocks: List<NasdaqStockData>,
+        stocks: List<StockQuote>,
     ) {
         if (stocks.isEmpty()) return
 
@@ -208,7 +208,7 @@ class StockCardGenerator {
      */
     private fun drawM7Rows(
         graphics: Graphics2D,
-        stocks: List<NasdaqStockData>,
+        stocks: List<StockQuote>,
     ) {
         val nameFont = loadKoreanFont(NAME_FONT_SIZE, bold = true)
         val priceFont = loadKoreanFont(PRICE_FONT_SIZE, bold = true)
@@ -278,7 +278,7 @@ class StockCardGenerator {
         graphics.drawLine(MARGIN_X, dividerY, IMAGE_WIDTH - MARGIN_X, dividerY)
     }
 
-    private fun changeArrow(stock: NasdaqStockData): Pair<String, Color> =
+    private fun changeArrow(stock: StockQuote): Pair<String, Color> =
         when (stock.isRise) {
             true -> "▲" to RISE_COLOR
             false -> "▼" to FALL_COLOR

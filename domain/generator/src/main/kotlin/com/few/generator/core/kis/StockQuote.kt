@@ -1,6 +1,6 @@
 package com.few.generator.core.kis
 
-data class NasdaqStockData(
+data class StockQuote(
     val symbol: String,
     val koreanName: String,
     /** 현재가 (USD) */

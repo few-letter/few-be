@@ -16,17 +16,17 @@ class KisStockFetcher(
 ) {
     private val log = KotlinLogging.logger {}
 
-    fun fetchAll(): Map<NasdaqStockConstants.StockGroup, List<NasdaqStockData>> {
+    fun fetchAll(): Map<OverseaStockConstants.StockGroup, List<StockQuote>> {
         val accessToken = issueToken()
         val authorization = "Bearer $accessToken"
 
-        return NasdaqStockConstants.STOCK_GROUP_MAP.mapValues { (_, stocks) ->
+        return OverseaStockConstants.DAILY_NASDAQ_STOCK_GROUP_MAP.mapValues { (_, stocks) ->
             stocks.mapNotNull { stock ->
                 runCatching {
                     val response =
                         kisClient.getStockPrice(
                             authorization = authorization,
-                            trId = NasdaqStockConstants.OVERSEA_PRICE_DETAIL_TR_ID,
+                            trId = OverseaStockConstants.OVERSEA_PRICE_DETAIL_TR_ID,
                             excd = stock.excd,
                             symb = stock.symbol,
                         )
@@ -38,7 +38,7 @@ class KisStockFetcher(
 
                     val output = response.output
 
-                    NasdaqStockData(
+                    StockQuote(
                         symbol = stock.symbol,
                         koreanName = stock.koreanName,
                         currentPrice = output.last,
