@@ -79,7 +79,7 @@ class NasdaqDailyStockCardSchedulingUseCase(
     private fun buildCaption(date: LocalDate): String {
         val dateFormatted = date.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"))
         return """
-            📈 나스닥 데일리 | $dateFormatted
+            📈 일간 미국 지수 | $dateFormatted
 
             M7 · ETF 주요 종목 시황
 

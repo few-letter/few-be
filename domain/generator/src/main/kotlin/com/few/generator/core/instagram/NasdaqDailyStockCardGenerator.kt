@@ -135,7 +135,7 @@ class NasdaqDailyStockCardGenerator {
         val labelFont = loadKoreanFont(32, bold = true)
         val dateFont = loadKoreanFont(20, bold = false)
 
-        drawText(graphics, "NASDAQ DAILY", HEADER_TITLE_X, 55, labelFont, AQUA_BLUE)
+        drawText(graphics, "일간 미국 지수", HEADER_TITLE_X, 55, labelFont, AQUA_BLUE)
 
         val orig = graphics.composite
         graphics.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.8f)
