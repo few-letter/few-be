@@ -15,7 +15,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 import java.awt.BasicStroke
 import java.awt.Color
+import java.awt.GradientPaint
 import java.awt.Graphics2D
+import java.awt.geom.Path2D
 import java.awt.geom.RoundRectangle2D
 import java.awt.image.BufferedImage
 import java.time.LocalDate
@@ -83,6 +85,13 @@ class MainPageCardGenerator {
             // 헤더 우측 장식 요소 그리기
             drawHeaderDecoration(graphics, primaryColor, lightColor)
 
+            // 헤더 영역 클리핑 후 그라디언트 및 화살표 장식 그리기
+            val savedClip = graphics.clip
+            graphics.setClip(0, 0, IMAGE_WIDTH, HEADER_HEIGHT)
+            drawDiagonalGradient(graphics, lightColor)
+            drawArrowShape(graphics, primaryColor, lightColor)
+            graphics.setClip(savedClip)
+
             // 날짜 pill 그리기
             val today = LocalDate.now()
             val dateStr = "${today.monthValue}월 ${today.dayOfMonth}일 ${getWeekdayText(today.dayOfWeek.value)}"
@@ -138,6 +147,79 @@ class MainPageCardGenerator {
         val lightBarH = minOf(312, HEADER_HEIGHT - lightBarY)
         graphics.color = lightColor
         graphics.fillRect(936, lightBarY, 12, lightBarH)
+    }
+
+    /**
+     * 대각선 그라디언트 영역 그리기 (SVG Vector 60)
+     * 투명 → 15% opacity lightColor 그라디언트
+     */
+    private fun drawDiagonalGradient(
+        graphics: Graphics2D,
+        lightColor: Color,
+    ) {
+        val path = Path2D.Float()
+        path.moveTo(205.385f, 505.205f)
+        path.curveTo(411.531f, 488.477f, 683.895f, 397.131f, 783.277f, 364.13f)
+        path.lineTo(821.751f, 382.272f)
+        path.lineTo(838.085f, 407.959f)
+        path.curveTo(640.263f, 534.75f, 349.29f, 635.783f, 227.691f, 663.202f)
+        path.lineTo(205.385f, 505.205f)
+        path.closePath()
+
+        val gradient =
+            GradientPaint(
+                261.827f,
+                574.955f,
+                Color(lightColor.red, lightColor.green, lightColor.blue, 0),
+                750.486f,
+                295.936f,
+                Color(lightColor.red, lightColor.green, lightColor.blue, 38),
+            )
+        val savedPaint = graphics.paint
+        graphics.paint = gradient
+        graphics.fill(path)
+        graphics.paint = savedPaint
+    }
+
+    /**
+     * 화살표 장식 그리기 (SVG Group 1597881120)
+     * 흰색 베이스 + 밝은 색 + 주요 색 3개 다각형으로 구성
+     */
+    private fun drawArrowShape(
+        graphics: Graphics2D,
+        primaryColor: Color,
+        lightColor: Color,
+    ) {
+        // 흰색 베이스 다각형
+        val arrowWhite = Path2D.Float()
+        arrowWhite.moveTo(803.059f, 381.695f)
+        arrowWhite.lineTo(782.962f, 363.763f)
+        arrowWhite.lineTo(898.782f, 367.79f)
+        arrowWhite.lineTo(834.741f, 411.135f)
+        arrowWhite.lineTo(824.18f, 401.321f)
+        arrowWhite.lineTo(796.358f, 408.886f)
+        arrowWhite.closePath()
+        graphics.color = Color.WHITE
+        graphics.fill(arrowWhite)
+
+        // 밝은 색 다각형
+        val arrowLight = Path2D.Float()
+        arrowLight.moveTo(803.056f, 381.698f)
+        arrowLight.lineTo(796.355f, 408.889f)
+        arrowLight.lineTo(815.311f, 390.487f)
+        arrowLight.lineTo(898.779f, 367.793f)
+        arrowLight.closePath()
+        graphics.color = lightColor
+        graphics.fill(arrowLight)
+
+        // 주요 색 다각형
+        val arrowPrimary = Path2D.Float()
+        arrowPrimary.moveTo(796.354f, 408.897f)
+        arrowPrimary.lineTo(815.31f, 390.495f)
+        arrowPrimary.lineTo(824.176f, 401.333f)
+        arrowPrimary.closePath()
+        graphics.color = primaryColor
+        graphics.fill(arrowPrimary)
     }
 
     /**
@@ -235,7 +317,7 @@ class MainPageCardGenerator {
             graphics.drawLine(MARGIN_X, separatorY, MARGIN_X + CONTENT_WIDTH, separatorY)
             graphics.stroke = savedStroke
 
-            currentY += HEADLINE_LINE_HEIGHT + HEADLINE_GAP + SEPARATOR_STROKE.toInt() + HEADLINE_GAP
+            currentY += HEADLINE_LINE_HEIGHT + HEADLINE_GAP + HEADLINE_GAP
         }
     }
 }
