@@ -84,10 +84,10 @@ class GenCardNewsImageGenerateSchedulingUseCase(
         log.info { "오늘 생성된 Gen ${gens.size}개를 찾았습니다. 이미지 생성을 시작합니다." }
 
         val generatedImagesByCategory = mutableMapOf<Category, MutableList<String>>()
+        val newContentsByCategory = mutableMapOf<Category, MutableList<NewsContent>>()
 
         gens.forEachIndexed { index, gen ->
             try {
-                // Parse highlight texts from JSON
                 val highlightTexts =
                     try {
                         val type = object : TypeToken<List<String>>() {}.type
@@ -97,10 +97,8 @@ class GenCardNewsImageGenerateSchedulingUseCase(
                         emptyList()
                     }
 
-                // Get category
                 val category = Category.from(gen.category)
 
-                // Convert Gen to NewsContent
                 val newsContent =
                     NewsContent(
                         headline = gen.headline,
@@ -110,11 +108,12 @@ class GenCardNewsImageGenerateSchedulingUseCase(
                         highlightTexts = highlightTexts,
                     )
 
-                // Generate image file path: {date}_{categoryEnglish}_{genId}.png
+                // 표지 이미지용 뉴스 콘텐츠 수집 (이미지 생성 성공 여부와 무관)
+                newContentsByCategory.getOrPut(category) { mutableListOf() }.add(newsContent)
+
                 val dateStr = (gen.createdAt ?: LocalDateTime.now()).format(DateTimeFormatter.ofPattern("yyyyMMdd"))
                 val fileName = "gen_images/${dateStr}_${category.englishName}_${gen.id}.png"
 
-                // Generate image using SingleNewsCardGenerator
                 val success = singleNewsCardGenerator.generateImage(newsContent, fileName)
 
                 if (success) {
@@ -131,19 +130,24 @@ class GenCardNewsImageGenerateSchedulingUseCase(
         val totalGenerated = generatedImagesByCategory.values.sumOf { it.size }
         log.info { "이미지 생성 완료: 총 ${gens.size}개 중 ${totalGenerated}개 성공 (${generatedImagesByCategory.size}개 카테고리)" }
 
-        val mainPageImagePathsByCategory = generateMainPageImages(generatedImagesByCategory.keys)
+        // 개별 이미지가 하나 이상 성공한 카테고리에 대해서만 표지 이미지 생성
+        val successfulCategoryContents = newContentsByCategory.filterKeys { it in generatedImagesByCategory.keys }
+        val mainPageImagePathsByCategory = generateMainPageImages(successfulCategoryContents, region)
 
         return Pair(generatedImagesByCategory, mainPageImagePathsByCategory)
     }
 
-    fun generateMainPageImages(categories: Set<Category>): Map<Category, String> {
+    fun generateMainPageImages(
+        contentsByCategory: Map<Category, List<NewsContent>>,
+        region: Region,
+    ): Map<Category, String> {
         val mainPageImagePathsByCategory = mutableMapOf<Category, String>()
         val dateStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
 
-        categories.forEach { category ->
+        contentsByCategory.forEach { (category, newsContents) ->
             try {
                 val mainPagePath = "gen_images/${dateStr}_${category.englishName}_main.png"
-                val success = mainPageCardGenerator.generateMainPageImage(category, mainPagePath)
+                val success = mainPageCardGenerator.generateMainPageImage(category, newsContents, region, mainPagePath)
                 if (success) {
                     mainPageImagePathsByCategory[category] = mainPagePath
                     log.info { "[${category.title}] 표지 이미지 생성 완료: $mainPagePath" }
