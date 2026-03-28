@@ -3,6 +3,7 @@ package com.few.generator.service.instagram
 import com.few.common.domain.Category
 import com.few.common.domain.Region
 import com.few.generator.core.instagram.MainPageCardGenerator
+import com.few.generator.core.instagram.NewsContent
 import com.few.generator.core.instagram.SingleNewsCardGenerator
 import com.few.generator.domain.Gen
 import com.few.generator.service.GenService
@@ -138,16 +139,75 @@ class GenCardNewsImageGenerateLocalTest :
         }
 
         test("generateMainPageImages - 모든 카테고리 표지 이미지 실제 생성") {
-            val categories =
-                setOf(
-                    Category.TECHNOLOGY,
-                    Category.ECONOMY,
-                    Category.POLITICS,
-                    Category.SOCIETY,
-                    Category.LIFE,
+            val contentsByCategory =
+                mapOf(
+                    Category.TECHNOLOGY to
+                        listOf(
+                            NewsContent(
+                                headline = "삼성전자 AI 반도체 기술 혁신",
+                                summary = "요약 내용",
+                                category = "기술",
+                                createdAt = now,
+                                highlightTexts = listOf("AI 반도체"),
+                            ),
+                            NewsContent(
+                                headline = "OpenAI GPT-5 공개 임박",
+                                summary = "요약 내용",
+                                category = "기술",
+                                createdAt = now,
+                                highlightTexts = emptyList(),
+                            ),
+                        ),
+                    Category.ECONOMY to
+                        listOf(
+                            NewsContent(
+                                headline = "한국은행 기준금리 동결 결정",
+                                summary = "요약 내용",
+                                category = "경제",
+                                createdAt = now,
+                                highlightTexts = listOf("기준금리"),
+                            ),
+                            NewsContent(
+                                headline = "코스피 3000 돌파 신기록",
+                                summary = "요약 내용",
+                                category = "경제",
+                                createdAt = now,
+                                highlightTexts = emptyList(),
+                            ),
+                        ),
+                    Category.POLITICS to
+                        listOf(
+                            NewsContent(
+                                headline = "여야 민생법안 처리 합의",
+                                summary = "요약 내용",
+                                category = "정치",
+                                createdAt = now,
+                                highlightTexts = listOf("민생법안"),
+                            ),
+                        ),
+                    Category.SOCIETY to
+                        listOf(
+                            NewsContent(
+                                headline = "사회 뉴스 헤드라인 1",
+                                summary = "요약 내용",
+                                category = "사회",
+                                createdAt = now,
+                                highlightTexts = emptyList(),
+                            ),
+                        ),
+                    Category.LIFE to
+                        listOf(
+                            NewsContent(
+                                headline = "생활 뉴스 헤드라인 1",
+                                summary = "요약 내용",
+                                category = "생활",
+                                createdAt = now,
+                                highlightTexts = emptyList(),
+                            ),
+                        ),
                 )
 
-            val result = useCase.generateMainPageImages(categories)
+            val result = useCase.generateMainPageImages(contentsByCategory, Region.LOCAL)
 
             result shouldHaveSize 5
 
