@@ -148,8 +148,17 @@ class NasdaqStockCardS3UploadIntegrationTest :
             stocks.forEach { (group, groupStocks) ->
                 println("--- $group ---")
                 groupStocks.forEach { stock ->
-                    val arrow = when (stock.isRise) { true -> "▲"; false -> "▼"; null -> "-" }
-                    println("${stock.symbol.padEnd(6)} | ${stock.koreanName.padEnd(12)} | \$${stock.currentPrice.padStart(10)} | $arrow ${stock.changeRate}%")
+                    val arrow =
+                        when (stock.isRise) {
+                            true -> "▲"
+                            false -> "▼"
+                            null -> "-"
+                        }
+                    println(
+                        "${stock.symbol.padEnd(
+                            6,
+                        )} | ${stock.koreanName.padEnd(12)} | \$${stock.currentPrice.padStart(10)} | $arrow ${stock.changeRate}%",
+                    )
                 }
             }
 

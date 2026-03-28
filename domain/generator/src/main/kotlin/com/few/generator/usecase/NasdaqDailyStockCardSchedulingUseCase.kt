@@ -84,6 +84,6 @@ class NasdaqDailyStockCardSchedulingUseCase(
             M7 · ETF 주요 종목 시황
 
             #나스닥 #미국주식 #NASDAQ #M7 #ETF
-        """.trimIndent()
+            """.trimIndent()
     }
 }
