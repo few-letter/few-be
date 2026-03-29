@@ -315,7 +315,7 @@ object ImageGeneratorUtils {
             drawHighlightedText(
                 graphics,
                 line,
-                highlightTexts,
+                resolveLineHighlights(line, highlightTexts),
                 x,
                 currentY,
                 font,
@@ -326,6 +326,59 @@ object ImageGeneratorUtils {
         }
 
         return currentY
+    }
+
+    /**
+     * 줄바꿈으로 분리된 라인에 맞게 하이라이트 텍스트 목록을 조정
+     *
+     * wrapText()로 텍스트를 줄바꿈할 때 하이라이트 텍스트가 줄 경계에 걸치면
+     * 해당 줄에서 전체 하이라이트를 찾을 수 없으므로, 라인에 포함된 부분만 하이라이트로 처리한다.
+     *
+     * 예시) 원문: "삼성전자가 AI 반도체 개발에 성공"
+     *       highlightTexts: ["AI 반도체"]
+     *       줄1 "삼성전자가 AI" → "AI" (접두사) 를 하이라이트로 추가
+     *       줄2 "반도체 개발에 성공" → "반도체" (접미사) 를 하이라이트로 추가
+     */
+    internal fun resolveLineHighlights(
+        line: String,
+        highlightTexts: List<String>,
+    ): List<String> {
+        if (highlightTexts.isEmpty()) return highlightTexts
+
+        return highlightTexts.filter { it.isNotEmpty() }.flatMap { highlight ->
+            when {
+                line.contains(highlight) -> listOf(highlight)
+                else ->
+                    listOfNotNull(
+                        findHighlightPrefix(line, highlight),
+                        findHighlightSuffix(line, highlight),
+                    )
+            }
+        }
+    }
+
+    /** 라인 끝이 하이라이트의 접두사인 경우 반환 (하이라이트가 다음 줄로 넘어간 경우) */
+    private fun findHighlightPrefix(
+        line: String,
+        highlight: String,
+    ): String? {
+        for (i in highlight.length - 1 downTo 1) {
+            val prefix = highlight.substring(0, i)
+            if (line.endsWith(prefix)) return prefix
+        }
+        return null
+    }
+
+    /** 라인 시작이 하이라이트의 접미사인 경우 반환 (이전 줄에서 넘어온 경우) */
+    private fun findHighlightSuffix(
+        line: String,
+        highlight: String,
+    ): String? {
+        for (i in 1 until highlight.length) {
+            val suffix = highlight.substring(i)
+            if (line.startsWith(suffix)) return suffix
+        }
+        return null
     }
 
     /**
