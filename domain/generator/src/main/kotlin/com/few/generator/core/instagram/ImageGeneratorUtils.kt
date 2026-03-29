@@ -345,7 +345,7 @@ object ImageGeneratorUtils {
     ): List<String> {
         if (highlightTexts.isEmpty()) return highlightTexts
 
-        return highlightTexts.flatMap { highlight ->
+        return highlightTexts.filter { it.isNotEmpty() }.flatMap { highlight ->
             when {
                 line.contains(highlight) -> listOf(highlight)
                 else ->
