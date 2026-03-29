@@ -1,5 +1,6 @@
 package com.few.generator.support.aws
 
+import io.awspring.cloud.s3.ObjectMetadata
 import io.awspring.cloud.s3.S3Template
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
@@ -64,6 +65,14 @@ class S3Provider(
                 }
 
                 // S3 업로드 (InputStream 자동 Close를 위해 .use 사용)
+                val contentType =
+                    when (file.extension.lowercase()) {
+                        "jpg", "jpeg" -> "image/jpeg"
+                        "png" -> "image/png"
+                        "gif" -> "image/gif"
+                        "webp" -> "image/webp"
+                        else -> "image/png"
+                    }
                 val url =
                     file.inputStream().use { inputStream ->
                         val s3Resource =
@@ -71,7 +80,7 @@ class S3Provider(
                                 bucket,
                                 file.name,
                                 inputStream,
-                                null,
+                                ObjectMetadata.builder().contentType(contentType).build(),
                             )
                         s3Resource.url.toString()
                     }
