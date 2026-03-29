@@ -112,6 +112,15 @@ class InstagramImageGeneratorTest :
                 result shouldBe emptyList()
             }
 
+            test("빈 문자열이 포함된 경우 무한 루프 방지를 위해 필터링") {
+                val result =
+                    ImageGeneratorUtils.resolveLineHighlights(
+                        line = "삼성전자가 AI 반도체 개발에 성공했습니다",
+                        highlightTexts = listOf("", "AI 반도체"),
+                    )
+                result shouldContainExactlyInAnyOrder listOf("AI 반도체")
+            }
+
             test("여러 하이라이트 혼합 - 일부는 전체 포함, 일부는 경계 걸침") {
                 // 줄: "삼성전자가 AI" (하이라이트: "삼성전자", "AI 반도체")
                 val result =
