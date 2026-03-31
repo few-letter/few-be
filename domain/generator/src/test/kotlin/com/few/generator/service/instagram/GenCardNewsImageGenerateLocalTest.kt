@@ -138,6 +138,145 @@ class GenCardNewsImageGenerateLocalTest :
             }
         }
 
+        test("사이버 보안 주식 AI 솔루션 전환 - 카드뉴스 상세 페이지 이미지 실제 생성") {
+            val gens =
+                listOf(
+                    Gen(
+                        id = 200L,
+                        provisioningContentsId = 10L,
+                        category = Category.ECONOMY.code,
+                        region = Region.GLOBAL.code,
+                        headline = "사이버 보안 주식 AI 솔루션 전환",
+                        summary =
+                            "Wolfe Research에 따르면, 특정 사이버 보안 주식이 AI 기반 솔루션으로의 전환으로 혜택을 받을 가능성이 높습니다. " +
+                                "이는 기업들이 사이버 보안 강화에 AI 기술을 도입함에 따라 해당 주식의 가치가 상승할 것으로 예상됨을 의미합니다.",
+                        highlightTexts = """["AI 기반 솔루션으로의 전환으로 혜택을 받을 가능성이 높습니다."]""",
+                    ).apply { createdAt = now },
+                )
+
+            every { genService.findAllByCreatedAtBetweenAndRegion(any(), any(), Region.GLOBAL) } returns gens
+
+            val (imagesByCategory, mainPagesByCategory) = useCase.doExecute(Region.GLOBAL)
+
+            imagesByCategory shouldHaveSize 1
+            imagesByCategory shouldContainKey Category.ECONOMY
+            imagesByCategory[Category.ECONOMY]!!.size shouldBe 1
+
+            imagesByCategory.values.flatten().forEach { path ->
+                File(path).exists() shouldBe true
+            }
+
+            mainPagesByCategory shouldHaveSize 1
+            mainPagesByCategory shouldContainKey Category.ECONOMY
+
+            mainPagesByCategory.values.forEach { path ->
+                File(path).exists() shouldBe true
+            }
+
+            println("=== 사이버 보안 주식 AI 솔루션 전환 카드뉴스 ===")
+            imagesByCategory.forEach { (category, paths) ->
+                println("[${category.title}]")
+                paths.forEach { println("  - $it") }
+            }
+            println("\n=== 표지 이미지 ===")
+            mainPagesByCategory.forEach { (category, path) ->
+                println("[${category.title}] $path")
+            }
+        }
+
+        test("S&P 500 추가 하락 가능성 - 카드뉴스 상세 페이지 이미지 실제 생성") {
+            val gens =
+                listOf(
+                    Gen(
+                        id = 201L,
+                        provisioningContentsId = 11L,
+                        category = Category.ECONOMY.code,
+                        region = Region.GLOBAL.code,
+                        headline = "S&P 500 추가 하락 가능성",
+                        summary =
+                            "S&P 500 지수는 추가 하락 가능성이 제기되고 있습니다. 최근 시장 분석에 따르면, 옵션 거래를 통한 추가 조정이 예상되며, " +
+                                "이는 투자자들에게 새로운 기회를 제공할 수 있습니다. 따라서 향후 시장 동향에 대한 면밀한 관찰이 필요합니다.",
+                        highlightTexts = """["S&P 500 지수는 추가 하락 가능성이 제기되고 있습니다."]""",
+                    ).apply { createdAt = now },
+                )
+
+            every { genService.findAllByCreatedAtBetweenAndRegion(any(), any(), Region.GLOBAL) } returns gens
+
+            val (imagesByCategory, mainPagesByCategory) = useCase.doExecute(Region.GLOBAL)
+
+            imagesByCategory shouldHaveSize 1
+            imagesByCategory shouldContainKey Category.ECONOMY
+            imagesByCategory[Category.ECONOMY]!!.size shouldBe 1
+
+            imagesByCategory.values.flatten().forEach { path ->
+                File(path).exists() shouldBe true
+            }
+
+            mainPagesByCategory shouldHaveSize 1
+            mainPagesByCategory shouldContainKey Category.ECONOMY
+
+            mainPagesByCategory.values.forEach { path ->
+                File(path).exists() shouldBe true
+            }
+
+            println("=== S&P 500 추가 하락 가능성 카드뉴스 ===")
+            imagesByCategory.forEach { (category, paths) ->
+                println("[${category.title}]")
+                paths.forEach { println("  - $it") }
+            }
+            println("\n=== 표지 이미지 ===")
+            mainPagesByCategory.forEach { (category, path) ->
+                println("[${category.title}] $path")
+            }
+        }
+
+        test("여러 highlightTexts - 카드뉴스 상세 페이지 이미지 실제 생성") {
+            val gens =
+                listOf(
+                    Gen(
+                        id = 202L,
+                        provisioningContentsId = 12L,
+                        category = Category.TECHNOLOGY.code,
+                        region = Region.GLOBAL.code,
+                        headline = "AI 반도체 시장 패권 경쟁 심화",
+                        summary =
+                            "엔비디아와 AMD가 차세대 AI 가속기 시장에서 치열한 경쟁을 벌이고 있습니다. " +
+                                "엔비디아의 블랙웰 아키텍처는 기존 대비 성능이 4배 향상되었으며, AMD의 MI300X도 대형 언어 모델 추론에서 두각을 나타내고 있습니다. " +
+                                "이에 따라 클라우드 사업자들의 AI 인프라 투자가 가속화될 전망입니다.",
+                        highlightTexts = """["엔비디아와 AMD가 차세대 AI 가속기 시장에서 치열한 경쟁을 벌이고 있습니다.", "클라우드 사업자들의 AI 인프라 투자가 가속화될 전망입니다."]""",
+                    ).apply { createdAt = now },
+                )
+
+            every { genService.findAllByCreatedAtBetweenAndRegion(any(), any(), Region.GLOBAL) } returns gens
+
+            val (imagesByCategory, mainPagesByCategory) = useCase.doExecute(Region.GLOBAL)
+
+            imagesByCategory shouldHaveSize 1
+            imagesByCategory shouldContainKey Category.TECHNOLOGY
+            imagesByCategory[Category.TECHNOLOGY]!!.size shouldBe 1
+
+            imagesByCategory.values.flatten().forEach { path ->
+                File(path).exists() shouldBe true
+            }
+
+            mainPagesByCategory shouldHaveSize 1
+            mainPagesByCategory shouldContainKey Category.TECHNOLOGY
+
+            mainPagesByCategory.values.forEach { path ->
+                File(path).exists() shouldBe true
+            }
+
+            println("=== AI 반도체 시장 패권 경쟁 심화 카드뉴스 ===")
+            imagesByCategory.forEach { (category, paths) ->
+                println("[${category.title}]")
+                paths.forEach { println("  - $it") }
+            }
+            println("\n=== 표지 이미지 ===")
+            mainPagesByCategory.forEach { (category, path) ->
+                println("[${category.title}] $path")
+            }
+        }
+
         test("generateMainPageImages - 모든 카테고리 표지 이미지 실제 생성") {
             val contentsByCategory =
                 mapOf(

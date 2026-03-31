@@ -2,7 +2,7 @@ name: Validate Test
 
 on:
     pull_request:
-        branches: [ "main", "dev" ]
+        branches: [ "dev" ]
     workflow_dispatch:
 
 permissions:

@@ -1,6 +1,6 @@
 package com.few.generator.service.instagram
 
-import com.few.generator.core.instagram.ImageGeneratorUtils
+import com.few.generator.core.instagram.CardImageGeneratorUtils
 import com.few.generator.core.instagram.NewsContent
 import com.few.generator.core.instagram.SingleNewsCardGenerator
 import io.kotest.core.spec.style.FunSpec
@@ -67,7 +67,7 @@ class InstagramImageGeneratorTest :
 
             test("하이라이트 전체가 라인에 포함된 경우 그대로 반환") {
                 val result =
-                    ImageGeneratorUtils.resolveLineHighlights(
+                    CardImageGeneratorUtils.resolveLineHighlights(
                         line = "삼성전자가 AI 반도체 개발에 성공했습니다",
                         highlightTexts = listOf("AI 반도체"),
                     )
@@ -77,7 +77,7 @@ class InstagramImageGeneratorTest :
             test("하이라이트가 줄 끝에 걸친 경우 접두사를 반환") {
                 // "AI 반도체"가 줄바꿈으로 "AI" / "반도체"로 분리된 상황에서 첫 번째 줄
                 val result =
-                    ImageGeneratorUtils.resolveLineHighlights(
+                    CardImageGeneratorUtils.resolveLineHighlights(
                         line = "삼성전자가 AI",
                         highlightTexts = listOf("AI 반도체"),
                     )
@@ -86,17 +86,31 @@ class InstagramImageGeneratorTest :
 
             test("하이라이트가 줄 시작에 걸친 경우 접미사를 반환") {
                 // "AI 반도체"가 줄바꿈으로 분리된 상황에서 두 번째 줄
+                // 이전 줄에서 "AI 반도체"가 진행 중이었으므로 activeHighlights에 포함
                 val result =
-                    ImageGeneratorUtils.resolveLineHighlights(
+                    CardImageGeneratorUtils.resolveLineHighlights(
                         line = "반도체 개발에 성공했습니다",
                         highlightTexts = listOf("AI 반도체"),
+                        activeHighlights = setOf("AI 반도체"),
                     )
                 result shouldContainExactlyInAnyOrder listOf("반도체")
             }
 
+            test("하이라이트가 active 아닐 때 줄이 suffix로 시작해도 하이라이트하지 않음 (오탐 방지)") {
+                // "있습니다."는 하이라이트 "S&P 500...있습니다."의 suffix이지만,
+                // 이전 줄에서 해당 하이라이트가 진행 중이지 않으므로 하이라이팅 되면 안 됨
+                val result =
+                    CardImageGeneratorUtils.resolveLineHighlights(
+                        line = "있습니다. 따라서 향후 시장 동향에",
+                        highlightTexts = listOf("S&P 500 지수는 추가 하락 가능성이 제기되고 있습니다."),
+                        activeHighlights = emptySet(),
+                    )
+                result shouldBe emptyList()
+            }
+
             test("라인과 하이라이트가 전혀 관계없는 경우 빈 리스트 반환") {
                 val result =
-                    ImageGeneratorUtils.resolveLineHighlights(
+                    CardImageGeneratorUtils.resolveLineHighlights(
                         line = "전혀 무관한 텍스트입니다",
                         highlightTexts = listOf("AI 반도체"),
                     )
@@ -105,7 +119,7 @@ class InstagramImageGeneratorTest :
 
             test("하이라이트 목록이 비어있으면 빈 리스트 반환") {
                 val result =
-                    ImageGeneratorUtils.resolveLineHighlights(
+                    CardImageGeneratorUtils.resolveLineHighlights(
                         line = "삼성전자가 AI 반도체 개발에 성공했습니다",
                         highlightTexts = emptyList(),
                     )
@@ -114,17 +128,30 @@ class InstagramImageGeneratorTest :
 
             test("빈 문자열이 포함된 경우 무한 루프 방지를 위해 필터링") {
                 val result =
-                    ImageGeneratorUtils.resolveLineHighlights(
+                    CardImageGeneratorUtils.resolveLineHighlights(
                         line = "삼성전자가 AI 반도체 개발에 성공했습니다",
                         highlightTexts = listOf("", "AI 반도체"),
                     )
                 result shouldContainExactlyInAnyOrder listOf("AI 반도체")
             }
 
+            test("줄 전체가 하이라이트 중간에 속하는 경우 줄 전체를 반환 (3줄 이상 걸친 하이라이트의 중간 줄)") {
+                // "AI 기반 솔루션으로의 전환으로 혜택을 받을 가능성이 높습니다."가 3줄로 분리된 상황에서 중간 줄
+                // 이전 줄에서 해당 하이라이트가 진행 중이었으므로 activeHighlights에 포함
+                val highlight = "AI 기반 솔루션으로의 전환으로 혜택을 받을 가능성이 높습니다."
+                val result =
+                    CardImageGeneratorUtils.resolveLineHighlights(
+                        line = "기반 솔루션으로의 전환으로 혜택을 받을 가능성이",
+                        highlightTexts = listOf(highlight),
+                        activeHighlights = setOf(highlight),
+                    )
+                result shouldContainExactlyInAnyOrder listOf("기반 솔루션으로의 전환으로 혜택을 받을 가능성이")
+            }
+
             test("여러 하이라이트 혼합 - 일부는 전체 포함, 일부는 경계 걸침") {
                 // 줄: "삼성전자가 AI" (하이라이트: "삼성전자", "AI 반도체")
                 val result =
-                    ImageGeneratorUtils.resolveLineHighlights(
+                    CardImageGeneratorUtils.resolveLineHighlights(
                         line = "삼성전자가 AI",
                         highlightTexts = listOf("삼성전자", "AI 반도체"),
                     )
