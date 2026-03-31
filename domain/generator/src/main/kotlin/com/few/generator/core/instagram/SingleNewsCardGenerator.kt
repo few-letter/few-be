@@ -1,12 +1,12 @@
 package com.few.generator.core.instagram
 
+import com.few.generator.core.instagram.CardImageGeneratorUtils.drawMultilineHighlightedText
+import com.few.generator.core.instagram.CardImageGeneratorUtils.loadKoreanFont
+import com.few.generator.core.instagram.CardImageGeneratorUtils.saveImage
+import com.few.generator.core.instagram.CardImageGeneratorUtils.setupGraphics
 import com.few.generator.core.instagram.CategoryConstants.getCategoryBgColor
 import com.few.generator.core.instagram.CategoryConstants.getCategoryColor
 import com.few.generator.core.instagram.CategoryConstants.getValidCategory
-import com.few.generator.core.instagram.ImageGeneratorUtils.drawMultilineHighlightedText
-import com.few.generator.core.instagram.ImageGeneratorUtils.loadKoreanFont
-import com.few.generator.core.instagram.ImageGeneratorUtils.saveImage
-import com.few.generator.core.instagram.ImageGeneratorUtils.setupGraphics
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 import java.awt.Color
