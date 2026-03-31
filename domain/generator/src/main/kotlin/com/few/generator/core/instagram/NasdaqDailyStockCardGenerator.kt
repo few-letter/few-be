@@ -1,10 +1,10 @@
 package com.few.generator.core.instagram
 
-import com.few.generator.core.instagram.ImageGeneratorUtils.drawText
-import com.few.generator.core.instagram.ImageGeneratorUtils.loadImageResource
-import com.few.generator.core.instagram.ImageGeneratorUtils.loadKoreanFont
-import com.few.generator.core.instagram.ImageGeneratorUtils.saveImage
-import com.few.generator.core.instagram.ImageGeneratorUtils.setupGraphics
+import com.few.generator.core.instagram.CardImageGeneratorUtils.drawText
+import com.few.generator.core.instagram.CardImageGeneratorUtils.loadImageResource
+import com.few.generator.core.instagram.CardImageGeneratorUtils.loadKoreanFont
+import com.few.generator.core.instagram.CardImageGeneratorUtils.saveImage
+import com.few.generator.core.instagram.CardImageGeneratorUtils.setupGraphics
 import com.few.generator.core.kis.OverseaStockConstants
 import com.few.generator.core.kis.StockQuote
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -215,7 +215,7 @@ class NasdaqDailyStockCardGenerator {
         drawText(graphics, "M7", M7_TITLE_X, titleTextY, titleFont, AQUA_BLUE)
 
         // Underline
-        val titleW = ImageGeneratorUtils.getTextWidth(graphics, "M7", titleFont)
+        val titleW = CardImageGeneratorUtils.getTextWidth(graphics, "M7", titleFont)
         graphics.color = AQUA_BLUE
         graphics.stroke = BasicStroke(2f)
         graphics.drawLine(M7_TITLE_X, titleTextY + 6, M7_TITLE_X + titleW, titleTextY + 6)
@@ -286,7 +286,7 @@ class NasdaqDailyStockCardGenerator {
                 } else {
                     Pair((FEW_LOGO_MAX_SIZE * aspectRatio).toInt(), FEW_LOGO_MAX_SIZE)
                 }
-            val resizedLogo = ImageGeneratorUtils.resizeImage(logoImage, newWidth, newHeight)
+            val resizedLogo = CardImageGeneratorUtils.resizeImage(logoImage, newWidth, newHeight)
             val logoX = (IMAGE_WIDTH - newWidth) / 2
             val logoY = if (marketMood.isNotBlank()) FOOTER_START_Y + 58 else FOOTER_START_Y + 35
             graphics.drawImage(resizedLogo, logoX, logoY, null)
@@ -309,7 +309,7 @@ class NasdaqDailyStockCardGenerator {
                 } else {
                     Pair((size * aspectRatio).toInt(), size)
                 }
-            val resized = ImageGeneratorUtils.resizeImage(logoImage, newWidth, newHeight)
+            val resized = CardImageGeneratorUtils.resizeImage(logoImage, newWidth, newHeight)
             val offsetX = (size - newWidth) / 2
             val offsetY = (size - newHeight) / 2
             graphics.drawImage(resized, x + offsetX, y + offsetY, null)
