@@ -14,7 +14,7 @@ import kotlin.text.iterator
 /**
  * 인스타그램 카드 이미지 생성을 위한 공통 유틸리티 클래스
  */
-object ImageGeneratorUtils {
+object CardImageGeneratorUtils {
     private val log = KotlinLogging.logger {}
 
     // 공통 색상 상수
@@ -311,17 +311,29 @@ object ImageGeneratorUtils {
         val lineHeight = (metrics.height * lineSpacing).toInt()
 
         var currentY = startY
+        var activeHighlights = emptySet<String>()
         for (line in lines) {
             drawHighlightedText(
                 graphics,
                 line,
-                resolveLineHighlights(line, highlightTexts),
+                resolveLineHighlights(line, highlightTexts, activeHighlights),
                 x,
                 currentY,
                 font,
                 normalColor,
                 highlightColor,
             )
+            // 이 줄에서 prefix로 끝난 하이라이트 또는 중간 줄에 해당하는 하이라이트를 다음 줄로 전달
+            activeHighlights =
+                highlightTexts
+                    .filter { highlight ->
+                        highlight.isNotEmpty() &&
+                            !line.contains(highlight) &&
+                            (
+                                findHighlightPrefix(line, highlight) != null ||
+                                    (highlight in activeHighlights && highlight.contains(line))
+                            )
+                    }.toSet()
             currentY += lineHeight
         }
 
@@ -338,20 +350,29 @@ object ImageGeneratorUtils {
      *       highlightTexts: ["AI 반도체"]
      *       줄1 "삼성전자가 AI" → "AI" (접두사) 를 하이라이트로 추가
      *       줄2 "반도체 개발에 성공" → "반도체" (접미사) 를 하이라이트로 추가
+     *
+     * @param activeHighlights 이전 줄에서 하이라이트가 진행 중인(다음 줄로 넘어온) 하이라이트 집합.
+     *   접미사(suffix) 및 중간 줄 매칭은 이 집합에 포함된 하이라이트에 한해서만 적용한다.
+     *   이를 통해 하이라이트와 무관한 줄이 우연히 suffix를 포함하는 경우의 오탐을 방지한다.
      */
     internal fun resolveLineHighlights(
         line: String,
         highlightTexts: List<String>,
+        activeHighlights: Set<String> = emptySet(),
     ): List<String> {
         if (highlightTexts.isEmpty()) return highlightTexts
 
         return highlightTexts.filter { it.isNotEmpty() }.flatMap { highlight ->
             when {
                 line.contains(highlight) -> listOf(highlight)
+                // 줄 전체가 하이라이트 중간에 속하는 경우 (3줄 이상에 걸친 하이라이트의 중간 줄)
+                // 이전 줄에서 해당 하이라이트가 진행 중인 경우에만 적용 (오탐 방지)
+                highlight in activeHighlights && highlight.contains(line) -> listOf(line)
                 else ->
                     listOfNotNull(
                         findHighlightPrefix(line, highlight),
-                        findHighlightSuffix(line, highlight),
+                        // 이전 줄에서 해당 하이라이트가 진행 중인 경우에만 접미사 매칭 적용 (오탐 방지)
+                        if (highlight in activeHighlights) findHighlightSuffix(line, highlight) else null,
                     )
             }
         }
