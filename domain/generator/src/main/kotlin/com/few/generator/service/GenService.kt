@@ -6,7 +6,7 @@ import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.core.gpt.ChatGpt
 import com.few.generator.core.gpt.prompt.PromptGenerator
 import com.few.generator.core.gpt.prompt.schema.Headline
-import com.few.generator.core.gpt.prompt.schema.HighlightText
+import com.few.generator.core.gpt.prompt.schema.HighlightTexts
 import com.few.generator.core.gpt.prompt.schema.Summary
 import com.few.generator.domain.Gen
 import com.few.generator.domain.ProvisioningContents
@@ -50,7 +50,7 @@ class GenService(
         val summary: Summary = chatGpt.ask(summaryPrompt) as Summary
 
         val highlightTextPrompt = promptGenerator.toKoreanHighlightText(summary.summary)
-        val highlightText: HighlightText = chatGpt.ask(highlightTextPrompt) as HighlightText
+        val highlightTexts: HighlightTexts = chatGpt.ask(highlightTextPrompt) as HighlightTexts
 
         return genRepository.save(
             Gen(
@@ -59,11 +59,11 @@ class GenService(
                     mutableListOf(
                         headline.completionId!!,
                         summary.completionId!!,
-                        highlightText.completionId!!,
+                        highlightTexts.completionId!!,
                     ),
                 headline = headline.headline,
                 summary = summary.summary,
-                highlightTexts = gson.toJson(listOf(highlightText.highlightText)),
+                highlightTexts = gson.toJson(highlightTexts.highlightTexts),
                 category = Category.from(provisioningContent.category).code,
                 region = provisioningContent.region,
             ),
