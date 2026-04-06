@@ -214,7 +214,7 @@ abstract class AbstractGroupGenSchedulingUseCase(
         }
 
         // 그룹 콘텐츠 생성
-        val result = groupContentGenerator.generateGroupContent(category, gens, validatedGroup, provisioningContentsMap, region)
+        val result = groupContentGenerator.generateGroupContent(category, gens, validatedGroup, region)
         return GroupGenProcessingResult(result, keywordExtractionTime, gens.size)
     }
 

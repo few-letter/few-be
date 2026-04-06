@@ -11,10 +11,8 @@ import com.few.generator.core.gpt.prompt.schema.HighlightTexts
 import com.few.generator.core.gpt.prompt.schema.Summary
 import com.few.generator.domain.Gen
 import com.few.generator.domain.GroupGen
-import com.few.generator.domain.ProvisioningContents
 import com.few.generator.domain.vo.GroupSourceHeadline
 import com.few.generator.repository.GroupGenRepository
-import com.few.generator.repository.RawContentsRepository
 import com.google.gson.Gson
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
@@ -28,7 +26,6 @@ class GroupContentGenerator(
     private val promptGenerator: PromptGenerator,
     private val chatGpt: ChatGpt,
     private val groupGenRepository: GroupGenRepository,
-    private val rawContentsRepository: RawContentsRepository,
     @Qualifier(GeneratorGsonConfig.Companion.GSON_BEAN_NAME)
     private val gson: Gson,
 ) {
@@ -38,7 +35,6 @@ class GroupContentGenerator(
         category: Category,
         gens: List<Gen>,
         group: Group,
-        provisioningContentsMap: Map<Long, ProvisioningContents>,
         region: Region,
     ): GroupGen {
         log.info { "그룹 콘텐츠 생성 시작: ${group.group.size}개 뉴스" }
@@ -68,8 +64,8 @@ class GroupContentGenerator(
         // 그룹 하이라이트 생성
         val groupHighlights = generateGroupHighlights(groupSummary.summary)
 
-        // 소스 헤드라인 생성 (이미 조회한 데이터 재사용)
-        val groupSourceHeadlines = createGroupSourceHeadlines(selectedGens, provisioningContentsMap)
+        // 소스 헤드라인 생성 (Gen에서 url 직접 사용)
+        val groupSourceHeadlines = createGroupSourceHeadlines(selectedGens)
 
         log.info { "그룹 콘텐츠 생성 완료" }
 
@@ -138,43 +134,19 @@ class GroupContentGenerator(
             throw e
         }
 
-    private fun createGroupSourceHeadlines(
-        selectedGens: List<Gen>,
-        provisioningContentsMap: Map<Long, ProvisioningContents>,
-    ): List<GroupSourceHeadline> {
+    private fun createGroupSourceHeadlines(selectedGens: List<Gen>): List<GroupSourceHeadline> {
         if (selectedGens.isEmpty()) return emptyList()
 
-        try {
-            // 이미 조회된 ProvisioningContents에서 RawContents ID 추출
-            val rawContentsIds =
-                selectedGens
-                    .mapNotNull { gen ->
-                        provisioningContentsMap[gen.provisioningContentsId]?.rawContentsId
-                    }.distinct()
-
-            // RawContents만 배치 조회
-            val rawContentsMap =
-                rawContentsRepository
-                    .findAllByIdIn(rawContentsIds)
-                    .associateBy { it.id!! }
-
-            return selectedGens.mapNotNull { gen ->
-                try {
-                    val provisioningContent = provisioningContentsMap[gen.provisioningContentsId] ?: return@mapNotNull null
-                    val rawContent = rawContentsMap[provisioningContent.rawContentsId] ?: return@mapNotNull null
-
-                    GroupSourceHeadline(
-                        headline = gen.headline,
-                        url = rawContent.url,
-                    )
-                } catch (e: Exception) {
-                    log.warn(e) { "GroupSourceHeadline 생성 실패: Gen ID ${gen.id}" }
-                    null
-                }
+        return selectedGens.mapNotNull { gen ->
+            try {
+                GroupSourceHeadline(
+                    headline = gen.headline,
+                    url = gen.url,
+                )
+            } catch (e: Exception) {
+                log.warn(e) { "GroupSourceHeadline 생성 실패: Gen ID ${gen.id}" }
+                null
             }
-        } catch (e: Exception) {
-            log.error(e) { "GroupSourceHeadlines 생성 실패, 캐시된 데이터 사용" }
-            return emptyList()
         }
     }
 }

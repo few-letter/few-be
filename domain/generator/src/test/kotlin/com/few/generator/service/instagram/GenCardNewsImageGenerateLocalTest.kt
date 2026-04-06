@@ -1,6 +1,7 @@
 package com.few.generator.service.instagram
 
 import com.few.common.domain.Category
+import com.few.common.domain.MediaType
 import com.few.common.domain.Region
 import com.few.generator.core.instagram.MainPageCardGenerator
 import com.few.generator.core.instagram.NewsContent
@@ -52,6 +53,8 @@ class GenCardNewsImageGenerateLocalTest :
                             "삼성전자가 인공지능(AI) 전용 반도체 개발에 성공하며 차세대 기술 경쟁에서 앞서나가고 있습니다. " +
                                 "새로운 AI 칩은 기존 제품 대비 성능이 2배 향상되었으며, 전력 효율성도 대폭 개선되었습니다.",
                         highlightTexts = """["삼성전자", "AI 반도체"]""",
+                        url = "https://example.com",
+                        mediaType = MediaType.CHOSUN.code,
                     ).apply { createdAt = now },
                     Gen(
                         id = 101L,
@@ -63,6 +66,8 @@ class GenCardNewsImageGenerateLocalTest :
                             "OpenAI가 차세대 대규모 언어 모델 GPT-5의 공개를 앞두고 있습니다. " +
                                 "업계에서는 이번 모델이 기존 모델 대비 추론 능력이 크게 향상될 것으로 전망하고 있습니다.",
                         highlightTexts = """["OpenAI", "GPT-5"]""",
+                        url = "https://example.com",
+                        mediaType = MediaType.CHOSUN.code,
                     ).apply { createdAt = now },
                     Gen(
                         id = 102L,
@@ -74,6 +79,8 @@ class GenCardNewsImageGenerateLocalTest :
                             "한국은행이 기준금리를 현행 3.0%로 동결했습니다. " +
                                 "물가 상승세가 둔화되고 있으나 여전히 목표치를 웃돌고 있어 신중한 통화정책을 유지하겠다는 입장입니다.",
                         highlightTexts = """["한국은행", "기준금리", "물가"]""",
+                        url = "https://example.com",
+                        mediaType = MediaType.CHOSUN.code,
                     ).apply { createdAt = now },
                     Gen(
                         id = 103L,
@@ -85,6 +92,8 @@ class GenCardNewsImageGenerateLocalTest :
                             "코스피 지수가 3000선을 돌파하며 사상 최고치를 경신했습니다. " +
                                 "반도체와 바이오 업종이 상승세를 이끌었으며, 외국인 투자자의 순매수가 이어지고 있습니다.",
                         highlightTexts = """["코스피", "반도체", "바이오"]""",
+                        url = "https://example.com",
+                        mediaType = MediaType.CHOSUN.code,
                     ).apply { createdAt = now },
                     Gen(
                         id = 104L,
@@ -96,6 +105,8 @@ class GenCardNewsImageGenerateLocalTest :
                             "여야가 민생 관련 주요 법안 처리에 합의하며 국회가 정상화되었습니다. " +
                                 "양당은 경제 활성화와 사회 안전망 강화를 위한 법안을 우선 처리하기로 했습니다.",
                         highlightTexts = """["여야", "민생법안", "국회"]""",
+                        url = "https://example.com",
+                        mediaType = MediaType.CHOSUN.code,
                     ).apply { createdAt = now },
                 )
 
