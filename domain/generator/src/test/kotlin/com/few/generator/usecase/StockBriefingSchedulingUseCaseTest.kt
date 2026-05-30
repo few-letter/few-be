@@ -45,7 +45,7 @@ class StockBriefingSchedulingUseCaseTest :
             every { repository.save(any<StockBriefingPostState>()) } answers { firstArg() }
         }
 
-        Given("DB에 저장된 maji막 postId가 없어 초기값을 사용하는 경우") {
+        Given("DB에 저장된 마지막 postId가 없어 초기값을 사용하는 경우") {
             When("신규 포스트가 존재하지 않으면") {
                 Then("스케줄링이 조기 종료되고 이벤트가 발행되지 않는다") {
                     every { scrapper.checkPostExists(initialPostId + 1) } returns false
