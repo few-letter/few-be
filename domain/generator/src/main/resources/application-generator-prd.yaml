@@ -71,8 +71,6 @@ generator:
     instagram:
         account-id: ${INSTAGRAM_ACCOUNT_ID}
         card-news-upload-enabled: false
-    stock-briefing:
-        initial-post-id: ${STOCK_BRIEFING_INITIAL_POST_ID:2890}
 
 app:
     http:

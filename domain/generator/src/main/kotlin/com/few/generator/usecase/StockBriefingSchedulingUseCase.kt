@@ -7,13 +7,10 @@ import com.few.generator.core.gpt.prompt.schema.HighlightTexts
 import com.few.generator.core.gpt.prompt.schema.Summary
 import com.few.generator.core.instagram.StockBriefingContent
 import com.few.generator.core.scrapper.naver.NaverStockBriefingScrapper
-import com.few.generator.domain.StockBriefingPostState
 import com.few.generator.event.StockBriefingContentProcessedEvent
 import com.few.generator.event.StockBriefingInstagramUploadCompletedEvent
-import com.few.generator.repository.StockBriefingPostStateRepository
-import com.few.generator.support.jpa.GeneratorTransactional
+import com.few.generator.service.StockBriefingPostStateService
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
@@ -26,9 +23,7 @@ class StockBriefingSchedulingUseCase(
     private val chatGpt: ChatGpt,
     private val promptGenerator: PromptGenerator,
     private val applicationEventPublisher: ApplicationEventPublisher,
-    private val stockBriefingPostStateRepository: StockBriefingPostStateRepository,
-    @Value("\${generator.stock-briefing.initial-post-id}")
-    private val initialPostId: Long,
+    private val stockBriefingPostStateService: StockBriefingPostStateService,
 ) {
     private val log = KotlinLogging.logger {}
     private val isRunning = AtomicBoolean(false)
@@ -50,7 +45,11 @@ class StockBriefingSchedulingUseCase(
     }
 
     fun execute() {
-        val lastPostId = loadLastProcessedPostId()
+        val lastPostId = stockBriefingPostStateService.loadLastProcessedPostId()
+        if (lastPostId == null) {
+            log.warn { "증시 브리핑 마지막 postId가 DB에 존재하지 않아 스케줄링을 건너뜁니다." }
+            return
+        }
         val nextPostId = lastPostId + 1
         log.info { "증시 브리핑 확인 중 (postId=$nextPostId)" }
 
@@ -72,7 +71,7 @@ class StockBriefingSchedulingUseCase(
 
         if (rawContents.isEmpty()) {
             log.warn { "증시 브리핑 크롤링 결과 없음 (postId=$nextPostId), 포스트Id 업데이트 후 종료" }
-            saveLastProcessedPostId(nextPostId)
+            stockBriefingPostStateService.saveLastProcessedPostId(nextPostId)
             return
         }
 
@@ -114,25 +113,11 @@ class StockBriefingSchedulingUseCase(
 
         val mainPageBody = generateMainPageBody(processedContents.map { it.headline })
 
-        saveLastProcessedPostId(nextPostId)
+        stockBriefingPostStateService.saveLastProcessedPostId(nextPostId)
         log.info { "증시 브리핑 처리 완료 (postId=$nextPostId): ${processedContents.size}개 (GPT 실패: ${gptFailureCount}개)" }
 
         applicationEventPublisher.publishEvent(
             StockBriefingContentProcessedEvent(nextPostId, processedContents, mainPageBody = mainPageBody),
-        )
-    }
-
-    @GeneratorTransactional(readOnly = true)
-    fun loadLastProcessedPostId(): Long =
-        stockBriefingPostStateRepository
-            .findById(StockBriefingPostState.SINGLETON_ID)
-            .map { it.lastProcessedPostId }
-            .orElse(initialPostId)
-
-    @GeneratorTransactional
-    fun saveLastProcessedPostId(postId: Long) {
-        stockBriefingPostStateRepository.save(
-            StockBriefingPostState(id = StockBriefingPostState.SINGLETON_ID, lastProcessedPostId = postId),
         )
     }
 
