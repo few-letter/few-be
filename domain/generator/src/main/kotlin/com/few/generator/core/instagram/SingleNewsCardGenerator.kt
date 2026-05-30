@@ -1,6 +1,9 @@
 package com.few.generator.core.instagram
 
+import com.few.generator.core.instagram.CardImageGeneratorUtils.BRIEFING_HIGHLIGHTER_COLOR
 import com.few.generator.core.instagram.CardImageGeneratorUtils.drawMultilineHighlightedText
+import com.few.generator.core.instagram.CardImageGeneratorUtils.drawMultilineMarkerHighlightedText
+import com.few.generator.core.instagram.CardImageGeneratorUtils.drawMultilineText
 import com.few.generator.core.instagram.CardImageGeneratorUtils.loadKoreanFont
 import com.few.generator.core.instagram.CardImageGeneratorUtils.saveImage
 import com.few.generator.core.instagram.CardImageGeneratorUtils.setupGraphics
@@ -34,6 +37,7 @@ class SingleNewsCardGenerator {
 
         private const val HEADLINE_BODY_GAP = 80
 
+        private const val BRIEFING_CATEGORY = "briefing"
         private val DARK_TEXT_COLOR = Color(12, 18, 27) // #0C121B
     }
 
@@ -66,19 +70,34 @@ class SingleNewsCardGenerator {
             val headlineLineHeight = (headlineMetrics.height * HEADLINE_LINE_SPACING).toInt()
             val headlineStartY = CONTENT_TOP + headlineMetrics.ascent
 
+            val isBriefing = validCategory == BRIEFING_CATEGORY
+
             val headlineEndY =
-                drawMultilineHighlightedText(
-                    graphics,
-                    content.headline,
-                    content.highlightTexts,
-                    MARGIN_X,
-                    headlineStartY,
-                    CONTENT_WIDTH,
-                    headlineFont,
-                    DARK_TEXT_COLOR,
-                    themeColor,
-                    HEADLINE_LINE_SPACING,
-                )
+                if (isBriefing) {
+                    drawMultilineText(
+                        graphics,
+                        content.headline,
+                        MARGIN_X,
+                        headlineStartY,
+                        CONTENT_WIDTH,
+                        headlineFont,
+                        DARK_TEXT_COLOR,
+                        HEADLINE_LINE_SPACING,
+                    )
+                } else {
+                    drawMultilineHighlightedText(
+                        graphics,
+                        content.headline,
+                        content.highlightTexts,
+                        MARGIN_X,
+                        headlineStartY,
+                        CONTENT_WIDTH,
+                        headlineFont,
+                        DARK_TEXT_COLOR,
+                        themeColor,
+                        HEADLINE_LINE_SPACING,
+                    )
+                }
 
             // 본문 그리기 (헤드라인 마지막 줄 하단에서 HEADLINE_BODY_GAP 만큼 아래)
             val headlineTextBottom = headlineEndY - headlineLineHeight + headlineMetrics.descent
@@ -88,18 +107,33 @@ class SingleNewsCardGenerator {
             val bodyMetrics = graphics.fontMetrics
             val bodyStartY = headlineTextBottom + HEADLINE_BODY_GAP + bodyMetrics.ascent
 
-            drawMultilineHighlightedText(
-                graphics,
-                content.summary,
-                content.highlightTexts,
-                MARGIN_X,
-                bodyStartY,
-                CONTENT_WIDTH,
-                bodyFont,
-                DARK_TEXT_COLOR,
-                themeColor,
-                BODY_LINE_SPACING,
-            )
+            if (isBriefing) {
+                drawMultilineMarkerHighlightedText(
+                    graphics,
+                    content.summary,
+                    content.highlightTexts,
+                    MARGIN_X,
+                    bodyStartY,
+                    CONTENT_WIDTH,
+                    bodyFont,
+                    DARK_TEXT_COLOR,
+                    BRIEFING_HIGHLIGHTER_COLOR,
+                    BODY_LINE_SPACING,
+                )
+            } else {
+                drawMultilineHighlightedText(
+                    graphics,
+                    content.summary,
+                    content.highlightTexts,
+                    MARGIN_X,
+                    bodyStartY,
+                    CONTENT_WIDTH,
+                    bodyFont,
+                    DARK_TEXT_COLOR,
+                    themeColor,
+                    BODY_LINE_SPACING,
+                )
+            }
 
             return saveImage(image, outputPath)
         } finally {

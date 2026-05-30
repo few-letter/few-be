@@ -1,6 +1,7 @@
 package com.few.generator.core.instagram
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import java.awt.AlphaComposite
 import java.awt.Color
 import java.awt.Font
 import java.awt.FontMetrics
@@ -16,6 +17,10 @@ import kotlin.text.iterator
  */
 object CardImageGeneratorUtils {
     private val log = KotlinLogging.logger {}
+
+    private const val HIGHLIGHTER_ALPHA = 0.75f
+    private const val HIGHLIGHTER_PADDING_V = 4
+    val BRIEFING_HIGHLIGHTER_COLOR = Color(255, 232, 30)
 
     // 공통 색상 상수
     val THEME_COLOR = ColorRGBA(r = 137, g = 49, b = 255, a = 255)
@@ -459,6 +464,123 @@ object CardImageGeneratorUtils {
             log.error(e) { "이미지 저장 실패: $outputPath" }
             false
         }
+
+    /**
+     * 형광펜 효과 단일 라인 텍스트 그리기
+     * 하이라이트 구간은 반투명 배경 사각형을 먼저 그리고 텍스트는 normalColor로 유지한다.
+     */
+    fun drawMarkerHighlightedText(
+        graphics: Graphics2D,
+        text: String,
+        highlightTexts: List<String>,
+        x: Int,
+        y: Int,
+        font: Font,
+        normalColor: Color,
+        markerColor: Color,
+    ): Int {
+        if (highlightTexts.isEmpty()) {
+            drawText(graphics, text, x, y, font, normalColor)
+            return getTextWidth(graphics, text, font)
+        }
+
+        graphics.font = font
+        val metrics = graphics.fontMetrics
+        var currentX = x
+        var remainingText = text
+
+        while (remainingText.isNotEmpty()) {
+            var foundHighlight = false
+
+            for (highlight in highlightTexts) {
+                if (remainingText.startsWith(highlight)) {
+                    val highlightWidth = metrics.stringWidth(highlight)
+                    val savedComposite = graphics.composite
+                    graphics.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, HIGHLIGHTER_ALPHA)
+                    graphics.color = markerColor
+                    graphics.fillRect(
+                        currentX,
+                        y - metrics.ascent - HIGHLIGHTER_PADDING_V,
+                        highlightWidth,
+                        metrics.ascent + metrics.descent + HIGHLIGHTER_PADDING_V * 2,
+                    )
+                    graphics.composite = savedComposite
+                    graphics.color = normalColor
+                    graphics.drawString(highlight, currentX, y)
+                    currentX += highlightWidth
+                    remainingText = remainingText.substring(highlight.length)
+                    foundHighlight = true
+                    break
+                }
+            }
+
+            if (!foundHighlight) {
+                var nextHighlightPos = remainingText.length
+                for (highlight in highlightTexts) {
+                    val pos = remainingText.indexOf(highlight)
+                    if (pos >= 0 && pos < nextHighlightPos) {
+                        nextHighlightPos = pos
+                    }
+                }
+                val normalText = remainingText.substring(0, nextHighlightPos)
+                graphics.color = normalColor
+                graphics.drawString(normalText, currentX, y)
+                currentX += metrics.stringWidth(normalText)
+                remainingText = remainingText.substring(nextHighlightPos)
+            }
+        }
+
+        return currentX - x
+    }
+
+    /**
+     * 형광펜 효과 여러 줄 텍스트 그리기
+     */
+    fun drawMultilineMarkerHighlightedText(
+        graphics: Graphics2D,
+        text: String,
+        highlightTexts: List<String>,
+        x: Int,
+        startY: Int,
+        maxWidth: Int,
+        font: Font,
+        normalColor: Color,
+        markerColor: Color,
+        lineSpacing: Float = 1.4f,
+    ): Int {
+        val lines = wrapText(graphics, text, font, maxWidth)
+        graphics.font = font
+        val metrics = graphics.fontMetrics
+        val lineHeight = (metrics.height * lineSpacing).toInt()
+
+        var currentY = startY
+        var activeHighlights = emptySet<String>()
+        for (line in lines) {
+            drawMarkerHighlightedText(
+                graphics,
+                line,
+                resolveLineHighlights(line, highlightTexts, activeHighlights),
+                x,
+                currentY,
+                font,
+                normalColor,
+                markerColor,
+            )
+            activeHighlights =
+                highlightTexts
+                    .filter { highlight ->
+                        highlight.isNotEmpty() &&
+                            !line.contains(highlight) &&
+                            (
+                                findHighlightPrefix(line, highlight) != null ||
+                                    (highlight in activeHighlights && highlight.contains(line))
+                            )
+                    }.toSet()
+            currentY += lineHeight
+        }
+
+        return currentY
+    }
 
     /**
      * 요일 텍스트 반환
