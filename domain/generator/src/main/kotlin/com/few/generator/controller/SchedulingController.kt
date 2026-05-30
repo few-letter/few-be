@@ -5,6 +5,7 @@ import com.few.generator.usecase.LocalGenSchedulingUseCase
 import com.few.generator.usecase.RefreshInstagramTokenUseCase
 import com.few.generator.usecase.SendCacheMetricsSchedulingUseCase
 import com.few.generator.usecase.SendNewsletterSchedulingUseCase
+import com.few.generator.usecase.StockBriefingSchedulingUseCase
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -16,17 +17,18 @@ class SchedulingController(
     private val sendCacheMetricsSchedulingUseCase: SendCacheMetricsSchedulingUseCase,
     private val sendNewsletterSchedulingUseCase: SendNewsletterSchedulingUseCase,
     private val refreshInstagramTokenUseCase: RefreshInstagramTokenUseCase,
+    private val stockBriefingSchedulingUseCase: StockBriefingSchedulingUseCase,
 ) {
     private val log = KotlinLogging.logger {}
 
     @Scheduled(cron = "\${scheduling.cron.local-gen}")
     fun createLocalNewsContents() {
-        localGenSchedulingUseCase.executeAsync()
+//        localGenSchedulingUseCase.executeAsync() // TODO: 인스타그램 과다호출로 임시 비활성화
     }
 
     @Scheduled(cron = "\${scheduling.cron.global-gen}")
     fun createGlobalNewsContents() {
-        globalGenSchedulingUseCase.executeAsync()
+//        globalGenSchedulingUseCase.executeAsync() // TODO: 인스타그램 과다호출로 임시 비활성화
     }
 
     @Scheduled(cron = "\${scheduling.cron.cache-metrics}", zone = "Asia/Seoul")
@@ -46,5 +48,10 @@ class SchedulingController(
         } catch (e: Exception) {
             log.error(e) { "Instagram 토큰 갱신 스케줄 실행 중 오류 발생: ${e.message}" }
         }
+    }
+
+    @Scheduled(cron = "\${scheduling.cron.stock-briefing}", zone = "Asia/Seoul")
+    fun crawlStockBriefing() {
+        stockBriefingSchedulingUseCase.executeAsync()
     }
 }

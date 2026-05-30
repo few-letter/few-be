@@ -9,6 +9,7 @@ import com.few.generator.usecase.GlobalGroupGenSchedulingUseCase
 import com.few.generator.usecase.LocalGenSchedulingUseCase
 import com.few.generator.usecase.LocalGroupGenSchedulingUseCase
 import com.few.generator.usecase.SendNewsletterSchedulingUseCase
+import com.few.generator.usecase.StockBriefingSchedulingUseCase
 import com.few.web.ApiResponse
 import com.few.web.ApiResponseGenerator
 import org.springframework.http.HttpStatus
@@ -25,6 +26,7 @@ class AdminControllerV1(
     private val localGroupGenSchedulingUseCase: LocalGroupGenSchedulingUseCase,
     private val globalGroupGenSchedulingUseCase: GlobalGroupGenSchedulingUseCase,
     private val genCardNewsImageGenerateSchedulingUseCase: GenCardNewsImageGenerateSchedulingUseCase,
+    private val stockBriefingSchedulingUseCase: StockBriefingSchedulingUseCase,
 ) {
     @PostMapping(
         value = ["/contents/schedule"],
@@ -85,6 +87,17 @@ class AdminControllerV1(
             }
 
         genCardNewsImageGenerateSchedulingUseCase.execute(targetRegion)
+
+        return ApiResponseGenerator.success(
+            HttpStatus.OK,
+        )
+    }
+
+    @GetMapping(
+        value = ["/contents/cardnews/briefing"],
+    )
+    fun sendAll2(): ApiResponse<ApiResponse.Success> {
+        stockBriefingSchedulingUseCase.executeAsync()
 
         return ApiResponseGenerator.success(
             HttpStatus.OK,

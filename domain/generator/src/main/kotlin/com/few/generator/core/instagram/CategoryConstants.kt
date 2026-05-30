@@ -25,6 +25,7 @@ object CategoryConstants {
             "politics" to ColorRGBA(r = 17, g = 184, b = 186), // #11B8BA 청록색
             "economy" to ColorRGBA(r = 31, g = 130, b = 249), // #1F82F9 파란색
             "society" to ColorRGBA(r = 253, g = 59, b = 63), // #FD3B3F 빨간색
+            "briefing" to ColorRGBA(r = 65, g = 65, b = 70), // #414146 다크 차콜 (흑백톤)
             "etc" to ColorRGBA(r = 137, g = 49, b = 255),
             "default" to ColorRGBA(r = 137, g = 49, b = 255),
         )
@@ -37,6 +38,7 @@ object CategoryConstants {
             "politics" to ColorRGBA(r = 123, g = 239, b = 240), // #7BEFF0 밝은 청록
             "economy" to ColorRGBA(r = 107, g = 173, b = 252), // #6BADFC 밝은 파란
             "society" to ColorRGBA(r = 249, g = 149, b = 151), // #F99597 밝은 빨간
+            "briefing" to ColorRGBA(r = 155, g = 155, b = 160), // #9B9BA0 미디엄 그레이 (흑백톤)
             "etc" to ColorRGBA(r = 200, g = 158, b = 255),
             "default" to ColorRGBA(r = 200, g = 158, b = 255),
         )
@@ -49,6 +51,7 @@ object CategoryConstants {
             "politics" to ColorRGBA(r = 231, g = 255, b = 255), // #E7FFFF
             "economy" to ColorRGBA(r = 223, g = 237, b = 255), // #DFEDFF
             "society" to ColorRGBA(r = 255, g = 235, b = 235), // #FFEBEB
+            "briefing" to ColorRGBA(r = 238, g = 238, b = 240), // #EEEEF0 라이트 그레이 (흑백톤)
             "etc" to ColorRGBA(r = 242, g = 232, b = 255),
             "default" to ColorRGBA(r = 242, g = 232, b = 255),
         )
