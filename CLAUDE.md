@@ -41,7 +41,7 @@ This is a Spring Boot Kotlin multi-module project using clean architecture princ
 
 ### Domain/Generator Package Structure
 
-```
+```text
 domain/generator/src/main/kotlin/com/few/generator/
 ├── config/               # Module-level Spring config (JPA, DataSource, Cache, Feign, OkHttp)
 │   ├── feign/            # OpenAI Feign customization (encoder, decoder, interceptor, thread-local)

@@ -93,10 +93,10 @@ class AdminControllerV1(
         )
     }
 
-    @GetMapping(
+    @PostMapping(
         value = ["/contents/cardnews/briefing"],
     )
-    fun sendAll2(): ApiResponse<ApiResponse.Success> {
+    fun triggerStockBriefing(): ApiResponse<ApiResponse.Success> {
         stockBriefingSchedulingUseCase.executeAsync()
 
         return ApiResponseGenerator.success(

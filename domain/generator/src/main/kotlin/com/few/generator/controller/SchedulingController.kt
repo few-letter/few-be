@@ -23,12 +23,12 @@ class SchedulingController(
 
     @Scheduled(cron = "\${scheduling.cron.local-gen}")
     fun createLocalNewsContents() {
-//        localGenSchedulingUseCase.executeAsync() // TODO: 인스타그램 과다호출로 임시 비활성화
+        localGenSchedulingUseCase.executeAsync()
     }
 
     @Scheduled(cron = "\${scheduling.cron.global-gen}")
     fun createGlobalNewsContents() {
-//        globalGenSchedulingUseCase.executeAsync() // TODO: 인스타그램 과다호출로 임시 비활성화
+        globalGenSchedulingUseCase.executeAsync()
     }
 
     @Scheduled(cron = "\${scheduling.cron.cache-metrics}", zone = "Asia/Seoul")

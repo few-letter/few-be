@@ -27,7 +27,7 @@ class InstagramUploadUseCaseTest :
         val promptGenerator = mockk<PromptGenerator>()
 
         val useCase =
-            InstagramUploadUseCase(
+            UploadCardNewsInstagramUseCase(
                 instagramUploader = instagramUploader,
                 genService = genService,
                 applicationEventPublisher = applicationEventPublisher,
