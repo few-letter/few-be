@@ -69,7 +69,7 @@ class InstagramUploader(
                 )
             }
             // 5~10초 사이 랜덤 추출 TODO: 이미지 컨테이너 올라갔는지 폴링하도록 변경
-            DelayUtil.randomDelay(5, 10)
+            DelayUtil.randomDelay(10, 15)
 
             return responseBody?.let { parseJsonForId(it).id }
         }
@@ -107,7 +107,7 @@ class InstagramUploader(
                 )
             }
             // 5~10초 사이 랜덤 추출 TODO: 이미지 컨테이너 올라갔는지 폴링하도록 변경
-            DelayUtil.randomDelay(5, 10)
+            DelayUtil.randomDelay(10, 15)
 
             return responseBody?.let { parseJsonForId(it).id }
         }
