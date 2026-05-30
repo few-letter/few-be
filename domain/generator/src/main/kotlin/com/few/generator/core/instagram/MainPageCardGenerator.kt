@@ -2,7 +2,7 @@ package com.few.generator.core.instagram
 
 import com.few.common.domain.Category
 import com.few.common.domain.Region
-import com.few.generator.core.instagram.CardImageGeneratorUtils.drawHighlightedText
+import com.few.generator.core.instagram.CardImageGeneratorUtils.drawText
 import com.few.generator.core.instagram.CardImageGeneratorUtils.getWeekdayText
 import com.few.generator.core.instagram.CardImageGeneratorUtils.loadKoreanFont
 import com.few.generator.core.instagram.CardImageGeneratorUtils.saveImage
@@ -412,15 +412,13 @@ class MainPageCardGenerator {
 
         newsContents.forEach { content ->
             val textBaselineY = currentY + metrics.ascent
-            drawHighlightedText(
+            drawText(
                 graphics,
                 content.headline,
-                content.highlightTexts,
                 MARGIN_X,
                 textBaselineY,
                 headlineFont,
                 DARK_BG_COLOR,
-                primaryColor,
             )
 
             val separatorY = currentY + HEADLINE_LINE_HEIGHT + HEADLINE_GAP

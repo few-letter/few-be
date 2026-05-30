@@ -3,6 +3,7 @@ package com.few.generator.core.instagram
 import com.few.generator.core.instagram.CardImageGeneratorUtils.BRIEFING_HIGHLIGHTER_COLOR
 import com.few.generator.core.instagram.CardImageGeneratorUtils.drawMultilineHighlightedText
 import com.few.generator.core.instagram.CardImageGeneratorUtils.drawMultilineMarkerHighlightedText
+import com.few.generator.core.instagram.CardImageGeneratorUtils.drawMultilineText
 import com.few.generator.core.instagram.CardImageGeneratorUtils.loadKoreanFont
 import com.few.generator.core.instagram.CardImageGeneratorUtils.saveImage
 import com.few.generator.core.instagram.CardImageGeneratorUtils.setupGraphics
@@ -73,16 +74,14 @@ class SingleNewsCardGenerator {
 
             val headlineEndY =
                 if (isBriefing) {
-                    drawMultilineMarkerHighlightedText(
+                    drawMultilineText(
                         graphics,
                         content.headline,
-                        content.highlightTexts,
                         MARGIN_X,
                         headlineStartY,
                         CONTENT_WIDTH,
                         headlineFont,
                         DARK_TEXT_COLOR,
-                        BRIEFING_HIGHLIGHTER_COLOR,
                         HEADLINE_LINE_SPACING,
                     )
                 } else {
