@@ -316,6 +316,72 @@ class PromptGenerator(
         )
     }
 
+    fun toStockBriefingHeadline(
+        originalTitle: String,
+        originalBody: String,
+    ): Prompt {
+        val systemPrompt =
+            """
+            당신은 월드 최고의 증시 뉴스 카드뉴스 작성 전문가입니다. 한 줄짜리 요약의 카드뉴스를 만들려고 하는데, 구체적인 수치나 한 문장만 읽어도 전체 핵심 내용이 이해되게 작성해야 합니다. 반드시 두 번 이상 검토하고 명확한 근거를 가지고 수정하여 제출해야 합니다.
+            """.trimIndent()
+
+        val userPrompt =
+            """
+            ## Instructions
+            1. 자연스러운 한국어 문장으로 단답식으로 작성해주세요. 느낌표, 물음표 사용없이, 마침표만 사용해주세요.
+            2. 핵심 수치나, 구체적인 기업명, 시간이나 날짜, 장소명, 지수명 등의 내용이 모두 포함되게 작성해주세요.
+            3. 문장형 종결어미(~입니다, ~했다, ~됩니다, ~했습니다 등)를 사용하지 말고, '명사로 끝나는 구문'으로 작성하세요.(예: '코스피 2% 급락', '나스닥 강세 지속' 등)
+
+            ## Input
+            1. 원본 제목: $originalTitle
+            2. 원본 내용: $originalBody
+            """.trimIndent()
+
+        return Prompt(
+            messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
+            responseFormat =
+                ResponseFormat(
+                    jsonSchema = JsonSchema(Headline.name, Headline.schema),
+                    responseClassType = Headline::class.java,
+                ),
+        )
+    }
+
+    fun toStockBriefingSummary(
+        headline: String,
+        originalTitle: String,
+        originalBody: String,
+    ): Prompt {
+        val systemPrompt =
+            """
+            당신은 월드 최고의 증시 뉴스레터 작성 전문가입니다. [제목]에 맞는 증시 브리핑 본문을 작성합니다.
+            """.trimIndent()
+
+        val userPrompt =
+            """
+            ## Instructions
+            1. 반드시 200자 이내로 작성해주세요.
+            2. 문장은 자연스러운 한국어 격식체로 작성해주세요. (~했습니다, ~입니다 등으로 끝맺고 구어체를 배제하며 자연스럽게 표현)
+            3. 말하는 형태가 아닌, 뉴스 기사 어투와 같은 격식있는 말투로 변경해야 합니다.
+            4. 통계적이고 객관적이며 수치적으로 올바른 문장들을 중요한 내용에 근거하여 간결하게 작성해주세요.
+            5. 핵심 수치, 기업명, 지수명을 반드시 포함해주세요.
+
+            ## Input
+            0. [제목]: $headline
+            1. 원본 제목: $originalTitle
+            2. 원본 내용: $originalBody
+            """.trimIndent()
+
+        return Prompt(
+            messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
+            responseFormat =
+                ResponseFormat(
+                    jsonSchema = JsonSchema(Summary.name, Summary.schema),
+                    responseClassType = Summary::class.java,
+                ),
+        )
+    }
+
     fun toInstagramHashtags(
         headlines: List<String>,
         maxHashtagCount: Int,
@@ -348,6 +414,37 @@ class PromptGenerator(
                 ResponseFormat(
                     jsonSchema = JsonSchema(Keywords.name, Keywords.schema),
                     responseClassType = Keywords::class.java,
+                ),
+        )
+    }
+
+    fun toStockBriefingMainPageBody(headlines: List<String>): Prompt {
+        val systemPrompt =
+            """
+            당신은 월드 최고의 증시 뉴스레터 작성 전문가입니다. 여러 증시 브리핑 헤드라인을 종합하여 하나의 자연스러운 본문 단락을 작성합니다.
+            """.trimIndent()
+
+        val headlineList = headlines.mapIndexed { index, headline -> "${index + 1}. $headline" }.joinToString("\n")
+
+        val userPrompt =
+            """
+            ## Instructions
+            1. 주어진 헤드라인들의 핵심 내용을 하나의 매끄러운 단락으로 종합해주세요.
+            2. 반드시 300자 이내로 작성해주세요.
+            3. 문장은 자연스러운 한국어 격식체로 작성해주세요. (~했습니다, ~입니다 등으로 끝맺고 구어체를 배제하며 자연스럽게 표현)
+            4. 통계적이고 객관적이며 수치적으로 올바른 문장으로 작성해주세요.
+            5. 각 헤드라인의 핵심 정보를 누락 없이 포함하되, 중복 표현은 피하세요.
+
+            ## 헤드라인 목록(Input)
+            $headlineList
+            """.trimIndent()
+
+        return Prompt(
+            messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
+            responseFormat =
+                ResponseFormat(
+                    jsonSchema = JsonSchema(Summary.name, Summary.schema),
+                    responseClassType = Summary::class.java,
                 ),
         )
     }

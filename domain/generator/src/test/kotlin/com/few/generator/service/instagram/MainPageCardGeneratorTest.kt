@@ -67,6 +67,21 @@ class MainPageCardGeneratorTest :
                 ),
             )
 
+        test("증시 브리핑 표지 이미지 생성 테스트") {
+            val generator = MainPageCardGenerator()
+            val outputPath = "gen_images/test_main_page_briefing.png"
+            val mainPageBody =
+                "코스피 지수는 전일 대비 2% 급등하며 강한 상승세를 보였습니다. " +
+                    "나스닥도 사상 최고치를 경신하며 글로벌 증시가 전반적으로 긍정적인 흐름을 이어갔습니다. " +
+                    "삼성전자와 SK하이닉스 등 반도체 종목이 강세를 주도했으며, " +
+                    "외국인 투자자의 순매수세가 이어지면서 시장 분위기를 뒷받침했습니다."
+
+            val result = generator.generateBriefingMainPageImage(mainPageBody, outputPath)
+
+            result shouldBe true
+            File(outputPath).exists() shouldBe true
+        }
+
         test("표지 이미지 생성 테스트") {
             val generator = MainPageCardGenerator()
             val outputPath = "gen_images/test_main_page_economy.png"

@@ -13,6 +13,7 @@ import com.few.generator.core.instagram.CategoryConstants.getCategoryLightColor
 import com.few.generator.core.instagram.CategoryConstants.getValidCategory
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
+import java.awt.AlphaComposite
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.GradientPaint
@@ -47,13 +48,67 @@ class MainPageCardGenerator {
         private const val CATEGORY_TITLE_TOP = 402
         private const val CATEGORY_TITLE_FONT_SIZE = 100
 
-        // 헤드라인 목록 상수
+        // 헤드라인 목록 상수 (일반 카드 뉴스용)
         private const val HEADLINES_TOP = 660
         private const val HEADLINE_FONT_SIZE = 48
         private const val HEADLINE_LINE_HEIGHT = 77 // 48px * 160% = 76.8 ≈ 77px
         private const val HEADLINE_GAP = 24
         private const val SEPARATOR_STROKE = 2f
         private const val MAX_HEADLINES = 7
+
+        // 증시 브리핑 메인 페이지 전용 상수
+        private const val BRIEFING_SUBTITLE_FONT_SIZE = 38
+        private const val BRIEFING_SUBTITLE_PAD_H = 8
+        private const val BRIEFING_SUBTITLE_PAD_W = 12
+        private const val BRIEFING_SUBTITLE_GAP = 28
+        private const val BRIEFING_BODY_FONT_SIZE = 44
+        private const val BRIEFING_BODY_LINE_SPACING = 1.5f
+        private val HIGHLIGHTER_COLOR = Color(255, 232, 30)
+        private const val HIGHLIGHTER_ALPHA = 0.75f
+    }
+
+    fun generateBriefingMainPageImage(
+        mainPageBody: String,
+        outputPath: String,
+    ): Boolean {
+        log.debug { "[증시 브리핑] 표지 이미지 생성 시작" }
+
+        val image = BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB)
+        val graphics = image.createGraphics()
+        setupGraphics(graphics)
+
+        try {
+            val primaryColor = getCategoryColor("briefing").toColor()
+            val lightColor = getCategoryLightColor("briefing").toColor()
+            val bgColor = getCategoryBgColor("briefing").toColor()
+
+            graphics.color = bgColor
+            graphics.fillRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT)
+
+            graphics.color = DARK_BG_COLOR
+            graphics.fillRect(0, 0, IMAGE_WIDTH, HEADER_HEIGHT)
+
+            drawHeaderDecoration(graphics, primaryColor, lightColor)
+
+            val savedClip = graphics.clip
+            graphics.setClip(0, 0, IMAGE_WIDTH, HEADER_HEIGHT)
+            drawDiagonalGradient(graphics, lightColor)
+            drawArrowShape(graphics, primaryColor, lightColor)
+            graphics.setClip(savedClip)
+
+            val today = LocalDate.now()
+            val dateStr = "${today.monthValue}월 ${today.dayOfMonth}일 ${getWeekdayText(today.dayOfWeek.value)}"
+            drawDatePill(graphics, dateStr, lightColor)
+
+            drawCategoryTitle(graphics, "증시 브리핑")
+
+            val bodyAreaTop = drawBriefingSubtitle(graphics, "few가 정리한 현시간 증시 브리핑", HEADLINES_TOP)
+            drawBriefingBodyText(graphics, mainPageBody, bodyAreaTop)
+
+            return saveImage(image, outputPath)
+        } finally {
+            graphics.dispose()
+        }
     }
 
     fun generateMainPageImage(
@@ -280,6 +335,64 @@ class MainPageCardGenerator {
         val textY = CATEGORY_TITLE_TOP + metrics.ascent
         graphics.color = Color.WHITE
         graphics.drawString(titleText, MARGIN_X, textY)
+    }
+
+    /**
+     * 증시 브리핑 소제목을 형광팬 배경과 함께 그리기
+     * @return 소제목 블록 아래 body 텍스트 시작 Y 위치
+     */
+    private fun drawBriefingSubtitle(
+        graphics: Graphics2D,
+        text: String,
+        startY: Int,
+    ): Int {
+        val font = loadKoreanFont(BRIEFING_SUBTITLE_FONT_SIZE, bold = false)
+        graphics.font = font
+        val metrics = graphics.fontMetrics
+        val textWidth = metrics.stringWidth(text)
+        val blockHeight = metrics.height + BRIEFING_SUBTITLE_PAD_H * 2
+
+        val savedComposite = graphics.composite
+        graphics.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, HIGHLIGHTER_ALPHA)
+        graphics.color = HIGHLIGHTER_COLOR
+        graphics.fillRect(
+            MARGIN_X - BRIEFING_SUBTITLE_PAD_W,
+            startY,
+            textWidth + BRIEFING_SUBTITLE_PAD_W * 2,
+            blockHeight,
+        )
+        graphics.composite = savedComposite
+
+        val textBaselineY = startY + BRIEFING_SUBTITLE_PAD_H + metrics.ascent
+        graphics.color = DARK_BG_COLOR
+        graphics.font = font
+        graphics.drawString(text, MARGIN_X, textBaselineY)
+
+        return startY + blockHeight + BRIEFING_SUBTITLE_GAP
+    }
+
+    /**
+     * 증시 브리핑 본문 텍스트를 여러 줄로 그리기
+     */
+    private fun drawBriefingBodyText(
+        graphics: Graphics2D,
+        text: String,
+        areaTop: Int,
+    ) {
+        val font = loadKoreanFont(BRIEFING_BODY_FONT_SIZE, bold = false)
+        graphics.font = font
+        val metrics = graphics.fontMetrics
+        val baselineY = areaTop + metrics.ascent
+        CardImageGeneratorUtils.drawMultilineText(
+            graphics = graphics,
+            text = text,
+            x = MARGIN_X,
+            startY = baselineY,
+            maxWidth = CONTENT_WIDTH,
+            font = font,
+            color = DARK_BG_COLOR,
+            lineSpacing = BRIEFING_BODY_LINE_SPACING,
+        )
     }
 
     /**

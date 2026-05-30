@@ -51,6 +51,7 @@ scheduling:
         email: "0 0 9 * * *"
         cache-metrics: "0 43 17 * * *"
         instagram-token-refresh: "0 0 2 * * MON"
+        stock-briefing: "0 10 * * * *"
 
 urls:
     webhook:
@@ -71,6 +72,7 @@ generator:
         similarityThreshold: 0.7
     instagram:
         account-id: ${INSTAGRAM_ACCOUNT_ID}
+        card-news-upload-enabled: false
 
 app:
     http:
