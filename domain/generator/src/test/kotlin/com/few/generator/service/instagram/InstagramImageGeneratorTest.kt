@@ -6,6 +6,8 @@ import com.few.generator.core.instagram.SingleNewsCardGenerator
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import java.awt.Color
+import java.awt.image.BufferedImage
 import java.io.File
 import java.time.LocalDateTime
 
@@ -160,6 +162,61 @@ class InstagramImageGeneratorTest :
         }
 
         // --- 줄바꿈 경계에 걸친 하이라이트를 포함한 이미지 생성 통합 테스트 ---
+
+        test("증시 브리핑 카드 - 형광펜 배경 효과로 이미지 생성") {
+            val generator = SingleNewsCardGenerator()
+            val content =
+                NewsContent(
+                    headline = "코스피 2% 급등, 반도체 강세 주도",
+                    summary =
+                        "코스피 지수가 전일 대비 2% 급등하며 강한 상승세를 보였습니다. " +
+                            "삼성전자와 SK하이닉스 등 반도체 종목이 강세를 주도했으며, " +
+                            "외국인 투자자의 순매수세가 이어졌습니다.",
+                    category = "briefing",
+                    createdAt = LocalDateTime.now(),
+                    highlightTexts = listOf("코스피", "2% 급등", "반도체 강세"),
+                )
+            val outputPath = "gen_images/test_briefing_highlighter.png"
+
+            val result = generator.generateImage(content, outputPath)
+
+            result shouldBe true
+            File(outputPath).exists() shouldBe true
+        }
+
+        test("drawMarkerHighlightedText - 하이라이트 영역에 형광펜 배경이 적용되고 텍스트 색은 유지된다") {
+            val image = BufferedImage(500, 120, BufferedImage.TYPE_INT_RGB)
+            val graphics = image.createGraphics()
+            CardImageGeneratorUtils.setupGraphics(graphics)
+
+            graphics.color = Color.WHITE
+            graphics.fillRect(0, 0, 500, 120)
+
+            val font = CardImageGeneratorUtils.loadKoreanFont(24, false)
+            val normalColor = Color(12, 18, 27)
+
+            CardImageGeneratorUtils.drawMarkerHighlightedText(
+                graphics = graphics,
+                text = "일반텍스트 하이라이트 끝텍스트",
+                highlightTexts = listOf("하이라이트"),
+                x = 10,
+                y = 70,
+                font = font,
+                normalColor = normalColor,
+                markerColor = CardImageGeneratorUtils.BRIEFING_HIGHLIGHTER_COLOR,
+            )
+            graphics.dispose()
+
+            // 형광펜 배경 영역(세로 55~75px)에 순수 흰색이 아닌 픽셀이 존재해야 함
+            val markerAreaHasBackground =
+                (0 until image.width).any { x ->
+                    (55..75).any { y ->
+                        val rgb = Color(image.getRGB(x, y))
+                        rgb.red < 255 || rgb.green < 255 || rgb.blue < 255
+                    }
+                }
+            markerAreaHasBackground shouldBe true
+        }
 
         test("headline에 줄바꿈이 발생하는 highlightTexts 케이스 이미지 생성") {
             // Given
