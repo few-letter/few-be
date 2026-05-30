@@ -34,6 +34,7 @@ class InstagramUploadUseCaseTest :
                 chatGpt = chatGpt,
                 promptGenerator = promptGenerator,
                 contentsCountByCategory = 5,
+                cardNewsInstagramUploadEnabled = true,
             )
 
         val uploadTime = LocalDateTime.of(2025, 1, 15, 10, 0)
