@@ -21,6 +21,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.mockk.*
+import kotlinx.coroutines.test.TestScope
 import org.springframework.context.ApplicationEventPublisher
 import java.time.LocalDateTime
 
@@ -63,6 +64,7 @@ class AbstractGroupGenSchedulingUseCaseTest :
                 keywordExtractor,
                 genGrouper,
                 groupContentGenerator,
+                TestScope(),
             ) {
             override val region: Region = Region.GLOBAL
             override val regionName: String = "해외"
