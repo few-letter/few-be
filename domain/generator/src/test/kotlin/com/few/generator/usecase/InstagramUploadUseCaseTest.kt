@@ -27,13 +27,14 @@ class InstagramUploadUseCaseTest :
         val promptGenerator = mockk<PromptGenerator>()
 
         val useCase =
-            InstagramUploadUseCase(
+            UploadCardNewsInstagramUseCase(
                 instagramUploader = instagramUploader,
                 genService = genService,
                 applicationEventPublisher = applicationEventPublisher,
                 chatGpt = chatGpt,
                 promptGenerator = promptGenerator,
                 contentsCountByCategory = 5,
+                cardNewsInstagramUploadEnabled = true,
             )
 
         val uploadTime = LocalDateTime.of(2025, 1, 15, 10, 0)

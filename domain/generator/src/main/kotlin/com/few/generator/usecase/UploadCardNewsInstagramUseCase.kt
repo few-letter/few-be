@@ -19,10 +19,9 @@ import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import java.util.Random
 
 @Component
-class InstagramUploadUseCase(
+class UploadCardNewsInstagramUseCase(
     private val instagramUploader: InstagramUploader,
     private val genService: GenService,
     private val applicationEventPublisher: ApplicationEventPublisher,
@@ -30,9 +29,10 @@ class InstagramUploadUseCase(
     private val promptGenerator: PromptGenerator,
     @Value("\${generator.contents.countByCategory}")
     protected val contentsCountByCategory: Int,
+    @Value("\${generator.instagram.card-news-upload-enabled}")
+    protected val cardNewsInstagramUploadEnabled: Boolean,
 ) {
     private val log = KotlinLogging.logger {}
-    private val random = Random()
 
     companion object {
         private const val MAX_HASHTAGS_PER_CATEGORY = 5
@@ -52,6 +52,10 @@ class InstagramUploadUseCase(
     @Async("generatorSchedulingExecutor")
     @EventListener
     fun onCardNewsS3Uploaded(event: CardNewsS3UploadedEvent) {
+        if (!cardNewsInstagramUploadEnabled) {
+            log.info { "인스타그램 카드뉴스 업로드가 비활성화되어 Skip 합니다." }
+            return
+        }
         if (event.uploadedUrlsByCategory.isEmpty()) {
             log.warn { "${event.region.name} S3 업로드된 이미지가 없어 Instagram 업로드를 건너뜁니다." }
             return
