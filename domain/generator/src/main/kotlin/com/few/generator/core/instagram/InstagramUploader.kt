@@ -6,12 +6,13 @@ import com.few.generator.support.utils.DelayUtil
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import java.util.Random
 
 data class InstagramResponse(
     val id: String,
@@ -39,109 +40,115 @@ class InstagramUploader(
     private val gson: Gson,
 ) {
     private val log = KotlinLogging.logger {}
-    private val random = Random()
 
     // 1단계: 개별 이미지용 컨테이너 생성
-    fun createChildMediaContainer(imageUrl: String): String? {
-        val url =
-            "https://graph.instagram.com/$accountId/media"
-                .toHttpUrlOrNull()
-                ?.newBuilder()
-                ?.addQueryParameter("access_token", instagramTokenService.getLatestAccessToken())
-                ?.addQueryParameter("image_url", imageUrl)
-                ?.addQueryParameter("is_carousel_item", "true")
-                ?.build()
+    suspend fun createChildMediaContainer(imageUrl: String): String? =
+        withContext(Dispatchers.IO) {
+            val url =
+                "https://graph.instagram.com/$accountId/media"
+                    .toHttpUrlOrNull()
+                    ?.newBuilder()
+                    ?.addQueryParameter("access_token", instagramTokenService.getLatestAccessToken())
+                    ?.addQueryParameter("image_url", imageUrl)
+                    ?.addQueryParameter("is_carousel_item", "true")
+                    ?.build()
 
-        val request =
-            Request
-                .Builder()
-                .url(url!!)
-                .post(RequestBody.create(null, ""))
-                .build()
+            val request =
+                Request
+                    .Builder()
+                    .url(url!!)
+                    .post(RequestBody.create(null, ""))
+                    .build()
 
-        instagramOkHttpClient.newCall(request).execute().use { response ->
-            val responseBody = response.body?.string()
-            if (!response.isSuccessful) {
+            val (responseBody, isSuccessful, code) =
+                instagramOkHttpClient.newCall(request).execute().use { response ->
+                    Triple(response.body?.string(), response.isSuccessful, response.code)
+                }
+
+            if (!isSuccessful) {
                 val errorResponse = parseErrorResponse(responseBody)
-                logErrorResponse("[Step1] Child MediaContainer", response.code, errorResponse)
+                logErrorResponse("[Step1] Child MediaContainer", code, errorResponse)
                 throw RuntimeException(
                     "[Instagram][Step1] Creation of Child MediaContainer Failed: ${errorResponse?.error?.message ?: "Unknown error"}",
                 )
             }
-            // 5~10초 사이 랜덤 추출 TODO: 이미지 컨테이너 올라갔는지 폴링하도록 변경
-            DelayUtil.randomDelay(10, 15)
 
-            return responseBody?.let { parseJsonForId(it).id }
+            // TODO: 이미지 컨테이너 올라갔는지 폴링하도록 변경
+            DelayUtil.randomDelay(10, 15)
+            responseBody?.let { parseJsonForId(it).id }
         }
-    }
 
     // 2단계: 캐러셀용 부모 컨테이너 생성
-    fun createParentMediaContainer(
+    suspend fun createParentMediaContainer(
         imageUrls: List<String>,
         caption: String,
-    ): String? {
-        val url =
-            "https://graph.instagram.com/$accountId/media"
-                .toHttpUrlOrNull()
-                ?.newBuilder()
-                ?.addQueryParameter("access_token", instagramTokenService.getLatestAccessToken())
-                ?.addQueryParameter("children", imageUrls.joinToString(separator = ","))
-                ?.addQueryParameter("caption", caption)
-                ?.addQueryParameter("media_type", "CAROUSEL")
-                ?.build()
+    ): String? =
+        withContext(Dispatchers.IO) {
+            val url =
+                "https://graph.instagram.com/$accountId/media"
+                    .toHttpUrlOrNull()
+                    ?.newBuilder()
+                    ?.addQueryParameter("access_token", instagramTokenService.getLatestAccessToken())
+                    ?.addQueryParameter("children", imageUrls.joinToString(separator = ","))
+                    ?.addQueryParameter("caption", caption)
+                    ?.addQueryParameter("media_type", "CAROUSEL")
+                    ?.build()
 
-        val request =
-            Request
-                .Builder()
-                .url(url!!)
-                .post(RequestBody.create(null, ""))
-                .build()
+            val request =
+                Request
+                    .Builder()
+                    .url(url!!)
+                    .post(RequestBody.create(null, ""))
+                    .build()
 
-        instagramOkHttpClient.newCall(request).execute().use { response ->
-            val responseBody = response.body?.string()
-            if (!response.isSuccessful) {
+            val (responseBody, isSuccessful, code) =
+                instagramOkHttpClient.newCall(request).execute().use { response ->
+                    Triple(response.body?.string(), response.isSuccessful, response.code)
+                }
+
+            if (!isSuccessful) {
                 val errorResponse = parseErrorResponse(responseBody)
-                logErrorResponse("[Step2] Parent MediaContainer", response.code, errorResponse)
+                logErrorResponse("[Step2] Parent MediaContainer", code, errorResponse)
                 throw RuntimeException(
                     "[Instagram][Step2] Creation of Parent MediaContainer Failed: ${errorResponse?.error?.message ?: "Unknown error"}",
                 )
             }
-            // 5~10초 사이 랜덤 추출 TODO: 이미지 컨테이너 올라갔는지 폴링하도록 변경
-            DelayUtil.randomDelay(10, 15)
 
-            return responseBody?.let { parseJsonForId(it).id }
+            // TODO: 이미지 컨테이너 올라갔는지 폴링하도록 변경
+            DelayUtil.randomDelay(10, 15)
+            responseBody?.let { parseJsonForId(it).id }
         }
-    }
 
     // 3단계: 최종 게시
-    fun publishMedia(creationId: String): Boolean {
-        val url =
-            "https://graph.instagram.com/$accountId/media_publish"
-                .toHttpUrlOrNull()
-                ?.newBuilder()
-                ?.addQueryParameter("access_token", instagramTokenService.getLatestAccessToken())
-                ?.addQueryParameter("creation_id", creationId)
-                ?.build()
+    suspend fun publishMedia(creationId: String): Boolean =
+        withContext(Dispatchers.IO) {
+            val url =
+                "https://graph.instagram.com/$accountId/media_publish"
+                    .toHttpUrlOrNull()
+                    ?.newBuilder()
+                    ?.addQueryParameter("access_token", instagramTokenService.getLatestAccessToken())
+                    ?.addQueryParameter("creation_id", creationId)
+                    ?.build()
 
-        val request =
-            Request
-                .Builder()
-                .url(url!!)
-                .post(RequestBody.create(null, ""))
-                .build()
+            val request =
+                Request
+                    .Builder()
+                    .url(url!!)
+                    .post(RequestBody.create(null, ""))
+                    .build()
 
-        instagramOkHttpClient.newCall(request).execute().use { response ->
-            val responseBody = response.body?.string()
-            if (!response.isSuccessful) {
-                val errorResponse = parseErrorResponse(responseBody)
-                logErrorResponse("[Step3] Publish Media", response.code, errorResponse)
-                throw RuntimeException(
-                    "[Instagram][Step3] Publishing Media Failed: ${errorResponse?.error?.message ?: "Unknown error"}",
-                )
+            instagramOkHttpClient.newCall(request).execute().use { response ->
+                val responseBody = response.body?.string()
+                if (!response.isSuccessful) {
+                    val errorResponse = parseErrorResponse(responseBody)
+                    logErrorResponse("[Step3] Publish Media", response.code, errorResponse)
+                    throw RuntimeException(
+                        "[Instagram][Step3] Publishing Media Failed: ${errorResponse?.error?.message ?: "Unknown error"}",
+                    )
+                }
+                response.isSuccessful
             }
-            return response.isSuccessful
         }
-    }
 
     private fun parseJsonForId(json: String): InstagramResponse = gson.fromJson(json, InstagramResponse::class.java)
 
