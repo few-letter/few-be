@@ -5,7 +5,6 @@ import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.config.GroupingProperties
 import com.few.generator.event.GenSchedulingCompletedEvent
 import com.few.generator.service.GenService
-import com.few.generator.service.ProvisioningService
 import com.few.generator.service.specifics.groupgen.GenGroupper
 import com.few.generator.service.specifics.groupgen.GroupContentGenerator
 import com.few.generator.service.specifics.groupgen.GroupGenMetrics
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Component
 class LocalGroupGenSchedulingUseCase(
     applicationEventPublisher: ApplicationEventPublisher,
     genService: GenService,
-    provisioningService: ProvisioningService,
     groupingProperties: GroupingProperties,
     @Qualifier(GSON_BEAN_NAME)
     gson: Gson,
@@ -35,7 +33,6 @@ class LocalGroupGenSchedulingUseCase(
 ) : AbstractGroupGenSchedulingUseCase(
         applicationEventPublisher,
         genService,
-        provisioningService,
         groupingProperties,
         gson,
         groupGenMetrics,

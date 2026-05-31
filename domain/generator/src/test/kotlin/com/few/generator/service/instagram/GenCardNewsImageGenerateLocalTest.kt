@@ -44,7 +44,8 @@ class GenCardNewsImageGenerateLocalTest :
                 listOf(
                     Gen(
                         id = 100L,
-                        provisioningContentsId = 1L,
+                        url = "https://example.com/article",
+                        mediaType = 1,
                         category = Category.TECHNOLOGY.code,
                         region = 0,
                         headline = "삼성전자, AI 반도체 기술로 글로벌 시장 주도권 확보",
@@ -55,7 +56,8 @@ class GenCardNewsImageGenerateLocalTest :
                     ).apply { createdAt = now },
                     Gen(
                         id = 101L,
-                        provisioningContentsId = 2L,
+                        url = "https://example.com/article",
+                        mediaType = 1,
                         category = Category.TECHNOLOGY.code,
                         region = 0,
                         headline = "OpenAI, GPT-5 공개 임박…업계 판도 변화 예고",
@@ -66,7 +68,8 @@ class GenCardNewsImageGenerateLocalTest :
                     ).apply { createdAt = now },
                     Gen(
                         id = 102L,
-                        provisioningContentsId = 3L,
+                        url = "https://example.com/article",
+                        mediaType = 1,
                         category = Category.ECONOMY.code,
                         region = 0,
                         headline = "한국은행, 기준금리 동결…물가 안정 우선",
@@ -77,7 +80,8 @@ class GenCardNewsImageGenerateLocalTest :
                     ).apply { createdAt = now },
                     Gen(
                         id = 103L,
-                        provisioningContentsId = 4L,
+                        url = "https://example.com/article",
+                        mediaType = 1,
                         category = Category.ECONOMY.code,
                         region = 0,
                         headline = "코스피 3000 돌파…반도체·바이오 주도",
@@ -88,7 +92,8 @@ class GenCardNewsImageGenerateLocalTest :
                     ).apply { createdAt = now },
                     Gen(
                         id = 104L,
-                        provisioningContentsId = 5L,
+                        url = "https://example.com/article",
+                        mediaType = 1,
                         category = Category.POLITICS.code,
                         region = 0,
                         headline = "여야, 민생법안 처리 합의…국회 정상화",
@@ -143,7 +148,8 @@ class GenCardNewsImageGenerateLocalTest :
                 listOf(
                     Gen(
                         id = 200L,
-                        provisioningContentsId = 10L,
+                        url = "https://example.com/article",
+                        mediaType = 1,
                         category = Category.ECONOMY.code,
                         region = Region.GLOBAL.code,
                         headline = "사이버 보안 주식 AI 솔루션 전환",
@@ -189,7 +195,8 @@ class GenCardNewsImageGenerateLocalTest :
                 listOf(
                     Gen(
                         id = 201L,
-                        provisioningContentsId = 11L,
+                        url = "https://example.com/article",
+                        mediaType = 1,
                         category = Category.ECONOMY.code,
                         region = Region.GLOBAL.code,
                         headline = "S&P 500 추가 하락 가능성",
@@ -235,7 +242,8 @@ class GenCardNewsImageGenerateLocalTest :
                 listOf(
                     Gen(
                         id = 202L,
-                        provisioningContentsId = 12L,
+                        url = "https://example.com/article",
+                        mediaType = 1,
                         category = Category.TECHNOLOGY.code,
                         region = Region.GLOBAL.code,
                         headline = "AI 반도체 시장 패권 경쟁 심화",

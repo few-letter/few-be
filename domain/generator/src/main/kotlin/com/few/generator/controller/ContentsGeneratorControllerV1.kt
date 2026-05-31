@@ -94,30 +94,30 @@ class ContentsGeneratorControllerV1(
 
         return ApiResponseGenerator.success(
             BrowseContentDetailResponse(
-                id = useCaseOut.gen.id,
-                thumbnailImageUrl = useCaseOut.rawContents.thumbnailImageUrl,
+                id = useCaseOut.id,
+                thumbnailImageUrl = useCaseOut.thumbnailImageUrl,
                 mediaType =
                     CodeValueResponse(
-                        code = useCaseOut.rawContents.mediaType.code,
-                        value = useCaseOut.rawContents.mediaType.title,
+                        code = useCaseOut.mediaType.code,
+                        value = useCaseOut.mediaType.title,
                     ),
-                url = useCaseOut.rawContents.url,
-                headline = useCaseOut.gen.headline,
-                summary = useCaseOut.gen.summary,
-                highlightTexts = useCaseOut.gen.highlightTexts,
+                url = useCaseOut.url,
+                headline = useCaseOut.headline,
+                summary = useCaseOut.summary,
+                highlightTexts = useCaseOut.highlightTexts,
                 category =
                     CodeValueResponse(
-                        code = useCaseOut.gen.category.code,
-                        value = useCaseOut.gen.category.title,
+                        code = useCaseOut.category.code,
+                        value = useCaseOut.category.title,
                     ),
                 region =
-                    useCaseOut.gen.region?.let {
+                    useCaseOut.region?.let {
                         CodeValueResponse(
                             code = it.code,
                             value = it.name,
                         )
                     },
-                createdAt = useCaseOut.gen.createdAt,
+                createdAt = useCaseOut.createdAt,
             ),
             HttpStatus.OK,
         )

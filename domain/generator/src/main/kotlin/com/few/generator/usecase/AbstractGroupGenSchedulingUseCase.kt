@@ -10,7 +10,6 @@ import com.few.generator.domain.vo.GenDetail
 import com.few.generator.domain.vo.GroupGenProcessingResult
 import com.few.generator.event.ContentsSchedulingEvent
 import com.few.generator.service.GenService
-import com.few.generator.service.ProvisioningService
 import com.few.generator.service.specifics.groupgen.GenGroupper
 import com.few.generator.service.specifics.groupgen.GroupContentGenerator
 import com.few.generator.service.specifics.groupgen.GroupGenMetrics
@@ -29,7 +28,6 @@ import kotlin.system.measureTimeMillis
 abstract class AbstractGroupGenSchedulingUseCase(
     protected val applicationEventPublisher: ApplicationEventPublisher,
     protected val genService: GenService,
-    protected val provisioningService: ProvisioningService,
     protected val groupingProperties: GroupingProperties,
     @Qualifier(GSON_BEAN_NAME)
     protected val gson: Gson,
@@ -188,23 +186,14 @@ abstract class AbstractGroupGenSchedulingUseCase(
 
         log.info { "$regionName 카테고리 ${category.title}에서 ${gens.size}개 Gen 발견, 키워드 추출 시작" }
 
-        // 배치로 ProvisioningContents 조회하여 N+1 쿼리 방지
-        val provisioningContentsIds = gens.map { it.provisioningContentsId }
-        val provisioningContentsMap =
-            provisioningService
-                .findAllByIdIn(provisioningContentsIds)
-                .associateBy { it.id!! }
-
-        // 키워드 추출 시간 측정 및 실행 (코루틴 버전)
         val genDetails: List<GenDetail>
         val keywordExtractionTime =
             measureTimeMillis {
-                genDetails = keywordExtractor.extractKeywordsFromGens(gens, provisioningContentsMap)
+                genDetails = keywordExtractor.extractKeywordsFromGens(gens)
             }
 
         log.info { "키워드 추출 완료, 그룹화 시작" }
 
-        // 그룹화 수행
         val group = genGrouper.performGrouping(genDetails, category)
         val validatedGroup = genGrouper.validateGroupSize(group)
 
@@ -212,8 +201,7 @@ abstract class AbstractGroupGenSchedulingUseCase(
             throw BadRequestException("$regionName Group Gen 생성 실패 - Cause: 카테고리 ${category.title} Gen Grouping 실패")
         }
 
-        // 그룹 콘텐츠 생성
-        val result = groupContentGenerator.generateGroupContent(category, gens, validatedGroup, provisioningContentsMap, region)
+        val result = groupContentGenerator.generateGroupContent(category, gens, validatedGroup, region)
         return GroupGenProcessingResult(result, keywordExtractionTime, gens.size)
     }
 
