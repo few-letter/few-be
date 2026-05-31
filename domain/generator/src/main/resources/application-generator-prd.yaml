@@ -3,6 +3,13 @@ spring:
         type: jcache
         jcache:
             config: classpath:ehcache.xml
+    ai:
+        openai:
+            api-key: ${OPENAI_API_TOKEN}
+            chat:
+                options:
+                    model: gpt-4o-mini
+                    temperature: 0.2
     cloud:
         aws:
             s3:
@@ -12,23 +19,6 @@ spring:
             credentials:
                 access-key: ${STORAGE_ACCESS_KEY}
                 secret-key: ${STORAGE_SECRET_KEY}
-        openfeign:
-            client:
-                config:
-                    default:
-                        connectTimeout: 10000
-                        readTimeout: 60000
-                        loggerLevel: full
-                    openai:
-                        url: https://api.openai.com
-                        errorDecoder: com.few.generator.config.feign.OpenAiErrorDecoder
-                        defaultRequestHeaders:
-                            Authorization: "Bearer ${OPENAI_API_TOKEN:thisisopenai}"
-                            Content-Type: "application/json"
-                        requestInterceptors:
-                            - com.few.generator.config.feign.OpenAiRequestInterceptor
-                        encoder: com.few.generator.config.feign.OpenAiEncoder
-                        decoder: com.few.generator.config.feign.OpenAiDecoder
     generator:
         datasource:
             url: ${DB_HOSTNAME}/generator?allowPublicKeyRetrieval=true&rewriteBatchedStatements=true&allowMultiQueries=true&connectTimeout=10000&socketTimeout=1800000
