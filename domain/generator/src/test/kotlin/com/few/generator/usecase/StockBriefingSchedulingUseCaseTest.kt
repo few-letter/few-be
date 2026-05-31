@@ -6,7 +6,7 @@ import com.few.generator.core.gpt.prompt.PromptGenerator
 import com.few.generator.core.gpt.prompt.schema.Headline
 import com.few.generator.core.gpt.prompt.schema.HighlightTexts
 import com.few.generator.core.gpt.prompt.schema.Summary
-import com.few.generator.core.scrapper.naver.NaverStockBriefingScrapper
+import com.few.generator.core.scrapper.Scrapper
 import com.few.generator.core.scrapper.naver.StockBriefingRawContent
 import com.few.generator.event.StockBriefingContentProcessedEvent
 import com.few.generator.event.StockBriefingInstagramUploadCompletedEvent
@@ -17,7 +17,7 @@ import org.springframework.context.ApplicationEventPublisher
 
 class StockBriefingSchedulingUseCaseTest :
     BehaviorSpec({
-        val scrapper = mockk<NaverStockBriefingScrapper>()
+        val scrapper = mockk<Scrapper>()
         val chatGpt = mockk<ChatGpt>()
         val promptGenerator = mockk<PromptGenerator>()
         val publisher = mockk<ApplicationEventPublisher>(relaxed = true)
@@ -26,7 +26,7 @@ class StockBriefingSchedulingUseCaseTest :
 
         val useCase =
             StockBriefingSchedulingUseCase(
-                naverStockBriefingScrapper = scrapper,
+                scrapper = scrapper,
                 chatGpt = chatGpt,
                 promptGenerator = promptGenerator,
                 applicationEventPublisher = publisher,
@@ -57,11 +57,11 @@ class StockBriefingSchedulingUseCaseTest :
         Given("DB에 저장된 마지막 postId가 있는 경우") {
             When("신규 포스트가 존재하지 않으면") {
                 Then("저장된 postId 기준으로 다음 포스트를 확인하고 종료된다") {
-                    every { scrapper.checkPostExists(savedPostId + 1) } returns false
+                    every { scrapper.checkStockBriefingPostExists(savedPostId + 1) } returns false
 
                     useCase.execute()
 
-                    verify { scrapper.checkPostExists(savedPostId + 1) }
+                    verify { scrapper.checkStockBriefingPostExists(savedPostId + 1) }
                     verify(exactly = 0) { publisher.publishEvent(any()) }
                 }
             }
@@ -75,8 +75,8 @@ class StockBriefingSchedulingUseCaseTest :
                 )
 
             beforeEach {
-                every { scrapper.checkPostExists(savedPostId + 1) } returns true
-                every { scrapper.scrapePost(savedPostId + 1) } returns rawContents
+                every { scrapper.checkStockBriefingPostExists(savedPostId + 1) } returns true
+                every { scrapper.scrapeStockBriefingPost(savedPostId + 1) } returns rawContents
                 every { promptGenerator.toStockBriefingHeadline(any(), any()) } returns dummyPrompt
                 every { promptGenerator.toStockBriefingSummary(any(), any(), any()) } returns dummyPrompt
                 every { promptGenerator.toKoreanHighlightText(any()) } returns dummyPrompt
@@ -121,8 +121,8 @@ class StockBriefingSchedulingUseCaseTest :
         Given("크롤링 결과가 비어있는 경우") {
             When("execute를 호출하면") {
                 Then("postId만 저장되고 이벤트는 발행되지 않는다") {
-                    every { scrapper.checkPostExists(savedPostId + 1) } returns true
-                    every { scrapper.scrapePost(savedPostId + 1) } returns emptyList()
+                    every { scrapper.checkStockBriefingPostExists(savedPostId + 1) } returns true
+                    every { scrapper.scrapeStockBriefingPost(savedPostId + 1) } returns emptyList()
 
                     useCase.execute()
 
@@ -135,8 +135,8 @@ class StockBriefingSchedulingUseCaseTest :
         Given("크롤링 중 예외가 발생하는 경우") {
             When("execute를 호출하면") {
                 Then("실패 이벤트가 발행되고 postId는 저장되지 않는다") {
-                    every { scrapper.checkPostExists(savedPostId + 1) } returns true
-                    every { scrapper.scrapePost(savedPostId + 1) } throws RuntimeException("네트워크 오류")
+                    every { scrapper.checkStockBriefingPostExists(savedPostId + 1) } returns true
+                    every { scrapper.scrapeStockBriefingPost(savedPostId + 1) } throws RuntimeException("네트워크 오류")
 
                     useCase.execute()
 
@@ -161,8 +161,8 @@ class StockBriefingSchedulingUseCaseTest :
 
             When("execute를 호출하면") {
                 Then("GPT 실패 항목은 skip 처리되어 성공한 1개만 이벤트에 포함된다") {
-                    every { scrapper.checkPostExists(savedPostId + 1) } returns true
-                    every { scrapper.scrapePost(savedPostId + 1) } returns rawContents
+                    every { scrapper.checkStockBriefingPostExists(savedPostId + 1) } returns true
+                    every { scrapper.scrapeStockBriefingPost(savedPostId + 1) } returns rawContents
                     every { promptGenerator.toStockBriefingHeadline(any(), any()) } returns dummyPrompt
                     every { promptGenerator.toStockBriefingSummary(any(), any(), any()) } returns dummyPrompt
                     every { promptGenerator.toKoreanHighlightText(any()) } returns dummyPrompt
@@ -193,8 +193,8 @@ class StockBriefingSchedulingUseCaseTest :
         Given("GPT 처리가 전체 실패하는 경우") {
             When("execute를 호출하면") {
                 Then("실패 이벤트가 발행된다") {
-                    every { scrapper.checkPostExists(savedPostId + 1) } returns true
-                    every { scrapper.scrapePost(savedPostId + 1) } returns
+                    every { scrapper.checkStockBriefingPostExists(savedPostId + 1) } returns true
+                    every { scrapper.scrapeStockBriefingPost(savedPostId + 1) } returns
                         listOf(StockBriefingRawContent("코스피 상승", "코스피가 올랐다."))
                     every { promptGenerator.toStockBriefingHeadline(any(), any()) } returns dummyPrompt
                     every { chatGpt.ask(dummyPrompt) } throws RuntimeException("GPT 서비스 불가")
