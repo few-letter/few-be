@@ -21,8 +21,8 @@ class ContentsCommonGenerationService(
         category: Category,
         region: Region,
     ) {
-        val rawContent = rawContentsService.createAndSave(url, category, region)
-        val provisioningContent = provisioningService.createAndSave(rawContent)
+        val rawContent = rawContentsService.create(url, category, region)
+        val provisioningContent = provisioningService.create(rawContent)
         genService.createAndSave(rawContent, provisioningContent)
     }
 }

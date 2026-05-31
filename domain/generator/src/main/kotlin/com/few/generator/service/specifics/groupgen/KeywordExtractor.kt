@@ -5,7 +5,7 @@ import com.few.generator.domain.vo.AsyncKeywordJob
 import com.few.generator.domain.vo.GenDetail
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.supervisorScope
 import org.springframework.stereotype.Service
 
 @Service
@@ -17,7 +17,7 @@ class KeywordExtractor(
     suspend fun extractKeywordsFromGens(gens: List<Gen>): List<GenDetail> {
         log.info { "키워드 추출 시작: ${gens.size}개 Gen 처리" }
 
-        return coroutineScope {
+        return supervisorScope {
             val keywordJobs =
                 gens.map { gen ->
                     AsyncKeywordJob(

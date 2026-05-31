@@ -20,7 +20,7 @@ class ProvisioningService(
 ) {
     private val log = KotlinLogging.logger {}
 
-    fun createAndSave(rawContents: RawContents): ProvisioningContents {
+    fun create(rawContents: RawContents): ProvisioningContents {
         val bodyTexts: Texts = makeBodyTexts(rawContents.title, rawContents.rawTexts)
         val coreTexts: Texts = makeCoreTexts(rawContents.title, bodyTexts)
 

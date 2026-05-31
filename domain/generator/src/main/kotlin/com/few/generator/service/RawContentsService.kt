@@ -22,7 +22,7 @@ class RawContentsService(
 ) {
     private val log = KotlinLogging.logger {}
 
-    fun createAndSave(
+    fun create(
         url: String,
         category: Category,
         region: Region,
