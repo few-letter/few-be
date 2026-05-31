@@ -50,7 +50,8 @@ class UploadCardNewsInstagramUseCaseTest :
                 listOf(
                     Gen(
                         id = 1L,
-                        provisioningContentsId = 1L,
+                        url = "https://example.com/article",
+                        mediaType = 1,
                         category = Category.TECHNOLOGY.code,
                         region = Region.LOCAL.code,
                         headline = "앤트로픽, 크리스 리델 이사 선임",
@@ -59,7 +60,8 @@ class UploadCardNewsInstagramUseCaseTest :
                     ),
                     Gen(
                         id = 2L,
-                        provisioningContentsId = 2L,
+                        url = "https://example.com/article",
+                        mediaType = 1,
                         category = Category.TECHNOLOGY.code,
                         region = Region.LOCAL.code,
                         headline = "삼성전자 새로운 반도체 공장 착공",
@@ -103,7 +105,8 @@ class UploadCardNewsInstagramUseCaseTest :
                 listOf(
                     Gen(
                         id = 1L,
-                        provisioningContentsId = 1L,
+                        url = "https://example.com/article",
+                        mediaType = 1,
                         category = Category.TECHNOLOGY.code,
                         region = Region.LOCAL.code,
                         headline = "테스트 헤드라인",
@@ -145,7 +148,8 @@ class UploadCardNewsInstagramUseCaseTest :
                 listOf(
                     Gen(
                         id = 1L,
-                        provisioningContentsId = 1L,
+                        url = "https://example.com/article",
+                        mediaType = 1,
                         category = Category.ECONOMY.code,
                         region = Region.LOCAL.code,
                         headline = "한국은행 금리 인하",
@@ -196,7 +200,8 @@ class UploadCardNewsInstagramUseCaseTest :
                 listOf(
                     Gen(
                         id = 1L,
-                        provisioningContentsId = 1L,
+                        url = "https://example.com/article",
+                        mediaType = 1,
                         category = Category.POLITICS.code,
                         region = Region.LOCAL.code,
                         headline = "대통령 국무회의 개최",
@@ -241,7 +246,8 @@ class UploadCardNewsInstagramUseCaseTest :
                 val gen =
                     Gen(
                         id = 1L,
-                        provisioningContentsId = 1L,
+                        url = "https://example.com/article",
+                        mediaType = 1,
                         category = category.code,
                         region = Region.LOCAL.code,
                         headline = "테스트 헤드라인",
@@ -268,7 +274,8 @@ class UploadCardNewsInstagramUseCaseTest :
                 listOf(
                     Gen(
                         id = 1L,
-                        provisioningContentsId = 1L,
+                        url = "https://example.com/article",
+                        mediaType = 1,
                         category = Category.SOCIETY.code,
                         region = Region.LOCAL.code,
                         headline = "서울시 대중교통 무료화 추진",

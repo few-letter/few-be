@@ -9,8 +9,8 @@ import com.few.generator.core.gpt.prompt.schema.Headline
 import com.few.generator.core.gpt.prompt.schema.HighlightTexts
 import com.few.generator.core.gpt.prompt.schema.Summary
 import com.few.generator.domain.Gen
-import com.few.generator.domain.ProvisioningContents
-import com.few.generator.domain.RawContents
+import com.few.generator.domain.vo.ProvisioningContents
+import com.few.generator.domain.vo.RawContents
 import com.few.generator.repository.GenRepository
 import com.few.generator.support.jpa.GeneratorTransactional
 import com.google.gson.Gson
@@ -45,7 +45,7 @@ class GenService(
             promptGenerator.toSummaryShort(
                 headline = headline.headline,
                 title = rawContent.title,
-                coreTextsJson = provisioningContent.coreTextsJson!!,
+                coreTextsJson = provisioningContent.coreTextsJson,
             )
         val summary: Summary = chatGpt.ask(summaryPrompt) as Summary
 
@@ -54,16 +54,13 @@ class GenService(
 
         return genRepository.save(
             Gen(
-                provisioningContentsId = provisioningContent.id!!,
-                completionIds =
-                    mutableListOf(
-                        headline.completionId!!,
-                        summary.completionId!!,
-                        highlightTexts.completionId!!,
-                    ),
+                url = rawContent.url,
+                thumbnailImageUrl = rawContent.thumbnailImageUrl,
+                mediaType = rawContent.mediaType,
                 headline = headline.headline,
                 summary = summary.summary,
                 highlightTexts = gson.toJson(highlightTexts.highlightTexts),
+                coreTextsJson = provisioningContent.coreTextsJson,
                 category = Category.from(provisioningContent.category).code,
                 region = provisioningContent.region,
             ),

@@ -95,4 +95,6 @@ interface GenRepository : JpaRepository<Gen, Long> {
         endTime: LocalDateTime,
         region: Int,
     ): List<Gen>
+
+    fun findByUrl(url: String): Gen?
 }

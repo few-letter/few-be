@@ -44,7 +44,8 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                 listOf(
                     Gen(
                         id = 1L,
-                        provisioningContentsId = 1L,
+                        url = "https://example.com/article",
+                        mediaType = 1,
                         category = Category.TECHNOLOGY.code,
                         region = 0,
                         headline = "AI 기술의 미래",
@@ -55,7 +56,8 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     },
                     Gen(
                         id = 2L,
-                        provisioningContentsId = 2L,
+                        url = "https://example.com/article",
+                        mediaType = 1,
                         category = Category.ECONOMY.code,
                         region = 0,
                         headline = "경제 뉴스",
@@ -66,7 +68,8 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     },
                     Gen(
                         id = 3L,
-                        provisioningContentsId = 3L,
+                        url = "https://example.com/article",
+                        mediaType = 1,
                         category = Category.POLITICS.code,
                         region = 0,
                         headline = "정치 뉴스",
@@ -162,7 +165,8 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                 listOf(
                     Gen(
                         id = 1L,
-                        provisioningContentsId = 1L,
+                        url = "https://example.com/article",
+                        mediaType = 1,
                         category = Category.TECHNOLOGY.code,
                         region = 0,
                         headline = "성공 케이스",
@@ -173,7 +177,8 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     },
                     Gen(
                         id = 2L,
-                        provisioningContentsId = 2L,
+                        url = "https://example.com/article",
+                        mediaType = 1,
                         category = Category.ECONOMY.code,
                         region = 0,
                         headline = "실패 케이스",
@@ -239,7 +244,8 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
             val gen =
                 Gen(
                     id = 1L,
-                    provisioningContentsId = 1L,
+                    url = "https://example.com/article",
+                    mediaType = 1,
                     category = Category.POLITICS.code,
                     region = 0,
                     headline = "정치 뉴스",
@@ -290,7 +296,8 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                 listOf(
                     Gen(
                         id = 1L,
-                        provisioningContentsId = 1L,
+                        url = "https://example.com/article",
+                        mediaType = 1,
                         category = Category.TECHNOLOGY.code,
                         region = 0,
                         headline = "기술",
@@ -299,7 +306,8 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     ).apply { createdAt = LocalDateTime.now() },
                     Gen(
                         id = 2L,
-                        provisioningContentsId = 2L,
+                        url = "https://example.com/article",
+                        mediaType = 1,
                         category = Category.ECONOMY.code,
                         region = 0,
                         headline = "경제",
@@ -308,7 +316,8 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     ).apply { createdAt = LocalDateTime.now() },
                     Gen(
                         id = 3L,
-                        provisioningContentsId = 3L,
+                        url = "https://example.com/article",
+                        mediaType = 1,
                         category = Category.SOCIETY.code,
                         region = 0,
                         headline = "사회",
@@ -360,7 +369,8 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
             val gen =
                 Gen(
                     id = 1L,
-                    provisioningContentsId = 1L,
+                    url = "https://example.com/article",
+                    mediaType = 1,
                     category = Category.LIFE.code,
                     region = 0,
                     headline = "생활 뉴스",
