@@ -6,7 +6,7 @@ import com.few.generator.core.gpt.prompt.schema.Headline
 import com.few.generator.core.gpt.prompt.schema.HighlightTexts
 import com.few.generator.core.gpt.prompt.schema.Summary
 import com.few.generator.core.instagram.StockBriefingContent
-import com.few.generator.core.scrapper.naver.NaverStockBriefingScrapper
+import com.few.generator.core.scrapper.Scrapper
 import com.few.generator.event.StockBriefingContentProcessedEvent
 import com.few.generator.event.StockBriefingInstagramUploadCompletedEvent
 import com.few.generator.service.StockBriefingPostStateService
@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 @Component
 class StockBriefingSchedulingUseCase(
-    private val naverStockBriefingScrapper: NaverStockBriefingScrapper,
+    private val scrapper: Scrapper,
     private val chatGpt: ChatGpt,
     private val promptGenerator: PromptGenerator,
     private val applicationEventPublisher: ApplicationEventPublisher,
@@ -53,7 +53,7 @@ class StockBriefingSchedulingUseCase(
         val nextPostId = lastPostId + 1
         log.info { "증시 브리핑 확인 중 (postId=$nextPostId)" }
 
-        if (!naverStockBriefingScrapper.checkPostExists(nextPostId)) {
+        if (!scrapper.checkStockBriefingPostExists(nextPostId)) {
             log.info { "증시 브리핑 신규 포스트 없음 (postId=$nextPostId), 스케줄링 종료" }
             return
         }
@@ -62,7 +62,7 @@ class StockBriefingSchedulingUseCase(
 
         val rawContents =
             try {
-                naverStockBriefingScrapper.scrapePost(nextPostId)
+                scrapper.scrapeStockBriefingPost(nextPostId)
             } catch (e: Exception) {
                 log.error(e) { "증시 브리핑 크롤링 실패 (postId=$nextPostId): ${e.message}" }
                 publishFailure(nextPostId, "크롤링", e.message)
