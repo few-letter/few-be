@@ -8,9 +8,11 @@ import com.few.generator.event.StockBriefingInstagramUploadCompletedEvent
 import com.few.generator.event.StockBriefingS3UploadedEvent
 import com.few.generator.support.utils.DelayUtil
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.event.EventListener
-import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -22,6 +24,8 @@ class UploadStockBriefingInstagramUseCase(
     private val chatGpt: ChatGpt,
     private val promptGenerator: PromptGenerator,
     private val applicationEventPublisher: ApplicationEventPublisher,
+    @Qualifier("instagramCoroutineScope")
+    private val scope: CoroutineScope,
 ) {
     private val log = KotlinLogging.logger {}
 
@@ -31,7 +35,6 @@ class UploadStockBriefingInstagramUseCase(
         private val FALLBACK_HASHTAGS = listOf("증시브리핑", "주식", "코스피", "나스닥", "주식투자")
     }
 
-    @Async("generatorSchedulingExecutor")
     @EventListener
     fun onStockBriefingS3Uploaded(event: StockBriefingS3UploadedEvent) {
         if (event.detailImageUrls.isEmpty()) {
@@ -41,7 +44,10 @@ class UploadStockBriefingInstagramUseCase(
         }
 
         log.info { "증시 브리핑 S3 업로드 완료 감지 (postId=${event.postId}), Instagram 업로드 시작" }
+        scope.launch { performUpload(event) }
+    }
 
+    private suspend fun performUpload(event: StockBriefingS3UploadedEvent) {
         try {
             val allImageUrls =
                 if (event.mainPageImageUrl != null) {

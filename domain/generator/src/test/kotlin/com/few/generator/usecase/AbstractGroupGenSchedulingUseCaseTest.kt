@@ -21,6 +21,9 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.mockk.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.springframework.context.ApplicationEventPublisher
 import java.time.LocalDateTime
 
@@ -43,6 +46,7 @@ class AbstractGroupGenSchedulingUseCaseTest :
         val groupContentGenerator = mockk<GroupContentGenerator>()
 
         // Test implementation of abstract class
+        @OptIn(ExperimentalCoroutinesApi::class)
         class TestGroupGenSchedulingUseCase(
             applicationEventPublisher: ApplicationEventPublisher,
             genService: GenService,
@@ -63,15 +67,11 @@ class AbstractGroupGenSchedulingUseCaseTest :
                 keywordExtractor,
                 genGrouper,
                 groupContentGenerator,
+                TestScope(UnconfinedTestDispatcher()),
             ) {
             override val region: Region = Region.GLOBAL
             override val regionName: String = "해외"
             override val eventTitle: String = "[해외] Group Gen 스케줄링"
-
-            // Expose execute for testing
-            public override fun execute() {
-                super.execute()
-            }
 
             // Expose isRunning for testing
             fun getIsRunning() = isRunning.get()

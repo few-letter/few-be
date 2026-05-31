@@ -10,6 +10,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import io.mockk.*
+import kotlinx.coroutines.test.TestScope
 import org.springframework.context.ApplicationEventPublisher
 import java.time.LocalDateTime
 
@@ -26,6 +27,7 @@ class UploadStockBriefingInstagramUseCaseTest :
                 chatGpt = chatGpt,
                 promptGenerator = promptGenerator,
                 applicationEventPublisher = publisher,
+                scope = TestScope(),
             )
 
         val uploadTime = LocalDateTime.of(2025, 5, 30, 13, 10)

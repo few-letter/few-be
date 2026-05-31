@@ -6,8 +6,6 @@ import com.few.web.client.Block
 import com.few.web.client.SlackBodyProperty
 import com.few.web.client.Text
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import java.time.format.DateTimeFormatter
@@ -15,21 +13,17 @@ import java.time.format.DateTimeFormatter
 @Component
 class InstagramUploadCompletedEventListener(
     private val slackWebhookClient: SlackWebhookClient,
-    private val notificationIoCoroutineScope: CoroutineScope,
 ) {
     private val log = KotlinLogging.logger {}
 
     @EventListener
     fun handleEvent(event: InstagramUploadCompletedEvent) {
-        notificationIoCoroutineScope.launch {
-            log.info { "${event.region.name} Instagram 업로드 완료 감지, Slack 알림 발송 시작" }
-
-            try {
-                sendSlackNotification(event)
-                log.info { "${event.region.name} Instagram 업로드 Slack 알림 발송 완료" }
-            } catch (e: Exception) {
-                log.error(e) { "${event.region.name} Instagram 업로드 Slack 알림 발송 실패" }
-            }
+        log.info { "${event.region.name} Instagram 업로드 완료 감지, Slack 알림 발송 시작" }
+        try {
+            sendSlackNotification(event)
+            log.info { "${event.region.name} Instagram 업로드 Slack 알림 발송 완료" }
+        } catch (e: Exception) {
+            log.error(e) { "${event.region.name} Instagram 업로드 Slack 알림 발송 실패" }
         }
     }
 
