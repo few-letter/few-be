@@ -11,10 +11,12 @@ import com.few.generator.event.InstagramUploadCompletedEvent
 import com.few.generator.service.GenService
 import com.few.generator.support.utils.DelayUtil
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.event.EventListener
-import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -31,6 +33,8 @@ class UploadCardNewsInstagramUseCase(
     protected val contentsCountByCategory: Int,
     @Value("\${generator.instagram.card-news-upload-enabled}")
     protected val cardNewsInstagramUploadEnabled: Boolean,
+    @Qualifier("instagramCoroutineScope")
+    private val scope: CoroutineScope,
 ) {
     private val log = KotlinLogging.logger {}
 
@@ -49,7 +53,6 @@ class UploadCardNewsInstagramUseCase(
             )
     }
 
-    @Async("generatorSchedulingExecutor")
     @EventListener
     fun onCardNewsS3Uploaded(event: CardNewsS3UploadedEvent) {
         if (!cardNewsInstagramUploadEnabled) {
@@ -62,7 +65,10 @@ class UploadCardNewsInstagramUseCase(
         }
 
         log.info { "${event.region.name} S3 업로드 완료 감지, Instagram 업로드 시작 (${event.uploadedUrlsByCategory.size}개 카테고리)" }
+        scope.launch { performUpload(event) }
+    }
 
+    private suspend fun performUpload(event: CardNewsS3UploadedEvent) {
         val successCategories = mutableListOf<Category>()
         val failedCategories = mutableListOf<Category>()
         val errorMessages = mutableMapOf<Category, String>()
@@ -159,7 +165,7 @@ class UploadCardNewsInstagramUseCase(
         }
     }
 
-    private fun uploadCarouselByCategory(
+    private suspend fun uploadCarouselByCategory(
         category: Category,
         imageUrls: List<String>,
         caption: String,

@@ -15,10 +15,11 @@ import io.kotest.matchers.string.shouldNotContain
 import io.kotest.matchers.string.shouldStartWith
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.test.TestScope
 import org.springframework.context.ApplicationEventPublisher
 import java.time.LocalDateTime
 
-class InstagramUploadUseCaseTest :
+class UploadCardNewsInstagramUseCaseTest :
     BehaviorSpec({
         val instagramUploader = mockk<InstagramUploader>()
         val genService = mockk<GenService>()
@@ -35,6 +36,7 @@ class InstagramUploadUseCaseTest :
                 promptGenerator = promptGenerator,
                 contentsCountByCategory = 5,
                 cardNewsInstagramUploadEnabled = true,
+                scope = TestScope(),
             )
 
         val uploadTime = LocalDateTime.of(2025, 1, 15, 10, 0)

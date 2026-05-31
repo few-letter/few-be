@@ -11,6 +11,7 @@ import com.few.generator.service.specifics.groupgen.GroupContentGenerator
 import com.few.generator.service.specifics.groupgen.GroupGenMetrics
 import com.few.generator.service.specifics.groupgen.KeywordExtractor
 import com.google.gson.Gson
+import kotlinx.coroutines.CoroutineScope
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.event.EventListener
@@ -29,6 +30,8 @@ class GlobalGroupGenSchedulingUseCase(
     keywordExtractor: KeywordExtractor,
     genGrouper: GenGroupper,
     groupContentGenerator: GroupContentGenerator,
+    @Qualifier("groupGenCoroutineScope")
+    groupGenCoroutineScope: CoroutineScope,
 ) : AbstractGroupGenSchedulingUseCase(
         applicationEventPublisher,
         genService,
@@ -39,6 +42,7 @@ class GlobalGroupGenSchedulingUseCase(
         keywordExtractor,
         genGrouper,
         groupContentGenerator,
+        groupGenCoroutineScope,
     ) {
     override val region = Region.GLOBAL
     override val regionName = "GLOBAL"

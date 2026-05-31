@@ -58,4 +58,7 @@ object DependencyVersion {
 
     /** spring-cloud-aws **/
     const val SPRING_CLOUD_AWS = "3.4.2"
+
+    /** spring-ai **/
+    const val SPRING_AI = "1.1.7"
 }

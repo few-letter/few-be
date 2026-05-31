@@ -19,8 +19,6 @@ import com.few.generator.support.jpa.GeneratorTransactional
 import com.google.gson.Gson
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationEventPublisher
@@ -39,10 +37,11 @@ abstract class AbstractGroupGenSchedulingUseCase(
     protected val keywordExtractor: KeywordExtractor,
     protected val genGrouper: GenGroupper,
     protected val groupContentGenerator: GroupContentGenerator,
+    @Qualifier("groupGenCoroutineScope")
+    private val groupGenScope: CoroutineScope,
 ) {
     protected val log = KotlinLogging.logger {}
     protected val isRunning = AtomicBoolean(false)
-    protected val groupGenScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     abstract val region: Region
     abstract val regionName: String
