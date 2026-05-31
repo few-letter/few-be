@@ -11,7 +11,7 @@ import org.jsoup.nodes.Document
 import org.springframework.stereotype.Service
 
 @Service
-class NaverScrapper(
+class NaverNewsScrapper(
     private val scrapperHttpClient: OkHttpClient,
 ) {
     private val log = KotlinLogging.logger { }

@@ -12,7 +12,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Service
-class CnbcScrapper(
+class CnbcNewsScrapper(
     private val scrapperHttpClient: OkHttpClient,
 ) {
     private val log = KotlinLogging.logger { }
