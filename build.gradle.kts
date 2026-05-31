@@ -93,6 +93,7 @@ subprojects {
             dependency("org.jooq:jooq:${DependencyVersion.JOOQ}")
             imports {
                 mavenBom("org.springframework.cloud:spring-cloud-dependencies:2023.0.4")
+                mavenBom("org.springframework.ai:spring-ai-bom:${DependencyVersion.SPRING_AI}")
             }
         }
     }
