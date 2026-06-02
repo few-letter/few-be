@@ -18,7 +18,7 @@ class CardNewsS3UploadedEventListener(
 
     @EventListener
     fun handleEvent(event: CardNewsS3UploadedEvent) {
-        if (event.uploadedCount == event.totalCount && event.errorMessage == null) return
+        if (event.uploadedCount == event.totalCount) return
 
         log.info { "${event.region.name} 카드뉴스 S3 업로드 실패 감지, Slack 알림 발송 시작" }
         try {
