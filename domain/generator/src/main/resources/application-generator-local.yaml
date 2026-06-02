@@ -41,7 +41,7 @@ scheduling:
         email: "0 0 9 * * *"
         cache-metrics: "0 43 17 * * *"
         instagram-token-refresh: "0 0 2 * * MON"
-        stock-briefing: "0 10 * * * *"
+        stock-briefing: "0 10 0-3,5-12,14-23 * * MON-SAT"
 
 urls:
     webhook:
