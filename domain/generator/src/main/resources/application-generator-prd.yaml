@@ -60,7 +60,7 @@ generator:
         similarityThreshold: 0.7
     instagram:
         account-id: ${INSTAGRAM_ACCOUNT_ID}
-        card-news-upload-enabled: false
+        card-news-upload-enabled: true
 
 app:
     http:
