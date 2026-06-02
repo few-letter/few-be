@@ -12,6 +12,8 @@ class ContentsSchedulingHandler(
     private val slackWebhookClient: SlackWebhookClient,
 ) {
     fun handle(event: ContentsSchedulingEvent) {
+        if (event.isSuccess) return
+
         val body =
             SlackBodyProperty(
                 blocks =
