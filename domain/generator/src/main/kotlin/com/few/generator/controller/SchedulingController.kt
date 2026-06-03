@@ -21,12 +21,12 @@ class SchedulingController(
 ) {
     private val log = KotlinLogging.logger {}
 
-    @Scheduled(cron = "\${scheduling.cron.local-gen}")
+    @Scheduled(cron = "\${scheduling.cron.local-gen}", zone = "Asia/Seoul")
     fun createLocalNewsContents() {
         localGenSchedulingUseCase.executeAsync()
     }
 
-    @Scheduled(cron = "\${scheduling.cron.global-gen}")
+    @Scheduled(cron = "\${scheduling.cron.global-gen}", zone = "Asia/Seoul")
     fun createGlobalNewsContents() {
         globalGenSchedulingUseCase.executeAsync()
     }
