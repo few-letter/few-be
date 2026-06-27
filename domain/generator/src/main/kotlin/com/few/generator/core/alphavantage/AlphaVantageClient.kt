@@ -5,13 +5,16 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
 import io.github.oshai.kotlinlogging.KotlinLogging
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import org.springframework.stereotype.Component
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
+import java.time.Duration
 
 @Component
 class AlphaVantageClient(
-    private val scrapperHttpClient: OkHttpClient,
+    private val alphaVantageHttpClient: HttpClient,
     private val alphaVantageProperties: AlphaVantageProperties,
 ) {
     private val log = KotlinLogging.logger {}
@@ -21,17 +24,21 @@ class AlphaVantageClient(
         val url = "${alphaVantageProperties.baseUrl}?function=NEWS_SENTIMENT&tickers=$ticker&apikey=${alphaVantageProperties.apiKey}"
         log.info { "AlphaVantage 뉴스 조회 시작: ticker=$ticker" }
 
-        val request = Request.Builder().url(url).build()
-        val body =
-            scrapperHttpClient.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    throw RuntimeException("AlphaVantage HTTP ${response.code} ${response.message}: ticker=$ticker")
-                }
-                response.body?.string() ?: throw RuntimeException("AlphaVantage 응답 본문 없음: ticker=$ticker")
-            }
+        val request =
+            HttpRequest
+                .newBuilder()
+                .timeout(Duration.ofSeconds(15))
+                .uri(URI.create(url))
+                .GET()
+                .build()
 
-        val response = gson.fromJson(body, AlphaVantageNewsResponse::class.java)
-        val feed = response.feed?.take(alphaVantageProperties.topFeedCount) ?: emptyList()
+        val response = alphaVantageHttpClient.send(request, HttpResponse.BodyHandlers.ofString())
+        if (response.statusCode() !in 200..299) {
+            throw RuntimeException("AlphaVantage HTTP ${response.statusCode()}: ticker=$ticker")
+        }
+
+        val parsed = gson.fromJson(response.body(), AlphaVantageNewsResponse::class.java)
+        val feed = parsed.feed?.take(alphaVantageProperties.topFeedCount) ?: emptyList()
 
         log.info { "AlphaVantage 뉴스 조회 완료: ticker=$ticker, ${feed.size}개 항목" }
         return feed
