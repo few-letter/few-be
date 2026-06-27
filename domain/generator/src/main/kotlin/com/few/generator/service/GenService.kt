@@ -67,7 +67,8 @@ class GenService(
         )
     }
 
-    fun save(gen: Gen): Gen = genRepository.save(gen)
+    @GeneratorTransactional(propagation = Propagation.REQUIRES_NEW)
+    fun saveWithNewTx(gen: Gen): Gen = genRepository.save(gen)
 
     fun saveAll(gens: List<Gen>): List<Gen> = genRepository.saveAll(gens)
 

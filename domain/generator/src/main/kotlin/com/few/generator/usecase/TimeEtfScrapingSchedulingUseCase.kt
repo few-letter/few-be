@@ -109,7 +109,7 @@ class TimeEtfScrapingSchedulingUseCase(
                 return
             }
 
-        genService.save(
+        genService.saveWithNewTx(
             Gen(
                 url = feed.url,
                 thumbnailImageUrl = feed.bannerImage,
