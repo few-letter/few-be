@@ -32,7 +32,7 @@ class PopularNasdaqCardNewsImageGenerateUseCase(
     fun onPopularNasdaqGenSaved(event: PopularNasdaqGenSavedEvent) {
         log.info { "Popular Nasdaq Gen 저장 완료 감지, 카드뉴스 이미지 생성 시작" }
         try {
-            Thread.sleep(3000) // Gen commit 대기
+            Thread.sleep(1000) // Gen commit 대기
             execute(event.genIdsByStock)
         } catch (e: Exception) {
             log.error(e) { "Popular Nasdaq 카드뉴스 이미지 생성 실패: ${e.message}" }
@@ -45,7 +45,7 @@ class PopularNasdaqCardNewsImageGenerateUseCase(
         val mainPageImagePathsByStock = mutableMapOf<String, String>()
 
         genIdsByStock.forEach { (stockName, genIds) ->
-            val gens = genService.findAllByIds(genIds)
+            val gens = genService.findByIdInOrderByIdAsc(genIds)
             if (gens.isEmpty()) {
                 log.warn { "[$stockName] Gen 조회 결과 없음, 건너뜀" }
                 return@forEach

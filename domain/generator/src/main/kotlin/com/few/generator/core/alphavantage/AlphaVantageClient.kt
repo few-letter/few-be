@@ -42,7 +42,9 @@ class AlphaVantageClient(
             throw RuntimeException("AlphaVantage HTTP ${response.statusCode()}: ticker=$ticker")
         }
 
-        val parsed = gson.fromJson(response.body(), AlphaVantageNewsResponse::class.java)
+        val parsed =
+            gson.fromJson(response.body(), AlphaVantageNewsResponse::class.java)
+                ?: throw RuntimeException("AlphaVantage API 응답을 파싱할 수 없습니다.")
 
         parsed.information?.let {
             if (parsed.feed.isNullOrEmpty()) {

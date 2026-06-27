@@ -15,6 +15,8 @@ interface GenRepository : JpaRepository<Gen, Long> {
 
     override fun findAllById(ids: Iterable<Long>): List<Gen>
 
+    fun findByIdInOrderByIdAsc(ids: Iterable<Long>): List<Gen>
+
     @CacheEvict(value = [CacheNames.GEN_CACHE], allEntries = true)
     override fun <S : Gen> saveAll(entities: Iterable<S>): List<S>
 

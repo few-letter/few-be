@@ -75,7 +75,7 @@ class GenService(
     fun findByUrl(url: String): Gen? = genRepository.findByUrl(url)
 
     @GeneratorTransactional(readOnly = true, propagation = Propagation.REQUIRED)
-    fun findAllByIds(ids: List<Long>): List<Gen> = genRepository.findAllById(ids)
+    fun findByIdInOrderByIdAsc(ids: List<Long>): List<Gen> = genRepository.findByIdInOrderByIdAsc(ids)
 
     fun findLatestGen(): Gen = genRepository.findFirstLimit(1, Region.LOCAL.code)[0]
 
