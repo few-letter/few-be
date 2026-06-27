@@ -1,4 +1,4 @@
-package com.few.generator.config
+package com.few.generator.config.properties
 
 /**
  * 캐시 이름 상수 정의

@@ -32,6 +32,11 @@ spring:
                 hibernate:
                     format_sql: true
 
+alphavantage:
+    api-key: ${ALPHA_VANTAGE_API_KEY:demo}
+    base-url: "https://www.alphavantage.co/query"
+    top-feed-count: 4
+
 scheduling:
     cron:
         local-gen: "0 0 5 * * *"

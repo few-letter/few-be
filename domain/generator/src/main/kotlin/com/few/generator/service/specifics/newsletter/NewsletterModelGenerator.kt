@@ -4,7 +4,7 @@ import com.few.common.domain.Category
 import com.few.email.CategoryModel
 import com.few.email.GenModel
 import com.few.email.NewsletterModel
-import com.few.generator.config.NewsletterProperties
+import com.few.generator.config.properties.NewsletterProperties
 import com.few.generator.domain.Gen
 import org.springframework.stereotype.Component
 import java.time.LocalDate
