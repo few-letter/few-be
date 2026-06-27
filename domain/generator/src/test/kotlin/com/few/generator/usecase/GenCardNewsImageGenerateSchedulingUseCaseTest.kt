@@ -82,7 +82,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
 
             every { genService.findAllByCreatedAtBetweenAndRegion(any(), any(), Region.LOCAL) } returns gens
             every { singleNewsCardGenerator.generateImage(any(), any()) } returns true
-            every { mainPageCardGenerator.generateMainPageImage(any(), any(), any(), any()) } returns true
+            every { mainPageCardGenerator.generateMainPageImage(any<Category>(), any(), any(), any()) } returns true
 
             When("execute를 호출하면") {
                 Then("모든 Gen에 대해 이미지가 생성되고 카테고리별 파일 경로 맵이 반환된다") {
@@ -106,7 +106,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                         singleNewsCardGenerator.generateImage(any(), any())
                     }
                     verify(exactly = 3) {
-                        mainPageCardGenerator.generateMainPageImage(any(), any(), any(), any())
+                        mainPageCardGenerator.generateMainPageImage(any<Category>(), any(), any(), any())
                     }
                 }
             }
@@ -140,7 +140,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                         singleNewsCardGenerator.generateImage(any(), any())
                     }
                     verify(exactly = 0) {
-                        mainPageCardGenerator.generateMainPageImage(any(), any(), any(), any())
+                        mainPageCardGenerator.generateMainPageImage(any<Category>(), any(), any(), any())
                     }
                 }
             }
@@ -202,7 +202,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     any(),
                 )
             } returns false
-            every { mainPageCardGenerator.generateMainPageImage(any(), any(), any(), any()) } returns true
+            every { mainPageCardGenerator.generateMainPageImage(any<Category>(), any(), any(), any()) } returns true
 
             When("execute를 호출하면") {
                 Then("성공한 이미지 경로만 반환된다") {
@@ -220,7 +220,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                         singleNewsCardGenerator.generateImage(any(), any())
                     }
                     verify(exactly = 1) {
-                        mainPageCardGenerator.generateMainPageImage(any(), any(), any(), any())
+                        mainPageCardGenerator.generateMainPageImage(any<Category>(), any(), any(), any())
                     }
                 }
             }
@@ -257,7 +257,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
 
             every { genService.findAllByCreatedAtBetweenAndRegion(any(), any(), Region.LOCAL) } returns listOf(gen)
             every { singleNewsCardGenerator.generateImage(any(), any()) } returns true
-            every { mainPageCardGenerator.generateMainPageImage(any(), any(), any(), any()) } returns true
+            every { mainPageCardGenerator.generateMainPageImage(any<Category>(), any(), any(), any()) } returns true
 
             When("execute를 호출하면") {
                 Then("빈 highlightTexts 리스트로 이미지가 생성된다") {
@@ -328,7 +328,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
 
             every { genService.findAllByCreatedAtBetweenAndRegion(any(), any(), Region.LOCAL) } returns gens
             every { singleNewsCardGenerator.generateImage(any(), any()) } returns true
-            every { mainPageCardGenerator.generateMainPageImage(any(), any(), any(), any()) } returns true
+            every { mainPageCardGenerator.generateMainPageImage(any<Category>(), any(), any(), any()) } returns true
 
             When("execute를 호출하면") {
                 Then("각 카테고리가 올바르게 변환되어 이미지가 생성된다") {
@@ -381,7 +381,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
 
             every { genService.findAllByCreatedAtBetweenAndRegion(any(), any(), Region.LOCAL) } returns listOf(gen)
             every { singleNewsCardGenerator.generateImage(any(), any()) } returns true
-            every { mainPageCardGenerator.generateMainPageImage(any(), any(), any(), any()) } returns true
+            every { mainPageCardGenerator.generateMainPageImage(any<Category>(), any(), any(), any()) } returns true
 
             When("execute를 호출하면") {
                 Then("현재 시간을 사용하여 이미지가 생성된다") {
@@ -426,7 +426,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
             }
 
             When("모든 카테고리의 표지 이미지 생성이 성공하면") {
-                every { mainPageCardGenerator.generateMainPageImage(any(), any(), any(), any()) } returns true
+                every { mainPageCardGenerator.generateMainPageImage(any<Category>(), any(), any(), any()) } returns true
 
                 Then("모든 카테고리에 대해 표지 이미지 경로가 반환된다") {
                     val contentsByCategory =
@@ -446,7 +446,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     result[Category.POLITICS]!! shouldContain "_politics_main.png"
 
                     verify(exactly = 3) {
-                        mainPageCardGenerator.generateMainPageImage(any(), any(), any(), any())
+                        mainPageCardGenerator.generateMainPageImage(any<Category>(), any(), any(), any())
                     }
                 }
             }
@@ -455,7 +455,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                 clearMocks(mainPageCardGenerator)
                 every {
                     mainPageCardGenerator.generateMainPageImage(
-                        match { it == Category.TECHNOLOGY },
+                        match<Category> { it == Category.TECHNOLOGY },
                         any(),
                         any(),
                         any(),
@@ -463,7 +463,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                 } returns true
                 every {
                     mainPageCardGenerator.generateMainPageImage(
-                        match { it == Category.ECONOMY },
+                        match<Category> { it == Category.ECONOMY },
                         any(),
                         any(),
                         any(),
@@ -482,7 +482,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     result shouldContainKey Category.TECHNOLOGY
 
                     verify(exactly = 2) {
-                        mainPageCardGenerator.generateMainPageImage(any(), any(), any(), any())
+                        mainPageCardGenerator.generateMainPageImage(any<Category>(), any(), any(), any())
                     }
                 }
             }
@@ -496,7 +496,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     result.shouldBeEmpty()
 
                     verify(exactly = 0) {
-                        mainPageCardGenerator.generateMainPageImage(any(), any(), any(), any())
+                        mainPageCardGenerator.generateMainPageImage(any<Category>(), any(), any(), any())
                     }
                 }
             }
@@ -505,7 +505,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                 clearMocks(mainPageCardGenerator)
                 every {
                     mainPageCardGenerator.generateMainPageImage(
-                        match { it == Category.TECHNOLOGY },
+                        match<Category> { it == Category.TECHNOLOGY },
                         any(),
                         any(),
                         any(),
@@ -513,7 +513,7 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                 } throws RuntimeException("이미지 생성 오류")
                 every {
                     mainPageCardGenerator.generateMainPageImage(
-                        match { it == Category.ECONOMY },
+                        match<Category> { it == Category.ECONOMY },
                         any(),
                         any(),
                         any(),

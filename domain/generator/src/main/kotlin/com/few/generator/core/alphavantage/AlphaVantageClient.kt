@@ -45,7 +45,9 @@ class AlphaVantageClient(
         val parsed = gson.fromJson(response.body(), AlphaVantageNewsResponse::class.java)
 
         parsed.information?.let {
-            throw RuntimeException("AlphaVantage API 에러 발생: ${parsed.information}")
+            if (parsed.feed.isNullOrEmpty()) {
+                throw RuntimeException("AlphaVantage API 에러 발생: ${parsed.information}")
+            }
         }
 
         val feed = parsed.feed?.take(alphaVantageProperties.topFeedCount) ?: emptyList()
