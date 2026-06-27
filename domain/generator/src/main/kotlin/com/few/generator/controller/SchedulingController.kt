@@ -2,11 +2,11 @@ package com.few.generator.controller
 
 import com.few.generator.usecase.GlobalGenSchedulingUseCase
 import com.few.generator.usecase.LocalGenSchedulingUseCase
+import com.few.generator.usecase.PopularNasdaqStockScrapingSchedulingUseCase
 import com.few.generator.usecase.RefreshInstagramTokenUseCase
 import com.few.generator.usecase.SendCacheMetricsSchedulingUseCase
 import com.few.generator.usecase.SendNewsletterSchedulingUseCase
 import com.few.generator.usecase.StockBriefingSchedulingUseCase
-import com.few.generator.usecase.TimeEtfScrapingSchedulingUseCase
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -19,7 +19,7 @@ class SchedulingController(
     private val sendNewsletterSchedulingUseCase: SendNewsletterSchedulingUseCase,
     private val refreshInstagramTokenUseCase: RefreshInstagramTokenUseCase,
     private val stockBriefingSchedulingUseCase: StockBriefingSchedulingUseCase,
-    private val timeEtfScrapingSchedulingUseCase: TimeEtfScrapingSchedulingUseCase,
+    private val popularNasdaqStockScrapingSchedulingUseCase: PopularNasdaqStockScrapingSchedulingUseCase,
 ) {
     private val log = KotlinLogging.logger {}
 
@@ -59,6 +59,6 @@ class SchedulingController(
 
     @Scheduled(cron = "\${scheduling.cron.time-etf-scraping}", zone = "Asia/Seoul")
     fun scrapeTimeEtf() {
-        timeEtfScrapingSchedulingUseCase.executeAsync()
+        popularNasdaqStockScrapingSchedulingUseCase.executeAsync()
     }
 }

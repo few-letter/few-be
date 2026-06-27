@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component
 import java.util.concurrent.atomic.AtomicBoolean
 
 @Component
-class TimeEtfScrapingSchedulingUseCase(
+class PopularNasdaqStockScrapingSchedulingUseCase(
     private val timeEtfScrapper: TimeEtfScrapper,
     private val alphaVantageClient: AlphaVantageClient,
     private val chatGpt: ChatGpt,
