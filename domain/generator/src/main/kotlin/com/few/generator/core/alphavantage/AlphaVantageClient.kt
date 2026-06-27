@@ -21,6 +21,11 @@ class AlphaVantageClient(
     private val gson: Gson = GsonBuilder().create()
 
     fun getTopNewsFeed(ticker: String): List<AlphaVantageNewsFeed> {
+        if (alphaVantageProperties.apiKey.isBlank()) {
+            log.warn { "AlphaVantage API Key가 설정되지 않았습니다. ticker=$ticker" }
+            throw RuntimeException("AlphaVantage API Key가 설정되지 않았습니다.")
+        }
+
         val url = "${alphaVantageProperties.baseUrl}?function=NEWS_SENTIMENT&tickers=$ticker&apikey=${alphaVantageProperties.apiKey}"
         log.info { "AlphaVantage 뉴스 조회 시작: ticker=$ticker" }
 
