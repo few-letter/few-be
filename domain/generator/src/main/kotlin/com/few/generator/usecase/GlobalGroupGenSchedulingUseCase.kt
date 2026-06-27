@@ -2,7 +2,7 @@ package com.few.generator.usecase
 
 import com.few.common.domain.Region
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
-import com.few.generator.config.GroupingProperties
+import com.few.generator.config.properties.GroupingProperties
 import com.few.generator.event.GenSchedulingCompletedEvent
 import com.few.generator.service.GenService
 import com.few.generator.service.specifics.groupgen.GenGroupper

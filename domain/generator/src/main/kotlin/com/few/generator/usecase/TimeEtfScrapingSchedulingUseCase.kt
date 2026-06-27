@@ -5,7 +5,7 @@ import com.few.common.domain.MediaType
 import com.few.common.domain.Region
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.core.alphavantage.AlphaVantageClient
-import com.few.generator.core.alphavantage.AlphaVantageNewsFeedItem
+import com.few.generator.core.alphavantage.AlphaVantageNewsFeed
 import com.few.generator.core.gpt.ChatGpt
 import com.few.generator.core.gpt.prompt.PromptGenerator
 import com.few.generator.core.gpt.prompt.schema.Headline
@@ -50,74 +50,74 @@ class TimeEtfScrapingSchedulingUseCase(
     }
 
     fun execute() {
-        val items = timeEtfScrapper.scrapeTopItems()
-        if (items.isEmpty()) {
+        val popularNasdaqStocks = timeEtfScrapper.scrapeTopItems()
+        if (popularNasdaqStocks.isEmpty()) {
             log.warn { "TimeETF 스크래핑 결과가 없습니다." }
             return
         }
 
-        log.info { "TimeETF 구성 종목 ${items.size}개에 대한 뉴스 조회 시작" }
+        log.info { "TimeETF 구성 종목 ${popularNasdaqStocks.size}개에 대한 뉴스 조회 시작" }
 
-        items.forEach { etfItem ->
-            log.info { "TimeETF [${etfItem.rank}위] ${etfItem.ticker} (${etfItem.stockName}) 뉴스 조회 중" }
+        popularNasdaqStocks.forEach { stock ->
+            log.info { "TimeETF [${stock.rank}위] ${stock.ticker} (${stock.stockName}) 뉴스 조회 중" }
 
-            val feedItems =
+            val feeds =
                 try {
-                    alphaVantageClient.getTopNewsFeed(etfItem.ticker)
+                    alphaVantageClient.getTopNewsFeed(stock.ticker)
                 } catch (e: Exception) {
-                    log.error(e) { "AlphaVantage 뉴스 조회 실패: ticker=${etfItem.ticker}" }
+                    log.error(e) { "AlphaVantage 뉴스 조회 실패: ticker=${stock.ticker}" }
                     return@forEach
                 }
 
-            if (feedItems.isEmpty()) {
-                log.warn { "AlphaVantage 뉴스 결과 없음: ticker=${etfItem.ticker}" }
+            if (feeds.isEmpty()) {
+                log.warn { "AlphaVantage 뉴스 결과 없음: ticker=${stock.ticker}" }
                 return@forEach
             }
 
-            feedItems.forEach { feedItem ->
-                processAndSaveFeedItem(etfItem.ticker, feedItem)
+            feeds.forEach { feed ->
+                processAndSaveFeed(stock.ticker, feed)
             }
         }
 
         log.info { "TimeETF 스케줄링 완료" }
     }
 
-    private fun processAndSaveFeedItem(
+    private fun processAndSaveFeed(
         ticker: String,
-        feedItem: AlphaVantageNewsFeedItem,
+        feed: AlphaVantageNewsFeed,
     ) {
-        if (genService.findByUrl(feedItem.url) != null) {
-            log.info { "이미 저장된 뉴스 URL, 건너뜀: ${feedItem.url}" }
+        if (genService.findByUrl(feed.url) != null) {
+            log.info { "이미 저장된 뉴스 URL, 건너뜀: ${feed.url}" }
             return
         }
 
         val headline =
             try {
-                (chatGpt.ask(promptGenerator.toKoreanShortHeadline(feedItem.title)) as? Headline)?.headline
-                    ?: feedItem.title
+                (chatGpt.ask(promptGenerator.toKoreanShortHeadline(feed.title)) as? Headline)?.headline
+                    ?: feed.title
             } catch (e: Exception) {
-                log.error(e) { "헤드라인 번역 GPT 호출 실패: ${feedItem.title}" }
+                log.error(e) { "헤드라인 번역 GPT 호출 실패: ${feed.title}" }
                 return
             }
 
         val summary =
             try {
-                (chatGpt.ask(promptGenerator.toKoreanShortSummary(feedItem.summary)) as? Summary)?.summary
-                    ?: feedItem.summary
+                (chatGpt.ask(promptGenerator.toKoreanShortSummary(feed.summary)) as? Summary)?.summary
+                    ?: feed.summary
             } catch (e: Exception) {
-                log.error(e) { "요약 번역 GPT 호출 실패: ticker=$ticker, title=${feedItem.title}" }
+                log.error(e) { "요약 번역 GPT 호출 실패: ticker=$ticker, title=${feed.title}" }
                 return
             }
 
         genService.save(
             Gen(
-                url = feedItem.url,
-                thumbnailImageUrl = feedItem.bannerImage,
+                url = feed.url,
+                thumbnailImageUrl = feed.bannerImage,
                 mediaType = MediaType.ETC.code,
                 headline = headline,
                 summary = summary,
                 highlightTexts = "[]",
-                coreTextsJson = gson.toJson(listOf(feedItem.summary)),
+                coreTextsJson = gson.toJson(listOf(feed.summary)),
                 category = Category.ECONOMY.code,
                 region = Region.GLOBAL.code,
             ),

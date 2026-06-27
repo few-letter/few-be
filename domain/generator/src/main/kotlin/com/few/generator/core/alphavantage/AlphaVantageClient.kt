@@ -1,6 +1,6 @@
 package com.few.generator.core.alphavantage
 
-import com.few.generator.config.AlphaVantageProperties
+import com.few.generator.config.properties.AlphaVantageProperties
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
@@ -17,7 +17,7 @@ class AlphaVantageClient(
     private val log = KotlinLogging.logger {}
     private val gson: Gson = GsonBuilder().create()
 
-    fun getTopNewsFeed(ticker: String): List<AlphaVantageNewsFeedItem> {
+    fun getTopNewsFeed(ticker: String): List<AlphaVantageNewsFeed> {
         val url = "${alphaVantageProperties.baseUrl}?function=NEWS_SENTIMENT&tickers=$ticker&apikey=${alphaVantageProperties.apiKey}"
         log.info { "AlphaVantage 뉴스 조회 시작: ticker=$ticker" }
 
@@ -39,6 +39,6 @@ class AlphaVantageClient(
 
     private data class AlphaVantageNewsResponse(
         val items: String?,
-        @SerializedName("feed") val feed: List<AlphaVantageNewsFeedItem>?,
+        @SerializedName("feed") val feed: List<AlphaVantageNewsFeed>?,
     )
 }

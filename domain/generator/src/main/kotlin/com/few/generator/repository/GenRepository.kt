@@ -1,6 +1,6 @@
 package com.few.generator.repository
 
-import com.few.generator.config.CacheNames
+import com.few.generator.config.properties.CacheNames
 import com.few.generator.domain.Gen
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable

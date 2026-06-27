@@ -3,7 +3,7 @@ package com.few.generator.usecase
 import com.few.common.domain.Category
 import com.few.common.domain.Region
 import com.few.common.exception.BadRequestException
-import com.few.generator.config.GroupingProperties
+import com.few.generator.config.properties.GroupingProperties
 import com.few.generator.core.gpt.prompt.schema.Group
 import com.few.generator.domain.Gen
 import com.few.generator.domain.GroupGen

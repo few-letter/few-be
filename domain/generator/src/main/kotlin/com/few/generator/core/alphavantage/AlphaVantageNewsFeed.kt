@@ -2,7 +2,7 @@ package com.few.generator.core.alphavantage
 
 import com.google.gson.annotations.SerializedName
 
-data class AlphaVantageNewsFeedItem(
+data class AlphaVantageNewsFeed(
     val title: String,
     val url: String,
     @SerializedName("banner_image") val bannerImage: String?,

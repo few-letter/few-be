@@ -1,6 +1,6 @@
 package com.few.generator.service
 
-import com.few.generator.config.CacheNames
+import com.few.generator.config.properties.CacheNames
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.search.Search
