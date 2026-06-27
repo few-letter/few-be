@@ -7,4 +7,6 @@ import org.springframework.stereotype.Component
 @ConfigurationProperties("alphavantage")
 data class AlphaVantageProperties(
     var apiKey: String = "",
+    var baseUrl: String = "https://www.alphavantage.co/query",
+    var topFeedCount: Int = 4,
 )

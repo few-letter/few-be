@@ -17,13 +17,8 @@ class AlphaVantageClient(
     private val log = KotlinLogging.logger {}
     private val gson: Gson = GsonBuilder().create()
 
-    companion object {
-        private const val BASE_URL = "https://www.alphavantage.co/query"
-        private const val TOP_FEED_COUNT = 4
-    }
-
     fun getTopNewsFeed(ticker: String): List<AlphaVantageNewsFeedItem> {
-        val url = "$BASE_URL?function=NEWS_SENTIMENT&tickers=$ticker&apikey=${alphaVantageProperties.apiKey}"
+        val url = "${alphaVantageProperties.baseUrl}?function=NEWS_SENTIMENT&tickers=$ticker&apikey=${alphaVantageProperties.apiKey}"
         log.info { "AlphaVantage 뉴스 조회 시작: ticker=$ticker" }
 
         val request = Request.Builder().url(url).build()
@@ -36,7 +31,7 @@ class AlphaVantageClient(
             }
 
         val response = gson.fromJson(body, AlphaVantageNewsResponse::class.java)
-        val feed = response.feed?.take(TOP_FEED_COUNT) ?: emptyList()
+        val feed = response.feed?.take(alphaVantageProperties.topFeedCount) ?: emptyList()
 
         log.info { "AlphaVantage 뉴스 조회 완료: ticker=$ticker, ${feed.size}개 항목" }
         return feed
