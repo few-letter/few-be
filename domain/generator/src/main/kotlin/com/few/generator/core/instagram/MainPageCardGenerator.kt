@@ -46,7 +46,7 @@ class MainPageCardGenerator {
 
         // 카테고리 타이틀 상수
         private const val CATEGORY_TITLE_TOP = 402
-        private const val CATEGORY_TITLE_FONT_SIZE = 100
+        private const val CATEGORY_TITLE_FONT_SIZE = 80
 
         // 헤드라인 목록 상수 (일반 카드 뉴스용)
         private const val HEADLINES_TOP = 660
