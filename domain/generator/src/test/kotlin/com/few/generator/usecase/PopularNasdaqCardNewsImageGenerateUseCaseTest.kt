@@ -81,7 +81,7 @@ class PopularNasdaqCardNewsImageGenerateUseCaseTest :
                     ),
                 )
 
-            every { genService.findAllByIds(listOf(1L, 2L, 3L, 4L)) } returns gens
+            every { genService.findByIdInOrderByIdAsc(listOf(1L, 2L, 3L, 4L)) } returns gens
 
             useCase.execute(mapOf("Apple" to listOf(1L, 2L, 3L, 4L)))
 
@@ -123,7 +123,7 @@ class PopularNasdaqCardNewsImageGenerateUseCaseTest :
                     ),
                 )
 
-            every { genService.findAllByIds(listOf(10L, 11L, 12L)) } returns gens
+            every { genService.findByIdInOrderByIdAsc(listOf(10L, 11L, 12L)) } returns gens
 
             useCase.execute(mapOf("NVDA" to listOf(10L, 11L, 12L)))
 
@@ -160,7 +160,7 @@ class PopularNasdaqCardNewsImageGenerateUseCaseTest :
                     ),
                 )
 
-            every { genService.findAllByIds(listOf(20L, 21L)) } returns gens
+            every { genService.findByIdInOrderByIdAsc(listOf(20L, 21L)) } returns gens
 
             useCase.execute(mapOf("Microsoft" to listOf(20L, 21L)))
 
@@ -193,8 +193,8 @@ class PopularNasdaqCardNewsImageGenerateUseCaseTest :
                     makeGen(32L, "Tesla 에너지 사업부, 분기 최고 매출 달성", "Tesla의 에너지 저장 및 태양광 사업부가 분기 최고 매출을 달성했습니다."),
                 )
 
-            every { genService.findAllByIds(listOf(30L)) } returns appleGens
-            every { genService.findAllByIds(listOf(31L, 32L)) } returns tslaGens
+            every { genService.findByIdInOrderByIdAsc(listOf(30L)) } returns appleGens
+            every { genService.findByIdInOrderByIdAsc(listOf(31L, 32L)) } returns tslaGens
 
             useCase.execute(
                 mapOf(
@@ -228,7 +228,7 @@ class PopularNasdaqCardNewsImageGenerateUseCaseTest :
         test("종목명에 공백이 포함된 경우 파일 경로에서 공백이 _로 치환된다") {
             val gens = listOf(makeGen(40L, "Nvidia Corp 헤드라인", "요약 내용입니다."))
 
-            every { genService.findAllByIds(any()) } returns gens
+            every { genService.findByIdInOrderByIdAsc(any()) } returns gens
 
             useCase.execute(mapOf("Nvidia Corp" to listOf(40L)))
 
@@ -244,7 +244,7 @@ class PopularNasdaqCardNewsImageGenerateUseCaseTest :
         }
 
         test("Gen 조회 결과 없는 경우 이미지 생성 및 이벤트 발행 스킵") {
-            every { genService.findAllByIds(any()) } returns emptyList()
+            every { genService.findByIdInOrderByIdAsc(any()) } returns emptyList()
 
             useCase.execute(mapOf("MSFT" to listOf(1L)))
 
@@ -254,7 +254,7 @@ class PopularNasdaqCardNewsImageGenerateUseCaseTest :
         test("genIdsByStock가 비어있는 경우 아무 작업도 수행되지 않는다") {
             useCase.execute(emptyMap())
 
-            verify(exactly = 0) { genService.findAllByIds(any()) }
+            verify(exactly = 0) { genService.findByIdInOrderByIdAsc(any()) }
             verify(exactly = 0) { applicationEventPublisher.publishEvent(any()) }
         }
     })
