@@ -46,7 +46,12 @@ class TimeEtfScrapper(
                         ?.takeIf { it.isNotBlank() }
                         ?.takeIf { t -> TimeEtfConstants.EXCLUDED_TICKER_KEYWORDS.none { t.contains(it) } }
                         ?: return@mapIndexedNotNull null
-                val stockName = cells[1].text().trim().takeIf { it.isNotBlank() } ?: return@mapIndexedNotNull null
+                val stockName =
+                    cells[1]
+                        .text()
+                        .trim()
+                        .takeIf { it.isNotBlank() }
+                        ?.removeCompanySuffix() ?: return@mapIndexedNotNull null
 
                 TimeEtfItem(
                     rank = index + 1,

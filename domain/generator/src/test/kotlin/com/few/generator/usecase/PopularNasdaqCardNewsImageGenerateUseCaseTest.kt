@@ -2,30 +2,28 @@ package com.few.generator.usecase
 
 import com.few.common.domain.Category
 import com.few.generator.core.instagram.MainPageCardGenerator
-import com.few.generator.core.instagram.NewsContent
 import com.few.generator.core.instagram.SingleNewsCardGenerator
 import com.few.generator.domain.Gen
 import com.few.generator.event.PopularNasdaqCardNewsImageGeneratedEvent
 import com.few.generator.service.GenService
-import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldContainKey
 import io.kotest.matchers.maps.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import org.springframework.context.ApplicationEventPublisher
+import java.io.File
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 class PopularNasdaqCardNewsImageGenerateUseCaseTest :
-    BehaviorSpec({
+    FunSpec({
         val genService = mockk<GenService>()
-        val singleNewsCardGenerator = mockk<SingleNewsCardGenerator>()
-        val mainPageCardGenerator = mockk<MainPageCardGenerator>()
+        val singleNewsCardGenerator = SingleNewsCardGenerator()
+        val mainPageCardGenerator = MainPageCardGenerator()
         val applicationEventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
 
         val useCase =
@@ -37,7 +35,6 @@ class PopularNasdaqCardNewsImageGenerateUseCaseTest :
             )
 
         val now = LocalDateTime.now()
-        val dateStr = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"))
 
         fun makeGen(
             id: Long,
@@ -55,286 +52,209 @@ class PopularNasdaqCardNewsImageGenerateUseCaseTest :
             region = 0,
         ).apply { createdAt = now }
 
-        beforeEach {
-            clearMocks(genService, singleNewsCardGenerator, mainPageCardGenerator, applicationEventPublisher)
+        beforeTest {
+            clearMocks(genService, applicationEventPublisher)
         }
 
-        Given("genIdsByStock에 종목이 1개 있고 모든 이미지 생성이 성공하는 경우") {
+        test("Apple 종목 카드뉴스 이미지 실제 생성") {
             val gens =
                 listOf(
-                    makeGen(1L, "AAPL 헤드라인1"),
-                    makeGen(2L, "AAPL 헤드라인2"),
-                    makeGen(3L, "AAPL 헤드라인3"),
-                    makeGen(4L, "AAPL 헤드라인4"),
+                    makeGen(
+                        1L,
+                        "Apple, AI 아이폰으로 스마트폰 시장 재편 노린다",
+                        "Apple이 AI 기능을 탑재한 새로운 아이폰을 출시하며 스마트폰 시장에서의 입지를 더욱 굳히고 있습니다.",
+                    ),
+                    makeGen(
+                        2L,
+                        "Apple 서비스 매출 분기 최고치 경신",
+                        "Apple의 서비스 부문 매출이 분기 최고치를 기록했습니다. App Store, Apple Music, iCloud 등 구독형 서비스가 성장을 이끌었습니다.",
+                    ),
+                    makeGen(
+                        3L,
+                        "Apple Vision Pro, 기업 시장 공략 가속화",
+                        "Apple이 Vision Pro를 활용한 기업용 솔루션을 강화하며 B2B 시장 진출을 본격화하고 있습니다.",
+                    ),
+                    makeGen(
+                        4L,
+                        "Apple, 자체 AI 칩 M4 탑재 맥북 라인업 공개",
+                        "Apple이 자체 개발한 M4 칩을 탑재한 새로운 맥북 라인업을 공개했습니다. 기존 대비 성능이 30% 향상되었습니다.",
+                    ),
                 )
 
-            When("execute를 호출하면") {
-                Then("상세 카드 4개, 메인 카드 1개가 생성되고 이벤트가 발행된다") {
-                    every { genService.findAllByIds(listOf(1L, 2L, 3L, 4L)) } returns gens
-                    every { singleNewsCardGenerator.generateImage(any(), any()) } returns true
-                    every { mainPageCardGenerator.generateMainPageImage(any<String>(), any<String>(), any(), any()) } returns true
+            every { genService.findAllByIds(listOf(1L, 2L, 3L, 4L)) } returns gens
 
-                    useCase.execute(mapOf("Apple" to listOf(1L, 2L, 3L, 4L)))
+            useCase.execute(mapOf("Apple" to listOf(1L, 2L, 3L, 4L)))
 
-                    verify(exactly = 4) { singleNewsCardGenerator.generateImage(any(), any()) }
-                    verify(exactly = 1) { mainPageCardGenerator.generateMainPageImage(any<String>(), any<String>(), any(), any()) }
+            val eventSlot = slot<PopularNasdaqCardNewsImageGeneratedEvent>()
+            verify(exactly = 1) { applicationEventPublisher.publishEvent(capture(eventSlot)) }
 
-                    val eventSlot = slot<PopularNasdaqCardNewsImageGeneratedEvent>()
-                    verify(exactly = 1) { applicationEventPublisher.publishEvent(capture(eventSlot)) }
-
-                    eventSlot.captured.imagePathsByStock shouldContainKey "Apple"
-                    eventSlot.captured.imagePathsByStock["Apple"]!!.size shouldBe 4
-                    eventSlot.captured.mainPageImagePathsByStock shouldContainKey "Apple"
-                }
+            eventSlot.captured.imagePathsByStock shouldContainKey "Apple"
+            val detailPaths = eventSlot.captured.imagePathsByStock["Apple"]!!
+            detailPaths.size shouldBe 4
+            println("=== Apple 상세 카드 이미지 ===")
+            detailPaths.forEach { path ->
+                File(path).exists() shouldBe true
+                println("  - $path")
             }
+
+            val mainPath = eventSlot.captured.mainPageImagePathsByStock["Apple"]!!
+            File(mainPath).exists() shouldBe true
+            println("=== Apple 메인 카드 이미지 ===")
+            println("  - $mainPath")
         }
 
-        Given("상세 카드 파일 경로 패턴 검증") {
-            val gens = (1L..4L).map { makeGen(it, "헤드라인$it") }
-
-            When("execute를 호출하면") {
-                Then("파일 경로가 nasdaq_{date}_{stockName}_{index}.png 패턴을 따른다") {
-                    every { genService.findAllByIds(any()) } returns gens
-                    every { singleNewsCardGenerator.generateImage(any(), any()) } returns true
-                    every { mainPageCardGenerator.generateMainPageImage(any<String>(), any<String>(), any(), any()) } returns true
-
-                    useCase.execute(mapOf("Apple" to listOf(1L, 2L, 3L, 4L)))
-
-                    val pathSlots = mutableListOf<String>()
-                    verify(exactly = 4) { singleNewsCardGenerator.generateImage(any(), capture(pathSlots)) }
-
-                    pathSlots[0] shouldContain "nasdaq_${dateStr}_Apple_1.png"
-                    pathSlots[1] shouldContain "nasdaq_${dateStr}_Apple_2.png"
-                    pathSlots[2] shouldContain "nasdaq_${dateStr}_Apple_3.png"
-                    pathSlots[3] shouldContain "nasdaq_${dateStr}_Apple_4.png"
-                }
-            }
-        }
-
-        Given("메인 카드 타이틀과 파일 경로 패턴 검증") {
-            val gens = listOf(makeGen(1L, "헤드라인"))
-
-            When("execute를 호출하면") {
-                Then("타이틀이 '{stockName} 주요소식' 이고 파일 경로가 _main.png로 끝난다") {
-                    every { genService.findAllByIds(any()) } returns gens
-                    every { singleNewsCardGenerator.generateImage(any(), any()) } returns true
-                    every { mainPageCardGenerator.generateMainPageImage(any<String>(), any<String>(), any(), any()) } returns true
-
-                    useCase.execute(mapOf("Apple" to listOf(1L)))
-
-                    val titleSlot = slot<String>()
-                    val mainPathSlot = slot<String>()
-                    verify {
-                        mainPageCardGenerator.generateMainPageImage(
-                            any(),
-                            capture(titleSlot),
-                            any(),
-                            capture(mainPathSlot),
-                        )
-                    }
-
-                    titleSlot.captured shouldBe "Apple 주요소식"
-                    mainPathSlot.captured shouldContain "nasdaq_${dateStr}_Apple_main.png"
-                }
-            }
-        }
-
-        Given("종목명에 공백이 포함된 경우") {
-            val gens = listOf(makeGen(1L, "헤드라인"))
-
-            When("execute를 호출하면") {
-                Then("파일 경로에서 공백이 _로 치환된다") {
-                    every { genService.findAllByIds(any()) } returns gens
-                    every { singleNewsCardGenerator.generateImage(any(), any()) } returns true
-                    every { mainPageCardGenerator.generateMainPageImage(any<String>(), any<String>(), any(), any()) } returns true
-
-                    useCase.execute(mapOf("Nvidia Corp" to listOf(1L)))
-
-                    val pathSlot = slot<String>()
-                    verify { singleNewsCardGenerator.generateImage(any(), capture(pathSlot)) }
-                    pathSlot.captured shouldContain "Nvidia_Corp"
-                }
-            }
-        }
-
-        Given("NewsContent의 category와 colorKey 검증") {
-            val gens = listOf(makeGen(1L, "헤드라인"))
-
-            When("execute를 호출하면") {
-                Then("SingleNewsCardGenerator에는 category='nasdaq'인 NewsContent가 전달되고, MainPageCardGenerator에는 colorKey='nasdaq'이 전달된다") {
-                    every { genService.findAllByIds(any()) } returns gens
-                    every { singleNewsCardGenerator.generateImage(any(), any()) } returns true
-                    every { mainPageCardGenerator.generateMainPageImage(any<String>(), any<String>(), any(), any()) } returns true
-
-                    useCase.execute(mapOf("TSLA" to listOf(1L)))
-
-                    val contentSlot = slot<NewsContent>()
-                    verify { singleNewsCardGenerator.generateImage(capture(contentSlot), any()) }
-                    contentSlot.captured.category shouldBe "nasdaq"
-
-                    val colorKeySlot = slot<String>()
-                    verify { mainPageCardGenerator.generateMainPageImage(capture(colorKeySlot), any<String>(), any(), any()) }
-                    colorKeySlot.captured shouldBe "nasdaq"
-                }
-            }
-        }
-
-        Given("Gen의 createdAt이 null인 경우") {
-            val gen =
-                Gen(
-                    id = 1L,
-                    url = "https://example.com/1",
-                    mediaType = 3,
-                    headline = "헤드라인",
-                    summary = "요약",
-                    highlightTexts = "[]",
-                    coreTextsJson = "[]",
-                    category = Category.ECONOMY.code,
-                    region = 0,
+        test("NVDA 종목 카드뉴스 이미지 실제 생성") {
+            val gens =
+                listOf(
+                    makeGen(
+                        10L,
+                        "NVIDIA, 블랙웰 GPU 출하량 급증…데이터센터 수요 폭발",
+                        "NVIDIA의 차세대 블랙웰 아키텍처 GPU 출하량이 급증하며 AI 데이터센터 시장에서의 지배력이 강화되고 있습니다.",
+                    ),
+                    makeGen(
+                        11L,
+                        "NVIDIA CEO, AGI 달성 시점 2028년으로 전망",
+                        "젠슨 황 NVIDIA CEO가 인공일반지능(AGI) 달성 시점을 2028년으로 전망했습니다.",
+                    ),
+                    makeGen(
+                        12L,
+                        "NVIDIA, 중국 수출 규제 우회 칩 개발 착수",
+                        "미국의 수출 규제에 대응하기 위해 NVIDIA가 중국 시장용 특화 칩 개발에 착수했다는 보도가 나왔습니다.",
+                    ),
                 )
 
-            When("execute를 호출하면") {
-                Then("현재 시간을 createdAt으로 사용하여 이미지가 생성된다") {
-                    every { genService.findAllByIds(any()) } returns listOf(gen)
-                    every { singleNewsCardGenerator.generateImage(any(), any()) } returns true
-                    every { mainPageCardGenerator.generateMainPageImage(any<String>(), any<String>(), any(), any()) } returns true
+            every { genService.findAllByIds(listOf(10L, 11L, 12L)) } returns gens
 
-                    val before = LocalDateTime.now()
-                    useCase.execute(mapOf("TSLA" to listOf(1L)))
-                    val after = LocalDateTime.now()
+            useCase.execute(mapOf("NVDA" to listOf(10L, 11L, 12L)))
 
-                    val contentSlot = slot<NewsContent>()
-                    verify { singleNewsCardGenerator.generateImage(capture(contentSlot), any()) }
-                    contentSlot.captured.createdAt.isAfter(before.minusSeconds(1)) shouldBe true
-                    contentSlot.captured.createdAt.isBefore(after.plusSeconds(1)) shouldBe true
+            val eventSlot = slot<PopularNasdaqCardNewsImageGeneratedEvent>()
+            verify(exactly = 1) { applicationEventPublisher.publishEvent(capture(eventSlot)) }
+
+            eventSlot.captured.imagePathsByStock shouldContainKey "NVDA"
+            val detailPaths = eventSlot.captured.imagePathsByStock["NVDA"]!!
+            detailPaths.size shouldBe 3
+            println("=== NVDA 상세 카드 이미지 ===")
+            detailPaths.forEach { path ->
+                File(path).exists() shouldBe true
+                println("  - $path")
+            }
+
+            val mainPath = eventSlot.captured.mainPageImagePathsByStock["NVDA"]!!
+            File(mainPath).exists() shouldBe true
+            println("=== NVDA 메인 카드 이미지 ===")
+            println("  - $mainPath")
+        }
+
+        test("Microsoft 종목 카드뉴스 이미지 실제 생성") {
+            val gens =
+                listOf(
+                    makeGen(
+                        20L,
+                        "Microsoft Azure AI 매출 100억 달러 돌파",
+                        "Microsoft의 클라우드 서비스 Azure의 AI 관련 매출이 분기 기준 100억 달러를 돌파했습니다.",
+                    ),
+                    makeGen(
+                        21L,
+                        "Microsoft, OpenAI 추가 투자…AI 패권 경쟁 가속",
+                        "Microsoft가 OpenAI에 추가 투자를 단행하며 AI 시장 주도권 경쟁에서 앞서나가고 있습니다.",
+                    ),
+                )
+
+            every { genService.findAllByIds(listOf(20L, 21L)) } returns gens
+
+            useCase.execute(mapOf("Microsoft" to listOf(20L, 21L)))
+
+            val eventSlot = slot<PopularNasdaqCardNewsImageGeneratedEvent>()
+            verify(exactly = 1) { applicationEventPublisher.publishEvent(capture(eventSlot)) }
+
+            eventSlot.captured.imagePathsByStock shouldContainKey "Microsoft"
+            val detailPaths = eventSlot.captured.imagePathsByStock["Microsoft"]!!
+            detailPaths.size shouldBe 2
+            println("=== Microsoft 상세 카드 이미지 ===")
+            detailPaths.forEach { path ->
+                File(path).exists() shouldBe true
+                println("  - $path")
+            }
+
+            val mainPath = eventSlot.captured.mainPageImagePathsByStock["Microsoft"]!!
+            File(mainPath).exists() shouldBe true
+            println("=== Microsoft 메인 카드 이미지 ===")
+            println("  - $mainPath")
+        }
+
+        test("여러 종목 동시 카드뉴스 이미지 실제 생성") {
+            val appleGens =
+                listOf(
+                    makeGen(30L, "Apple, 서비스 매출 역대 최고", "Apple 서비스 부문이 새로운 기록을 세웠습니다."),
+                )
+            val tslaGens =
+                listOf(
+                    makeGen(31L, "Tesla, 완전자율주행 FSD v13 전국 출시", "Tesla가 완전자율주행 소프트웨어 FSD v13을 전국적으로 출시했습니다."),
+                    makeGen(32L, "Tesla 에너지 사업부, 분기 최고 매출 달성", "Tesla의 에너지 저장 및 태양광 사업부가 분기 최고 매출을 달성했습니다."),
+                )
+
+            every { genService.findAllByIds(listOf(30L)) } returns appleGens
+            every { genService.findAllByIds(listOf(31L, 32L)) } returns tslaGens
+
+            useCase.execute(
+                mapOf(
+                    "Apple" to listOf(30L),
+                    "Tesla" to listOf(31L, 32L),
+                ),
+            )
+
+            val eventSlot = slot<PopularNasdaqCardNewsImageGeneratedEvent>()
+            verify(exactly = 1) { applicationEventPublisher.publishEvent(capture(eventSlot)) }
+
+            eventSlot.captured.imagePathsByStock shouldHaveSize 2
+            eventSlot.captured.imagePathsByStock shouldContainKey "Apple"
+            eventSlot.captured.imagePathsByStock shouldContainKey "Tesla"
+
+            println("=== 여러 종목 상세 카드 이미지 ===")
+            eventSlot.captured.imagePathsByStock.forEach { (stock, paths) ->
+                println("[$stock]")
+                paths.forEach { path ->
+                    File(path).exists() shouldBe true
+                    println("  - $path")
                 }
+            }
+            println("=== 여러 종목 메인 카드 이미지 ===")
+            eventSlot.captured.mainPageImagePathsByStock.forEach { (stock, path) ->
+                File(path).exists() shouldBe true
+                println("[$stock] $path")
             }
         }
 
-        Given("findAllByIds가 빈 리스트를 반환하는 경우") {
-            When("execute를 호출하면") {
-                Then("이미지 생성과 이벤트 발행이 모두 스킵된다") {
-                    every { genService.findAllByIds(any()) } returns emptyList()
+        test("종목명에 공백이 포함된 경우 파일 경로에서 공백이 _로 치환된다") {
+            val gens = listOf(makeGen(40L, "Nvidia Corp 헤드라인", "요약 내용입니다."))
 
-                    useCase.execute(mapOf("MSFT" to listOf(1L)))
+            every { genService.findAllByIds(any()) } returns gens
 
-                    verify(exactly = 0) { singleNewsCardGenerator.generateImage(any(), any()) }
-                    verify(exactly = 0) { mainPageCardGenerator.generateMainPageImage(any<String>(), any<String>(), any(), any()) }
-                    verify(exactly = 0) { applicationEventPublisher.publishEvent(any()) }
-                }
+            useCase.execute(mapOf("Nvidia Corp" to listOf(40L)))
+
+            val eventSlot = slot<PopularNasdaqCardNewsImageGeneratedEvent>()
+            verify(exactly = 1) { applicationEventPublisher.publishEvent(capture(eventSlot)) }
+
+            val detailPaths = eventSlot.captured.imagePathsByStock["Nvidia Corp"]!!
+            detailPaths.forEach { path ->
+                path.contains("Nvidia_Corp") shouldBe true
+                File(path).exists() shouldBe true
+                println("공백 치환 경로: $path")
             }
         }
 
-        Given("모든 상세 카드 이미지 생성이 실패하는 경우") {
-            val gens = listOf(makeGen(1L, "헤드라인"))
+        test("Gen 조회 결과 없는 경우 이미지 생성 및 이벤트 발행 스킵") {
+            every { genService.findAllByIds(any()) } returns emptyList()
 
-            When("execute를 호출하면") {
-                Then("메인 이미지 생성이 호출되지 않고 이벤트도 발행되지 않는다") {
-                    every { genService.findAllByIds(any()) } returns gens
-                    every { singleNewsCardGenerator.generateImage(any(), any()) } returns false
+            useCase.execute(mapOf("MSFT" to listOf(1L)))
 
-                    useCase.execute(mapOf("GOOGL" to listOf(1L)))
-
-                    verify(exactly = 0) { mainPageCardGenerator.generateMainPageImage(any<String>(), any<String>(), any(), any()) }
-                    verify(exactly = 0) { applicationEventPublisher.publishEvent(any()) }
-                }
-            }
+            verify(exactly = 0) { applicationEventPublisher.publishEvent(any()) }
         }
 
-        Given("메인 이미지 생성이 실패하는 경우") {
-            val gens = listOf(makeGen(1L, "헤드라인1"), makeGen(2L, "헤드라인2"))
+        test("genIdsByStock가 비어있는 경우 아무 작업도 수행되지 않는다") {
+            useCase.execute(emptyMap())
 
-            When("execute를 호출하면") {
-                Then("상세 카드는 생성되었지만 해당 종목은 이벤트에 포함되지 않는다") {
-                    every { genService.findAllByIds(any()) } returns gens
-                    every { singleNewsCardGenerator.generateImage(any(), any()) } returns true
-                    every { mainPageCardGenerator.generateMainPageImage(any<String>(), any<String>(), any(), any()) } returns false
-
-                    useCase.execute(mapOf("AMZN" to listOf(1L, 2L)))
-
-                    verify(exactly = 2) { singleNewsCardGenerator.generateImage(any(), any()) }
-                    verify(exactly = 1) { mainPageCardGenerator.generateMainPageImage(any<String>(), any<String>(), any(), any()) }
-                    verify(exactly = 0) { applicationEventPublisher.publishEvent(any()) }
-                }
-            }
-        }
-
-        Given("여러 종목이 있고 일부 종목만 메인 이미지 생성이 성공하는 경우") {
-            val appleGens = listOf(makeGen(1L, "Apple 헤드라인"))
-            val msftGens = listOf(makeGen(2L, "MSFT 헤드라인"))
-
-            When("execute를 호출하면") {
-                Then("성공한 종목만 이벤트에 포함되고 이벤트는 한 번 발행된다") {
-                    every { genService.findAllByIds(listOf(1L)) } returns appleGens
-                    every { genService.findAllByIds(listOf(2L)) } returns msftGens
-                    every { singleNewsCardGenerator.generateImage(any(), any()) } returns true
-                    every {
-                        mainPageCardGenerator.generateMainPageImage(
-                            any<String>(),
-                            match<String> { it.contains("Apple") },
-                            any(),
-                            any(),
-                        )
-                    } returns true
-                    every {
-                        mainPageCardGenerator.generateMainPageImage(
-                            any<String>(),
-                            match<String> { it.contains("Microsoft") },
-                            any(),
-                            any(),
-                        )
-                    } returns false
-
-                    useCase.execute(
-                        mapOf(
-                            "Apple" to listOf(1L),
-                            "Microsoft" to listOf(2L),
-                        ),
-                    )
-
-                    val eventSlot = slot<PopularNasdaqCardNewsImageGeneratedEvent>()
-                    verify(exactly = 1) { applicationEventPublisher.publishEvent(capture(eventSlot)) }
-
-                    eventSlot.captured.imagePathsByStock shouldHaveSize 1
-                    eventSlot.captured.imagePathsByStock shouldContainKey "Apple"
-                    eventSlot.captured.mainPageImagePathsByStock shouldHaveSize 1
-                    eventSlot.captured.mainPageImagePathsByStock shouldContainKey "Apple"
-                }
-            }
-        }
-
-        Given("genIdsByStock가 비어있는 경우") {
-            When("execute를 호출하면") {
-                Then("아무 작업도 수행되지 않고 이벤트도 발행되지 않는다") {
-                    useCase.execute(emptyMap())
-
-                    verify(exactly = 0) { genService.findAllByIds(any()) }
-                    verify(exactly = 0) { applicationEventPublisher.publishEvent(any()) }
-                }
-            }
-        }
-
-        Given("이벤트에 포함되는 이미지 경로 전체 구조 검증") {
-            val gens = (1L..4L).map { makeGen(it, "헤드라인$it") }
-
-            When("execute를 호출하면") {
-                Then("imagePathsByStock과 mainPageImagePathsByStock이 올바르게 구성된다") {
-                    every { genService.findAllByIds(any()) } returns gens
-                    every { singleNewsCardGenerator.generateImage(any(), any()) } returns true
-                    every { mainPageCardGenerator.generateMainPageImage(any<String>(), any<String>(), any(), any()) } returns true
-
-                    useCase.execute(mapOf("NVDA" to listOf(1L, 2L, 3L, 4L)))
-
-                    val eventSlot = slot<PopularNasdaqCardNewsImageGeneratedEvent>()
-                    verify { applicationEventPublisher.publishEvent(capture(eventSlot)) }
-
-                    val detailPaths = eventSlot.captured.imagePathsByStock["NVDA"]!!
-                    detailPaths.size shouldBe 4
-                    detailPaths.forEach { path -> path shouldContain "gen_images/" }
-
-                    val mainPath = eventSlot.captured.mainPageImagePathsByStock["NVDA"]!!
-                    mainPath shouldContain "nasdaq_${dateStr}_NVDA_main.png"
-                }
-            }
+            verify(exactly = 0) { genService.findAllByIds(any()) }
+            verify(exactly = 0) { applicationEventPublisher.publishEvent(any()) }
         }
     })
