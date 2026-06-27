@@ -25,7 +25,6 @@ class PopularNasdaqCardNewsImageGenerateUseCase(
 
     companion object {
         private const val COLOR_KEY = "nasdaq"
-        private const val DETAIL_CARD_COUNT = 4
     }
 
     @Async("generatorSchedulingExecutor")
@@ -42,7 +41,7 @@ class PopularNasdaqCardNewsImageGenerateUseCase(
 
     fun execute(genIdsByStock: Map<String, List<Long>>) {
         val dateStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
-        val imagePathsByStock = mutableMapOf<String, MutableList<String>>()
+        val imagePathsByStock = mutableMapOf<String, List<String>>()
         val mainPageImagePathsByStock = mutableMapOf<String, String>()
 
         genIdsByStock.forEach { (stockName, genIds) ->
@@ -65,33 +64,39 @@ class PopularNasdaqCardNewsImageGenerateUseCase(
 
             val safeStockName = stockName.replace(" ", "_")
 
-            newsContents.take(DETAIL_CARD_COUNT).forEachIndexed { index, content ->
+            val detailPaths = mutableListOf<String>()
+            newsContents.forEachIndexed { index, content ->
                 val filePath = "gen_images/nasdaq_${dateStr}_${safeStockName}_${index + 1}.png"
                 val success = singleNewsCardGenerator.generateImage(content, filePath)
                 if (success) {
-                    imagePathsByStock.getOrPut(stockName) { mutableListOf() }.add(filePath)
-                    log.info { "[$stockName] 상세 카드 이미지 생성 완료 [${index + 1}/$DETAIL_CARD_COUNT]: $filePath" }
+                    detailPaths.add(filePath)
+                    log.info { "[$stockName] 상세 카드 이미지 생성 완료 [${index + 1}/${newsContents.size}]: $filePath" }
                 } else {
-                    log.error { "[$stockName] 상세 카드 이미지 생성 실패 [${index + 1}/$DETAIL_CARD_COUNT]" }
+                    log.error { "[$stockName] 상세 카드 이미지 생성 실패 [${index + 1}/${newsContents.size}]" }
                 }
             }
 
-            if (imagePathsByStock.containsKey(stockName)) {
-                val mainPath = "gen_images/nasdaq_${dateStr}_${safeStockName}_main.png"
-                val success =
-                    mainPageCardGenerator.generateMainPageImage(
-                        colorKey = COLOR_KEY,
-                        titleText = "$stockName 주요소식",
-                        newsContents = newsContents,
-                        outputPath = mainPath,
-                    )
-                if (success) {
-                    mainPageImagePathsByStock[stockName] = mainPath
-                    log.info { "[$stockName] 메인 카드 이미지 생성 완료: $mainPath" }
-                } else {
-                    log.error { "[$stockName] 메인 카드 이미지 생성 실패" }
-                }
+            if (detailPaths.isEmpty()) {
+                log.warn { "[$stockName] 상세 카드 이미지 생성 결과 없음, 건너뜀" }
+                return@forEach
             }
+
+            val mainPath = "gen_images/nasdaq_${dateStr}_${safeStockName}_main.png"
+            val mainSuccess =
+                mainPageCardGenerator.generateMainPageImage(
+                    colorKey = COLOR_KEY,
+                    titleText = "$stockName 주요소식",
+                    newsContents = newsContents,
+                    outputPath = mainPath,
+                )
+            if (!mainSuccess) {
+                log.error { "[$stockName] 메인 카드 이미지 생성 실패, 해당 종목 스킵" }
+                return@forEach
+            }
+
+            log.info { "[$stockName] 메인 카드 이미지 생성 완료: $mainPath" }
+            imagePathsByStock[stockName] = detailPaths
+            mainPageImagePathsByStock[stockName] = mainPath
         }
 
         if (imagePathsByStock.isNotEmpty()) {
