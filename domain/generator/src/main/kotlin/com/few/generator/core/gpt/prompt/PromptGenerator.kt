@@ -449,6 +449,61 @@ class PromptGenerator(
         )
     }
 
+    fun toKoreanShortHeadline(title: String): Prompt {
+        val systemPrompt =
+            """
+            당신은 월드 최고의 글로벌 뉴스 번역 및 카드뉴스 작성 전문가입니다. 영문 뉴스 제목을 한국어로 번역하여 카드뉴스 헤드라인을 작성합니다.
+            """.trimIndent()
+
+        val userPrompt =
+            """
+            ## Instructions
+            1. 20자 이상 30자 이내로 작성해주세요.
+            2. 자연스러운 한국어 문장으로 단답식으로 작성해주세요. 느낌표, 물음표 사용없이, 마침표만 사용해주세요.
+            3. 핵심 수치나, 구체적인 기업명, 시간이나 날짜, 장소명 등의 내용이 모두 포함되게 작성해주세요.
+            4. 문장형 종결어미(~입니다, ~했다 등)를 사용하지 말고, '명사로 끝나는 구문'으로 작성하세요.(예: '애플의 신제품 발표', '삼성 주가 급등' 등)
+
+            ## Input
+            원본 기사 제목(영어): $title
+            """.trimIndent()
+
+        return Prompt(
+            messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
+            responseFormat =
+                ResponseFormat(
+                    jsonSchema = JsonSchema(Headline.name, Headline.schema),
+                    responseClassType = Headline::class.java,
+                ),
+        )
+    }
+
+    fun toKoreanShortSummary(summary: String): Prompt {
+        val systemPrompt =
+            """
+            당신은 월드 최고의 글로벌 뉴스 번역 전문가입니다. 영문 뉴스 요약을 자연스러운 한국어로 번역합니다.
+            """.trimIndent()
+
+        val userPrompt =
+            """
+            ## Instructions
+            1. 반드시 230자 이내로 작성해주세요.
+            2. 문장은 자연스러운 한국어 격식체로 작성해주세요. (~했습니다, ~입니다 등으로 끝맺고 구어체를 배제하며 자연스럽게 표현)
+            3. 통계적이고 객관적이며 수치적으로 올바른 문장들을 간결하게 작성해주세요.
+
+            ## Input
+            원본 기사 요약(영어): $summary
+            """.trimIndent()
+
+        return Prompt(
+            messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
+            responseFormat =
+                ResponseFormat(
+                    jsonSchema = JsonSchema(Summary.name, Summary.schema),
+                    responseClassType = Summary::class.java,
+                ),
+        )
+    }
+
     fun toGroupHighlightPrompt(groupSummary: String): Prompt {
         val systemPrompt =
             """

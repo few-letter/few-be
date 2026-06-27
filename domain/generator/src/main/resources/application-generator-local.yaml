@@ -34,6 +34,9 @@ spring:
                     show_sql: true
             show-sql: true
 
+alphavantage:
+    api-key: ${ALPHA_VANTAGE_API_KEY:dummy-key}
+
 scheduling:
     cron:
         local-gen: "0 0 5 * * *"
