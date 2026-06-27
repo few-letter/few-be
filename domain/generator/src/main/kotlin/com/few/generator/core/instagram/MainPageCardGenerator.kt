@@ -169,6 +169,51 @@ class MainPageCardGenerator {
         }
     }
 
+    fun generateMainPageImage(
+        colorKey: String,
+        titleText: String,
+        newsContents: List<NewsContent>,
+        outputPath: String,
+    ): Boolean {
+        log.debug { "[$titleText] 표지 이미지 생성 시작" }
+
+        val image = BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB)
+        val graphics = image.createGraphics()
+        setupGraphics(graphics)
+
+        try {
+            val primaryColor = getCategoryColor(colorKey).toColor()
+            val lightColor = getCategoryLightColor(colorKey).toColor()
+            val bgColor = getCategoryBgColor(colorKey).toColor()
+
+            graphics.color = bgColor
+            graphics.fillRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT)
+
+            graphics.color = DARK_BG_COLOR
+            graphics.fillRect(0, 0, IMAGE_WIDTH, HEADER_HEIGHT)
+
+            drawHeaderDecoration(graphics, primaryColor, lightColor)
+
+            val savedClip = graphics.clip
+            graphics.setClip(0, 0, IMAGE_WIDTH, HEADER_HEIGHT)
+            drawDiagonalGradient(graphics, lightColor)
+            drawArrowShape(graphics, primaryColor, lightColor)
+            graphics.setClip(savedClip)
+
+            val today = LocalDate.now()
+            val dateStr = "${today.monthValue}월 ${today.dayOfMonth}일 ${getWeekdayText(today.dayOfWeek.value)}"
+            drawDatePill(graphics, dateStr, lightColor)
+
+            drawCategoryTitle(graphics, titleText)
+
+            drawHeadlines(graphics, newsContents.take(MAX_HEADLINES), primaryColor)
+
+            return saveImage(image, outputPath)
+        } finally {
+            graphics.dispose()
+        }
+    }
+
     /**
      * 헤더 우측 장식 요소 그리기
      * CSS: 상단이 둥근 직사각형 두 개 + 세로 바

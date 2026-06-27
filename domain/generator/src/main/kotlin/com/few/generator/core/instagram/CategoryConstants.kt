@@ -26,6 +26,7 @@ object CategoryConstants {
             "economy" to ColorRGBA(r = 31, g = 130, b = 249), // #1F82F9 파란색
             "society" to ColorRGBA(r = 253, g = 59, b = 63), // #FD3B3F 빨간색
             "briefing" to ColorRGBA(r = 65, g = 65, b = 70), // #414146 다크 차콜 (흑백톤)
+            "nasdaq" to ColorRGBA(r = 59, g = 127, b = 212), // #3B7FD4 하늘색
             "etc" to ColorRGBA(r = 137, g = 49, b = 255),
             "default" to ColorRGBA(r = 137, g = 49, b = 255),
         )
@@ -39,6 +40,7 @@ object CategoryConstants {
             "economy" to ColorRGBA(r = 107, g = 173, b = 252), // #6BADFC 밝은 파란
             "society" to ColorRGBA(r = 249, g = 149, b = 151), // #F99597 밝은 빨간
             "briefing" to ColorRGBA(r = 155, g = 155, b = 160), // #9B9BA0 미디엄 그레이 (흑백톤)
+            "nasdaq" to ColorRGBA(r = 130, g = 185, b = 236), // #82B9EC 밝은 하늘색
             "etc" to ColorRGBA(r = 200, g = 158, b = 255),
             "default" to ColorRGBA(r = 200, g = 158, b = 255),
         )
@@ -52,6 +54,7 @@ object CategoryConstants {
             "economy" to ColorRGBA(r = 223, g = 237, b = 255), // #DFEDFF
             "society" to ColorRGBA(r = 255, g = 235, b = 235), // #FFEBEB
             "briefing" to ColorRGBA(r = 238, g = 238, b = 240), // #EEEEF0 라이트 그레이 (흑백톤)
+            "nasdaq" to ColorRGBA(r = 226, g = 236, b = 248), // #E2ECF8 하늘색 배경
             "etc" to ColorRGBA(r = 242, g = 232, b = 255),
             "default" to ColorRGBA(r = 242, g = 232, b = 255),
         )
