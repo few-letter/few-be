@@ -15,7 +15,7 @@ import jakarta.persistence.*
 data class Gen(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Long? = null,
     @Column(columnDefinition = "TEXT", nullable = false) val url: String,
-    @Column(nullable = true) val thumbnailImageUrl: String? = null,
+    @Column(columnDefinition = "TEXT", nullable = true) val thumbnailImageUrl: String? = null,
     @Column(nullable = false) val mediaType: Int,
     @Column(columnDefinition = "TEXT", nullable = false) val headline: String,
     @Column(columnDefinition = "TEXT", nullable = false) val summary: String,

@@ -43,6 +43,11 @@ class AlphaVantageClient(
         }
 
         val parsed = gson.fromJson(response.body(), AlphaVantageNewsResponse::class.java)
+
+        parsed.information?.let {
+            throw RuntimeException("AlphaVantage API 에러 발생: ${parsed.information}")
+        }
+
         val feed = parsed.feed?.take(alphaVantageProperties.topFeedCount) ?: emptyList()
 
         log.info { "AlphaVantage 뉴스 조회 완료: ticker=$ticker, ${feed.size}개 항목" }
@@ -52,5 +57,6 @@ class AlphaVantageClient(
     private data class AlphaVantageNewsResponse(
         val items: String?,
         @SerializedName("feed") val feed: List<AlphaVantageNewsFeed>?,
+        @SerializedName("Information") val information: String?,
     )
 }
