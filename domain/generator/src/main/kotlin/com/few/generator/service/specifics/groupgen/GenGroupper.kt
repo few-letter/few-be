@@ -1,7 +1,7 @@
 package com.few.generator.service.specifics.groupgen
 
 import com.few.common.domain.Category
-import com.few.generator.config.GroupingProperties
+import com.few.generator.config.properties.GroupingProperties
 import com.few.generator.core.gpt.ChatGpt
 import com.few.generator.core.gpt.prompt.PromptGenerator
 import com.few.generator.core.gpt.prompt.schema.Group

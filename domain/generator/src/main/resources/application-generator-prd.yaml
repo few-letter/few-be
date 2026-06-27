@@ -32,6 +32,11 @@ spring:
                 hibernate:
                     format_sql: true
 
+alphavantage:
+    api-key: ${ALPHA_VANTAGE_API_KEY:demo}
+    base-url: "https://www.alphavantage.co/query"
+    top-feed-count: 4
+
 scheduling:
     cron:
         local-gen: "0 0 5 * * *"
@@ -40,6 +45,7 @@ scheduling:
         cache-metrics: "0 0 3 * * *"
         instagram-token-refresh: "0 0 2 * * MON"
         stock-briefing: "0 10 0-4,10-16,22-23 * * MON-SAT"
+        time-etf-scraping: "0 0 6 * * MON-FRI"
 
 urls:
     webhook:

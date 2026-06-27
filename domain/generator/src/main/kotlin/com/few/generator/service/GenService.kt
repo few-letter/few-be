@@ -67,7 +67,15 @@ class GenService(
         )
     }
 
+    @GeneratorTransactional(propagation = Propagation.REQUIRES_NEW)
+    fun saveWithNewTx(gen: Gen): Gen = genRepository.save(gen)
+
     fun saveAll(gens: List<Gen>): List<Gen> = genRepository.saveAll(gens)
+
+    fun findByUrl(url: String): Gen? = genRepository.findByUrl(url)
+
+    @GeneratorTransactional(readOnly = true, propagation = Propagation.REQUIRED)
+    fun findByIdInOrderByIdAsc(ids: List<Long>): List<Gen> = genRepository.findByIdInOrderByIdAsc(ids)
 
     fun findLatestGen(): Gen = genRepository.findFirstLimit(1, Region.LOCAL.code)[0]
 

@@ -8,6 +8,7 @@ import com.few.generator.usecase.GlobalGenSchedulingUseCase
 import com.few.generator.usecase.GlobalGroupGenSchedulingUseCase
 import com.few.generator.usecase.LocalGenSchedulingUseCase
 import com.few.generator.usecase.LocalGroupGenSchedulingUseCase
+import com.few.generator.usecase.PopularNasdaqStockScrapingSchedulingUseCase
 import com.few.generator.usecase.SendNewsletterSchedulingUseCase
 import com.few.generator.usecase.StockBriefingSchedulingUseCase
 import com.few.web.ApiResponse
@@ -27,6 +28,7 @@ class AdminControllerV1(
     private val globalGroupGenSchedulingUseCase: GlobalGroupGenSchedulingUseCase,
     private val genCardNewsImageGenerateSchedulingUseCase: GenCardNewsImageGenerateSchedulingUseCase,
     private val stockBriefingSchedulingUseCase: StockBriefingSchedulingUseCase,
+    private val popularNasdaqStockScrapingSchedulingUseCase: PopularNasdaqStockScrapingSchedulingUseCase,
 ) {
     @PostMapping(
         value = ["/contents/schedule"],
@@ -98,6 +100,17 @@ class AdminControllerV1(
     )
     fun triggerStockBriefing(): ApiResponse<ApiResponse.Success> {
         stockBriefingSchedulingUseCase.executeAsync()
+
+        return ApiResponseGenerator.success(
+            HttpStatus.OK,
+        )
+    }
+
+    @PostMapping(
+        value = ["/contents/cardnews/popularNasdaq"],
+    )
+    fun triggerTopPopularityNasdaqStockNews(): ApiResponse<ApiResponse.Success> {
+        popularNasdaqStockScrapingSchedulingUseCase.executeAsync()
 
         return ApiResponseGenerator.success(
             HttpStatus.OK,

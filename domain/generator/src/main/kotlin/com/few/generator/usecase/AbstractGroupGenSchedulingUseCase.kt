@@ -4,7 +4,7 @@ import com.few.common.domain.Category
 import com.few.common.domain.Region
 import com.few.common.exception.BadRequestException
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
-import com.few.generator.config.GroupingProperties
+import com.few.generator.config.properties.GroupingProperties
 import com.few.generator.domain.GroupGen
 import com.few.generator.domain.vo.GenDetail
 import com.few.generator.domain.vo.GroupGenProcessingResult

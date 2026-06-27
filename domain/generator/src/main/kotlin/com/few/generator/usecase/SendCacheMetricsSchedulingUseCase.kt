@@ -1,6 +1,6 @@
 package com.few.generator.usecase
 
-import com.few.generator.config.CacheNames
+import com.few.generator.config.properties.CacheNames
 import com.few.generator.event.client.SlackWebhookClient
 import com.few.generator.service.CacheMetricsCollector
 import com.few.web.client.Block

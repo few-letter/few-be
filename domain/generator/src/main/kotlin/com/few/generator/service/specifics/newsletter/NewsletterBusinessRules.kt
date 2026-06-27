@@ -1,7 +1,7 @@
 package com.few.generator.service.specifics.newsletter
 
 import com.few.common.domain.Category
-import com.few.generator.config.NewsletterProperties
+import com.few.generator.config.properties.NewsletterProperties
 import com.few.generator.domain.Gen
 import com.few.generator.domain.Subscription
 import org.springframework.stereotype.Service

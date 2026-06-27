@@ -1,4 +1,4 @@
-package com.few.generator.config
+package com.few.generator.config.properties
 
 import jakarta.validation.constraints.DecimalMax
 import jakarta.validation.constraints.DecimalMin

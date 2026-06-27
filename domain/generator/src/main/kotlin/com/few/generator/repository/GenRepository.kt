@@ -1,6 +1,6 @@
 package com.few.generator.repository
 
-import com.few.generator.config.CacheNames
+import com.few.generator.config.properties.CacheNames
 import com.few.generator.domain.Gen
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
@@ -12,6 +12,10 @@ import java.util.Optional
 
 interface GenRepository : JpaRepository<Gen, Long> {
     override fun findById(id: Long): Optional<Gen>
+
+    override fun findAllById(ids: Iterable<Long>): List<Gen>
+
+    fun findByIdInOrderByIdAsc(ids: Iterable<Long>): List<Gen>
 
     @CacheEvict(value = [CacheNames.GEN_CACHE], allEntries = true)
     override fun <S : Gen> saveAll(entities: Iterable<S>): List<S>

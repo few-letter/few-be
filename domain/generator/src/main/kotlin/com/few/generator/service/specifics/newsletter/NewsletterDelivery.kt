@@ -3,7 +3,7 @@ package com.few.generator.service.specifics.newsletter
 import com.few.common.domain.ContentsType
 import com.few.email.NewsletterEmailRenderer
 import com.few.email.provider.EmailSendProvider
-import com.few.generator.config.NewsletterProperties
+import com.few.generator.config.properties.NewsletterProperties
 import com.few.generator.domain.Subscription
 import com.few.generator.domain.vo.NewsletterData
 import com.few.generator.domain.vo.SendResult

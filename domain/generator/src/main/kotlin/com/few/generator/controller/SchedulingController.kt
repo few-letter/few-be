@@ -2,6 +2,7 @@ package com.few.generator.controller
 
 import com.few.generator.usecase.GlobalGenSchedulingUseCase
 import com.few.generator.usecase.LocalGenSchedulingUseCase
+import com.few.generator.usecase.PopularNasdaqStockScrapingSchedulingUseCase
 import com.few.generator.usecase.RefreshInstagramTokenUseCase
 import com.few.generator.usecase.SendCacheMetricsSchedulingUseCase
 import com.few.generator.usecase.SendNewsletterSchedulingUseCase
@@ -18,6 +19,7 @@ class SchedulingController(
     private val sendNewsletterSchedulingUseCase: SendNewsletterSchedulingUseCase,
     private val refreshInstagramTokenUseCase: RefreshInstagramTokenUseCase,
     private val stockBriefingSchedulingUseCase: StockBriefingSchedulingUseCase,
+    private val popularNasdaqStockScrapingSchedulingUseCase: PopularNasdaqStockScrapingSchedulingUseCase,
 ) {
     private val log = KotlinLogging.logger {}
 
@@ -53,5 +55,10 @@ class SchedulingController(
     @Scheduled(cron = "\${scheduling.cron.stock-briefing}", zone = "Asia/Seoul")
     fun crawlStockBriefing() {
         stockBriefingSchedulingUseCase.executeAsync()
+    }
+
+    @Scheduled(cron = "\${scheduling.cron.time-etf-scraping}", zone = "Asia/Seoul")
+    fun scrapeTimeEtf() {
+        popularNasdaqStockScrapingSchedulingUseCase.executeAsync()
     }
 }
