@@ -42,8 +42,9 @@ class TimeEtfScrapper(
                         .text()
                         .trim()
                         .split(" ")
-                        .firstOrNull() ?: return@mapIndexedNotNull null
-                val stockName = cells[1].text().trim()
+                        .firstOrNull()
+                        ?.takeIf { it.isNotBlank() } ?: return@mapIndexedNotNull null
+                val stockName = cells[1].text().trim().takeIf { it.isNotBlank() } ?: return@mapIndexedNotNull null
 
                 TimeEtfItem(
                     rank = index + 1,
