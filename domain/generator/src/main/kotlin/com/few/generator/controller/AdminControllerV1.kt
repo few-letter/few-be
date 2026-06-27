@@ -10,6 +10,7 @@ import com.few.generator.usecase.LocalGenSchedulingUseCase
 import com.few.generator.usecase.LocalGroupGenSchedulingUseCase
 import com.few.generator.usecase.SendNewsletterSchedulingUseCase
 import com.few.generator.usecase.StockBriefingSchedulingUseCase
+import com.few.generator.usecase.TimeEtfScrapingSchedulingUseCase
 import com.few.web.ApiResponse
 import com.few.web.ApiResponseGenerator
 import org.springframework.http.HttpStatus
@@ -27,6 +28,7 @@ class AdminControllerV1(
     private val globalGroupGenSchedulingUseCase: GlobalGroupGenSchedulingUseCase,
     private val genCardNewsImageGenerateSchedulingUseCase: GenCardNewsImageGenerateSchedulingUseCase,
     private val stockBriefingSchedulingUseCase: StockBriefingSchedulingUseCase,
+    private val timeEtfScrapingSchedulingUseCase: TimeEtfScrapingSchedulingUseCase,
 ) {
     @PostMapping(
         value = ["/contents/schedule"],
@@ -98,6 +100,17 @@ class AdminControllerV1(
     )
     fun triggerStockBriefing(): ApiResponse<ApiResponse.Success> {
         stockBriefingSchedulingUseCase.executeAsync()
+
+        return ApiResponseGenerator.success(
+            HttpStatus.OK,
+        )
+    }
+
+    @PostMapping(
+        value = ["/contents/cardnews/popularNasdaq"],
+    )
+    fun triggerTopPopularityNasdaqStockNews(): ApiResponse<ApiResponse.Success> {
+        timeEtfScrapingSchedulingUseCase.executeAsync()
 
         return ApiResponseGenerator.success(
             HttpStatus.OK,

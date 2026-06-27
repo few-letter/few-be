@@ -6,6 +6,7 @@ import com.few.generator.usecase.RefreshInstagramTokenUseCase
 import com.few.generator.usecase.SendCacheMetricsSchedulingUseCase
 import com.few.generator.usecase.SendNewsletterSchedulingUseCase
 import com.few.generator.usecase.StockBriefingSchedulingUseCase
+import com.few.generator.usecase.TimeEtfScrapingSchedulingUseCase
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -18,6 +19,7 @@ class SchedulingController(
     private val sendNewsletterSchedulingUseCase: SendNewsletterSchedulingUseCase,
     private val refreshInstagramTokenUseCase: RefreshInstagramTokenUseCase,
     private val stockBriefingSchedulingUseCase: StockBriefingSchedulingUseCase,
+    private val timeEtfScrapingSchedulingUseCase: TimeEtfScrapingSchedulingUseCase,
 ) {
     private val log = KotlinLogging.logger {}
 
@@ -53,5 +55,10 @@ class SchedulingController(
     @Scheduled(cron = "\${scheduling.cron.stock-briefing}", zone = "Asia/Seoul")
     fun crawlStockBriefing() {
         stockBriefingSchedulingUseCase.executeAsync()
+    }
+
+    @Scheduled(cron = "\${scheduling.cron.time-etf-scraping}", zone = "Asia/Seoul")
+    fun scrapeTimeEtf() {
+        timeEtfScrapingSchedulingUseCase.executeAsync()
     }
 }
