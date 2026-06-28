@@ -4,6 +4,12 @@ spring:
         jcache:
             config: classpath:ehcache.xml
     ai:
+        retry:
+            max-attempts: 2
+            backoff:
+                initial-interval: 1s
+                multiplier: 2
+                max-interval: 10s
         openai:
             api-key: ${OPENAI_API_TOKEN:thisisopenai}
             chat:
