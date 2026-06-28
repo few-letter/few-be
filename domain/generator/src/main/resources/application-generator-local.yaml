@@ -76,7 +76,7 @@ generator:
     instagram:
         account-id: ${INSTAGRAM_ACCOUNT_ID}
         card-news-upload-enabled: false
-        popular-nasdaq-max-images: 9
+        carousel-max-images: 9
 
 app:
     http:

@@ -24,8 +24,8 @@ class PopularNasdaqCardNewsInstagramUploadUseCase(
     private val promptGenerator: PromptGenerator,
     @Value("\${generator.instagram.card-news-upload-enabled}")
     private val cardNewsUploadEnabled: Boolean,
-    @Value("\${generator.instagram.popular-nasdaq-max-images}")
-    private val popularNasdaqMaxImages: Int,
+    @Value("\${generator.instagram.carousel-max-images}")
+    private val carouselMaxImages: Int,
     @Qualifier("instagramCoroutineScope")
     private val scope: CoroutineScope,
 ) {
@@ -58,7 +58,7 @@ class PopularNasdaqCardNewsInstagramUploadUseCase(
                 val mainPageUrl = event.mainPageImageUrlsByStock[stockName]
                 val allImageUrls =
                     (if (mainPageUrl != null) listOf(mainPageUrl) + detailUrls else detailUrls)
-                        .take(popularNasdaqMaxImages)
+                        .take(carouselMaxImages)
                 val headlines = event.headlinesByStock[stockName] ?: throw IllegalStateException("[$stockName] 헤드라인 정보 없음")
 
                 val caption = generateCaption(stockName, event.uploadTime, headlines)
