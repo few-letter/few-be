@@ -39,13 +39,13 @@ alphavantage:
 
 scheduling:
     cron:
-        local-gen: "0 0 5 * * *"
-        global-gen: "0 0 17 * * *"
+        local-gen: "0 0 17 * * *"
+        global-gen: "0 0 20 * * *"
         email: "0 0 9 * * *"
         cache-metrics: "0 0 3 * * *"
         instagram-token-refresh: "0 0 2 * * MON"
-        stock-briefing: "0 10 0-4,10-16,22-23 * * MON-SAT"
-        time-etf-scraping: "0 0 6 * * MON-FRI"
+        stock-briefing: "0 0 16 ? * MON-FRI"
+        popular-nasdaq-stock-news: "0 0 6 ? * MON-FRI"
 
 urls:
     webhook:
