@@ -57,7 +57,7 @@ class SchedulingController(
         stockBriefingSchedulingUseCase.executeAsync()
     }
 
-    @Scheduled(cron = "\${scheduling.cron.time-etf-scraping}", zone = "Asia/Seoul")
+    @Scheduled(cron = "\${scheduling.cron.popular-nasdaq-stock-news}", zone = "Asia/Seoul")
     fun scrapeTimeEtf() {
         popularNasdaqStockScrapingSchedulingUseCase.executeAsync()
     }

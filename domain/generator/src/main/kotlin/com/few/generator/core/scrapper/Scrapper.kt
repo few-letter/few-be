@@ -36,6 +36,10 @@ class Scrapper(
     fun scrape(url: String): ScrappedResult {
         Thread.sleep((1..5).random().toLong())
 
+        if (url.contains("stock.naver.com")) {
+            throw RuntimeException("Only support naver.com and cnbc.com yet")
+        }
+
         if (url.contains("naver.com")) {
             return naverNewsScrapper.scrape(url)
         } else if (url.contains("cnbc.com")) {
@@ -44,6 +48,8 @@ class Scrapper(
             throw RuntimeException("Only support naver.com and cnbc.com yet")
         }
     }
+
+    fun fetchStockBriefingLatestPostId(date: String): Long? = naverStockBriefingScrapper.fetchLatestPostId(date)
 
     fun checkStockBriefingPostExists(postId: Long): Boolean = naverStockBriefingScrapper.checkPostExists(postId)
 

@@ -99,7 +99,8 @@ abstract class AbstractGenSchedulingUseCase(
     }
 
     private fun create(): Pair<Int, Int> {
-        val urlsByCategories = scrapper.extractUrlsByCategories(region)
+        val targetCategories = listOf(Category.TECHNOLOGY, Category.ECONOMY, Category.POLITICS)
+        val urlsByCategories = scrapper.extractUrlsByCategories(region).filterKeys { it in targetCategories }
 
         var successCnt = 0
         var failCnt = 0

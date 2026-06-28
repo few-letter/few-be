@@ -107,7 +107,7 @@ abstract class AbstractGroupGenSchedulingUseCase(
         log.info { "$regionName 전체 카테고리 그룹 생성 시작" }
 
         val results = mutableListOf<GroupGen>()
-        val categories = Category.groupGenEntries()
+        val categories = listOf(Category.TECHNOLOGY, Category.ECONOMY, Category.POLITICS)
 
         categories.forEach { category ->
             try {
