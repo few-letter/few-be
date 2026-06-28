@@ -241,8 +241,8 @@ class AbstractGenSchedulingUseCaseTest :
                         mapOf(
                             Category.TECHNOLOGY to listOf("https://example.com/tech1", "https://example.com/tech2"),
                             Category.ECONOMY to listOf("https://example.com/econ1"),
-                            Category.SOCIETY to
-                                listOf("https://example.com/society1", "https://example.com/society2", "https://example.com/society3"),
+                            Category.POLITICS to
+                                listOf("https://example.com/pol1", "https://example.com/pol2", "https://example.com/pol3"),
                         )
 
                     val creationOrder = mutableListOf<Pair<String, Category>>()
@@ -260,11 +260,11 @@ class AbstractGenSchedulingUseCaseTest :
                     // 첫 번째 라운드: 각 카테고리에서 1개씩
                     creationOrder[0].second shouldBe Category.TECHNOLOGY
                     creationOrder[1].second shouldBe Category.ECONOMY
-                    creationOrder[2].second shouldBe Category.SOCIETY
+                    creationOrder[2].second shouldBe Category.POLITICS
 
-                    // 두 번째 라운드: TECHNOLOGY, SOCIETY만 (ECONOMY는 1개뿐)
+                    // 두 번째 라운드: TECHNOLOGY, POLITICS만 (ECONOMY는 1개뿐)
                     creationOrder[3].second shouldBe Category.TECHNOLOGY
-                    creationOrder[4].second shouldBe Category.SOCIETY
+                    creationOrder[4].second shouldBe Category.POLITICS
                 }
             }
         }
