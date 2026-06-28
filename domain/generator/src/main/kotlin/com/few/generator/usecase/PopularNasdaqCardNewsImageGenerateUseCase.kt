@@ -43,6 +43,7 @@ class PopularNasdaqCardNewsImageGenerateUseCase(
         val dateStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
         val imagePathsByStock = mutableMapOf<String, List<String>>()
         val mainPageImagePathsByStock = mutableMapOf<String, String>()
+        val headlinesByStock = mutableMapOf<String, List<String>>()
 
         genIdsByStock.forEach { (stockName, genIds) ->
             val gens = genService.findByIdInOrderByIdAsc(genIds)
@@ -97,6 +98,7 @@ class PopularNasdaqCardNewsImageGenerateUseCase(
             log.info { "[$stockName] 메인 카드 이미지 생성 완료: $mainPath" }
             imagePathsByStock[stockName] = detailPaths
             mainPageImagePathsByStock[stockName] = mainPath
+            headlinesByStock[stockName] = newsContents.map { it.headline }
         }
 
         if (imagePathsByStock.isNotEmpty()) {
@@ -104,6 +106,7 @@ class PopularNasdaqCardNewsImageGenerateUseCase(
                 PopularNasdaqCardNewsImageGeneratedEvent(
                     imagePathsByStock = imagePathsByStock,
                     mainPageImagePathsByStock = mainPageImagePathsByStock,
+                    headlinesByStock = headlinesByStock,
                 ),
             )
             log.info { "Popular Nasdaq 카드뉴스 이미지 생성 완료 이벤트 발행: ${imagePathsByStock.size}개 종목" }
