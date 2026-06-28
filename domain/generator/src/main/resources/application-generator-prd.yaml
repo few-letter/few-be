@@ -74,6 +74,7 @@ generator:
     instagram:
         account-id: ${INSTAGRAM_ACCOUNT_ID}
         card-news-upload-enabled: true
+        carousel-max-images: 9
 
 app:
     http:
