@@ -56,7 +56,7 @@ class PopularNasdaqCardNewsInstagramUploadUseCase(
                 val mainPageUrl = event.mainPageImageUrlsByStock[stockName]
                 val allImageUrls =
                     if (mainPageUrl != null) listOf(mainPageUrl) + detailUrls else detailUrls
-                val headlines = event.headlinesByStock[stockName] ?: emptyList()
+                val headlines = event.headlinesByStock[stockName] ?: throw IllegalStateException("[$stockName] 헤드라인 정보 없음")
 
                 val caption = generateCaption(stockName, event.uploadTime, headlines)
                 uploadCarousel(stockName, allImageUrls, caption)
