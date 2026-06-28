@@ -1,5 +1,6 @@
 package com.few.generator.core.scrapper.naver
 
+import com.google.gson.JsonParser
 import io.github.oshai.kotlinlogging.KotlinLogging
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -14,8 +15,35 @@ class NaverStockBriefingScrapper(
 
     companion object {
         private const val BASE_URL = "https://m.stock.naver.com/briefing/market/posts"
+        private const val LISTING_API_URL = "https://m.stock.naver.com/front-api/market/briefing/list"
         private const val CONTENT_SELECTOR = "#content > div > article > div.ContentText_area-content__JVudc"
     }
+
+    fun fetchLatestPostId(date: String): Long? =
+        try {
+            val url = "$LISTING_API_URL?date=$date&pageSize=50"
+            val request = Request.Builder().url(url).build()
+            val responseBody =
+                scrapperHttpClient.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) {
+                        log.warn { "증시 브리핑 목록 API HTTP ${response.code}: $url" }
+                        return null
+                    }
+                    response.body?.string() ?: return null
+                }
+            JsonParser
+                .parseString(responseBody)
+                .asJsonObject
+                .getAsJsonObject("result")
+                ?.getAsJsonArray("items")
+                ?.firstOrNull()
+                ?.asJsonObject
+                ?.get("id")
+                ?.asLong
+        } catch (e: Exception) {
+            log.warn(e) { "증시 브리핑 최신 postId 조회 실패 (date=$date): ${e.message}" }
+            null
+        }
 
     fun checkPostExists(postId: Long): Boolean =
         try {

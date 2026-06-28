@@ -14,6 +14,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -45,20 +46,11 @@ class StockBriefingSchedulingUseCase(
     }
 
     fun execute() {
-        val lastPostId = stockBriefingPostStateService.loadLastProcessedPostId()
-        if (lastPostId == null) {
-            log.warn { "증시 브리핑 마지막 postId가 DB에 존재하지 않아 스케줄링을 건너뜁니다." }
-            return
-        }
-        val nextPostId = lastPostId + 1
-        log.info { "증시 브리핑 확인 중 (postId=$nextPostId)" }
-
-        if (!scrapper.checkStockBriefingPostExists(nextPostId)) {
-            log.info { "증시 브리핑 신규 포스트 없음 (postId=$nextPostId), 스케줄링 종료" }
-            return
-        }
-
-        log.info { "증시 브리핑 신규 포스트 발견 (postId=$nextPostId), 크롤링 시작" }
+        val today = LocalDate.now().toString()
+        val nextPostId =
+            scrapper.fetchStockBriefingLatestPostId(today)
+                ?: throw RuntimeException("증시 브리핑 최신 포스트 ID를 가져오지 못했습니다. (date=$today)")
+        log.info { "증시 브리핑 최신 포스트 확인 (postId=$nextPostId)" }
 
         val rawContents =
             try {
