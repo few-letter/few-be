@@ -101,6 +101,9 @@ class PopularNasdaqCardNewsImageGenerateUseCaseTest :
             File(mainPath).exists() shouldBe true
             println("=== Apple 메인 카드 이미지 ===")
             println("  - $mainPath")
+
+            eventSlot.captured.headlinesByStock shouldContainKey "Apple"
+            eventSlot.captured.headlinesByStock["Apple"]!!.size shouldBe 4
         }
 
         test("NVDA 종목 카드뉴스 이미지 실제 생성") {
@@ -143,6 +146,9 @@ class PopularNasdaqCardNewsImageGenerateUseCaseTest :
             File(mainPath).exists() shouldBe true
             println("=== NVDA 메인 카드 이미지 ===")
             println("  - $mainPath")
+
+            eventSlot.captured.headlinesByStock shouldContainKey "NVDA"
+            eventSlot.captured.headlinesByStock["NVDA"]!!.size shouldBe 3
         }
 
         test("Microsoft 종목 카드뉴스 이미지 실제 생성") {
@@ -180,6 +186,9 @@ class PopularNasdaqCardNewsImageGenerateUseCaseTest :
             File(mainPath).exists() shouldBe true
             println("=== Microsoft 메인 카드 이미지 ===")
             println("  - $mainPath")
+
+            eventSlot.captured.headlinesByStock shouldContainKey "Microsoft"
+            eventSlot.captured.headlinesByStock["Microsoft"]!!.size shouldBe 2
         }
 
         test("여러 종목 동시 카드뉴스 이미지 실제 생성") {
@@ -209,6 +218,8 @@ class PopularNasdaqCardNewsImageGenerateUseCaseTest :
             eventSlot.captured.imagePathsByStock shouldHaveSize 2
             eventSlot.captured.imagePathsByStock shouldContainKey "Apple"
             eventSlot.captured.imagePathsByStock shouldContainKey "Tesla"
+            eventSlot.captured.headlinesByStock shouldContainKey "Apple"
+            eventSlot.captured.headlinesByStock shouldContainKey "Tesla"
 
             println("=== 여러 종목 상세 카드 이미지 ===")
             eventSlot.captured.imagePathsByStock.forEach { (stock, paths) ->
