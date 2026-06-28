@@ -6,6 +6,7 @@ spring:
     ai:
         retry:
             max-attempts: 2
+            on-client-errors: true
             backoff:
                 initial-interval: 1s
                 multiplier: 2
