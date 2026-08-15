@@ -20,7 +20,7 @@ spring:
     cloud:
         aws:
             s3:
-                bucket: gen-cards
+                bucket: ${BUCKET_NAME}
             region:
                 static: ap-northeast-2
             credentials:
@@ -28,10 +28,17 @@ spring:
                 secret-key: ${STORAGE_SECRET_KEY}
     generator:
         datasource:
-            url: jdbc:mysql://localhost:13306/generator?allowPublicKeyRetrieval=true&rewriteBatchedStatements=true&allowMultiQueries=true&connectTimeout=10000&socketTimeout=1800000
-            username: root
-            password: root
-            driver-class-name: com.mysql.cj.jdbc.Driver
+            hikari:
+                jdbc-url: jdbc:mysql://localhost:13306/generator?allowPublicKeyRetrieval=true&rewriteBatchedStatements=true&allowMultiQueries=true&connectTimeout=10000&socketTimeout=1800000
+                username: root
+                password: root
+                driver-class-name: com.mysql.cj.jdbc.Driver
+                pool-name: generator-pool
+                maximum-pool-size: 3
+                minimum-idle: 3
+                connection-timeout: 10000
+                max-lifetime: 1800000
+                leak-detection-threshold: 2000
         jpa:
             hibernate:
                 ddl-auto: update
@@ -66,7 +73,7 @@ generator:
         maxRetries: 5
         defaultRetryAfter: 60
     contents:
-        countByCategory: 1
+        countByCategory: 9
         pageSize: 20
     grouping:
         targetPercentage: 30
@@ -75,7 +82,7 @@ generator:
         similarityThreshold: 0.7
     instagram:
         account-id: ${INSTAGRAM_ACCOUNT_ID}
-        card-news-upload-enabled: false
+        card-news-upload-enabled: true
         carousel-max-images: 9
 
 app:
@@ -85,12 +92,6 @@ app:
         write-timeout: 15
         max-idle-connections: 1
         keep-alive-duration: 60
-
-logging:
-    level:
-        org.springframework.cache: DEBUG
-        org.ehcache: DEBUG
-        org.hibernate.SQL: DEBUG
 
 management:
     endpoints:

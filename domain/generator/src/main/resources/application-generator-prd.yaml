@@ -20,7 +20,7 @@ spring:
     cloud:
         aws:
             s3:
-                bucket: gen-cards
+                bucket: ${BUCKET_NAME}
             region:
                 static: ap-northeast-2
             credentials:
@@ -28,10 +28,17 @@ spring:
                 secret-key: ${STORAGE_SECRET_KEY}
     generator:
         datasource:
-            url: ${DB_HOSTNAME}/generator?allowPublicKeyRetrieval=true&rewriteBatchedStatements=true&allowMultiQueries=true&connectTimeout=10000&socketTimeout=1800000
-            username: ${DB_USERNAME}
-            password: ${DB_PASSWORD}
-            driver-class-name: com.mysql.cj.jdbc.Driver
+            hikari:
+                jdbc-url: ${DB_HOSTNAME}
+                username: ${DB_USERNAME}
+                password: ${DB_PASSWORD}
+                driver-class-name: com.mysql.cj.jdbc.Driver
+                pool-name: generator-pool
+                maximum-pool-size: 8
+                minimum-idle: 8
+                connection-timeout: 10000
+                max-lifetime: 1800000
+                leak-detection-threshold: 2000
         jpa:
             hibernate:
                 ddl-auto: update
@@ -83,11 +90,6 @@ app:
         write-timeout: 15
         max-idle-connections: 1
         keep-alive-duration: 60
-
-logging:
-    level:
-        org.springframework.cache: INFO
-        org.ehcache: WARN
 
 management:
     endpoints:
