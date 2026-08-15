@@ -73,7 +73,7 @@ generator:
         maxRetries: 5
         defaultRetryAfter: 60
     contents:
-        countByCategory: 1
+        countByCategory: 9
         pageSize: 20
     grouping:
         targetPercentage: 30
@@ -82,7 +82,7 @@ generator:
         similarityThreshold: 0.7
     instagram:
         account-id: ${INSTAGRAM_ACCOUNT_ID}
-        card-news-upload-enabled: false
+        card-news-upload-enabled: true
         carousel-max-images: 9
 
 app:
@@ -92,12 +92,6 @@ app:
         write-timeout: 15
         max-idle-connections: 1
         keep-alive-duration: 60
-
-logging:
-    level:
-        org.springframework.cache: DEBUG
-        org.ehcache: DEBUG
-        org.hibernate.SQL: DEBUG
 
 management:
     endpoints:
