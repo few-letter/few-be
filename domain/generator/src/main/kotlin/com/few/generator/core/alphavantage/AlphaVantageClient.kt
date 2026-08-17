@@ -27,7 +27,6 @@ class AlphaVantageClient(
         }
 
         val url = "${alphaVantageProperties.baseUrl}?function=NEWS_SENTIMENT&tickers=$ticker&apikey=${alphaVantageProperties.apiKey}"
-        log.info { "AlphaVantage 뉴스 조회 시작: ticker=$ticker" }
 
         val request =
             HttpRequest
@@ -36,6 +35,9 @@ class AlphaVantageClient(
                 .uri(URI.create(url))
                 .GET()
                 .build()
+
+        log.info { "AlphaVantage 뉴스 조회 시작: ticker=$ticker (12초 대기)" }
+        Thread.sleep(12001) // AlphaVantage API Rate Limit: 5 requests per minute
 
         val response = alphaVantageHttpClient.send(request, HttpResponse.BodyHandlers.ofString())
         if (response.statusCode() !in 200..299) {
