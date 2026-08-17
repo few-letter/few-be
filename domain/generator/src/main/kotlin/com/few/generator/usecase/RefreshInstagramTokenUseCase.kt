@@ -1,6 +1,7 @@
 package com.few.generator.usecase
 
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
+import com.few.generator.event.InstagramTokenRefreshFailedEvent
 import com.few.generator.service.InstagramTokenService
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
@@ -9,7 +10,9 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
+import java.time.LocalDateTime
 
 data class InstagramTokenRefreshResponse(
     @SerializedName("access_token")
@@ -26,10 +29,25 @@ class RefreshInstagramTokenUseCase(
     private val instagramOkHttpClient: OkHttpClient,
     @Qualifier(GSON_BEAN_NAME)
     private val gson: Gson,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
     private val log = KotlinLogging.logger {}
 
     fun execute() {
+        try {
+            doExecute()
+        } catch (e: Exception) {
+            log.error(e) { "Instagram 토큰 갱신 스케줄 실행 중 오류 발생: ${e.message}" }
+            applicationEventPublisher.publishEvent(
+                InstagramTokenRefreshFailedEvent(
+                    occurredAt = LocalDateTime.now(),
+                    errorMessage = e.message,
+                ),
+            )
+        }
+    }
+
+    fun doExecute() {
         val currentToken = instagramTokenService.getLatestAccessToken()
 
         val url =
