@@ -1,12 +1,10 @@
 package com.few.generator.usecase
 
 import com.few.generator.config.properties.CacheNames
-import com.few.generator.event.client.SlackWebhookClient
+import com.few.generator.event.GenCacheMetricsCollectFailedEvent
 import com.few.generator.service.CacheMetricsCollector
-import com.few.web.client.Block
-import com.few.web.client.SlackBodyProperty
-import com.few.web.client.Text
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -15,7 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 @Component
 class SendCacheMetricsSchedulingUseCase(
     private val cacheMetricsCollector: CacheMetricsCollector,
-    private val slackWebhookClient: SlackWebhookClient,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
     private val log = KotlinLogging.logger {}
     private val isRunning = AtomicBoolean(false)
@@ -51,7 +49,12 @@ class SendCacheMetricsSchedulingUseCase(
 
         if (genCacheStats == null) {
             log.warn { "${CacheNames.GEN_CACHE} 통계를 수집할 수 없습니다." }
-            sendErrorNotification(today, "${CacheNames.GEN_CACHE} 통계를 수집할 수 없습니다.")
+            applicationEventPublisher.publishEvent(
+                GenCacheMetricsCollectFailedEvent(
+                    date = today,
+                    errorMessage = "${CacheNames.GEN_CACHE} 통계를 수집할 수 없습니다.",
+                ),
+            )
             return
         }
 
@@ -64,39 +67,6 @@ class SendCacheMetricsSchedulingUseCase(
                 appendLine("  Puts: ${genCacheStats.puts.toLong()}")
                 appendLine("  Evictions: ${genCacheStats.evictions.toLong()}")
             }
-        }
-    }
-
-    private fun sendErrorNotification(
-        date: LocalDate,
-        errorMessage: String,
-    ) {
-        val blocks =
-            listOf(
-                Block(
-                    type = "section",
-                    text =
-                        Text(
-                            type = "mrkdwn",
-                            text = ":x: *GenCache Metrics Report Error*",
-                        ),
-                ),
-                Block(
-                    type = "section",
-                    text =
-                        Text(
-                            type = "mrkdwn",
-                            text = "*Date:* $date\n*Error:* $errorMessage",
-                        ),
-                ),
-            )
-
-        val slackBody = SlackBodyProperty(blocks = blocks)
-
-        try {
-            slackWebhookClient.sendAsync(slackBody)
-        } catch (e: Exception) {
-            log.error(e) { "에러 알림 Slack 전송 실패" }
         }
     }
 }

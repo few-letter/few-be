@@ -14,6 +14,7 @@ import com.few.generator.core.scrapper.timefolio.TimeEtfItem
 import com.few.generator.core.scrapper.timefolio.TimeEtfScrapper
 import com.few.generator.domain.Gen
 import com.few.generator.event.PopularNasdaqGenSavedEvent
+import com.few.generator.event.PopularNasdaqStockScrapingFailedEvent
 import com.few.generator.service.GenService
 import com.google.gson.Gson
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
+import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicBoolean
 
 @Component
@@ -36,6 +38,7 @@ class PopularNasdaqStockScrapingSchedulingUseCase(
 ) {
     private val log = KotlinLogging.logger {}
     private val isRunning = AtomicBoolean(false)
+    private val countOfCompany = 10
 
     @Async("generatorSchedulingExecutor")
     fun executeAsync() {
@@ -48,13 +51,19 @@ class PopularNasdaqStockScrapingSchedulingUseCase(
             execute()
         } catch (e: Exception) {
             log.error(e) { "TimeETF 스크래핑 스케줄링 실행 중 오류: ${e.message}" }
+            applicationEventPublisher.publishEvent(
+                PopularNasdaqStockScrapingFailedEvent(
+                    occurredAt = LocalDateTime.now(),
+                    errorMessage = e.message,
+                ),
+            )
         } finally {
             isRunning.set(false)
         }
     }
 
     fun execute() {
-        val items = timeEtfScrapper.scrapeTopItems()
+        val items = timeEtfScrapper.scrapeTopItems().take(countOfCompany)
         if (items.isEmpty()) {
             log.warn { "TimeETF 스크래핑 결과가 없습니다." }
             return

@@ -45,11 +45,7 @@ class SchedulingController(
 
     @Scheduled(cron = "\${scheduling.cron.instagram-token-refresh}", zone = "Asia/Seoul")
     fun refreshInstagramToken() {
-        try {
-            refreshInstagramTokenUseCase.execute()
-        } catch (e: Exception) {
-            log.error(e) { "Instagram 토큰 갱신 스케줄 실행 중 오류 발생: ${e.message}" }
-        }
+        refreshInstagramTokenUseCase.execute()
     }
 
     @Scheduled(cron = "\${scheduling.cron.stock-briefing}", zone = "Asia/Seoul")
