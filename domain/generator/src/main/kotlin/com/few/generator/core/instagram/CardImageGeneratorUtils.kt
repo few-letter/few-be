@@ -28,25 +28,35 @@ object CardImageGeneratorUtils {
     val WHITE_COLOR = ColorRGBA(r = 255, g = 255, b = 255, a = 255)
     val HEADER_COLOR = ColorRGBA(r = 191, g = 199, b = 212, a = 255)
 
-    // 폰트 상수
-    private const val FONT_NAME = "Noto Sans CJK KR"
+    // 폰트: Noto Sans KR 정적 weight 파일을 클래스패스에 번들한다.
+    // OS 폰트 이름 resolve(Font("Noto Sans CJK KR", ...))에 의존하면 미설치 환경에서 논리폰트(Dialog)로
+    // 조용히 대체되고, Dialog 합성폰트는 한글에 인접한 ASCII 글리프(0 % , 8 등)를 렌더에서 누락시킨다.
+    private const val REGULAR_FONT_RESOURCE = "fonts/NotoSansKR-Regular.ttf"
+    private const val BOLD_FONT_RESOURCE = "fonts/NotoSansKR-Bold.ttf"
+    private const val OS_FALLBACK_FONT_NAME = "Noto Sans CJK KR"
 
-    // Base 폰트 (한 번만 로드)
-    private val baseFont: Font by lazy {
+    // Base 폰트 (한 번만 로드하여 재사용)
+    private val baseRegularFont: Font by lazy { loadBundledFont(REGULAR_FONT_RESOURCE, bold = false) }
+    private val baseBoldFont: Font by lazy { loadBundledFont(BOLD_FONT_RESOURCE, bold = true) }
+
+    private fun loadBundledFont(
+        resource: String,
+        bold: Boolean,
+    ): Font =
         try {
-            val font = Font(FONT_NAME, Font.PLAIN, 12) // 기본 크기는 의미 없음 (derive 시 변경됨)
-            if (font.canDisplayUpTo("한글테스트") == -1) {
-                log.debug { "한글 폰트 로드 성공: $FONT_NAME" }
-                font
-            } else {
-                log.warn { "$FONT_NAME 폰트를 사용할 수 없습니다. SansSerif 폰트를 사용합니다." }
-                Font("SansSerif", Font.PLAIN, 12)
+            val stream =
+                this::class.java.classLoader.getResourceAsStream(resource)
+                    ?: error("폰트 리소스를 찾을 수 없습니다: $resource")
+            stream.use { Font.createFont(Font.TRUETYPE_FONT, it) }.also {
+                log.info { "번들 폰트 로드 성공: $resource (family=${it.family}, name=${it.fontName})" }
             }
         } catch (e: Exception) {
-            log.warn(e) { "$FONT_NAME 폰트 로드 실패. SansSerif 폰트를 사용합니다." }
-            Font("SansSerif", Font.PLAIN, 12)
+            log.error(e) { "번들 폰트 로드 실패: $resource. OS 폰트로 대체합니다." }
+            val style = if (bold) Font.BOLD else Font.PLAIN
+            Font(OS_FALLBACK_FONT_NAME, style, 12)
+                .takeIf { it.canDisplayUpTo("한글테스트") == -1 }
+                ?: Font("SansSerif", style, 12)
         }
-    }
 
     /**
      * 리소스에서 이미지 로드
@@ -82,16 +92,14 @@ object CardImageGeneratorUtils {
     }
 
     /**
-     * 한글 폰트 로드 (Noto Sans CJK KR 사용)
-     * Base 폰트를 한 번만 로드하고 재사용하여 성능 최적화
+     * 한글 폰트 로드 (번들된 Noto Sans KR Regular/Bold 사용)
+     * Base 폰트를 한 번만 로드하고 크기만 파생하여 재사용한다.
+     * Bold 는 별도 weight 파일을 쓰므로 deriveFont 에 스타일을 주지 않는다(합성 볼드 중복 방지).
      */
     fun loadKoreanFont(
         size: Int,
         bold: Boolean = false,
-    ): Font {
-        val style = if (bold) Font.BOLD else Font.PLAIN
-        return baseFont.deriveFont(style, size.toFloat())
-    }
+    ): Font = (if (bold) baseBoldFont else baseRegularFont).deriveFont(size.toFloat())
 
     /**
      * 텍스트 너비 계산
