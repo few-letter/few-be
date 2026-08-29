@@ -72,8 +72,14 @@ class SingleNewsCardGenerator {
 
             val isBriefing = validCategory == BRIEFING_CATEGORY
 
+            // highlightTexts 는 summary 기준으로 만들어지므로 헤드라인에는 그대로 적용하지 않는다.
+            // 헤드라인 문자열에 실제로 등장하는 하이라이트만 사용해야 무관한 어절이 조각으로 잘려
+            // 특정 글자(숫자/문장부호)가 누락·깨지는 현상을 막을 수 있다.
+            val headlineHighlights =
+                content.highlightTexts.filter { it.isNotBlank() && content.headline.contains(it) }
+
             val headlineEndY =
-                if (isBriefing) {
+                if (isBriefing || headlineHighlights.isEmpty()) {
                     drawMultilineText(
                         graphics,
                         content.headline,
@@ -88,7 +94,7 @@ class SingleNewsCardGenerator {
                     drawMultilineHighlightedText(
                         graphics,
                         content.headline,
-                        content.highlightTexts,
+                        headlineHighlights,
                         MARGIN_X,
                         headlineStartY,
                         CONTENT_WIDTH,
