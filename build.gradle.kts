@@ -57,6 +57,15 @@ allprojects {
         useJUnitPlatform {
             excludeTags("integration")
         }
+        // MockK(ByteBuddy) 를 JVM 시작 시 -javaagent 로 붙인다.
+        // AWT(Font.createFont 등) 초기화 후에는 MockK 의 지연 self-attach 가
+        // "Could not self-attach" / attach 소켓 타임아웃으로 실패하므로 사전 attach 로 회피한다.
+        jvmArgs("-XX:+EnableDynamicAgentLoading")
+        doFirst {
+            classpath.files
+                .firstOrNull { it.name.startsWith("byte-buddy-agent") }
+                ?.let { jvmArgs("-javaagent:${it.absolutePath}") }
+        }
     }
 }
 
