@@ -1,6 +1,7 @@
 package com.few.generator.usecase
 
 import com.few.common.domain.Category
+import com.few.common.domain.ContentsType
 import com.few.common.domain.MediaType
 import com.few.common.domain.Region
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
@@ -148,6 +149,7 @@ class PopularNasdaqStockScrapingSchedulingUseCase(
                     coreTextsJson = gson.toJson(listOf(feedItem.summary)),
                     category = Category.ECONOMY.code,
                     region = Region.GLOBAL.code,
+                    contentsType = ContentsType.POPULAR_NASDAQ_STOCK_NEWS,
                 ),
             ).also { log.info { "Gen 저장 완료: ticker=$ticker, headline=$headline" } }
     }
