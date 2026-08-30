@@ -2,6 +2,7 @@ package com.few.generator.service
 
 import com.few.common.domain.Category
 import com.few.common.domain.ContentsType
+import com.few.common.domain.MediaType
 import com.few.common.domain.Region
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.core.gpt.ChatGpt
@@ -54,13 +55,13 @@ class ContentsCommonGenerationService(
             Gen(
                 url = rawContent.url,
                 thumbnailImageUrl = rawContent.thumbnailImageUrl,
-                mediaType = rawContent.mediaType,
+                mediaType = MediaType.from(rawContent.mediaType),
                 headline = headline.headline,
                 summary = summary.summary,
                 highlightTexts = gson.toJson(highlightTexts.highlightTexts),
                 coreTextsJson = provisioningContent.coreTextsJson,
-                category = Category.from(provisioningContent.category).code,
-                region = provisioningContent.region,
+                category = Category.from(provisioningContent.category),
+                region = Region.from(provisioningContent.region),
                 contentsType =
                     if (Region.from(provisioningContent.region) == Region.GLOBAL) {
                         ContentsType.GLOBAL_NEWS

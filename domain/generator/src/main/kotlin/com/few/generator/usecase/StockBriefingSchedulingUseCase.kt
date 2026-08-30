@@ -115,11 +115,11 @@ class StockBriefingSchedulingUseCase(
                         Gen(
                             url = null,
                             thumbnailImageUrl = null,
-                            mediaType = MediaType.NAVER_STOCK.code,
+                            mediaType = MediaType.NAVER_STOCK,
                             headline = headline,
                             summary = summary,
                             highlightTexts = gson.toJson(highlights),
-                            category = Category.ECONOMY.code,
+                            category = Category.ECONOMY,
                             contentsType = ContentsType.STOCK_BRIEFING,
                         ),
                     )

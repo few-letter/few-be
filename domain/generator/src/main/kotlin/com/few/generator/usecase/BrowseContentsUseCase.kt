@@ -1,7 +1,5 @@
 package com.few.generator.usecase
 
-import com.few.common.domain.Category
-import com.few.common.domain.MediaType
 import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.repository.GenRepository
 import com.few.generator.support.jpa.GeneratorTransactional
@@ -57,12 +55,12 @@ data class BrowseContentsUseCase(
                         id = gen.id!!,
                         url = gen.url.orEmpty(),
                         thumbnailImageUrl = gen.thumbnailImageUrl,
-                        mediaType = MediaType.from(gen.mediaType),
+                        mediaType = gen.mediaType,
                         headline = gen.headline,
                         summary = gen.summary,
                         highlightTexts = gson.fromJson(gen.highlightTexts, object : TypeToken<List<String>>() {}.type),
                         createdAt = gen.createdAt ?: LocalDateTime.MIN,
-                        category = Category.from(gen.category),
+                        category = gen.category,
                     )
                 },
             isLast = gens.size < pageSize,

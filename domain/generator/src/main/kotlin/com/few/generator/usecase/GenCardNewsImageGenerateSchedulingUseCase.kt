@@ -97,7 +97,7 @@ class GenCardNewsImageGenerateSchedulingUseCase(
                         emptyList()
                     }
 
-                val category = Category.from(gen.category)
+                val category = gen.category
 
                 val newsContent =
                     NewsContent(

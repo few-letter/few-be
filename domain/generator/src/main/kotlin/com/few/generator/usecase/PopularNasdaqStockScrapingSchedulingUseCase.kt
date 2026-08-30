@@ -142,13 +142,13 @@ class PopularNasdaqStockScrapingSchedulingUseCase(
                 Gen(
                     url = feedItem.url,
                     thumbnailImageUrl = feedItem.bannerImage,
-                    mediaType = MediaType.ETC.code,
+                    mediaType = MediaType.ETC,
                     headline = headline,
                     summary = summary,
                     highlightTexts = "[]",
                     coreTextsJson = gson.toJson(listOf(feedItem.summary)),
-                    category = Category.ECONOMY.code,
-                    region = Region.GLOBAL.code,
+                    category = Category.ECONOMY,
+                    region = Region.GLOBAL,
                     contentsType = ContentsType.POPULAR_NASDAQ_STOCK_NEWS,
                 ),
             ).also { log.info { "Gen 저장 완료: ticker=$ticker, headline=$headline" } }
