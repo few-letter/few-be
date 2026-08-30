@@ -14,7 +14,8 @@ class NewsletterContentAggregator(
     fun prepareNewsletterData(targetDate: LocalDate): NewsletterData {
         val dailyGens = collectDailyGens(targetDate)
         val gensByCategory = dailyGens.groupBy { it.category }
-        val rawContentsUrlsByGens = dailyGens.mapNotNull { gen -> gen.id?.let { it to gen.url } }.toMap()
+        val rawContentsUrlsByGens =
+            dailyGens.mapNotNull { gen -> gen.id?.let { id -> gen.url?.let { url -> id to url } } }.toMap()
         val rawContentsMediaTypeByGens =
             dailyGens
                 .mapNotNull { gen -> gen.id?.let { it to MediaType.from(gen.mediaType).title } }

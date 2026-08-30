@@ -55,7 +55,7 @@ data class BrowseContentsUseCase(
                 gens.map { gen ->
                     ContentsUsecaseOut(
                         id = gen.id!!,
-                        url = gen.url,
+                        url = gen.url.orEmpty(),
                         thumbnailImageUrl = gen.thumbnailImageUrl,
                         mediaType = MediaType.from(gen.mediaType),
                         headline = gen.headline,

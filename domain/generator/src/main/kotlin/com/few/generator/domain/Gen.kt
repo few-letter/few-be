@@ -16,7 +16,7 @@ import jakarta.persistence.*
 )
 data class Gen(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Long? = null,
-    @Column(columnDefinition = "TEXT", nullable = false) val url: String,
+    @Column(columnDefinition = "TEXT", nullable = true) val url: String?,
     @Column(columnDefinition = "TEXT", nullable = true) val thumbnailImageUrl: String? = null,
     @Column(nullable = false) val mediaType: Int,
     @Column(columnDefinition = "TEXT", nullable = false) val headline: String,
@@ -24,7 +24,7 @@ data class Gen(
     @Column(columnDefinition = "TEXT", nullable = false) val highlightTexts: String = "[]",
     @Column(columnDefinition = "TEXT", nullable = false) val coreTextsJson: String = "[]",
     @Column(nullable = false) val category: Int,
-    @Column(nullable = true) val region: Int,
+    @Column(nullable = true) val region: Int? = null,
     @Column(name = "published_via_skills_yn", columnDefinition = "CHAR(1)", nullable = true)
     val publishedViaSkillsYn: String? = null,
     @Convert(converter = ContentsTypeConverter::class)

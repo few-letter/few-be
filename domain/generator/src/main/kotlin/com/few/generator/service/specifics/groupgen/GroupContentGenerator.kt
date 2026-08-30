@@ -49,7 +49,7 @@ class GroupContentGenerator(
         val groupHeadline = generateGroupHeadline(selectedGenHeadlines)
         val groupSummary = generateGroupSummary(groupHeadline.headline, selectedGenHeadlines, selectedGenSummaries)
         val groupHighlights = generateGroupHighlights(groupSummary.summary)
-        val groupSourceHeadlines = selectedGens.map { GroupSourceHeadline(headline = it.headline, url = it.url) }
+        val groupSourceHeadlines = selectedGens.map { GroupSourceHeadline(headline = it.headline, url = it.url.orEmpty()) }
 
         log.info { "그룹 콘텐츠 생성 완료" }
 
