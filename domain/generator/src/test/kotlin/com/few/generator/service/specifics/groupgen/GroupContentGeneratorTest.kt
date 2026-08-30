@@ -1,6 +1,7 @@
 package com.few.generator.service.specifics.groupgen
 
 import com.few.common.domain.Category
+import com.few.common.domain.MediaType
 import com.few.common.domain.Region
 import com.few.generator.core.gpt.ChatGpt
 import com.few.generator.core.gpt.prompt.Prompt
@@ -41,13 +42,13 @@ class GroupContentGeneratorTest :
             id = id,
             url = url,
             thumbnailImageUrl = null,
-            mediaType = 1,
+            mediaType = MediaType.CHOSUN,
             headline = headline,
             summary = summary,
             highlightTexts = "[]",
             coreTextsJson = "[]",
-            category = Category.TECHNOLOGY.code,
-            region = Region.LOCAL.code,
+            category = Category.TECHNOLOGY,
+            region = Region.LOCAL,
         ).apply { createdAt = LocalDateTime.now() }
 
         Given("GPT 호출이 모두 성공하는 경우") {

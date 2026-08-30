@@ -27,13 +27,13 @@ class RawContentsBrowseContentUseCaseTest :
                     id = 10L,
                     url = "https://n.news.naver.com/article/001/12345",
                     thumbnailImageUrl = "https://example.com/thumb.jpg",
-                    mediaType = MediaType.CHOSUN.code,
+                    mediaType = MediaType.CHOSUN,
                     headline = "테스트 헤드라인",
                     summary = "테스트 요약",
                     highlightTexts = """["하이라이트1", "하이라이트2"]""",
                     coreTextsJson = """["핵심1"]""",
-                    category = Category.TECHNOLOGY.code,
-                    region = Region.LOCAL.code,
+                    category = Category.TECHNOLOGY,
+                    region = Region.LOCAL,
                 ).apply { createdAt = LocalDateTime.of(2026, 1, 15, 10, 0) }
 
             every { genRepository.findById(10L) } returns Optional.of(gen)

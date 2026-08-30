@@ -1,6 +1,7 @@
 package com.few.generator.service
 
 import com.few.common.domain.Category
+import com.few.common.domain.MediaType
 import com.few.common.domain.Region
 import com.few.common.exception.BadRequestException
 import com.few.generator.core.scrapper.ScrappedResult
@@ -56,13 +57,13 @@ class RawContentsServiceTest :
                     id = 1L,
                     url = url,
                     thumbnailImageUrl = null,
-                    mediaType = 0,
+                    mediaType = MediaType.ETC,
                     headline = "기존 헤드라인",
                     summary = "기존 요약",
                     highlightTexts = "[]",
                     coreTextsJson = "[]",
-                    category = Category.TECHNOLOGY.code,
-                    region = Region.LOCAL.code,
+                    category = Category.TECHNOLOGY,
+                    region = Region.LOCAL,
                 )
 
             every { scrapper.scrape(url) } returns scrappedResult

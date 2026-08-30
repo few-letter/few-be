@@ -2,6 +2,7 @@ package com.few.generator.service
 
 import com.few.common.domain.Category
 import com.few.common.domain.ContentsType
+import com.few.common.domain.MediaType
 import com.few.common.domain.Region
 import com.few.generator.core.gpt.ChatGpt
 import com.few.generator.core.gpt.prompt.Prompt
@@ -95,7 +96,7 @@ class ContentsCommonGenerationServiceTest :
                 Then("RawContents의 url, thumbnailImageUrl, mediaType이 Gen에 포함된다") {
                     savedGen.url shouldBe raw.url
                     savedGen.thumbnailImageUrl shouldBe raw.thumbnailImageUrl
-                    savedGen.mediaType shouldBe raw.mediaType
+                    savedGen.mediaType shouldBe MediaType.from(raw.mediaType)
                 }
 
                 Then("ProvisioningContents의 coreTextsJson이 Gen에 포함된다") {
@@ -105,8 +106,8 @@ class ContentsCommonGenerationServiceTest :
                 Then("GPT 결과가 Gen에 포함된다") {
                     savedGen.headline shouldBe headline.headline
                     savedGen.summary shouldBe summary.summary
-                    savedGen.category shouldBe Category.TECHNOLOGY.code
-                    savedGen.region shouldBe Region.LOCAL.code
+                    savedGen.category shouldBe Category.TECHNOLOGY
+                    savedGen.region shouldBe Region.LOCAL
                 }
 
                 Then("contentsType이 LOCAL_NEWS로 저장된다") {
@@ -132,7 +133,7 @@ class ContentsCommonGenerationServiceTest :
 
                 Then("contentsType이 GLOBAL_NEWS로 저장된다") {
                     savedGen.contentsType shouldBe ContentsType.GLOBAL_NEWS
-                    savedGen.region shouldBe Region.GLOBAL.code
+                    savedGen.region shouldBe Region.GLOBAL
                 }
             }
         }

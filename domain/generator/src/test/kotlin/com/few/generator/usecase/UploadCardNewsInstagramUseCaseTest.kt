@@ -1,6 +1,7 @@
 package com.few.generator.usecase
 
 import com.few.common.domain.Category
+import com.few.common.domain.MediaType
 import com.few.common.domain.Region
 import com.few.generator.core.gpt.ChatGpt
 import com.few.generator.core.gpt.prompt.PromptGenerator
@@ -51,9 +52,9 @@ class UploadCardNewsInstagramUseCaseTest :
                     Gen(
                         id = 1L,
                         url = "https://example.com/article",
-                        mediaType = 1,
-                        category = Category.TECHNOLOGY.code,
-                        region = Region.LOCAL.code,
+                        mediaType = MediaType.CHOSUN,
+                        category = Category.TECHNOLOGY,
+                        region = Region.LOCAL,
                         headline = "앤트로픽, 크리스 리델 이사 선임",
                         summary = "앤트로픽은 크리스 리델을 이사로 선임했다고 발표했습니다.",
                         highlightTexts = """["책임 있는 AI 개발이 중요하다"]""",
@@ -61,9 +62,9 @@ class UploadCardNewsInstagramUseCaseTest :
                     Gen(
                         id = 2L,
                         url = "https://example.com/article",
-                        mediaType = 1,
-                        category = Category.TECHNOLOGY.code,
-                        region = Region.LOCAL.code,
+                        mediaType = MediaType.CHOSUN,
+                        category = Category.TECHNOLOGY,
+                        region = Region.LOCAL,
                         headline = "삼성전자 새로운 반도체 공장 착공",
                         summary = "삼성전자가 새로운 반도체 공장을 착공했습니다.",
                         highlightTexts = """["삼성전자 반도체"]""",
@@ -106,9 +107,9 @@ class UploadCardNewsInstagramUseCaseTest :
                     Gen(
                         id = 1L,
                         url = "https://example.com/article",
-                        mediaType = 1,
-                        category = Category.TECHNOLOGY.code,
-                        region = Region.LOCAL.code,
+                        mediaType = MediaType.CHOSUN,
+                        category = Category.TECHNOLOGY,
+                        region = Region.LOCAL,
                         headline = "테스트 헤드라인",
                         summary = "summary",
                         highlightTexts = "[]",
@@ -149,9 +150,9 @@ class UploadCardNewsInstagramUseCaseTest :
                     Gen(
                         id = 1L,
                         url = "https://example.com/article",
-                        mediaType = 1,
-                        category = Category.ECONOMY.code,
-                        region = Region.LOCAL.code,
+                        mediaType = MediaType.CHOSUN,
+                        category = Category.ECONOMY,
+                        region = Region.LOCAL,
                         headline = "한국은행 금리 인하",
                         summary = "summary",
                         highlightTexts = "[]",
@@ -201,9 +202,9 @@ class UploadCardNewsInstagramUseCaseTest :
                     Gen(
                         id = 1L,
                         url = "https://example.com/article",
-                        mediaType = 1,
-                        category = Category.POLITICS.code,
-                        region = Region.LOCAL.code,
+                        mediaType = MediaType.CHOSUN,
+                        category = Category.POLITICS,
+                        region = Region.LOCAL,
                         headline = "대통령 국무회의 개최",
                         summary = "summary",
                         highlightTexts = "[]",
@@ -247,9 +248,9 @@ class UploadCardNewsInstagramUseCaseTest :
                     Gen(
                         id = 1L,
                         url = "https://example.com/article",
-                        mediaType = 1,
-                        category = category.code,
-                        region = Region.LOCAL.code,
+                        mediaType = MediaType.CHOSUN,
+                        category = category,
+                        region = Region.LOCAL,
                         headline = "테스트 헤드라인",
                         summary = "summary",
                         highlightTexts = "[]",
@@ -275,9 +276,9 @@ class UploadCardNewsInstagramUseCaseTest :
                     Gen(
                         id = 1L,
                         url = "https://example.com/article",
-                        mediaType = 1,
-                        category = Category.SOCIETY.code,
-                        region = Region.LOCAL.code,
+                        mediaType = MediaType.CHOSUN,
+                        category = Category.SOCIETY,
+                        region = Region.LOCAL,
                         headline = "서울시 대중교통 무료화 추진",
                         summary = "summary",
                         highlightTexts = "[]",

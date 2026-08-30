@@ -1,6 +1,8 @@
 package com.few.generator.usecase
 
 import com.few.common.domain.Category
+import com.few.common.domain.MediaType
+import com.few.common.domain.Region
 import com.few.generator.core.instagram.MainPageCardGenerator
 import com.few.generator.core.instagram.SingleNewsCardGenerator
 import com.few.generator.domain.Gen
@@ -43,13 +45,13 @@ class PopularNasdaqCardNewsImageGenerateUseCaseTest :
         ) = Gen(
             id = id,
             url = "https://example.com/$id",
-            mediaType = 3,
+            mediaType = MediaType.SBS,
             headline = headline,
             summary = summary,
             highlightTexts = "[]",
             coreTextsJson = "[]",
-            category = Category.ECONOMY.code,
-            region = 0,
+            category = Category.ECONOMY,
+            region = Region.LOCAL,
         ).apply { createdAt = now }
 
         beforeTest {

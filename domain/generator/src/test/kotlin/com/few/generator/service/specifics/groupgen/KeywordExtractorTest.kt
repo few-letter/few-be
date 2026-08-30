@@ -1,6 +1,7 @@
 package com.few.generator.service.specifics.groupgen
 
 import com.few.common.domain.Category
+import com.few.common.domain.MediaType
 import com.few.common.domain.Region
 import com.few.generator.domain.Gen
 import io.kotest.core.spec.style.BehaviorSpec
@@ -23,13 +24,13 @@ class KeywordExtractorTest :
             id = id,
             url = "https://example.com/article-$id",
             thumbnailImageUrl = null,
-            mediaType = 1,
+            mediaType = MediaType.CHOSUN,
             headline = "헤드라인 $id",
             summary = "요약 $id",
             highlightTexts = "[]",
             coreTextsJson = coreTextsJson,
-            category = Category.TECHNOLOGY.code,
-            region = Region.LOCAL.code,
+            category = Category.TECHNOLOGY,
+            region = Region.LOCAL,
         ).apply { createdAt = LocalDateTime.now() }
 
         Given("Gen 목록이 있는 경우") {
