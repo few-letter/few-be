@@ -1,5 +1,8 @@
 package com.few.generator.usecase
 
+import com.few.common.domain.Category
+import com.few.common.domain.ContentsType
+import com.few.common.domain.MediaType
 import com.few.generator.core.gpt.ChatGpt
 import com.few.generator.core.gpt.prompt.Prompt
 import com.few.generator.core.gpt.prompt.PromptGenerator
@@ -8,9 +11,12 @@ import com.few.generator.core.gpt.prompt.schema.HighlightTexts
 import com.few.generator.core.gpt.prompt.schema.Summary
 import com.few.generator.core.scrapper.Scrapper
 import com.few.generator.core.scrapper.naver.StockBriefingRawContent
+import com.few.generator.domain.Gen
 import com.few.generator.event.StockBriefingContentProcessedEvent
 import com.few.generator.event.StockBriefingInstagramUploadCompletedEvent
+import com.few.generator.service.GenService
 import com.few.generator.service.StockBriefingPostStateService
+import com.google.gson.Gson
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.*
@@ -23,6 +29,7 @@ class StockBriefingSchedulingUseCaseTest :
         val promptGenerator = mockk<PromptGenerator>()
         val publisher = mockk<ApplicationEventPublisher>(relaxed = true)
         val stockBriefingPostStateService = mockk<StockBriefingPostStateService>()
+        val genService = mockk<GenService>()
         val fetchedPostId = 3361L
 
         val useCase =
@@ -32,14 +39,17 @@ class StockBriefingSchedulingUseCaseTest :
                 promptGenerator = promptGenerator,
                 applicationEventPublisher = publisher,
                 stockBriefingPostStateService = stockBriefingPostStateService,
+                genService = genService,
+                gson = Gson(),
             )
 
         val dummyPrompt = mockk<Prompt>()
 
         beforeEach {
-            clearMocks(scrapper, chatGpt, publisher, stockBriefingPostStateService)
+            clearMocks(scrapper, chatGpt, publisher, stockBriefingPostStateService, genService)
             every { scrapper.fetchStockBriefingLatestPostId(any()) } returns fetchedPostId
             every { stockBriefingPostStateService.saveLastProcessedPostId(any()) } just Runs
+            every { genService.saveWithNewTx(any()) } answers { firstArg() }
         }
 
         Given("목록 API에서 postId를 가져올 수 없는 경우") {
@@ -98,6 +108,22 @@ class StockBriefingSchedulingUseCaseTest :
                                     it.contents[0].headline == "코스피 2% 급등" &&
                                     it.contents[1].headline == "나스닥 사상 최고치 경신" &&
                                     it.headlines == listOf("코스피 2% 급등", "나스닥 사상 최고치 경신")
+                            },
+                        )
+                    }
+                }
+
+                Then("처리된 컨텐츠마다 STOCK_BRIEFING 타입의 Gen이 저장된다") {
+                    useCase.execute()
+
+                    verify(exactly = 2) {
+                        genService.saveWithNewTx(
+                            match<Gen> {
+                                it.contentsType == ContentsType.STOCK_BRIEFING &&
+                                    it.category == Category.ECONOMY.code &&
+                                    it.mediaType == MediaType.NAVER_STOCK.code &&
+                                    it.url == null &&
+                                    it.region == null
                             },
                         )
                     }
