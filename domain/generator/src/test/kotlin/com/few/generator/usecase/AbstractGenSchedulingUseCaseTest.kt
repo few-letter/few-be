@@ -43,7 +43,7 @@ class AbstractGenSchedulingUseCaseTest :
             override val eventTitle: String = "[국내] 뉴스 스케줄링"
 
             // Override executeAsync to remove sleep for testing
-            public override fun executeAsync() {
+            public override fun executeAsync(useSkillsYn: Boolean) {
                 // Skip the delay for testing
                 if (!isRunning.compareAndSet(false, true)) {
                     throw BadRequestException("$schedulingName is already running. Please try again later.")
@@ -51,10 +51,14 @@ class AbstractGenSchedulingUseCaseTest :
 
                 try {
                     // Call the private doExecute method using reflection
-                    val doExecuteMethod = AbstractGenSchedulingUseCase::class.java.getDeclaredMethod("doExecute")
+                    val doExecuteMethod =
+                        AbstractGenSchedulingUseCase::class.java.getDeclaredMethod(
+                            "doExecute",
+                            Boolean::class.javaPrimitiveType,
+                        )
                     doExecuteMethod.isAccessible = true
                     try {
-                        doExecuteMethod.invoke(this)
+                        doExecuteMethod.invoke(this, useSkillsYn)
                     } catch (e: java.lang.reflect.InvocationTargetException) {
                         // Unwrap the original exception
                         throw e.targetException
