@@ -7,7 +7,6 @@ import com.few.generator.usecase.RefreshInstagramTokenUseCase
 import com.few.generator.usecase.SendCacheMetricsSchedulingUseCase
 import com.few.generator.usecase.SendNewsletterSchedulingUseCase
 import com.few.generator.usecase.StockBriefingSchedulingUseCase
-import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
@@ -21,11 +20,10 @@ class SchedulingController(
     private val stockBriefingSchedulingUseCase: StockBriefingSchedulingUseCase,
     private val popularNasdaqStockScrapingSchedulingUseCase: PopularNasdaqStockScrapingSchedulingUseCase,
 ) {
-    private val log = KotlinLogging.logger {}
-
+    // ===== Contents Publishing Scheduling Area Start =====
     @Scheduled(cron = "\${scheduling.cron.local-gen}", zone = "Asia/Seoul")
     fun createLocalNewsContents() {
-        localGenSchedulingUseCase.executeAsync()
+        localGenSchedulingUseCase.executeAsync(true)
     }
 
     @Scheduled(cron = "\${scheduling.cron.global-gen}", zone = "Asia/Seoul")
@@ -33,6 +31,18 @@ class SchedulingController(
         globalGenSchedulingUseCase.executeAsync()
     }
 
+    @Scheduled(cron = "\${scheduling.cron.stock-briefing}", zone = "Asia/Seoul")
+    fun crawlStockBriefing() {
+        stockBriefingSchedulingUseCase.executeAsync()
+    }
+
+    @Scheduled(cron = "\${scheduling.cron.popular-nasdaq-stock-news}", zone = "Asia/Seoul")
+    fun scrapeTimeEtf() {
+        popularNasdaqStockScrapingSchedulingUseCase.executeAsync()
+    }
+    // ===== Contents Publishing Scheduling Area End =====
+
+    // ===== Extra Scheduling Area Start =====
     @Scheduled(cron = "\${scheduling.cron.cache-metrics}", zone = "Asia/Seoul")
     fun sendCacheMetrics() {
         sendCacheMetricsSchedulingUseCase.sendCacheMetrics()
@@ -47,14 +57,5 @@ class SchedulingController(
     fun refreshInstagramToken() {
         refreshInstagramTokenUseCase.execute()
     }
-
-    @Scheduled(cron = "\${scheduling.cron.stock-briefing}", zone = "Asia/Seoul")
-    fun crawlStockBriefing() {
-        stockBriefingSchedulingUseCase.executeAsync()
-    }
-
-    @Scheduled(cron = "\${scheduling.cron.popular-nasdaq-stock-news}", zone = "Asia/Seoul")
-    fun scrapeTimeEtf() {
-        popularNasdaqStockScrapingSchedulingUseCase.executeAsync()
-    }
+    // ===== Extra Scheduling Area End =====
 }
