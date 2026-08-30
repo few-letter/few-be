@@ -1,11 +1,13 @@
 package com.few.generator.usecase
 
 import com.few.common.domain.Category
+import com.few.common.domain.ContentsType
 import com.few.common.domain.Region
 import com.few.common.exception.BadRequestException
 import com.few.generator.core.scrapper.Scrapper
 import com.few.generator.event.ContentsSchedulingEvent
 import com.few.generator.event.GenSchedulingCompletedEvent
+import com.few.generator.event.TriggerContentsPublishSkillsEvent
 import com.few.generator.service.ContentsCommonGenerationService
 import com.few.generator.support.common.ContentsGeneratorDelayHandler
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -33,7 +35,7 @@ abstract class AbstractGenSchedulingUseCase(
     abstract val eventTitle: String
 
     @Async("generatorSchedulingExecutor")
-    open fun executeAsync() {
+    open fun executeAsync(useSkillsYn: Boolean = false) {
         delayHandler.delay()
 
         if (!isRunning.compareAndSet(false, true)) {
@@ -41,13 +43,13 @@ abstract class AbstractGenSchedulingUseCase(
         }
 
         try {
-            doExecute()
+            doExecute(useSkillsYn)
         } finally {
             isRunning.set(false)
         }
     }
 
-    private fun doExecute() {
+    private fun doExecute(useSkillsYn: Boolean = false) {
         val startTime = LocalDateTime.now()
         var isSuccess = true
         var creationTimeSec = 0.0
@@ -90,11 +92,26 @@ abstract class AbstractGenSchedulingUseCase(
             }
 
             // Gen 스케줄링 완료 이벤트 발행 (성공 시에만)
-            applicationEventPublisher.publishEvent(
-                GenSchedulingCompletedEvent(
-                    region = region,
-                ),
-            )
+            if (useSkillsYn) {
+                // 우선은 지역에 따라 LOCAL_NEWS 또는 GLOBAL_NEWS 만 전달
+                val contentsType =
+                    if (region == Region.GLOBAL) ContentsType.GLOBAL_NEWS else ContentsType.LOCAL_NEWS
+
+                applicationEventPublisher.publishEvent(
+                    TriggerContentsPublishSkillsEvent(
+                        title = eventTitle,
+                        startTime = startTime,
+                        region = region,
+                        contentsType = contentsType,
+                    ),
+                )
+            } else {
+                applicationEventPublisher.publishEvent(
+                    GenSchedulingCompletedEvent(
+                        region = region,
+                    ),
+                )
+            }
         }
     }
 

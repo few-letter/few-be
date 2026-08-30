@@ -1,6 +1,7 @@
 package com.few.generator.service.instagram
 
 import com.few.common.domain.Category
+import com.few.common.domain.MediaType
 import com.few.common.domain.Region
 import com.few.generator.core.instagram.MainPageCardGenerator
 import com.few.generator.core.instagram.NewsContent
@@ -45,9 +46,9 @@ class GenCardNewsImageGenerateLocalTest :
                     Gen(
                         id = 100L,
                         url = "https://example.com/article",
-                        mediaType = 1,
-                        category = Category.TECHNOLOGY.code,
-                        region = 0,
+                        mediaType = MediaType.CHOSUN,
+                        category = Category.TECHNOLOGY,
+                        region = Region.LOCAL,
                         headline = "삼성전자, AI 반도체 기술로 글로벌 시장 주도권 확보",
                         summary =
                             "삼성전자가 인공지능(AI) 전용 반도체 개발에 성공하며 차세대 기술 경쟁에서 앞서나가고 있습니다. " +
@@ -57,9 +58,9 @@ class GenCardNewsImageGenerateLocalTest :
                     Gen(
                         id = 101L,
                         url = "https://example.com/article",
-                        mediaType = 1,
-                        category = Category.TECHNOLOGY.code,
-                        region = 0,
+                        mediaType = MediaType.CHOSUN,
+                        category = Category.TECHNOLOGY,
+                        region = Region.LOCAL,
                         headline = "OpenAI, GPT-5 공개 임박…업계 판도 변화 예고",
                         summary =
                             "OpenAI가 차세대 대규모 언어 모델 GPT-5의 공개를 앞두고 있습니다. " +
@@ -69,9 +70,9 @@ class GenCardNewsImageGenerateLocalTest :
                     Gen(
                         id = 102L,
                         url = "https://example.com/article",
-                        mediaType = 1,
-                        category = Category.ECONOMY.code,
-                        region = 0,
+                        mediaType = MediaType.CHOSUN,
+                        category = Category.ECONOMY,
+                        region = Region.LOCAL,
                         headline = "한국은행, 기준금리 동결…물가 안정 우선",
                         summary =
                             "한국은행이 기준금리를 현행 3.0%로 동결했습니다. " +
@@ -81,9 +82,9 @@ class GenCardNewsImageGenerateLocalTest :
                     Gen(
                         id = 103L,
                         url = "https://example.com/article",
-                        mediaType = 1,
-                        category = Category.ECONOMY.code,
-                        region = 0,
+                        mediaType = MediaType.CHOSUN,
+                        category = Category.ECONOMY,
+                        region = Region.LOCAL,
                         headline = "코스피 3000 돌파…반도체·바이오 주도",
                         summary =
                             "코스피 지수가 3000선을 돌파하며 사상 최고치를 경신했습니다. " +
@@ -93,9 +94,9 @@ class GenCardNewsImageGenerateLocalTest :
                     Gen(
                         id = 104L,
                         url = "https://example.com/article",
-                        mediaType = 1,
-                        category = Category.POLITICS.code,
-                        region = 0,
+                        mediaType = MediaType.CHOSUN,
+                        category = Category.POLITICS,
+                        region = Region.LOCAL,
                         headline = "여야, 민생법안 처리 합의…국회 정상화",
                         summary =
                             "여야가 민생 관련 주요 법안 처리에 합의하며 국회가 정상화되었습니다. " +
@@ -149,9 +150,9 @@ class GenCardNewsImageGenerateLocalTest :
                     Gen(
                         id = 200L,
                         url = "https://example.com/article",
-                        mediaType = 1,
-                        category = Category.ECONOMY.code,
-                        region = Region.GLOBAL.code,
+                        mediaType = MediaType.CHOSUN,
+                        category = Category.ECONOMY,
+                        region = Region.GLOBAL,
                         headline = "사이버 보안 주식 AI 솔루션 전환",
                         summary =
                             "Wolfe Research에 따르면, 특정 사이버 보안 주식이 AI 기반 솔루션으로의 전환으로 혜택을 받을 가능성이 높습니다. " +
@@ -196,9 +197,9 @@ class GenCardNewsImageGenerateLocalTest :
                     Gen(
                         id = 201L,
                         url = "https://example.com/article",
-                        mediaType = 1,
-                        category = Category.ECONOMY.code,
-                        region = Region.GLOBAL.code,
+                        mediaType = MediaType.CHOSUN,
+                        category = Category.ECONOMY,
+                        region = Region.GLOBAL,
                         headline = "S&P 500 추가 하락 가능성",
                         summary =
                             "S&P 500 지수는 추가 하락 가능성이 제기되고 있습니다. 최근 시장 분석에 따르면, 옵션 거래를 통한 추가 조정이 예상되며, " +
@@ -243,9 +244,9 @@ class GenCardNewsImageGenerateLocalTest :
                     Gen(
                         id = 202L,
                         url = "https://example.com/article",
-                        mediaType = 1,
-                        category = Category.TECHNOLOGY.code,
-                        region = Region.GLOBAL.code,
+                        mediaType = MediaType.CHOSUN,
+                        category = Category.TECHNOLOGY,
+                        region = Region.GLOBAL,
                         headline = "AI 반도체 시장 패권 경쟁 심화",
                         summary =
                             "엔비디아와 AMD가 차세대 AI 가속기 시장에서 치열한 경쟁을 벌이고 있습니다. " +

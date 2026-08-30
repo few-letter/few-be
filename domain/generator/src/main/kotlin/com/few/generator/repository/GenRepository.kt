@@ -17,9 +17,6 @@ interface GenRepository : JpaRepository<Gen, Long> {
 
     fun findByIdInOrderByIdAsc(ids: Iterable<Long>): List<Gen>
 
-    @CacheEvict(value = [CacheNames.GEN_CACHE], allEntries = true)
-    override fun <S : Gen> saveAll(entities: Iterable<S>): List<S>
-
     @CacheEvict(value = [CacheNames.GEN_CACHE], allEntries = true) // TODO: cache evict 반복호출 문제해결
     override fun <S : Gen> save(entity: S): S
 
@@ -98,6 +95,20 @@ interface GenRepository : JpaRepository<Gen, Long> {
         startTime: LocalDateTime,
         endTime: LocalDateTime,
         region: Int,
+    ): List<Gen>
+
+    @Query(
+        """
+        SELECT g.* FROM gen g
+        WHERE g.created_at BETWEEN :startTime AND :endTime
+        AND (g.published_via_skills_yn IS NULL OR g.published_via_skills_yn <> 'Y')
+        ORDER BY g.created_at DESC
+        """,
+        nativeQuery = true,
+    )
+    fun findAllByCreatedAtBetweenAndNotPublishedViaSkills(
+        @Param("startTime") startTime: LocalDateTime,
+        @Param("endTime") endTime: LocalDateTime,
     ): List<Gen>
 
     fun findByUrl(url: String): Gen?

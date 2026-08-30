@@ -1,6 +1,7 @@
 package com.few.generator.usecase
 
 import com.few.common.domain.Category
+import com.few.common.domain.MediaType
 import com.few.common.domain.Region
 import com.few.common.exception.BadRequestException
 import com.few.generator.config.properties.GroupingProperties
@@ -90,9 +91,9 @@ class AbstractGroupGenSchedulingUseCaseTest :
                     id = id,
                     url = "https://example.com/article-$id",
                     thumbnailImageUrl = null,
-                    mediaType = 1,
-                    category = Category.TECHNOLOGY.code,
-                    region = Region.GLOBAL.code,
+                    mediaType = MediaType.CHOSUN,
+                    category = Category.TECHNOLOGY,
+                    region = Region.GLOBAL,
                     headline = "Headline $id",
                     summary = "Summary $id",
                     highlightTexts = """["highlight"]""",

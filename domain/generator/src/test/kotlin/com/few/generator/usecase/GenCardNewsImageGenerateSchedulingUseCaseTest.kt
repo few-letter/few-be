@@ -1,6 +1,7 @@
 package com.few.generator.usecase
 
 import com.few.common.domain.Category
+import com.few.common.domain.MediaType
 import com.few.common.domain.Region
 import com.few.generator.core.instagram.MainPageCardGenerator
 import com.few.generator.core.instagram.NewsContent
@@ -45,9 +46,9 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     Gen(
                         id = 1L,
                         url = "https://example.com/article",
-                        mediaType = 1,
-                        category = Category.TECHNOLOGY.code,
-                        region = 0,
+                        mediaType = MediaType.CHOSUN,
+                        category = Category.TECHNOLOGY,
+                        region = Region.LOCAL,
                         headline = "AI 기술의 미래",
                         summary = "인공지능 기술이 빠르게 발전하고 있습니다.",
                         highlightTexts = """["인공지능", "기술"]""",
@@ -57,9 +58,9 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     Gen(
                         id = 2L,
                         url = "https://example.com/article",
-                        mediaType = 1,
-                        category = Category.ECONOMY.code,
-                        region = 0,
+                        mediaType = MediaType.CHOSUN,
+                        category = Category.ECONOMY,
+                        region = Region.LOCAL,
                         headline = "경제 뉴스",
                         summary = "경제 동향을 알려드립니다.",
                         highlightTexts = """["경제"]""",
@@ -69,9 +70,9 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     Gen(
                         id = 3L,
                         url = "https://example.com/article",
-                        mediaType = 1,
-                        category = Category.POLITICS.code,
-                        region = 0,
+                        mediaType = MediaType.CHOSUN,
+                        category = Category.POLITICS,
+                        region = Region.LOCAL,
                         headline = "정치 뉴스",
                         summary = "정치 동향을 알려드립니다.",
                         highlightTexts = """["정치"]""",
@@ -166,9 +167,9 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     Gen(
                         id = 1L,
                         url = "https://example.com/article",
-                        mediaType = 1,
-                        category = Category.TECHNOLOGY.code,
-                        region = 0,
+                        mediaType = MediaType.CHOSUN,
+                        category = Category.TECHNOLOGY,
+                        region = Region.LOCAL,
                         headline = "성공 케이스",
                         summary = "성공할 이미지",
                         highlightTexts = """[]""",
@@ -178,9 +179,9 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     Gen(
                         id = 2L,
                         url = "https://example.com/article",
-                        mediaType = 1,
-                        category = Category.ECONOMY.code,
-                        region = 0,
+                        mediaType = MediaType.CHOSUN,
+                        category = Category.ECONOMY,
+                        region = Region.LOCAL,
                         headline = "실패 케이스",
                         summary = "실패할 이미지",
                         highlightTexts = """[]""",
@@ -245,9 +246,9 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                 Gen(
                     id = 1L,
                     url = "https://example.com/article",
-                    mediaType = 1,
-                    category = Category.POLITICS.code,
-                    region = 0,
+                    mediaType = MediaType.CHOSUN,
+                    category = Category.POLITICS,
+                    region = Region.LOCAL,
                     headline = "정치 뉴스",
                     summary = "정치 동향을 알려드립니다.",
                     highlightTexts = """invalid json""",
@@ -297,9 +298,9 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     Gen(
                         id = 1L,
                         url = "https://example.com/article",
-                        mediaType = 1,
-                        category = Category.TECHNOLOGY.code,
-                        region = 0,
+                        mediaType = MediaType.CHOSUN,
+                        category = Category.TECHNOLOGY,
+                        region = Region.LOCAL,
                         headline = "기술",
                         summary = "테스트",
                         highlightTexts = """[]""",
@@ -307,9 +308,9 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     Gen(
                         id = 2L,
                         url = "https://example.com/article",
-                        mediaType = 1,
-                        category = Category.ECONOMY.code,
-                        region = 0,
+                        mediaType = MediaType.CHOSUN,
+                        category = Category.ECONOMY,
+                        region = Region.LOCAL,
                         headline = "경제",
                         summary = "테스트",
                         highlightTexts = """[]""",
@@ -317,9 +318,9 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                     Gen(
                         id = 3L,
                         url = "https://example.com/article",
-                        mediaType = 1,
-                        category = Category.SOCIETY.code,
-                        region = 0,
+                        mediaType = MediaType.CHOSUN,
+                        category = Category.SOCIETY,
+                        region = Region.LOCAL,
                         headline = "사회",
                         summary = "테스트",
                         highlightTexts = """[]""",
@@ -370,9 +371,9 @@ class GenCardNewsImageGenerateSchedulingUseCaseTest :
                 Gen(
                     id = 1L,
                     url = "https://example.com/article",
-                    mediaType = 1,
-                    category = Category.LIFE.code,
-                    region = 0,
+                    mediaType = MediaType.CHOSUN,
+                    category = Category.LIFE,
+                    region = Region.LOCAL,
                     headline = "생활 뉴스",
                     summary = "생활 정보를 알려드립니다.",
                     highlightTexts = """[]""",

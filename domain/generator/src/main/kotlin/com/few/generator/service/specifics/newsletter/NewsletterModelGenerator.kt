@@ -29,7 +29,7 @@ class NewsletterModelGenerator(
                     id = gen.id!!,
                     headline = gen.headline,
                     summary = gen.summary,
-                    category = gen.category,
+                    category = gen.category.code,
                     url = rawContentsUrlsByGens[gen.id!!]!!,
                     mediaTypeName = rawContentsMediaTypeNameByGens[gen.id!!]!!,
                 )

@@ -8,6 +8,8 @@ enum class ContentsType(
 ) {
     LOCAL_NEWS(0, "local-news"),
     GLOBAL_NEWS(1, "global-news"),
+    STOCK_BRIEFING(2, "stock-briefing"),
+    POPULAR_NASDAQ_STOCK_NEWS(3, "popular-nasdaq-stock-news"),
 
     ;
 

@@ -1,5 +1,9 @@
 package com.few.generator.usecase
 
+import com.few.common.domain.Category
+import com.few.common.domain.ContentsType
+import com.few.common.domain.MediaType
+import com.few.generator.config.GeneratorGsonConfig.Companion.GSON_BEAN_NAME
 import com.few.generator.core.gpt.ChatGpt
 import com.few.generator.core.gpt.prompt.PromptGenerator
 import com.few.generator.core.gpt.prompt.schema.Headline
@@ -7,10 +11,15 @@ import com.few.generator.core.gpt.prompt.schema.HighlightTexts
 import com.few.generator.core.gpt.prompt.schema.Summary
 import com.few.generator.core.instagram.StockBriefingContent
 import com.few.generator.core.scrapper.Scrapper
+import com.few.generator.core.scrapper.naver.StockBriefingRawContent
+import com.few.generator.domain.Gen
 import com.few.generator.event.StockBriefingContentProcessedEvent
 import com.few.generator.event.StockBriefingInstagramUploadCompletedEvent
+import com.few.generator.service.GenService
 import com.few.generator.service.StockBriefingPostStateService
+import com.google.gson.Gson
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
@@ -27,6 +36,9 @@ class StockBriefingSchedulingUseCase(
     private val promptGenerator: PromptGenerator,
     private val applicationEventPublisher: ApplicationEventPublisher,
     private val stockBriefingPostStateService: StockBriefingPostStateService,
+    private val genService: GenService,
+    @Qualifier(GSON_BEAN_NAME)
+    private val gson: Gson,
 ) {
     private val log = KotlinLogging.logger {}
     private val isRunning = AtomicBoolean(false)
@@ -58,7 +70,7 @@ class StockBriefingSchedulingUseCase(
                 ?: throw RuntimeException("증시 브리핑 최신 포스트 ID를 가져오지 못했습니다. (date=$today)")
         log.info { "증시 브리핑 최신 포스트 확인 (postId=$nextPostId)" }
 
-        val rawContents =
+        val stockBriefingRawContents: List<StockBriefingRawContent> =
             try {
                 scrapper.scrapeStockBriefingPost(nextPostId)
             } catch (e: Exception) {
@@ -67,7 +79,7 @@ class StockBriefingSchedulingUseCase(
                 return
             }
 
-        if (rawContents.isEmpty()) {
+        if (stockBriefingRawContents.isEmpty()) {
             log.warn { "증시 브리핑 크롤링 결과 없음 (postId=$nextPostId), 포스트Id 업데이트 후 종료" }
             stockBriefingPostStateService.saveLastProcessedPostId(nextPostId)
             return
@@ -76,7 +88,7 @@ class StockBriefingSchedulingUseCase(
         val processedContents = mutableListOf<StockBriefingContent>()
         var gptFailureCount = 0
 
-        rawContents.forEach { raw ->
+        stockBriefingRawContents.forEach { raw ->
             try {
                 val headline =
                     (chatGpt.ask(promptGenerator.toStockBriefingHeadline(raw.title, raw.body)) as? Headline)?.headline
@@ -97,15 +109,33 @@ class StockBriefingSchedulingUseCase(
 
                 processedContents.add(StockBriefingContent(headline, summary, highlights))
                 log.info { "GPT 처리 완료: ${raw.title} → $headline" }
+
+                try {
+                    genService.saveWithNewTx(
+                        Gen(
+                            url = null,
+                            thumbnailImageUrl = null,
+                            mediaType = MediaType.NAVER_STOCK,
+                            headline = headline,
+                            summary = summary,
+                            highlightTexts = gson.toJson(highlights),
+                            category = Category.ECONOMY,
+                            contentsType = ContentsType.STOCK_BRIEFING,
+                        ),
+                    )
+                    log.info { "증시 브리핑 Gen 저장 완료: $headline" }
+                } catch (e: Exception) {
+                    log.error(e) { "증시 브리핑 Gen 저장 실패하여 skip 처리 : ${raw.title}" }
+                }
             } catch (e: Exception) {
                 log.error(e) { "GPT 처리 실패하여 skip 처리 : ${raw.title}" }
                 gptFailureCount++
             }
         }
 
-        if (gptFailureCount == rawContents.size) {
+        if (gptFailureCount == stockBriefingRawContents.size) {
             log.error { "증시 브리핑 GPT 처리 전체 실패 (postId=$nextPostId)" }
-            publishFailure(nextPostId, "GPT 처리", "모든 컨텐츠($gptFailureCount/${rawContents.size}개) GPT 처리 실패")
+            publishFailure(nextPostId, "GPT 처리", "모든 컨텐츠($gptFailureCount/${stockBriefingRawContents.size}개) GPT 처리 실패")
             return
         }
 
