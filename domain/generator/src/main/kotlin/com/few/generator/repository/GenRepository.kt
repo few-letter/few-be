@@ -97,5 +97,19 @@ interface GenRepository : JpaRepository<Gen, Long> {
         region: Int,
     ): List<Gen>
 
+    @Query(
+        """
+        SELECT g.* FROM gen g
+        WHERE g.created_at BETWEEN :startTime AND :endTime
+        AND (g.published_via_skills_yn IS NULL OR g.published_via_skills_yn <> 'Y')
+        ORDER BY g.created_at DESC
+        """,
+        nativeQuery = true,
+    )
+    fun findAllByCreatedAtBetweenAndNotPublishedViaSkills(
+        @Param("startTime") startTime: LocalDateTime,
+        @Param("endTime") endTime: LocalDateTime,
+    ): List<Gen>
+
     fun findByUrl(url: String): Gen?
 }

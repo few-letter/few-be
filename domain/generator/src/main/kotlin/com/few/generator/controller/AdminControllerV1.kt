@@ -3,6 +3,8 @@ package com.few.generator.controller
 import com.few.common.domain.ContentsType
 import com.few.common.exception.BadRequestException
 import com.few.generator.controller.request.ContentsSchedulingRequest
+import com.few.generator.controller.response.CheckPublishableContentResponse
+import com.few.generator.usecase.CheckPublishableContentUseCase
 import com.few.generator.usecase.GenCardNewsImageGenerateSchedulingUseCase
 import com.few.generator.usecase.GlobalGenSchedulingUseCase
 import com.few.generator.usecase.GlobalGroupGenSchedulingUseCase
@@ -14,6 +16,7 @@ import com.few.generator.usecase.StockBriefingSchedulingUseCase
 import com.few.web.ApiResponse
 import com.few.web.ApiResponseGenerator
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 
@@ -29,7 +32,25 @@ class AdminControllerV1(
     private val genCardNewsImageGenerateSchedulingUseCase: GenCardNewsImageGenerateSchedulingUseCase,
     private val stockBriefingSchedulingUseCase: StockBriefingSchedulingUseCase,
     private val popularNasdaqStockScrapingSchedulingUseCase: PopularNasdaqStockScrapingSchedulingUseCase,
+    private val checkPublishableContentUseCase: CheckPublishableContentUseCase,
 ) {
+    @GetMapping(
+        value = ["/contents/exists"],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
+    fun checkPublishableContent(): ApiResponse<ApiResponse.SuccessBody<CheckPublishableContentResponse>> {
+        val out = checkPublishableContentUseCase.execute()
+
+        val response =
+            CheckPublishableContentResponse(
+                hasPublishableContent = out.hasPublishableContent,
+                count = out.count,
+                contentsType = out.contentsTypes?.map { it.title },
+            )
+
+        return ApiResponseGenerator.success(response, HttpStatus.OK)
+    }
+
     @PostMapping(
         value = ["/contents/schedule"],
     )
