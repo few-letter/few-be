@@ -208,6 +208,21 @@ class TriggerContentsPublishSkillsUseCaseTest :
                 }
             }
 
+            Given("executeAsync(관리자 트리거)로 호출할 때") {
+                val marker = File(scriptsDir, "marker-async.txt").also { it.delete() }
+                writeScript("publish-common-news.sh", "touch '${marker.absolutePath}'")
+
+                When("executeAsync(LOCAL_NEWS) 를 호출하면") {
+                    newUseCase().executeAsync(ContentsType.LOCAL_NEWS)
+
+                    Then("스크립트가 실행되고 실패해도 예외를 전파하지 않는다") {
+                        marker.exists() shouldBe true
+                        writeScript("publish-common-news.sh", "exit 1")
+                        newUseCase().executeAsync(ContentsType.LOCAL_NEWS)
+                    }
+                }
+            }
+
             Given("UseCase 코드가 참조하는 실제 .claude/scripts/publish-common-news.sh 파일") {
                 var repoRoot: File? = File(System.getProperty("user.dir")).absoluteFile
                 while (repoRoot != null && !File(repoRoot, ".claude/scripts/publish-common-news.sh").isFile) {
