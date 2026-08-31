@@ -1,7 +1,7 @@
 #!/bin/zsh
 
 # Configuration
-readonly API_URL="http://localhost:8080/api/v1/contents/exists"
+readonly API_URL="http://localhost:8080/api/v1/contents/exists/publishable"
 readonly LOG_FILE="$HOME/logs/single-contents-publish.log"
 
 # 로그 디렉토리 보장 + 모든 로그는 LOG_FILE 로만, 항상 현재 시간 prefix
@@ -23,6 +23,7 @@ fi
 
 # 2. JSON Parsing
 has_content=$(echo "${response}" | jq -r '.hasPublishableContent // false')
+log "[INFO] hasPublishableContent=${has_content}"
 
 # 3. Guard Clause: false인 경우 바로 종료 (들여쓰기 방지)
 if [[ "${has_content}" != "true" ]]; then
