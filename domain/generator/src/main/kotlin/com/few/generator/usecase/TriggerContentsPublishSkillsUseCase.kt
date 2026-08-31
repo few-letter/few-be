@@ -62,8 +62,12 @@ class TriggerContentsPublishSkillsUseCase(
         }
 
         val logTag = scriptFile.nameWithoutExtension
+        val contentsTypeCode = contentsType.code.toString()
 
-        log.info { "zsh 기반 발행 스크립트 실행 시작: ${scriptFile.absolutePath} (contentsType=${contentsType.title})" }
+        log.info {
+            "zsh 기반 발행 스크립트 실행 시작: ${scriptFile.absolutePath} " +
+                "(contentsType=${contentsType.title}, contentsTypeCode=$contentsTypeCode)"
+        }
 
         val output = StringBuilder()
         var exitCode = -1
@@ -71,7 +75,7 @@ class TriggerContentsPublishSkillsUseCase(
         val executionTimeSec =
             measureTimeMillis {
                 val process =
-                    ProcessBuilder("/bin/zsh", scriptFile.absolutePath)
+                    ProcessBuilder("/bin/zsh", scriptFile.absolutePath, contentsTypeCode)
                         .redirectErrorStream(true)
                         .start()
 

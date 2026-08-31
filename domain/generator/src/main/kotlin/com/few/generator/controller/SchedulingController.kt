@@ -28,7 +28,7 @@ class SchedulingController(
 
     @Scheduled(cron = "\${scheduling.cron.global-gen}", zone = "Asia/Seoul")
     fun createGlobalNewsContents() {
-        globalGenSchedulingUseCase.executeAsync()
+        globalGenSchedulingUseCase.executeAsync(true)
     }
 
     @Scheduled(cron = "\${scheduling.cron.stock-briefing}", zone = "Asia/Seoul")
