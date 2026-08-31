@@ -102,6 +102,7 @@ interface GenRepository : JpaRepository<Gen, Long> {
         SELECT g.* FROM gen g
         WHERE g.created_at BETWEEN :startTime AND :endTime
         AND (g.published_via_skills_yn IS NULL OR g.published_via_skills_yn <> 'Y')
+        AND g.contents_type IN (:contentsTypeCodes)
         ORDER BY g.created_at DESC
         """,
         nativeQuery = true,
@@ -109,6 +110,7 @@ interface GenRepository : JpaRepository<Gen, Long> {
     fun findAllByCreatedAtBetweenAndNotPublishedViaSkills(
         @Param("startTime") startTime: LocalDateTime,
         @Param("endTime") endTime: LocalDateTime,
+        @Param("contentsTypeCodes") contentsTypeCodes: List<Int>,
     ): List<Gen>
 
     fun findByUrl(url: String): Gen?

@@ -35,11 +35,16 @@ class AdminControllerV1(
     private val checkPublishableContentUseCase: CheckPublishableContentUseCase,
 ) {
     @GetMapping(
-        value = ["/contents/exists"],
+        value = ["/contents/exists/publishable"],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
-    fun checkPublishableContent(): ApiResponse<ApiResponse.SuccessBody<CheckPublishableContentResponse>> {
-        val out = checkPublishableContentUseCase.execute()
+    fun checkPublishableContent(
+        @RequestParam(value = "contentsType", required = false) contentsType: Int?,
+    ): ApiResponse<ApiResponse.SuccessBody<CheckPublishableContentResponse>> {
+        // contentsType(ContentsType code) 미전달 시 전체 ContentsType 으로 간주 (null 전달)
+        val targetContentsType = contentsType?.let { ContentsType.fromCode(it) }
+
+        val out = checkPublishableContentUseCase.execute(targetContentsType)
 
         val response =
             CheckPublishableContentResponse(
