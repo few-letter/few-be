@@ -133,6 +133,35 @@ class TriggerContentsPublishSkillsUseCaseTest :
                 }
             }
 
+            Given("발행 스크립트에 contentsType.code 를 인자로 전달할 때") {
+                val argFile = File(scriptsDir, "captured-arg.txt").also { it.delete() }
+                writeScript(
+                    "publish-common-news.sh",
+                    """
+                    printf '%s' "${'$'}1" > '${argFile.absolutePath}'
+                    exit 0
+                    """.trimIndent(),
+                )
+
+                When("execute(LOCAL_NEWS) 를 호출하면") {
+                    argFile.delete()
+                    newUseCase().execute(ContentsType.LOCAL_NEWS)
+
+                    Then("스크립트의 첫 번째 인자로 '0' 이 전달된다") {
+                        argFile.readText() shouldBe "0"
+                    }
+                }
+
+                When("execute(GLOBAL_NEWS) 를 호출하면") {
+                    argFile.delete()
+                    newUseCase().execute(ContentsType.GLOBAL_NEWS)
+
+                    Then("스크립트의 첫 번째 인자로 '1' 이 전달된다") {
+                        argFile.readText() shouldBe "1"
+                    }
+                }
+            }
+
             Given("contentsType 별로 서로 다른 스크립트 파일명이 매핑될 때") {
                 val markers =
                     mapOf(

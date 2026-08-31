@@ -4,6 +4,10 @@
 readonly API_URL="http://localhost:8080/api/v1/contents/exists/publishable"
 readonly LOG_FILE="$HOME/logs/single-contents-publish.log"
 
+# 발행 대상 contents_type. 호출 측(TriggerContentsPublishSkillsUseCase)에서 첫 번째 인자로 전달한다.
+# 미전달 시 기본값 0(local-news).
+readonly CONTENTS_TYPE="${1:-0}"
+
 # 로그 디렉토리 보장 + 모든 로그는 LOG_FILE 로만, 항상 현재 시간 prefix
 mkdir -p "$(dirname "${LOG_FILE}")"
 
@@ -26,7 +30,22 @@ fi
 # env 파일에 export 가 없어도 자식 프로세스(claude)가 상속받도록 명시적으로 export
 export CLAUDE_CODE_OAUTH_TOKEN
 
-log "[INFO] Checking for publishable content..."
+# 이 스크립트는 JVM(ProcessBuilder)/cron 등 비대화형 셸에서 실행되므로 ~/.zshrc 가 로드되지 않는다.
+# 그 결과 nvm 이 설정하는 node/npx PATH 가 없어 npx 기반 stdio MCP 서버
+# (mysql, gemini-image)가 spawn 되지 못하고 "not connected" 에러가 발생한다.
+# 여기서 node bin 디렉토리와 homebrew bin 을 PATH 앞에 명시적으로 추가한다.
+if [ -d "$HOME/.nvm/versions/node" ]; then
+  node_bin=$(/bin/ls -d "$HOME"/.nvm/versions/node/*/bin 2>/dev/null | sort -V | tail -1)
+  [ -n "$node_bin" ] && export PATH="$node_bin:$PATH"
+fi
+[ -d /opt/homebrew/bin ] && export PATH="/opt/homebrew/bin:$PATH"
+
+if ! command -v npx >/dev/null 2>&1; then
+  log "[ERROR] npx 를 PATH 에서 찾을 수 없습니다. npx 기반 MCP 서버(mysql)가 연결되지 않습니다. PATH=$PATH"
+  exit 1
+fi
+
+log "[INFO] Checking for publishable content... (contents_type=${CONTENTS_TYPE})"
 
 # 1. Local API Call
 response=$(curl -s -X GET "${API_URL}" -H "Accept: application/json")
@@ -60,7 +79,8 @@ cd "$HOME" || {
 다음 Skills를 적극 참고하세요: single-contents-publish skill
 
 <Skills 필수 참고사항>
-- 발행할 컨텐츠는 mysql MCP 사용해서 gen 테이블에서 조회할 것. 조회시 contents_type이 0인 것으로 조회해야 하며, 어제부터 생성된 데이터들 중 published_via_skills_yn != 'Y'인 것을 대상으로해야 함." \
+- 발행할 컨텐츠를 mysql에서 조회시 추가 조건: contents_type이 ${CONTENTS_TYPE}인 것으로 조회해야 함
+- 해당 contents_type은 skill 명세 파일의 '{프롬프트에서 제안한 값}' 부분에 추가 쿼리 조건으로 들어가야 함" \
   --dangerously-skip-permissions < /dev/null 2>&1 \
   | while IFS= read -r line; do
       echo "[$(date '+%Y-%m-%d %H:%M:%S')] ${line}"
