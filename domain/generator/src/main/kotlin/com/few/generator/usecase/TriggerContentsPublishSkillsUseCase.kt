@@ -30,13 +30,24 @@ class TriggerContentsPublishSkillsUseCase(
                 "(title=${event.title}, contentsType=${event.contentsType.title}, startTime=${event.startTime})"
         }
 
+        runPublish(event.contentsType)
+    }
+
+    @Async("generatorSchedulingExecutor")
+    fun executeAsync(contentsType: ContentsType) {
+        log.info { "관리자 요청으로 콘텐츠 발행 Skills 트리거 (contentsType=${contentsType.title})" }
+
+        runPublish(contentsType)
+    }
+
+    private fun runPublish(contentsType: ContentsType) {
         if (!isRunning.compareAndSet(false, true)) {
             log.warn { "콘텐츠 발행 Skills 스크립트가 이미 실행 중입니다." }
             return
         }
 
         try {
-            execute(event.contentsType)
+            execute(contentsType)
         } catch (e: Exception) {
             log.error(e) { "콘텐츠 발행 Skills 스크립트 실행 실패: ${e.message}" }
         } finally {
