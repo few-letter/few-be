@@ -13,6 +13,7 @@ import com.few.generator.usecase.LocalGroupGenSchedulingUseCase
 import com.few.generator.usecase.PopularNasdaqStockScrapingSchedulingUseCase
 import com.few.generator.usecase.SendNewsletterSchedulingUseCase
 import com.few.generator.usecase.StockBriefingSchedulingUseCase
+import com.few.generator.usecase.TriggerContentsPublishSkillsUseCase
 import com.few.web.ApiResponse
 import com.few.web.ApiResponseGenerator
 import org.springframework.http.HttpStatus
@@ -33,13 +34,32 @@ class AdminControllerV1(
     private val stockBriefingSchedulingUseCase: StockBriefingSchedulingUseCase,
     private val popularNasdaqStockScrapingSchedulingUseCase: PopularNasdaqStockScrapingSchedulingUseCase,
     private val checkPublishableContentUseCase: CheckPublishableContentUseCase,
+    private val triggerContentsPublishSkillsUseCase: TriggerContentsPublishSkillsUseCase,
 ) {
+    @PostMapping(
+        value = ["/contents/skills/publish"],
+    )
+    fun triggerContentsPublishSkills(
+        @RequestParam(value = "contentsType") contentsType: Int,
+    ): ApiResponse<ApiResponse.Success> {
+        triggerContentsPublishSkillsUseCase.executeAsync(ContentsType.fromCode(contentsType))
+
+        return ApiResponseGenerator.success(
+            HttpStatus.OK,
+        )
+    }
+
     @GetMapping(
-        value = ["/contents/exists"],
+        value = ["/contents/exists/publishable"],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
-    fun checkPublishableContent(): ApiResponse<ApiResponse.SuccessBody<CheckPublishableContentResponse>> {
-        val out = checkPublishableContentUseCase.execute()
+    fun checkPublishableContent(
+        @RequestParam(value = "contentsType", required = false) contentsType: Int?,
+    ): ApiResponse<ApiResponse.SuccessBody<CheckPublishableContentResponse>> {
+        // contentsType(ContentsType code) 미전달 시 전체 ContentsType 으로 간주 (null 전달)
+        val targetContentsType = contentsType?.let { ContentsType.fromCode(it) }
+
+        val out = checkPublishableContentUseCase.execute(targetContentsType)
 
         val response =
             CheckPublishableContentResponse(
