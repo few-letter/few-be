@@ -17,6 +17,7 @@ class NaverStockBriefingScrapper(
         private const val BASE_URL = "https://m.stock.naver.com/briefing/market/posts"
         private const val LISTING_API_URL = "https://m.stock.naver.com/front-api/market/briefing/list"
         private const val CONTENT_SELECTOR = "#content > div > article > div.ContentText_area-content__JVudc"
+        private const val PARAGRAPH_SELECTOR = "p.BriefingSection_paragraph__cmBpR"
     }
 
     fun fetchLatestPostId(date: String): Long? =
@@ -82,18 +83,16 @@ class NaverStockBriefingScrapper(
         val currentBody = StringBuilder()
 
         contentArea.children().forEach { element ->
-            when (element.tagName().lowercase()) {
-                "b" -> {
-                    if (currentTitle != null && currentBody.isNotBlank()) {
-                        rawContents.add(StockBriefingRawContent(currentTitle!!, currentBody.toString().trim()))
-                        currentBody.clear()
-                    }
-                    currentTitle = element.text().trim()
-                    currentBody.clear()
+            if (element.tagName().equals("b", ignoreCase = true)) {
+                if (currentTitle != null && currentBody.isNotBlank()) {
+                    rawContents.add(StockBriefingRawContent(currentTitle!!, currentBody.toString().trim()))
                 }
-                "p" -> {
-                    val text = element.text().trim()
-                    if (text.isNotBlank() && currentTitle != null) {
+                currentTitle = element.text().trim()
+                currentBody.clear()
+            } else if (currentTitle != null) {
+                element.select(PARAGRAPH_SELECTOR).forEach { paragraph ->
+                    val text = paragraph.text().trim()
+                    if (text.isNotBlank()) {
                         if (currentBody.isNotEmpty()) currentBody.append(" ")
                         currentBody.append(text)
                     }
