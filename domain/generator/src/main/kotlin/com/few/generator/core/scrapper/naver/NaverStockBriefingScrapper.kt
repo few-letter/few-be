@@ -5,6 +5,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Element
 import org.springframework.stereotype.Component
 
 @Component
@@ -18,6 +19,7 @@ class NaverStockBriefingScrapper(
         private const val LISTING_API_URL = "https://m.stock.naver.com/front-api/market/briefing/list"
         private const val CONTENT_SELECTOR = "#content > div > article > div.ContentText_area-content__JVudc"
         private const val PARAGRAPH_SELECTOR = "p.BriefingSection_paragraph__cmBpR"
+        private const val SOURCE_BADGE_SELECTOR = "button.ContentText_badge__y0sJi"
     }
 
     fun fetchLatestPostId(date: String): Long? =
@@ -70,27 +72,51 @@ class NaverStockBriefingScrapper(
                 response.body?.string() ?: throw RuntimeException("증시 브리핑 응답 본문 없음: $url")
             }
 
-        val document = Jsoup.parse(html)
+        val rawContents = parseContent(html)
+
+        log.info { "증시 브리핑 크롤링 완료 (postId=$postId): ${rawContents.size}개 항목" }
+        return rawContents
+    }
+
+    /**
+     * 증시 브리핑 상세 페이지 HTML에서 `<b>` 제목과
+     * `p.BriefingSection_paragraph__cmBpR` 본문 쌍을 추출한다.
+     */
+    internal fun parseContent(html: String): List<StockBriefingRawContent> {
         val contentArea =
-            document.select(CONTENT_SELECTOR).firstOrNull()
+            Jsoup.parse(html).select(CONTENT_SELECTOR).firstOrNull()
                 ?: run {
-                    log.warn { "증시 브리핑 콘텐츠 영역을 찾을 수 없습니다 (postId=$postId)" }
+                    log.warn { "증시 브리핑 콘텐츠 영역을 찾을 수 없습니다" }
                     return emptyList()
                 }
+        return parseRawContents(contentArea)
+    }
 
+    /**
+     * CONTENT_SELECTOR 하위를 순회하며 `<b>` 제목과 그 뒤에 이어지는
+     * `p.BriefingSection_paragraph__cmBpR` 본문을 한 쌍으로 묶는다.
+     * 본문 안의 출처 뱃지 버튼과 지수/종목 카드 등 다른 요소는 무시한다.
+     */
+    private fun parseRawContents(contentArea: Element): List<StockBriefingRawContent> {
         val rawContents = mutableListOf<StockBriefingRawContent>()
         var currentTitle: String? = null
         val currentBody = StringBuilder()
 
+        fun flush() {
+            val title = currentTitle
+            if (title != null && currentBody.isNotBlank()) {
+                rawContents.add(StockBriefingRawContent(title, currentBody.toString().trim()))
+            }
+        }
+
         contentArea.children().forEach { element ->
             if (element.tagName().equals("b", ignoreCase = true)) {
-                if (currentTitle != null && currentBody.isNotBlank()) {
-                    rawContents.add(StockBriefingRawContent(currentTitle!!, currentBody.toString().trim()))
-                }
+                flush()
                 currentTitle = element.text().trim()
                 currentBody.clear()
             } else if (currentTitle != null) {
                 element.select(PARAGRAPH_SELECTOR).forEach { paragraph ->
+                    paragraph.select(SOURCE_BADGE_SELECTOR).remove()
                     val text = paragraph.text().trim()
                     if (text.isNotBlank()) {
                         if (currentBody.isNotEmpty()) currentBody.append(" ")
@@ -99,12 +125,8 @@ class NaverStockBriefingScrapper(
                 }
             }
         }
+        flush()
 
-        if (currentTitle != null && currentBody.isNotBlank()) {
-            rawContents.add(StockBriefingRawContent(currentTitle!!, currentBody.toString().trim()))
-        }
-
-        log.info { "증시 브리핑 크롤링 완료 (postId=$postId): ${rawContents.size}개 항목" }
         return rawContents
     }
 }
