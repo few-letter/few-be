@@ -21,39 +21,39 @@ class SchedulingController(
     private val popularNasdaqStockScrapingSchedulingUseCase: PopularNasdaqStockScrapingSchedulingUseCase,
 ) {
     // ===== Contents Publishing Scheduling Area Start =====
-    @Scheduled(cron = "\${scheduling.cron.local-gen}", zone = "Asia/Seoul")
+    @Scheduled(cron = "\${scheduling.local-gen.cron:-}", zone = "Asia/Seoul")
     fun createLocalNewsContents() {
         localGenSchedulingUseCase.executeAsync(true)
     }
 
-    @Scheduled(cron = "\${scheduling.cron.global-gen}", zone = "Asia/Seoul")
+    @Scheduled(cron = "\${scheduling.global-gen.cron:-}", zone = "Asia/Seoul")
     fun createGlobalNewsContents() {
         globalGenSchedulingUseCase.executeAsync(true)
     }
 
-    @Scheduled(cron = "\${scheduling.cron.stock-briefing}", zone = "Asia/Seoul")
+    @Scheduled(cron = "\${scheduling.stock-briefing.cron:-}", zone = "Asia/Seoul")
     fun crawlStockBriefing() {
         stockBriefingSchedulingUseCase.executeAsync()
     }
 
-    @Scheduled(cron = "\${scheduling.cron.popular-nasdaq-stock-news}", zone = "Asia/Seoul")
+    @Scheduled(cron = "\${scheduling.popular-nasdaq-stock-news.cron:-}", zone = "Asia/Seoul")
     fun scrapeTimeEtf() {
         popularNasdaqStockScrapingSchedulingUseCase.executeAsync()
     }
     // ===== Contents Publishing Scheduling Area End =====
 
     // ===== Extra Scheduling Area Start =====
-    @Scheduled(cron = "\${scheduling.cron.cache-metrics}", zone = "Asia/Seoul")
+    @Scheduled(cron = "\${scheduling.cache-metrics.cron:-}", zone = "Asia/Seoul")
     fun sendCacheMetrics() {
         sendCacheMetricsSchedulingUseCase.sendCacheMetrics()
     }
 
-    @Scheduled(cron = "\${scheduling.cron.email}", zone = "Asia/Seoul")
+    @Scheduled(cron = "\${scheduling.email.cron:-}", zone = "Asia/Seoul")
     fun sendEmail() {
         sendNewsletterSchedulingUseCase.send()
     }
 
-    @Scheduled(cron = "\${scheduling.cron.instagram-token-refresh}", zone = "Asia/Seoul")
+    @Scheduled(cron = "\${scheduling.instagram-token-refresh.cron:-}", zone = "Asia/Seoul")
     fun refreshInstagramToken() {
         refreshInstagramTokenUseCase.execute()
     }
