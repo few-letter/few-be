@@ -54,14 +54,27 @@ alphavantage:
     top-feed-count: 4
 
 scheduling:
-    cron:
-        local-gen: "0 0 17 * * *"
-        global-gen: "0 0 20 * * *"
-        email: "0 0 9 * * *"
-        cache-metrics: "0 0 3 * * *"
-        instagram-token-refresh: "0 0 2 * * MON"
-        stock-briefing: "0 0 16 ? * MON-FRI"
-        popular-nasdaq-stock-news: "0 0 6 ? * MON-FRI"
+    local-gen:
+        enabled: true
+        cron: "0 0 6,15 * * *"
+    global-gen:
+        enabled: true
+        cron: "0 0 10,20 * * *"
+    email:
+        enabled: false
+        cron: "0 0 9 * * *"
+    cache-metrics:
+        enabled: false
+        cron: "0 0 3 * * *"
+    instagram-token-refresh:
+        enabled: true
+        cron: "0 0 2 * * MON"
+    stock-briefing:
+        enabled: true
+        cron: "0 0 16 ? * MON-FRI"
+    popular-nasdaq-stock-news:
+        enabled: true
+        cron: "0 0 4 ? * MON-FRI"
 
 urls:
     webhook:
