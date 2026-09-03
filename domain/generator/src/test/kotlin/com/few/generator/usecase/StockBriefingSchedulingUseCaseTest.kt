@@ -15,7 +15,6 @@ import com.few.generator.domain.Gen
 import com.few.generator.event.StockBriefingContentProcessedEvent
 import com.few.generator.event.StockBriefingInstagramUploadCompletedEvent
 import com.few.generator.service.GenService
-import com.few.generator.service.StockBriefingPostStateService
 import com.google.gson.Gson
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -28,7 +27,6 @@ class StockBriefingSchedulingUseCaseTest :
         val chatGpt = mockk<ChatGpt>()
         val promptGenerator = mockk<PromptGenerator>()
         val publisher = mockk<ApplicationEventPublisher>(relaxed = true)
-        val stockBriefingPostStateService = mockk<StockBriefingPostStateService>()
         val genService = mockk<GenService>()
         val fetchedPostId = 3361L
 
@@ -38,7 +36,6 @@ class StockBriefingSchedulingUseCaseTest :
                 chatGpt = chatGpt,
                 promptGenerator = promptGenerator,
                 applicationEventPublisher = publisher,
-                stockBriefingPostStateService = stockBriefingPostStateService,
                 genService = genService,
                 gson = Gson(),
             )
@@ -46,21 +43,19 @@ class StockBriefingSchedulingUseCaseTest :
         val dummyPrompt = mockk<Prompt>()
 
         beforeEach {
-            clearMocks(scrapper, chatGpt, publisher, stockBriefingPostStateService, genService)
-            every { scrapper.fetchStockBriefingLatestPostId(any()) } returns fetchedPostId
-            every { stockBriefingPostStateService.saveLastProcessedPostId(any()) } just Runs
+            clearMocks(scrapper, chatGpt, publisher, genService)
+            every { scrapper.fetchStockBriefingLatestPostId() } returns fetchedPostId
             every { genService.saveWithNewTx(any()) } answers { firstArg() }
         }
 
         Given("목록 API에서 postId를 가져올 수 없는 경우") {
             When("execute를 호출하면") {
                 Then("RuntimeException이 발생하고 이벤트가 발행되지 않는다") {
-                    every { scrapper.fetchStockBriefingLatestPostId(any()) } returns null
+                    every { scrapper.fetchStockBriefingLatestPostId() } returns null
 
                     shouldThrow<RuntimeException> { useCase.execute() }
 
                     verify(exactly = 0) { publisher.publishEvent(any()) }
-                    verify(exactly = 0) { stockBriefingPostStateService.saveLastProcessedPostId(any()) }
                 }
             }
         }
@@ -91,12 +86,6 @@ class StockBriefingSchedulingUseCaseTest :
             }
 
             When("execute를 호출하면") {
-                Then("마지막 postId가 DB에 저장된다") {
-                    useCase.execute()
-
-                    verify { stockBriefingPostStateService.saveLastProcessedPostId(fetchedPostId) }
-                }
-
                 Then("StockBriefingContentProcessedEvent가 처리된 컨텐츠와 함께 발행된다") {
                     useCase.execute()
 
@@ -133,12 +122,11 @@ class StockBriefingSchedulingUseCaseTest :
 
         Given("크롤링 결과가 비어있는 경우") {
             When("execute를 호출하면") {
-                Then("postId만 저장되고 이벤트는 발행되지 않는다") {
+                Then("이벤트가 발행되지 않고 종료된다") {
                     every { scrapper.scrapeStockBriefingPost(fetchedPostId) } returns emptyList()
 
                     useCase.execute()
 
-                    verify { stockBriefingPostStateService.saveLastProcessedPostId(fetchedPostId) }
                     verify(exactly = 0) { publisher.publishEvent(ofType<StockBriefingContentProcessedEvent>()) }
                 }
             }
@@ -146,7 +134,7 @@ class StockBriefingSchedulingUseCaseTest :
 
         Given("크롤링 중 예외가 발생하는 경우") {
             When("execute를 호출하면") {
-                Then("실패 이벤트가 발행되고 postId는 저장되지 않는다") {
+                Then("실패 이벤트가 발행된다") {
                     every { scrapper.scrapeStockBriefingPost(fetchedPostId) } throws RuntimeException("네트워크 오류")
 
                     useCase.execute()
@@ -158,7 +146,6 @@ class StockBriefingSchedulingUseCaseTest :
                             },
                         )
                     }
-                    verify(exactly = 0) { stockBriefingPostStateService.saveLastProcessedPostId(any()) }
                 }
             }
         }
@@ -217,7 +204,6 @@ class StockBriefingSchedulingUseCaseTest :
                             },
                         )
                     }
-                    verify(exactly = 0) { stockBriefingPostStateService.saveLastProcessedPostId(any()) }
                 }
             }
         }
