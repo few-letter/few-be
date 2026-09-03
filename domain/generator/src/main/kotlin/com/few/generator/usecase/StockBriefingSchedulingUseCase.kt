@@ -23,10 +23,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.concurrent.atomic.AtomicBoolean
 
 @Component
@@ -60,14 +57,9 @@ class StockBriefingSchedulingUseCase(
     }
 
     fun execute() {
-        val today =
-            LocalDate
-                .now(ZoneId.of("Asia/Seoul"))
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                .toString()
         val nextPostId =
-            scrapper.fetchStockBriefingLatestPostId(today)
-                ?: throw RuntimeException("증시 브리핑 최신 포스트 ID를 가져오지 못했습니다. (date=$today)")
+            scrapper.fetchStockBriefingLatestPostId()
+                ?: throw RuntimeException("증시 브리핑 최신 포스트 ID를 가져오지 못했습니다.")
         log.info { "증시 브리핑 최신 포스트 확인 (postId=$nextPostId)" }
 
         val stockBriefingRawContents: List<StockBriefingRawContent> =

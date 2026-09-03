@@ -7,6 +7,9 @@ import okhttp3.Request
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.springframework.stereotype.Component
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Component
 class NaverStockBriefingScrapper(
@@ -22,9 +25,14 @@ class NaverStockBriefingScrapper(
         private const val SOURCE_BADGE_SELECTOR = "button.ContentText_badge__y0sJi"
     }
 
-    fun fetchLatestPostId(date: String): Long? =
+    fun fetchLatestPostId(): Long? =
         try {
-            val url = "$LISTING_API_URL?date=$date&pageSize=50"
+            val today =
+                LocalDate
+                    .now(ZoneId.of("Asia/Seoul"))
+                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                    .toString()
+            val url = "$LISTING_API_URL?date=$today&pageSize=50"
             val request = Request.Builder().url(url).build()
             val responseBody =
                 scrapperHttpClient.newCall(request).execute().use { response ->
@@ -44,7 +52,7 @@ class NaverStockBriefingScrapper(
                 ?.get("id")
                 ?.asLong
         } catch (e: Exception) {
-            log.warn(e) { "증시 브리핑 최신 postId 조회 실패 (date=$date): ${e.message}" }
+            log.warn(e) { "증시 브리핑 최신 postId 조회 실패: ${e.message}" }
             null
         }
 
