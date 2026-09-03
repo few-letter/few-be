@@ -16,7 +16,6 @@ import com.few.generator.domain.Gen
 import com.few.generator.event.StockBriefingContentProcessedEvent
 import com.few.generator.event.StockBriefingInstagramUploadCompletedEvent
 import com.few.generator.service.GenService
-import com.few.generator.service.StockBriefingPostStateService
 import com.google.gson.Gson
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
@@ -32,7 +31,6 @@ class StockBriefingSchedulingUseCase(
     private val chatGpt: ChatGpt,
     private val promptGenerator: PromptGenerator,
     private val applicationEventPublisher: ApplicationEventPublisher,
-    private val stockBriefingPostStateService: StockBriefingPostStateService,
     private val genService: GenService,
     @Qualifier(GSON_BEAN_NAME)
     private val gson: Gson,
@@ -72,8 +70,7 @@ class StockBriefingSchedulingUseCase(
             }
 
         if (stockBriefingRawContents.isEmpty()) {
-            log.warn { "증시 브리핑 크롤링 결과 없음 (postId=$nextPostId), 포스트Id 업데이트 후 종료" }
-            stockBriefingPostStateService.saveLastProcessedPostId(nextPostId)
+            log.warn { "증시 브리핑 크롤링 결과 없음 (postId=$nextPostId), 종료" }
             return
         }
 
@@ -133,7 +130,6 @@ class StockBriefingSchedulingUseCase(
 
         val mainPageBody = generateMainPageBody(processedContents.map { it.headline })
 
-        stockBriefingPostStateService.saveLastProcessedPostId(nextPostId)
         log.info { "증시 브리핑 처리 완료 (postId=$nextPostId): ${processedContents.size}개 (GPT 실패: ${gptFailureCount}개)" }
 
         applicationEventPublisher.publishEvent(
