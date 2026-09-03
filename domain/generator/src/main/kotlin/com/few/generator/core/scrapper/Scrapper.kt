@@ -49,7 +49,7 @@ class Scrapper(
         }
     }
 
-    fun fetchStockBriefingLatestPostId(date: String): Long? = naverStockBriefingScrapper.fetchLatestPostId(date)
+    fun fetchStockBriefingLatestPostId(): Long? = naverStockBriefingScrapper.fetchLatestPostId()
 
     fun checkStockBriefingPostExists(postId: Long): Boolean = naverStockBriefingScrapper.checkPostExists(postId)
 
