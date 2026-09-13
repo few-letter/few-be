@@ -80,7 +80,7 @@ cd "$HOME" || {
 - contents_type이 1 또는 2일 경우: instagram-contents-publish skill
 - contents_type이 4 또는 5일 경우: investing-dot-com-crawling 및 instagram-contents-publish skill
 
-<Skills 필수 참고사항>
+<instagram-contents-publish Skills 필수 참고사항>
 - 발행할 컨텐츠를 mysql에서 조회시 추가 조건: contents_type이 ${CONTENTS_TYPE}인 것으로 조회해야 함
 - 해당 contents_type은 skill 명세 파일의 '{프롬프트에서 제안한 값}' 부분에 추가 쿼리 조건으로 들어가야 함" \
   --dangerously-skip-permissions < /dev/null 2>&1 \
