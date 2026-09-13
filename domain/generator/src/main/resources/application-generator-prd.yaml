@@ -76,6 +76,9 @@ scheduling:
     expired-gen:
         enabled: true
         cron: "0 0 0 * * *"
+    economic-analysis:
+        enabled: true
+        cron: "0 0 5 * * *"
 
 urls:
     webhook:

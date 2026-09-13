@@ -1,5 +1,6 @@
 package com.few.generator.controller
 
+import com.few.common.domain.ContentsType
 import com.few.generator.config.properties.SchedulingProperties
 import com.few.generator.usecase.DeleteExpiredGenSchedulingUseCase
 import com.few.generator.usecase.GlobalGenSchedulingUseCase
@@ -9,6 +10,7 @@ import com.few.generator.usecase.RefreshInstagramTokenUseCase
 import com.few.generator.usecase.SendCacheMetricsSchedulingUseCase
 import com.few.generator.usecase.SendNewsletterSchedulingUseCase
 import com.few.generator.usecase.StockBriefingSchedulingUseCase
+import com.few.generator.usecase.TriggerContentsPublishSkillsUseCase
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -24,6 +26,7 @@ class SchedulingController(
     private val stockBriefingSchedulingUseCase: StockBriefingSchedulingUseCase,
     private val popularNasdaqStockScrapingSchedulingUseCase: PopularNasdaqStockScrapingSchedulingUseCase,
     private val deleteExpiredGenSchedulingUseCase: DeleteExpiredGenSchedulingUseCase,
+    private val triggerContentsPublishSkillsUseCase: TriggerContentsPublishSkillsUseCase,
 ) {
     private val log = KotlinLogging.logger {}
 
@@ -50,6 +53,12 @@ class SchedulingController(
     fun scrapeTimeEtf() {
         if (isDisabled("popular-nasdaq-stock-news", schedulingProperties.popularNasdaqStockNews.enabled)) return
         popularNasdaqStockScrapingSchedulingUseCase.executeAsync()
+    }
+
+    @Scheduled(cron = "\${scheduling.economic-analysis.cron:-}", zone = "Asia/Seoul")
+    fun triggerEconomicAnalysisPublish() {
+        if (isDisabled("economic-analysis", schedulingProperties.economicAnalysis.enabled)) return
+        triggerContentsPublishSkillsUseCase.executeAsync(ContentsType.ECONOMIC_ANALYSIS)
     }
     // ===== Contents Publishing Scheduling Area End =====
 
