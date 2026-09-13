@@ -67,6 +67,7 @@ enum class MediaType(
     ECONOMIST(57, "이코노미스트", listOf("economist.co.kr")),
     BIZWATCH(58, "비즈워치", listOf("bizwatch.co.kr")),
     NAVER_STOCK(59, "네이버증권", listOf("finance.naver.com")),
+    INVESTING_DOT_COM(60, "인베스팅닷컴", listOf("investing.com")),
 
     /** Global **/
     CNBC(-1, "CNBC", listOf("cnbc.com")),
