@@ -111,7 +111,7 @@ class ContentsCommonGenerationServiceTest :
                 }
 
                 Then("contentsType이 LOCAL_NEWS로 저장된다") {
-                    savedGen.contentsType shouldBe ContentsType.LOCAL_NEWS
+                    savedGen.contentsType shouldBe ContentsType.NAVER_LOCAL_NEWS
                 }
             }
         }
@@ -132,7 +132,7 @@ class ContentsCommonGenerationServiceTest :
                 val savedGen = genSlot.captured
 
                 Then("contentsType이 GLOBAL_NEWS로 저장된다") {
-                    savedGen.contentsType shouldBe ContentsType.GLOBAL_NEWS
+                    savedGen.contentsType shouldBe ContentsType.CNBC_GLOBAL_NEWS
                     savedGen.region shouldBe Region.GLOBAL
                 }
             }

@@ -37,9 +37,9 @@ class CheckPublishableContentUseCaseTest :
                 genRepository.findAllByCreatedAtBetweenAndNotPublishedViaSkills(any(), any(), capture(codesSlot))
             } returns
                 listOf(
-                    gen(ContentsType.LOCAL_NEWS),
-                    gen(ContentsType.LOCAL_NEWS),
-                    gen(ContentsType.GLOBAL_NEWS),
+                    gen(ContentsType.NAVER_LOCAL_NEWS),
+                    gen(ContentsType.NAVER_LOCAL_NEWS),
+                    gen(ContentsType.CNBC_GLOBAL_NEWS),
                 )
 
             When("execute() 를 호출하면") {
@@ -50,8 +50,8 @@ class CheckPublishableContentUseCaseTest :
                     result.hasPublishableContent shouldBe true
                     result.count shouldBe 3
                     result.contentsTypes!!.shouldContainExactlyInAnyOrder(
-                        ContentsType.LOCAL_NEWS,
-                        ContentsType.GLOBAL_NEWS,
+                        ContentsType.NAVER_LOCAL_NEWS,
+                        ContentsType.CNBC_GLOBAL_NEWS,
                     )
                 }
             }
@@ -61,16 +61,16 @@ class CheckPublishableContentUseCaseTest :
             val codesSlot = slot<List<Int>>()
             every {
                 genRepository.findAllByCreatedAtBetweenAndNotPublishedViaSkills(any(), any(), capture(codesSlot))
-            } returns listOf(gen(ContentsType.STOCK_BRIEFING))
+            } returns listOf(gen(ContentsType.NAVER_STOCK_BRIEFING))
 
             When("execute(STOCK_BRIEFING) 를 호출하면") {
-                val result = useCase.execute(ContentsType.STOCK_BRIEFING)
+                val result = useCase.execute(ContentsType.NAVER_STOCK_BRIEFING)
 
                 Then("해당 ContentsType code 로만 조회한다") {
-                    codesSlot.captured shouldBe listOf(ContentsType.STOCK_BRIEFING.code)
+                    codesSlot.captured shouldBe listOf(ContentsType.NAVER_STOCK_BRIEFING.code)
                     result.hasPublishableContent shouldBe true
                     result.count shouldBe 1
-                    result.contentsTypes!!.shouldContainExactlyInAnyOrder(ContentsType.STOCK_BRIEFING)
+                    result.contentsTypes!!.shouldContainExactlyInAnyOrder(ContentsType.NAVER_STOCK_BRIEFING)
                 }
             }
         }

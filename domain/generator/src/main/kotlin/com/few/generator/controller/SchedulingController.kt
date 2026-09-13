@@ -58,13 +58,13 @@ class SchedulingController(
     @Scheduled(cron = "\${scheduling.economic-analysis.cron:-}", zone = "Asia/Seoul")
     fun triggerEconomicAnalysisPublish() {
         if (isDisabled("economic-analysis", schedulingProperties.economicAnalysis.enabled)) return
-        triggerContentsPublishSkillsUseCase.executeAsync(ContentsType.ECONOMIC_ANALYSIS)
+        triggerContentsPublishSkillsUseCase.executeAsync(ContentsType.INVESTINGCOM_ECONOMIC_ANALYSIS)
     }
 
     @Scheduled(cron = "\${scheduling.hot-news.cron:-}", zone = "Asia/Seoul")
     fun triggerHotNewsPublish() {
         if (isDisabled("hot-news", schedulingProperties.hotNews.enabled)) return
-        triggerContentsPublishSkillsUseCase.executeAsync(ContentsType.HOT_NEWS)
+        triggerContentsPublishSkillsUseCase.executeAsync(ContentsType.INVESTINGCOM_HOT_NEWS)
     }
     // ===== Contents Publishing Scheduling Area End =====
 

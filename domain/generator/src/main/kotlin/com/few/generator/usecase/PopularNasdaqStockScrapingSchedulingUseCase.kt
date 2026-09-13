@@ -149,7 +149,7 @@ class PopularNasdaqStockScrapingSchedulingUseCase(
                     coreTextsJson = gson.toJson(listOf(feedItem.summary)),
                     category = Category.ECONOMY,
                     region = Region.GLOBAL,
-                    contentsType = ContentsType.POPULAR_NASDAQ_STOCK_NEWS,
+                    contentsType = ContentsType.ALPHAVANTAGE_POPULAR_NASDAQ_STOCK_NEWS,
                 ),
             ).also { log.info { "Gen 저장 완료: ticker=$ticker, headline=$headline" } }
     }
