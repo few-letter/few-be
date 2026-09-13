@@ -78,8 +78,8 @@ class AdminControllerV1(
         @Validated @RequestBody(required = false) request: ContentsSchedulingRequest,
     ): ApiResponse<ApiResponse.Success> {
         when (request.type.uppercase()) {
-            ContentsType.GLOBAL_NEWS.title.uppercase() -> globalGenSchedulingUseCase.executeAsync()
-            ContentsType.LOCAL_NEWS.title.uppercase() -> localGenSchedulingUseCase.executeAsync()
+            ContentsType.CNBC_GLOBAL_NEWS.title.uppercase() -> globalGenSchedulingUseCase.executeAsync()
+            ContentsType.NAVER_LOCAL_NEWS.title.uppercase() -> localGenSchedulingUseCase.executeAsync()
             else -> throw BadRequestException("Invalid Contents Type: ${request.type}")
         }
 
@@ -106,8 +106,8 @@ class AdminControllerV1(
         @Validated @RequestBody(required = false) request: ContentsSchedulingRequest,
     ): ApiResponse<ApiResponse.Success> {
         when (request.type.uppercase()) {
-            ContentsType.GLOBAL_NEWS.title.uppercase() -> globalGroupGenSchedulingUseCase.execute()
-            ContentsType.LOCAL_NEWS.title.uppercase() -> localGroupGenSchedulingUseCase.execute()
+            ContentsType.CNBC_GLOBAL_NEWS.title.uppercase() -> globalGroupGenSchedulingUseCase.execute()
+            ContentsType.NAVER_LOCAL_NEWS.title.uppercase() -> localGroupGenSchedulingUseCase.execute()
             else -> throw BadRequestException("Invalid Contents Type: ${request.type}")
         }
 

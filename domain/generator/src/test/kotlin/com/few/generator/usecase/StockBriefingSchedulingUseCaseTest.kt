@@ -108,7 +108,7 @@ class StockBriefingSchedulingUseCaseTest :
                     verify(exactly = 2) {
                         genService.saveWithNewTx(
                             match<Gen> {
-                                it.contentsType == ContentsType.STOCK_BRIEFING &&
+                                it.contentsType == ContentsType.NAVER_STOCK_BRIEFING &&
                                     it.category == Category.ECONOMY &&
                                     it.mediaType == MediaType.NAVER_STOCK &&
                                     it.url == null &&

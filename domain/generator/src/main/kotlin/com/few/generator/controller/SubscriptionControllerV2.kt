@@ -35,7 +35,7 @@ class SubscriptionControllerV2(
     fun enrollSubscription(
         @Validated @RequestBody request: EnrollSubscriptionRequest,
     ): ApiResponse<ApiResponse.SuccessBody<BrowseSubscriptionResponse>> {
-        val contentsType = request.contentsType?.let { ContentsType.fromCode(it) } ?: ContentsType.LOCAL_NEWS
+        val contentsType = request.contentsType?.let { ContentsType.fromCode(it) } ?: ContentsType.NAVER_LOCAL_NEWS
         val ucOuts =
             enrollSubscriptionUseCase.execute(
                 EnrollSubscriptionUseCaseIn(

@@ -96,7 +96,7 @@ abstract class AbstractGenSchedulingUseCase(
             if (useSkillsYn) {
                 // 우선은 지역에 따라 LOCAL_NEWS 또는 GLOBAL_NEWS 만 전달
                 val contentsType =
-                    if (region == Region.GLOBAL) ContentsType.GLOBAL_NEWS else ContentsType.LOCAL_NEWS
+                    if (region == Region.GLOBAL) ContentsType.CNBC_GLOBAL_NEWS else ContentsType.NAVER_LOCAL_NEWS
 
                 applicationEventPublisher.publishEvent(
                     TriggerContentsPublishSkillsEvent(

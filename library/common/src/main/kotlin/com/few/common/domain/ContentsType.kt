@@ -6,12 +6,12 @@ enum class ContentsType(
     val code: Int,
     val title: String,
 ) {
-    LOCAL_NEWS(0, "local-news"),
-    GLOBAL_NEWS(1, "global-news"),
-    STOCK_BRIEFING(2, "stock-briefing"),
-    POPULAR_NASDAQ_STOCK_NEWS(3, "popular-nasdaq-stock-news"),
-    ECONOMIC_ANALYSIS(4, "economic-analysis"),
-    HOT_NEWS(5, "hot-news"),
+    NAVER_LOCAL_NEWS(0, "local-news"),
+    CNBC_GLOBAL_NEWS(1, "global-news"),
+    NAVER_STOCK_BRIEFING(2, "stock-briefing"),
+    ALPHAVANTAGE_POPULAR_NASDAQ_STOCK_NEWS(3, "popular-nasdaq-stock-news"),
+    INVESTINGCOM_ECONOMIC_ANALYSIS(4, "economic-analysis"),
+    INVESTINGCOM_HOT_NEWS(5, "hot-news"),
 
     ;
 

@@ -31,7 +31,7 @@ class NewsletterDelivery(
 
         do {
             val subscriptionPage = // TODO: ContentsType 국내, 해외 구분
-                subscriptionService.findAll(ContentsType.LOCAL_NEWS, PageRequest.of(page, properties.pageSize))
+                subscriptionService.findAll(ContentsType.NAVER_LOCAL_NEWS, PageRequest.of(page, properties.pageSize))
 
             subscriptionPage.content.forEach { subscription ->
                 val result = sendNewsletterToSubscriber(subscription, data)

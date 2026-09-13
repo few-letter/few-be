@@ -53,7 +53,7 @@ class TriggerContentsPublishSkillsUseCaseTest :
                 Then("IllegalArgumentException 이 발생한다") {
                     val ex =
                         shouldThrow<IllegalArgumentException> {
-                            newUseCase().execute(ContentsType.LOCAL_NEWS)
+                            newUseCase().execute(ContentsType.NAVER_LOCAL_NEWS)
                         }
                     ex.message shouldContain "발행 스크립트를 찾을 수 없습니다"
                 }
@@ -73,7 +73,7 @@ class TriggerContentsPublishSkillsUseCaseTest :
                 )
 
                 When("execute(LOCAL_NEWS) 를 호출하면") {
-                    newUseCase().execute(ContentsType.LOCAL_NEWS)
+                    newUseCase().execute(ContentsType.NAVER_LOCAL_NEWS)
 
                     Then("예외 없이 완료되고 스크립트가 실제로 실행된다") {
                         marker.exists() shouldBe true
@@ -94,7 +94,7 @@ class TriggerContentsPublishSkillsUseCaseTest :
                     Then("IllegalStateException 이 발생하고 종료코드와 표준출력이 메시지에 포함된다") {
                         val ex =
                             shouldThrow<IllegalStateException> {
-                                newUseCase().execute(ContentsType.LOCAL_NEWS)
+                                newUseCase().execute(ContentsType.NAVER_LOCAL_NEWS)
                             }
                         ex.message shouldContain "exitCode=3"
                         ex.message shouldContain "OUTPUT_TOKEN_ABC"
@@ -115,7 +115,7 @@ class TriggerContentsPublishSkillsUseCaseTest :
                     Then("표준에러 출력도 캡처되어 메시지에 포함된다") {
                         val ex =
                             shouldThrow<IllegalStateException> {
-                                newUseCase().execute(ContentsType.LOCAL_NEWS)
+                                newUseCase().execute(ContentsType.NAVER_LOCAL_NEWS)
                             }
                         ex.message shouldContain "STDERR_TOKEN_XYZ"
                     }
@@ -129,7 +129,7 @@ class TriggerContentsPublishSkillsUseCaseTest :
                     Then("IllegalStateException 이 발생하고 프로세스가 강제 종료된다") {
                         val ex =
                             shouldThrow<IllegalStateException> {
-                                newUseCase(timeoutMinutes = 0L).execute(ContentsType.LOCAL_NEWS)
+                                newUseCase(timeoutMinutes = 0L).execute(ContentsType.NAVER_LOCAL_NEWS)
                             }
                         ex.message shouldContain "강제 종료"
                     }
@@ -148,7 +148,7 @@ class TriggerContentsPublishSkillsUseCaseTest :
 
                 When("execute(LOCAL_NEWS) 를 호출하면") {
                     argFile.delete()
-                    newUseCase().execute(ContentsType.LOCAL_NEWS)
+                    newUseCase().execute(ContentsType.NAVER_LOCAL_NEWS)
 
                     Then("스크립트의 첫 번째 인자로 '0' 이 전달된다") {
                         argFile.readText() shouldBe "0"
@@ -157,7 +157,7 @@ class TriggerContentsPublishSkillsUseCaseTest :
 
                 When("execute(GLOBAL_NEWS) 를 호출하면") {
                     argFile.delete()
-                    newUseCase().execute(ContentsType.GLOBAL_NEWS)
+                    newUseCase().execute(ContentsType.CNBC_GLOBAL_NEWS)
 
                     Then("스크립트의 첫 번째 인자로 '1' 이 전달된다") {
                         argFile.readText() shouldBe "1"
@@ -190,7 +190,7 @@ class TriggerContentsPublishSkillsUseCaseTest :
                         eventTitle = "[국내] 뉴스 스케줄링",
                         startTime = LocalDateTime.now(),
                         newsContentsEvent = NewsContentsEvent(region = Region.LOCAL),
-                        contentsType = ContentsType.LOCAL_NEWS,
+                        contentsType = ContentsType.NAVER_LOCAL_NEWS,
                     )
 
                 When("onTriggerContentsPublishSkills 리스너가 호출되면") {
@@ -216,12 +216,12 @@ class TriggerContentsPublishSkillsUseCaseTest :
                 writeScript("publish-contents-common.sh", "touch '${marker.absolutePath}'")
 
                 When("executeAsync(LOCAL_NEWS) 를 호출하면") {
-                    newUseCase().executeAsync(ContentsType.LOCAL_NEWS)
+                    newUseCase().executeAsync(ContentsType.NAVER_LOCAL_NEWS)
 
                     Then("스크립트가 실행되고 실패해도 예외를 전파하지 않는다") {
                         marker.exists() shouldBe true
                         writeScript("publish-contents-common.sh", "exit 1")
-                        newUseCase().executeAsync(ContentsType.LOCAL_NEWS)
+                        newUseCase().executeAsync(ContentsType.NAVER_LOCAL_NEWS)
                     }
                 }
             }
@@ -260,7 +260,7 @@ class TriggerContentsPublishSkillsUseCaseTest :
                             )
 
                         try {
-                            realUseCase.execute(ContentsType.LOCAL_NEWS)
+                            realUseCase.execute(ContentsType.NAVER_LOCAL_NEWS)
                             // exit 0: 발행 대상이 없었거나 정상 완료
                         } catch (e: IllegalStateException) {
                             // 스크립트는 ProcessBuilder 로 실행됐으나 non-zero 종료 (예: API 서버 미기동으로 curl 실패)

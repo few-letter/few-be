@@ -64,9 +64,9 @@ class ContentsCommonGenerationService(
                 region = Region.from(provisioningContent.region),
                 contentsType =
                     if (Region.from(provisioningContent.region) == Region.GLOBAL) {
-                        ContentsType.GLOBAL_NEWS
+                        ContentsType.CNBC_GLOBAL_NEWS
                     } else {
-                        ContentsType.LOCAL_NEWS
+                        ContentsType.NAVER_LOCAL_NEWS
                     },
             ),
         )

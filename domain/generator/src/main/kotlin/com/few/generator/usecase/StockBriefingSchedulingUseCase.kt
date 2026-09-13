@@ -109,7 +109,7 @@ class StockBriefingSchedulingUseCase(
                             summary = summary,
                             highlightTexts = gson.toJson(highlights),
                             category = Category.ECONOMY,
-                            contentsType = ContentsType.STOCK_BRIEFING,
+                            contentsType = ContentsType.NAVER_STOCK_BRIEFING,
                         ),
                     )
                     log.info { "증시 브리핑 Gen 저장 완료: $headline" }

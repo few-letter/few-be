@@ -4,5 +4,5 @@ import com.few.common.domain.ContentsType
 
 data class UnsubscribeUseCaseIn(
     val email: String,
-    val contentsType: ContentsType = ContentsType.LOCAL_NEWS,
+    val contentsType: ContentsType = ContentsType.NAVER_LOCAL_NEWS,
 )
