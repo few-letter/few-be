@@ -1,6 +1,7 @@
 package com.few.generator.controller
 
 import com.few.generator.config.properties.SchedulingProperties
+import com.few.generator.usecase.DeleteExpiredGenSchedulingUseCase
 import com.few.generator.usecase.GlobalGenSchedulingUseCase
 import com.few.generator.usecase.LocalGenSchedulingUseCase
 import com.few.generator.usecase.PopularNasdaqStockScrapingSchedulingUseCase
@@ -22,6 +23,7 @@ class SchedulingController(
     private val refreshInstagramTokenUseCase: RefreshInstagramTokenUseCase,
     private val stockBriefingSchedulingUseCase: StockBriefingSchedulingUseCase,
     private val popularNasdaqStockScrapingSchedulingUseCase: PopularNasdaqStockScrapingSchedulingUseCase,
+    private val deleteExpiredGenSchedulingUseCase: DeleteExpiredGenSchedulingUseCase,
 ) {
     private val log = KotlinLogging.logger {}
 
@@ -68,6 +70,12 @@ class SchedulingController(
     fun refreshInstagramToken() {
         if (isDisabled("instagram-token-refresh", schedulingProperties.instagramTokenRefresh.enabled)) return
         refreshInstagramTokenUseCase.execute()
+    }
+
+    @Scheduled(cron = "\${scheduling.expired-gen.cron:-}", zone = "Asia/Seoul")
+    fun deleteExpiredGen() {
+        if (isDisabled("expired-gen", schedulingProperties.expiredGen.enabled)) return
+        deleteExpiredGenSchedulingUseCase.execute()
     }
     // ===== Extra Scheduling Area End =====
 

@@ -73,6 +73,9 @@ scheduling:
     popular-nasdaq-stock-news:
         enabled: true
         cron: "0 0 6 ? * MON-FRI"
+    expired-gen:
+        enabled: true
+        cron: "0 0 0 * * *"
 
 urls:
     webhook:
@@ -95,6 +98,8 @@ generator:
         account-id: ${INSTAGRAM_ACCOUNT_ID}
         card-news-upload-enabled: true
         carousel-max-images: 9
+    gen-cleanup:
+        expiration-days: 7
 
 app:
     http:
