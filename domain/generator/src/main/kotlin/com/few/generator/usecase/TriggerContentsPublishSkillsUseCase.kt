@@ -26,8 +26,8 @@ class TriggerContentsPublishSkillsUseCase(
     @EventListener
     fun onTriggerContentsPublishSkills(event: TriggerContentsPublishSkillsEvent) {
         log.info {
-            "${event.region?.name ?: "UNKNOWN"} 콘텐츠 발행 Skills 트리거 감지 " +
-                "(title=${event.title}, contentsType=${event.contentsType.title}, startTime=${event.startTime})"
+            "${event.newsContentsEvent?.region?.name ?: "UNKNOWN"} 콘텐츠 발행 Skills 트리거 감지 " +
+                "(title=${event.eventTitle}, contentsType=${event.contentsType.title}, startTime=${event.startTime})"
         }
 
         runPublish(event.contentsType)
