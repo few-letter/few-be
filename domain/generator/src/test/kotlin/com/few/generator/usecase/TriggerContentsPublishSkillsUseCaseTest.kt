@@ -2,6 +2,7 @@ package com.few.generator.usecase
 
 import com.few.common.domain.ContentsType
 import com.few.common.domain.Region
+import com.few.generator.event.NewsContentsEvent
 import com.few.generator.event.TriggerContentsPublishSkillsEvent
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
@@ -186,9 +187,9 @@ class TriggerContentsPublishSkillsUseCaseTest :
 
                 val event =
                     TriggerContentsPublishSkillsEvent(
-                        title = "[국내] 뉴스 스케줄링",
+                        eventTitle = "[국내] 뉴스 스케줄링",
                         startTime = LocalDateTime.now(),
-                        region = Region.LOCAL,
+                        newsContentsEvent = NewsContentsEvent(region = Region.LOCAL),
                         contentsType = ContentsType.LOCAL_NEWS,
                     )
 
