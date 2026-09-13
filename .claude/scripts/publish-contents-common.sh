@@ -76,7 +76,7 @@ cd "$HOME" || {
 
 /opt/homebrew/bin/claude -p "인스타그램에 신규 카드뉴스 컨텐츠 발행해줘.
 
-다음 Skills를 적극 참고하세요: single-contents-publish skill
+다음 Skills를 적극 참고하세요: instagram-contents-publish skill
 
 <Skills 필수 참고사항>
 - 발행할 컨텐츠를 mysql에서 조회시 추가 조건: contents_type이 ${CONTENTS_TYPE}인 것으로 조회해야 함
