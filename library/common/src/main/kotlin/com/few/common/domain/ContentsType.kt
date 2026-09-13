@@ -10,6 +10,8 @@ enum class ContentsType(
     GLOBAL_NEWS(1, "global-news"),
     STOCK_BRIEFING(2, "stock-briefing"),
     POPULAR_NASDAQ_STOCK_NEWS(3, "popular-nasdaq-stock-news"),
+    ECONOMIC_ANALYSIS(4, "economic-analysis"),
+    HOT_NEWS(5, "hot-news"),
 
     ;
 
