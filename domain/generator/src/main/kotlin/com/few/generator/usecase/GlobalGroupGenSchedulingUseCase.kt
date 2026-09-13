@@ -12,6 +12,7 @@ import com.few.generator.service.specifics.groupgen.KeywordExtractor
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.event.EventListener
 import org.springframework.scheduling.annotation.Async
@@ -30,6 +31,8 @@ class GlobalGroupGenSchedulingUseCase(
     groupContentGenerator: GroupContentGenerator,
     @Qualifier("groupGenCoroutineScope")
     groupGenCoroutineScope: CoroutineScope,
+    @Value("\${generator.grouping.enabled}")
+    private val groupingEnabled: Boolean,
 ) : AbstractGroupGenSchedulingUseCase(
         applicationEventPublisher,
         genService,
@@ -48,6 +51,11 @@ class GlobalGroupGenSchedulingUseCase(
     @Async("generatorSchedulingExecutor")
     @EventListener
     fun onGenSchedulingCompleted(event: GenSchedulingCompletedEvent) {
+        if (!groupingEnabled) {
+            log.info { "Global Group Gen 스케줄링 자동 시작 비활성화, Global Gen 완료 후 자동 Group Gen 실행 생략" }
+            return
+        }
+
         if (event.region != Region.GLOBAL) {
             return
         }

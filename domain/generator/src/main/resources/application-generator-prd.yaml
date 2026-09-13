@@ -90,6 +90,7 @@ generator:
         countByCategory: 9
         pageSize: 20
     grouping:
+        enabled: false
         targetPercentage: 30
         minGroupSize: 3
         maxGroupSize: 10
