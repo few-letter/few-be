@@ -5,8 +5,12 @@ import com.few.common.domain.Region
 import java.time.LocalDateTime
 
 data class TriggerContentsPublishSkillsEvent(
-    val title: String,
+    val eventTitle: String,
     val startTime: LocalDateTime,
-    val region: Region? = null,
+    val newsContentsEvent: NewsContentsEvent? = null,
     val contentsType: ContentsType,
+)
+
+data class NewsContentsEvent(
+    val region: Region,
 )

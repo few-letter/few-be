@@ -103,6 +103,9 @@ generator:
         carousel-max-images: 9
     gen-cleanup:
         expiration-days: 7
+    skills:
+        publish-script-path: .claude/scripts/publish-contents-common.sh
+        publish-script-timeout-minutes: 30
 
 app:
     http:

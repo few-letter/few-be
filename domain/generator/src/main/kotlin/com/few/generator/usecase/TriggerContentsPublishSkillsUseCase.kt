@@ -14,8 +14,8 @@ import kotlin.system.measureTimeMillis
 
 @Component
 class TriggerContentsPublishSkillsUseCase(
-    @Value("\${generator.skills.publish-scripts-dir:.claude/scripts}")
-    private val publishScriptsDir: String,
+    @Value("\${generator.skills.publish-script-path:.claude/scripts/publish-contents-common.sh}")
+    private val publishScriptPath: String,
     @Value("\${generator.skills.publish-script-timeout-minutes:30}")
     private val publishScriptTimeoutMinutes: Long,
 ) {
@@ -26,8 +26,8 @@ class TriggerContentsPublishSkillsUseCase(
     @EventListener
     fun onTriggerContentsPublishSkills(event: TriggerContentsPublishSkillsEvent) {
         log.info {
-            "${event.region?.name ?: "UNKNOWN"} 콘텐츠 발행 Skills 트리거 감지 " +
-                "(title=${event.title}, contentsType=${event.contentsType.title}, startTime=${event.startTime})"
+            "${event.newsContentsEvent?.region?.name ?: "UNKNOWN"} 콘텐츠 발행 Skills 트리거 감지 " +
+                "(title=${event.eventTitle}, contentsType=${event.contentsType.title}, startTime=${event.startTime})"
         }
 
         runPublish(event.contentsType)
@@ -56,7 +56,7 @@ class TriggerContentsPublishSkillsUseCase(
     }
 
     fun execute(contentsType: ContentsType) {
-        val scriptFile = File(resolveScriptPath(contentsType))
+        val scriptFile = File(publishScriptPath)
         require(scriptFile.exists()) {
             "발행 스크립트를 찾을 수 없습니다: ${scriptFile.absolutePath} (contentsType=${contentsType.title})"
         }
@@ -115,21 +115,6 @@ class TriggerContentsPublishSkillsUseCase(
                 append("✅ 소요 시간: ${executionTimeSec}초")
             }
         }
-    }
-
-    /**
-     * contentsType 에 따라 실행할 발행 스크립트 경로를 결정한다.
-     * LOCAL_NEWS / GLOBAL_NEWS 는 공통 뉴스 발행 스크립트를 사용한다.
-     */
-    private fun resolveScriptPath(contentsType: ContentsType): String {
-        val fileName =
-            when (contentsType) {
-                ContentsType.LOCAL_NEWS, ContentsType.GLOBAL_NEWS -> "publish-common-news.sh"
-                ContentsType.STOCK_BRIEFING -> "publish-stock-briefing.sh"
-                ContentsType.POPULAR_NASDAQ_STOCK_NEWS -> "publish-popular-nasdaq-stock-news.sh"
-            }
-
-        return "$publishScriptsDir/$fileName"
     }
 
     private fun Long.msToSeconds(): Double = this / 1000.0

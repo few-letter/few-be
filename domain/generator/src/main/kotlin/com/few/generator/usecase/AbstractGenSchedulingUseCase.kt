@@ -7,6 +7,7 @@ import com.few.common.exception.BadRequestException
 import com.few.generator.core.scrapper.Scrapper
 import com.few.generator.event.ContentsSchedulingEvent
 import com.few.generator.event.GenSchedulingCompletedEvent
+import com.few.generator.event.NewsContentsEvent
 import com.few.generator.event.TriggerContentsPublishSkillsEvent
 import com.few.generator.service.ContentsCommonGenerationService
 import com.few.generator.support.common.ContentsGeneratorDelayHandler
@@ -99,9 +100,9 @@ abstract class AbstractGenSchedulingUseCase(
 
                 applicationEventPublisher.publishEvent(
                     TriggerContentsPublishSkillsEvent(
-                        title = eventTitle,
+                        eventTitle = eventTitle,
                         startTime = startTime,
-                        region = region,
+                        newsContentsEvent = NewsContentsEvent(region = region),
                         contentsType = contentsType,
                     ),
                 )
