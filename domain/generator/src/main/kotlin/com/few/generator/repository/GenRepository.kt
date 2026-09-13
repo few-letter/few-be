@@ -5,6 +5,7 @@ import com.few.generator.domain.Gen
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import java.time.LocalDateTime
@@ -114,4 +115,14 @@ interface GenRepository : JpaRepository<Gen, Long> {
     ): List<Gen>
 
     fun findByUrl(url: String): Gen?
+
+    @Modifying
+    @CacheEvict(value = [CacheNames.GEN_CACHE], allEntries = true)
+    @Query(
+        value = "DELETE FROM gen WHERE created_at < :cutoff",
+        nativeQuery = true,
+    )
+    fun deleteAllByCreatedAtBefore(
+        @Param("cutoff") cutoff: LocalDateTime,
+    ): Int
 }

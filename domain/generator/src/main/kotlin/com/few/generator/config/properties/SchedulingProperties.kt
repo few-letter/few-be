@@ -13,6 +13,7 @@ data class SchedulingProperties(
     var instagramTokenRefresh: Task = Task(),
     var stockBriefing: Task = Task(),
     var popularNasdaqStockNews: Task = Task(),
+    var expiredGen: Task = Task(),
 ) {
     data class Task(
         var enabled: Boolean = false,
