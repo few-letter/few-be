@@ -78,7 +78,7 @@ cd "$HOME" || {
 
 다음 Skills를 적극 참고하세요:
 - contents_type이 1 또는 2일 경우: instagram-contents-publish skill
-- contents_type이 4 또는 5일 경우: investing-dot-com-crawling skill
+- contents_type이 4 또는 5일 경우: investing-dot-com-crawling 및 instagram-contents-publish skill
 
 <Skills 필수 참고사항>
 - 발행할 컨텐츠를 mysql에서 조회시 추가 조건: contents_type이 ${CONTENTS_TYPE}인 것으로 조회해야 함
