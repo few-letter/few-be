@@ -15,6 +15,7 @@ data class SchedulingProperties(
     var popularNasdaqStockNews: Task = Task(),
     var expiredGen: Task = Task(),
     var economicAnalysis: Task = Task(),
+    var hotNews: Task = Task(),
 ) {
     data class Task(
         var enabled: Boolean = false,

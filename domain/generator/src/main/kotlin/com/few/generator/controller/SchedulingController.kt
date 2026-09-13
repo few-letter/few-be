@@ -60,6 +60,12 @@ class SchedulingController(
         if (isDisabled("economic-analysis", schedulingProperties.economicAnalysis.enabled)) return
         triggerContentsPublishSkillsUseCase.executeAsync(ContentsType.ECONOMIC_ANALYSIS)
     }
+
+    @Scheduled(cron = "\${scheduling.hot-news.cron:-}", zone = "Asia/Seoul")
+    fun triggerHotNewsPublish() {
+        if (isDisabled("hot-news", schedulingProperties.hotNews.enabled)) return
+        triggerContentsPublishSkillsUseCase.executeAsync(ContentsType.HOT_NEWS)
+    }
     // ===== Contents Publishing Scheduling Area End =====
 
     // ===== Extra Scheduling Area Start =====

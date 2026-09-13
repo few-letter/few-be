@@ -79,6 +79,9 @@ scheduling:
     economic-analysis:
         enabled: true
         cron: "0 0 5 * * *"
+    hot-news:
+        enabled: true
+        cron: "0 0 3 * * *"
 
 urls:
     webhook:
