@@ -1,7 +1,6 @@
 #!/bin/zsh
 
 # Configuration
-readonly API_URL="http://localhost:8080/api/v1/contents/exists/publishable"
 readonly LOG_FILE="$HOME/logs/single-contents-publish.log"
 
 # 발행 대상 contents_type. 호출 측(TriggerContentsPublishSkillsUseCase)에서 첫 번째 인자로 전달한다.
@@ -45,44 +44,36 @@ if ! command -v npx >/dev/null 2>&1; then
   exit 1
 fi
 
-log "[INFO] Checking for publishable content... (contents_type=${CONTENTS_TYPE})"
-
-# 1. Local API Call
-response=$(curl -s -X GET "${API_URL}" -H "Accept: application/json")
-
-if [[ $? -ne 0 ]]; then
-    log "[ERROR] Failed to connect to the local API."
-    exit 1
-fi
-
-# 2. JSON Parsing (응답은 { "data": { ... }, "message": ... } 형태로 감싸져 있음)
-has_content=$(echo "${response}" | jq -r '.data.hasPublishableContent // false')
-log "[INFO] hasPublishableContent=${has_content}"
-
-# 3. Guard Clause: false인 경우 바로 종료 (들여쓰기 방지)
-if [[ "${has_content}" != "true" ]]; then
-    log "[INFO] No publishable content found. Exiting."
-    exit 0
-fi
-
-# 4. Execute the publish command to Claude Code
-log "[INFO] Publishable content found. Executing publish command..."
-
 # MCP 설정이 홈 디렉토리 기준이므로 claude 실행 전 홈 디렉토리로 이동
 cd "$HOME" || {
     log "[ERROR] cd \$HOME 실패: $HOME"
     exit 1
 }
 
-/opt/homebrew/bin/claude -p "인스타그램에 신규 카드뉴스 컨텐츠 발행해줘.
+# contents_type별로 사용할 skill이 다르므로 bash에서 분기해 프롬프트를 타입별로 짧고 명확하게 구성
+case "${CONTENTS_TYPE}" in
+  1|2)
+    PROMPT="instagram-contents-publish skill로 인스타그램에 신규 카드뉴스 컨텐츠 발행해줘.
 
-다음 Skills를 적극 참고하세요:
-- contents_type이 1 또는 2일 경우: instagram-contents-publish skill
-- contents_type이 4 또는 5일 경우: investing-dot-com-crawling 및 instagram-contents-publish skill
+<필수 참고사항>
+- mysql에서 조회 시 추가 조건: contents_type = ${CONTENTS_TYPE}
+- 해당 contents_type은 skill 명세 파일의 '{프롬프트에서 제안한 값}' 부분에 추가 쿼리 조건으로 들어가야 함"
+    ;;
+  4|5)
+    PROMPT="investing-dot-com-crawling skill로 investing.com을 크롤링하고, 이어서 instagram-contents-publish skill로 인스타그램에 신규 카드뉴스 컨텐츠 발행해줘.
 
-<instagram-contents-publish Skills 필수 참고사항>
-- 발행할 컨텐츠를 mysql에서 조회시 추가 조건: contents_type이 ${CONTENTS_TYPE}인 것으로 조회해야 함
-- 해당 contents_type은 skill 명세 파일의 '{프롬프트에서 제안한 값}' 부분에 추가 쿼리 조건으로 들어가야 함" \
+<필수 참고사항>
+- contentsType = ${CONTENTS_TYPE}
+- instagram-contents-publish skill에서 mysql 조회 시 추가 조건: contents_type = ${CONTENTS_TYPE}
+- 해당 contents_type은 skill 명세 파일의 '{프롬프트에서 제안한 값}' 부분에 추가 쿼리 조건으로 들어가야 함"
+    ;;
+  *)
+    log "[ERROR] 알 수 없는 CONTENTS_TYPE=${CONTENTS_TYPE}"
+    exit 1
+    ;;
+esac
+
+/opt/homebrew/bin/claude -p "${PROMPT}" \
   --dangerously-skip-permissions < /dev/null 2>&1 \
   | while IFS= read -r line; do
       echo "[$(date '+%Y-%m-%d %H:%M:%S')] ${line}"
