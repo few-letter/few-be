@@ -55,10 +55,10 @@ alphavantage:
 
 scheduling:
     local-gen:
-        enabled: true
+        enabled: false
         cron: "0 0 6,15 * * *"
     global-gen:
-        enabled: true
+        enabled: false
         cron: "0 0 10,20 * * *"
     email:
         enabled: false
@@ -73,17 +73,17 @@ scheduling:
         enabled: true
         cron: "0 0 16 ? * MON-FRI"
     popular-nasdaq-stock-news:
-        enabled: true
+        enabled: false
         cron: "0 0 4 ? * MON-FRI"
     expired-gen:
         enabled: true
         cron: "0 0 0 * * *"
     economic-analysis:
         enabled: true
-        cron: "0 0 5 * * *"
+        cron: "0 0 9,19 * * *"
     hot-news:
         enabled: true
-        cron: "0 0 3 * * *"
+        cron: "0 0 5,14 * * *"
 
 urls:
     webhook:
@@ -95,7 +95,7 @@ generator:
         maxRetries: 5
         defaultRetryAfter: 60
     contents:
-        countByCategory: 9
+        countByCategory: 1
         pageSize: 20
     grouping:
         enabled: false

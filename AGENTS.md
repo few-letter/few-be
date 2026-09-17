@@ -9,9 +9,9 @@ This is a Spring Boot Kotlin multi-module project using clean architecture princ
 ### Module Structure
 - **api/**: Main Spring Boot application entry point — wires together all domain/library modules
 - **domain/**: Business logic modules
-    - **generator/**: Content generation domain (scraping, GPT processing, scheduling, Instagram, image generation)
+    - **generator/**: Content generation domain (scraping, GPT processing, scheduling, Instagram, image generation). Covers multiple content pipelines: Naver/CNBC news card-news, Naver stock-briefing, TimeEtf (timefolio), Alpha Vantage Nasdaq popular-stock news, and a Claude-Code-skill-driven Investing.com pipeline (see Scraping Architecture below)
 - **library/**: Shared infrastructure modules
-    - **common/**: Common configurations, utilities, and SpringDoc OpenAPI setup
+    - **common/**: Common configurations, utilities, SpringDoc OpenAPI setup, and shared enums (`ContentsType`, `MediaType` in `com.few.common.domain`)
     - **email/**: Email sending (AWS SES + Thymeleaf templates)
     - **security/**: JWT authentication and authorization (JJWT, Spring Security)
     - **storage/**: File storage (AWS S3 integration)
@@ -30,7 +30,8 @@ This is a Spring Boot Kotlin multi-module project using clean architecture princ
 - **Kotlin 1.9.24** with **Spring Boot 3.2.5**, JVM 21
 - **JPA** (Hibernate) with custom converters, separate EntityManagerFactory per module
 - **Coroutines** (`kotlinx-coroutines-core`, `kotlinx-coroutines-slf4j`, reactor extensions)
-- **OpenAI GPT** via Spring Cloud OpenFeign (custom encoder/decoder/interceptor in `core/gpt/`)
+- **Spring AI** (`spring-ai-starter-model-openai`) for OpenAI ChatGPT integration in `core/gpt/` (`ChatGpt.kt` uses `OpenAiChatModel`/`OpenAiChatOptions` directly — no Feign/encoder/decoder layer)
+- **Alpha Vantage** News & Sentiment API client (`core/alphavantage/`) for Nasdaq popular-stock news
 - **Jsoup 1.17.2** + OkHttp 4.12.0 for web scraping (`core/scrapper/`)
 - **Instagram Graph API** integration (`core/instagram/`)
 - **AWS SES** for email delivery, **AWS S3** / Spring Cloud AWS for storage
@@ -38,42 +39,62 @@ This is a Spring Boot Kotlin multi-module project using clean architecture princ
 - **JOOQ 3.19.10** for query building
 - **SpringDoc OpenAPI 2.5.0** (Swagger UI)
 - **Slack Webhook** client for notifications
+- **Claude Code skills** (`.claude/skills/`, `.claude/scripts/publish-contents-common.sh`) drive the Investing.com content pipeline via `TriggerContentsPublishSkillsUseCase`, invoked outside the normal Kotlin scraper path
 
 ### Domain/Generator Package Structure
 
 ```text
 domain/generator/src/main/kotlin/com/few/generator/
-├── config/               # Module-level Spring config (JPA, DataSource, Cache, Feign, OkHttp)
-│   ├── feign/            # OpenAI Feign customization (encoder, decoder, interceptor, thread-local)
+├── config/               # Module-level Spring config (JPA, DataSource, Cache, Async, Coroutine, Gson, Swagger, Slack, OkHttp)
 │   ├── instagram/        # InstagramOkHttpConfig
-│   ├── jpa/              # GeneratorJpaConfig, GeneratorDataSourceConfig, GeneratorCacheConfig
-│   ├── properties/       # JsoupProperties
+│   ├── jpa/              # GeneratorJpaConfig, GeneratorDataSourceConfig, GeneratorCacheConfig, entity converters
+│   │                     #   (CategoryConverter, ContentsTypeConverter, MediaTypeConverter, RegionConverter, ...)
+│   ├── properties/       # JsoupProperties, AlphaVantageProperties, GroupingProperties, NewsletterProperties,
+│   │                     #   SchedulingProperties, CacheNames
 │   └── scrapper/         # ScrapperOkHttpFactory
-├── controller/           # REST controllers (V1/V2 versioned)
+├── controller/           # REST controllers (V1/V2 versioned), incl. SchedulingController (cron-triggered endpoints)
 ├── core/
-│   ├── gpt/              # OpenAI ChatGPT integration (completion, prompt, prompt/schema)
+│   ├── alphavantage/     # Alpha Vantage News & Sentiment API client (Nasdaq popular-stock news)
+│   ├── gpt/              # OpenAI ChatGPT integration via Spring AI (completion, prompt, prompt/schema)
 │   ├── instagram/        # Instagram API client
-│   └── scrapper/         # Scrapper interface + cnbc/ and naver/ implementations
+│   └── scrapper/         # Scrapper facade (@Component, dispatches by URL/Region — not an abstract interface)
+│       ├── cnbc/         # CnbcNewsScrapper + CnbcExtractor, CnbcConstants
+│       ├── naver/        # NaverNewsScrapper, NaverStockBriefingScrapper + NaverExtractor, NaverConstants
+│       └── timefolio/    # TimeEtfScrapper + TimeEtfItem, TimeEtfConstants
 ├── domain/               # JPA entities (Gen, GroupGen, Subscription, SubscriptionHis, RawContents, ...)
 │   └── vo/               # Value objects
-├── event/                # Spring ApplicationEvents, handlers, listeners
+├── event/                # Spring ApplicationEvents (17+, see Event-Driven Architecture)
+│   ├── client/
+│   ├── handler/
+│   └── listener/
 ├── repository/           # Repository interfaces
-├── service/              # Services (groupgen/, newsletter/, common generation)
+├── service/              # Services (common generation)
+│   └── specifics/        # groupgen/ (GenGroupper, GroupContentGenerator, KeywordExtractor, ...),
+│                         #   newsletter/ (NewsletterBusinessRules, NewsletterContentAggregator, ...)
 ├── support/              # aws/, common/, jpa/, utils/
-└── usecase/              # UseCases (input/, out/ sub-packages)
+└── usecase/              # UseCases (input/, out/ sub-packages), incl. TriggerContentsPublishSkillsUseCase
+                          #   (invokes Claude Code skills for the Investing.com pipeline)
 ```
+
+Note: `ContentsType` and `MediaType` enums live in `library/common/src/main/kotlin/com/few/common/domain/`, not in the generator domain.
 
 ### Event-Driven Architecture
 
-The generator domain uses Spring ApplicationEvent for async processing:
-- **Events**: `CardNewsImageGeneratedEvent`, `CardNewsS3UploadedEvent`, `ContentsSchedulingEvent`, `EnrollSubscriptionEvent`, `GenSchedulingCompletedEvent`, `InstagramUploadCompletedEvent`, `UnsubscribeEvent`
+The generator domain uses Spring ApplicationEvent for async processing (`event/`, with `client/`, `handler/`, `listener/` sub-packages):
+- **Core card-news**: `CardNewsImageGeneratedEvent`, `CardNewsS3UploadedEvent`, `ContentsSchedulingEvent`, `GenSchedulingCompletedEvent`, `InstagramUploadCompletedEvent`
+- **Subscription**: `EnrollSubscriptionEvent`, `UnsubscribeEvent`
+- **Nasdaq popular-stock (Alpha Vantage)**: `PopularNasdaqCardNewsImageGeneratedEvent`, `PopularNasdaqCardNewsS3UploadedEvent`, `PopularNasdaqGenSavedEvent`, `PopularNasdaqStockScrapingFailedEvent`
+- **Stock briefing (Naver)**: `StockBriefingContentProcessedEvent`, `StockBriefingImageGeneratedEvent`, `StockBriefingInstagramUploadCompletedEvent`, `StockBriefingS3UploadedEvent`
+- **Skill-driven publishing**: `TriggerContentsPublishSkillsEvent`
+- **Ops/failure**: `GenCacheMetricsCollectFailedEvent`, `InstagramTokenRefreshFailedEvent`
 - **Handlers/Listeners**: corresponding handler and listener classes
 
 ### Scraping Architecture
 
-- Abstract `Scrapper` interface with extractor pattern
-- Implementations: `NaverScrapper` (NaverExtractor, NaverConstants), `CnbcScrapper` (CnbcExtractor, CnbcConstants)
+- `Scrapper` (`core/scrapper/Scrapper.kt`) is a concrete `@Component` facade — not an abstract interface — that dispatches to a scrapper implementation by URL substring / `Region` enum
+- Implementations: `NaverNewsScrapper` + `NaverStockBriefingScrapper` (`naver/`, using `NaverExtractor`/`NaverConstants`), `CnbcNewsScrapper` (`cnbc/`, using `CnbcExtractor`/`CnbcConstants`), `TimeEtfScrapper` (`timefolio/`, using `TimeEtfItem`/`TimeEtfConstants`)
 - Jsoup + OkHttp (with Brotli compression support)
+- **Investing.com is not a `Scrapper` implementation.** It's crawled by a Claude Code skill (`investing-dot-com-crawling`) invoked via `TriggerContentsPublishSkillsUseCase` and `.claude/scripts/publish-contents-common.sh`, scheduled from `SchedulingController` — a different architectural path from the other scrapers
 
 ### Transactional Annotations
 
@@ -108,8 +129,11 @@ Uses **Kotest 5.8.0** (with Spring extensions) and **MockK 1.13.9**. JUnit 5 int
 
 Existing test files:
 - `domain/generator/src/test/kotlin/com/few/generator/cache/GenCacheTest.kt`
-- `domain/generator/src/test/kotlin/com/few/generator/usecase/` (BrowseContentsUseCaseTest, InstagramUploadUseCaseTest, GenCardNewsImageGenerateSchedulingUseCaseTest, AbstractGenSchedulingUseCaseTest, AbstractGroupGenSchedulingUseCaseTest)
-- `domain/generator/src/test/kotlin/com/few/generator/service/instagram/` (InstagramImageGeneratorTest, MainPageCardGeneratorTest, GenCardNewsImageGenerateLocalTest)
+- `domain/generator/src/test/kotlin/com/few/generator/core/scrapper/` (`naver/NaverStockBriefingScrapperTest`, `timefolio/TimeEtfScrapperTest`)
+- `domain/generator/src/test/kotlin/com/few/generator/service/` (`ContentsCommonGenerationServiceTest`, `ProvisioningServiceTest`, `RawContentsServiceTest`)
+- `domain/generator/src/test/kotlin/com/few/generator/service/instagram/` (`CardNewsGlyphRenderingTest`, `GenCardNewsImageGenerateLocalTest`, `InstagramImageGeneratorTest`, `MainPageCardGeneratorTest`)
+- `domain/generator/src/test/kotlin/com/few/generator/service/specifics/groupgen/` (`GroupContentGeneratorTest`, `KeywordExtractorTest`)
+- `domain/generator/src/test/kotlin/com/few/generator/usecase/` (`AbstractGenSchedulingUseCaseTest`, `AbstractGroupGenSchedulingUseCaseTest`, `BrowseContentsUseCaseTest`, `CheckPublishableContentUseCaseTest`, `DeleteExpiredGenSchedulingUseCaseTest`, `GenCardNewsImageGenerateSchedulingUseCaseTest`, `PopularNasdaqCardNewsImageGenerateUseCaseTest`, `RawContentsBrowseContentUseCaseTest`, `StockBriefingImageGenerateUseCaseTest`, `StockBriefingSchedulingUseCaseTest`, `TriggerContentsPublishSkillsUseCaseTest`, `UploadCardNewsInstagramUseCaseTest`, `UploadStockBriefingInstagramUseCaseTest`)
 - `library/email/src/test/kotlin/com/few/email/provider/AwsSendEmailServiceProviderTest.kt`
 
 **Rule**: If you modify code, update the corresponding test code. If no test exists for that code, skip.
@@ -122,6 +146,8 @@ Existing test files:
 Profiles are grouped in `api/src/main/resources/application.yml`:
 - `local` activates: `email-local`, `security-local`, `storage-local`, `web-local`, `generator-local`, `provider-local`
 - `prd` activates: `email-prd`, `security-prd`, `storage-prd`, `web-prd`, `generator-prd`, `provider-prd`
+
+Note: `provider-local`/`provider-prd` are leftover references — the `provider` module was merged into `generator` and no `application-provider-*.yml` exists anymore.
 
 ### Module-Specific Configs
 
