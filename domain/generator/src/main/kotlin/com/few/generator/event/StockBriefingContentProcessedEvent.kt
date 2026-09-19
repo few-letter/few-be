@@ -6,5 +6,6 @@ data class StockBriefingContentProcessedEvent(
     val postId: Long,
     val contents: List<StockBriefingContent>,
     val headlines: List<String> = contents.map { it.headline },
+    val mainPageTitle: String = "",
     val mainPageBody: String = "",
 )

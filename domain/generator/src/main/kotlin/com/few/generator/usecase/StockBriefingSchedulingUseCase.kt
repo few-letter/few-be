@@ -8,6 +8,7 @@ import com.few.generator.core.gpt.ChatGpt
 import com.few.generator.core.gpt.prompt.PromptGenerator
 import com.few.generator.core.gpt.prompt.schema.Headline
 import com.few.generator.core.gpt.prompt.schema.HighlightTexts
+import com.few.generator.core.gpt.prompt.schema.MarketDirectionReason
 import com.few.generator.core.gpt.prompt.schema.Summary
 import com.few.generator.core.instagram.StockBriefingContent
 import com.few.generator.core.scrapper.Scrapper
@@ -128,23 +129,42 @@ class StockBriefingSchedulingUseCase(
             return
         }
 
-        val mainPageBody = generateMainPageBody(processedContents.map { it.headline })
+        val mainPageContent = resolveMainPageContent(stockBriefingRawContents)
 
         log.info { "증시 브리핑 처리 완료 (postId=$nextPostId): ${processedContents.size}개 (GPT 실패: ${gptFailureCount}개)" }
 
         applicationEventPublisher.publishEvent(
-            StockBriefingContentProcessedEvent(nextPostId, processedContents, mainPageBody = mainPageBody),
+            StockBriefingContentProcessedEvent(
+                nextPostId,
+                processedContents,
+                mainPageTitle = mainPageContent.title,
+                mainPageBody = mainPageContent.body,
+            ),
         )
     }
 
-    private fun generateMainPageBody(headlines: List<String>): String =
-        try {
-            (chatGpt.ask(promptGenerator.toStockBriefingMainPageBody(headlines)) as? Summary)?.summary
-                ?: headlines.joinToString(" | ")
+    private fun resolveMainPageContent(rawContents: List<StockBriefingRawContent>): MainPageContent {
+        val fallbackBody = rawContents.joinToString(" ") { it.body }
+        return try {
+            val rawTexts = rawContents.map { "[${it.title}] ${it.body}" }
+            val result = chatGpt.ask(promptGenerator.toStockBriefingDirectionAndReason(rawTexts)) as? MarketDirectionReason
+            val title = if (result?.direction?.trim()?.uppercase() == "DOWN") DOWN_TITLE else UP_TITLE
+            MainPageContent(title, result?.reason ?: fallbackBody)
         } catch (e: Exception) {
-            log.warn(e) { "메인 페이지 본문 생성 실패, 헤드라인 조합 사용" }
-            headlines.joinToString(" | ")
+            log.warn(e) { "메인 페이지 방향/사유 생성 실패, 기본값 사용" }
+            MainPageContent(UP_TITLE, fallbackBody)
         }
+    }
+
+    private data class MainPageContent(
+        val title: String,
+        val body: String,
+    )
+
+    companion object {
+        private const val UP_TITLE = "왜 올랐을까?"
+        private const val DOWN_TITLE = "왜 떨어졌을까?"
+    }
 
     private fun publishFailure(
         postId: Long,
