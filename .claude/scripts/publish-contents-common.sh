@@ -11,7 +11,9 @@ readonly CONTENTS_TYPE="${1:-0}"
 mkdir -p "$(dirname "${LOG_FILE}")"
 
 log() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "${LOG_FILE}"
+    # 로그 파일뿐 아니라 stderr에도 출력하여, 이 스크립트를 호출하는 쪽(JVM ProcessBuilder 등)이
+    # 캡처하는 stdout/stderr 만으로도 실패 원인을 파악할 수 있도록 한다.
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" | tee -a "${LOG_FILE}" >&2
 }
 
 # cron은 macOS 로그인 키체인에 접근할 수 없어 claude의 OAuth/키체인 인증이 실패한다.
