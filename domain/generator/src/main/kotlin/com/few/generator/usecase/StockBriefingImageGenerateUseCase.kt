@@ -68,7 +68,7 @@ class StockBriefingImageGenerateUseCase(
 
             val mainPagePath = "gen_images/${dateStr}_briefing_${event.postId}_main.png"
 
-            if (!mainPageCardGenerator.generateBriefingMainPageImage(event.mainPageBody, mainPagePath)) {
+            if (!mainPageCardGenerator.generateBriefingMainPageImage(event.mainPageTitle, event.mainPageBody, mainPagePath)) {
                 log.error { "증시 브리핑 표지 이미지 생성 실패 (postId=${event.postId})" }
                 publishFailure(event.postId, "표지 이미지 생성", "표지 이미지 생성 실패")
                 return

@@ -8,6 +8,7 @@ import com.few.generator.core.gpt.prompt.Prompt
 import com.few.generator.core.gpt.prompt.PromptGenerator
 import com.few.generator.core.gpt.prompt.schema.Headline
 import com.few.generator.core.gpt.prompt.schema.HighlightTexts
+import com.few.generator.core.gpt.prompt.schema.MarketDirectionReason
 import com.few.generator.core.gpt.prompt.schema.Summary
 import com.few.generator.core.scrapper.Scrapper
 import com.few.generator.core.scrapper.naver.StockBriefingRawContent
@@ -72,7 +73,7 @@ class StockBriefingSchedulingUseCaseTest :
                 every { promptGenerator.toStockBriefingHeadline(any(), any()) } returns dummyPrompt
                 every { promptGenerator.toStockBriefingSummary(any(), any(), any()) } returns dummyPrompt
                 every { promptGenerator.toKoreanHighlightText(any()) } returns dummyPrompt
-                every { promptGenerator.toStockBriefingMainPageBody(any()) } returns dummyPrompt
+                every { promptGenerator.toStockBriefingDirectionAndReason(any()) } returns dummyPrompt
                 every { chatGpt.ask(dummyPrompt) } returnsMany
                     listOf(
                         Headline("코스피 2% 급등"),
@@ -81,7 +82,7 @@ class StockBriefingSchedulingUseCaseTest :
                         Headline("나스닥 사상 최고치 경신"),
                         Summary("나스닥이 사상 최고치를 돌파."),
                         HighlightTexts(listOf("나스닥", "사상 최고치")),
-                        Summary("코스피와 나스닥이 동반 상승하며 강한 상승세를 보였습니다."),
+                        MarketDirectionReason("UP", "코스피와 나스닥이 동반 상승하며 강한 상승세를 보였습니다."),
                     )
             }
 
@@ -96,7 +97,9 @@ class StockBriefingSchedulingUseCaseTest :
                                     it.contents.size == 2 &&
                                     it.contents[0].headline == "코스피 2% 급등" &&
                                     it.contents[1].headline == "나스닥 사상 최고치 경신" &&
-                                    it.headlines == listOf("코스피 2% 급등", "나스닥 사상 최고치 경신")
+                                    it.headlines == listOf("코스피 2% 급등", "나스닥 사상 최고치 경신") &&
+                                    it.mainPageTitle == "왜 올랐을까?" &&
+                                    it.mainPageBody == "코스피와 나스닥이 동반 상승하며 강한 상승세를 보였습니다."
                             },
                         )
                     }
@@ -163,9 +166,9 @@ class StockBriefingSchedulingUseCaseTest :
                     every { promptGenerator.toStockBriefingHeadline(any(), any()) } returns dummyPrompt
                     every { promptGenerator.toStockBriefingSummary(any(), any(), any()) } returns dummyPrompt
                     every { promptGenerator.toKoreanHighlightText(any()) } returns dummyPrompt
-                    every { promptGenerator.toStockBriefingMainPageBody(any()) } returns dummyPrompt
+                    every { promptGenerator.toStockBriefingDirectionAndReason(any()) } returns dummyPrompt
                     // 첫 번째 컨텐츠 GPT 성공 (3번 호출), 두 번째 컨텐츠 첫 GPT 호출부터 예외 → skip
-                    // mainPageBody 호출(5번째)도 throw → generateMainPageBody 내부 catch로 폴백
+                    // 방향/사유 생성 호출(5번째)도 throw → resolveMainPageContent 내부 catch로 폴백
                     every { chatGpt.ask(dummyPrompt) } returnsMany
                         listOf(
                             Headline("코스피 2% 급등"),
