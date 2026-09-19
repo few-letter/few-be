@@ -7,7 +7,7 @@ readonly LOG_FILE="$HOME/logs/single-contents-publish.log"
 # 미전달 시 기본값 0(local-news).
 readonly CONTENTS_TYPE="${1:-0}"
 
-# 로그 디렉토리 보장 + 모든 로그는 LOG_FILE 로만, 항상 현재 시간 prefix
+# 로그 디렉토리 보장 + 모든 로그는 LOG_FILE과 stderr에 함께, 항상 현재 시간 prefix
 mkdir -p "$(dirname "${LOG_FILE}")"
 
 log() {
@@ -79,7 +79,7 @@ esac
   --dangerously-skip-permissions < /dev/null 2>&1 \
   | while IFS= read -r line; do
       echo "[$(date '+%Y-%m-%d %H:%M:%S')] ${line}"
-    done >> "${LOG_FILE}"
+    done | tee -a "${LOG_FILE}"
 
 # 파이프라인 첫 번째 명령(claude)의 종료 코드 확인 (zsh: 1-indexed)
 claude_exit=${pipestatus[1]}
