@@ -7,11 +7,13 @@ readonly LOG_FILE="$HOME/logs/single-contents-publish.log"
 # 미전달 시 기본값 0(local-news).
 readonly CONTENTS_TYPE="${1:-0}"
 
-# 로그 디렉토리 보장 + 모든 로그는 LOG_FILE 로만, 항상 현재 시간 prefix
+# 로그 디렉토리 보장 + 모든 로그는 LOG_FILE과 stderr에 함께, 항상 현재 시간 prefix
 mkdir -p "$(dirname "${LOG_FILE}")"
 
 log() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "${LOG_FILE}"
+    # 로그 파일뿐 아니라 stderr에도 출력하여, 이 스크립트를 호출하는 쪽(JVM ProcessBuilder 등)이
+    # 캡처하는 stdout/stderr 만으로도 실패 원인을 파악할 수 있도록 한다.
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" | tee -a "${LOG_FILE}" >&2
 }
 
 # cron은 macOS 로그인 키체인에 접근할 수 없어 claude의 OAuth/키체인 인증이 실패한다.
@@ -77,7 +79,7 @@ esac
   --dangerously-skip-permissions < /dev/null 2>&1 \
   | while IFS= read -r line; do
       echo "[$(date '+%Y-%m-%d %H:%M:%S')] ${line}"
-    done >> "${LOG_FILE}"
+    done | tee -a "${LOG_FILE}"
 
 # 파이프라인 첫 번째 명령(claude)의 종료 코드 확인 (zsh: 1-indexed)
 claude_exit=${pipestatus[1]}
