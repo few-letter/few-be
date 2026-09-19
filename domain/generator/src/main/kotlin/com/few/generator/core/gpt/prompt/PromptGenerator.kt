@@ -418,33 +418,34 @@ class PromptGenerator(
         )
     }
 
-    fun toStockBriefingMainPageBody(headlines: List<String>): Prompt {
+    fun toStockBriefingDirectionAndReason(rawContents: List<String>): Prompt {
         val systemPrompt =
             """
-            당신은 월드 최고의 증시 뉴스레터 작성 전문가입니다. 여러 증시 브리핑 헤드라인을 종합하여 하나의 자연스러운 본문 단락을 작성합니다.
+            당신은 월드 최고의 증시 뉴스레터 작성 전문가입니다. 크롤링된 증시 브리핑 원문들을 분석하여 오늘 국내 증시가 상승했는지 하락했는지 판단하고, 그 핵심 원인을 정리합니다.
             """.trimIndent()
 
-        val headlineList = headlines.mapIndexed { index, headline -> "${index + 1}. $headline" }.joinToString("\n")
+        val contentList = rawContents.mapIndexed { index, content -> "${index + 1}. $content" }.joinToString("\n")
 
         val userPrompt =
             """
             ## Instructions
-            1. 주어진 헤드라인들의 핵심 내용을 하나의 매끄러운 단락으로 종합해주세요.
-            2. 반드시 300자 이내로 작성해주세요.
-            3. 문장은 자연스러운 한국어 격식체로 작성해주세요. (~했습니다, ~입니다 등으로 끝맺고 구어체를 배제하며 자연스럽게 표현)
-            4. 통계적이고 객관적이며 수치적으로 올바른 문장으로 작성해주세요.
-            5. 각 헤드라인의 핵심 정보를 누락 없이 포함하되, 중복 표현은 피하세요.
+            1. 아래 원문들을 종합적으로 분석해 오늘 국내 증시(코스피, 코스닥 등)가 상승했는지 하락했는지 판단하세요.
+            2. direction 필드에는 반드시 "UP" 또는 "DOWN" 중 하나만 작성하세요.
+            3. reason 필드에는 상승 또는 하락의 핵심 원인을 300자 이내로 작성해주세요.
+            4. 문장은 자연스러운 한국어 격식체로 작성해주세요. (~했습니다, ~입니다 등으로 끝맺고 구어체를 배제하며 자연스럽게 표현)
+            5. 통계적이고 객관적이며 수치적으로 올바른 문장으로 작성해주세요.
+            6. 각 원문의 핵심 정보를 누락 없이 반영하되, 중복 표현은 피하세요.
 
-            ## 헤드라인 목록(Input)
-            $headlineList
+            ## 원문 목록(Input)
+            $contentList
             """.trimIndent()
 
         return Prompt(
             messages = listOf(Message(ROLE.SYSTEM, systemPrompt), Message(ROLE.USER, userPrompt)),
             responseFormat =
                 ResponseFormat(
-                    jsonSchema = JsonSchema(Summary.name, Summary.schema),
-                    responseClassType = Summary::class.java,
+                    jsonSchema = JsonSchema(MarketDirectionReason.name, MarketDirectionReason.schema),
+                    responseClassType = MarketDirectionReason::class.java,
                 ),
         )
     }
