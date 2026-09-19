@@ -49,7 +49,7 @@ class StockBriefingImageGenerateUseCaseTest :
         Given("정상적으로 모든 이미지 생성이 성공하는 경우") {
             beforeEach {
                 every { singleNewsCardGenerator.generateImage(any(), any()) } returns true
-                every { mainPageCardGenerator.generateBriefingMainPageImage(any(), any()) } returns true
+                every { mainPageCardGenerator.generateBriefingMainPageImage(any(), any(), any()) } returns true
             }
 
             When("StockBriefingContentProcessedEvent를 수신하면") {
@@ -57,6 +57,7 @@ class StockBriefingImageGenerateUseCaseTest :
                     StockBriefingContentProcessedEvent(
                         postId = 100L,
                         contents = dummyContents,
+                        mainPageTitle = "왜 올랐을까?",
                         mainPageBody = "코스피와 나스닥이 동반 상승했습니다.",
                     )
 
@@ -69,7 +70,7 @@ class StockBriefingImageGenerateUseCaseTest :
                 Then("표지 이미지가 1개 생성된다") {
                     useCase.onStockBriefingContentProcessed(event)
 
-                    verify(exactly = 1) { mainPageCardGenerator.generateBriefingMainPageImage(any(), any()) }
+                    verify(exactly = 1) { mainPageCardGenerator.generateBriefingMainPageImage(any(), any(), any()) }
                 }
 
                 Then("StockBriefingImageGeneratedEvent가 발행된다") {
@@ -102,7 +103,7 @@ class StockBriefingImageGenerateUseCaseTest :
                 Then("실패 이벤트가 발행되고 표지 이미지는 생성되지 않는다") {
                     useCase.onStockBriefingContentProcessed(event)
 
-                    verify(exactly = 0) { mainPageCardGenerator.generateBriefingMainPageImage(any(), any()) }
+                    verify(exactly = 0) { mainPageCardGenerator.generateBriefingMainPageImage(any(), any(), any()) }
                     verify {
                         publisher.publishEvent(
                             match<StockBriefingInstagramUploadCompletedEvent> {
@@ -128,7 +129,7 @@ class StockBriefingImageGenerateUseCaseTest :
                         any(),
                     )
                 } returns false
-                every { mainPageCardGenerator.generateBriefingMainPageImage(any(), any()) } returns true
+                every { mainPageCardGenerator.generateBriefingMainPageImage(any(), any(), any()) } returns true
             }
 
             When("StockBriefingContentProcessedEvent를 수신하면") {
@@ -153,7 +154,7 @@ class StockBriefingImageGenerateUseCaseTest :
         Given("표지 이미지 생성이 실패하는 경우") {
             beforeEach {
                 every { singleNewsCardGenerator.generateImage(any(), any()) } returns true
-                every { mainPageCardGenerator.generateBriefingMainPageImage(any(), any()) } returns false
+                every { mainPageCardGenerator.generateBriefingMainPageImage(any(), any(), any()) } returns false
             }
 
             When("StockBriefingContentProcessedEvent를 수신하면") {
@@ -190,7 +191,7 @@ class StockBriefingImageGenerateUseCaseTest :
 
             beforeEach {
                 every { singleNewsCardGenerator.generateImage(any(), any()) } returns true
-                every { mainPageCardGenerator.generateBriefingMainPageImage(any(), any()) } returns true
+                every { mainPageCardGenerator.generateBriefingMainPageImage(any(), any(), any()) } returns true
             }
 
             When("StockBriefingContentProcessedEvent를 수신하면") {

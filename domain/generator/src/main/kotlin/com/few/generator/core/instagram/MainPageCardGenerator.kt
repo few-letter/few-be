@@ -68,6 +68,7 @@ class MainPageCardGenerator {
     }
 
     fun generateBriefingMainPageImage(
+        mainPageTitle: String,
         mainPageBody: String,
         outputPath: String,
     ): Boolean {
@@ -100,9 +101,9 @@ class MainPageCardGenerator {
             val dateStr = "${today.monthValue}월 ${today.dayOfMonth}일 ${getWeekdayText(today.dayOfWeek.value)}"
             drawDatePill(graphics, dateStr, lightColor)
 
-            drawCategoryTitle(graphics, "증시 브리핑")
+            drawCategoryTitle(graphics, "오늘 증시")
 
-            val bodyAreaTop = drawBriefingSubtitle(graphics, "few가 정리한 현시간 증시 브리핑", HEADLINES_TOP)
+            val bodyAreaTop = drawBriefingSubtitle(graphics, mainPageTitle, HEADLINES_TOP)
             drawBriefingBodyText(graphics, mainPageBody, bodyAreaTop)
 
             return saveImage(image, outputPath)
