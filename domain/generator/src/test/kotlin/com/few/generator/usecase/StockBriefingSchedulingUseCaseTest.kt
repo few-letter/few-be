@@ -30,6 +30,7 @@ class StockBriefingSchedulingUseCaseTest :
         val publisher = mockk<ApplicationEventPublisher>(relaxed = true)
         val genService = mockk<GenService>()
         val fetchedPostId = 3361L
+        val fetchedPostUrl = "https://m.stock.naver.com/briefing/market/posts/$fetchedPostId"
 
         val useCase =
             StockBriefingSchedulingUseCase(
@@ -46,6 +47,7 @@ class StockBriefingSchedulingUseCaseTest :
         beforeEach {
             clearMocks(scrapper, chatGpt, publisher, genService)
             every { scrapper.fetchStockBriefingLatestPostId() } returns fetchedPostId
+            every { scrapper.stockBriefingPostUrl(fetchedPostId) } returns fetchedPostUrl
             every { genService.saveWithNewTx(any()) } answers { firstArg() }
         }
 
@@ -114,7 +116,7 @@ class StockBriefingSchedulingUseCaseTest :
                                 it.contentsType == ContentsType.NAVER_STOCK_BRIEFING &&
                                     it.category == Category.ECONOMY &&
                                     it.mediaType == MediaType.NAVER_STOCK &&
-                                    it.url == null &&
+                                    it.url == fetchedPostUrl &&
                                     it.region == null
                             },
                         )

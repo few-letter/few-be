@@ -103,7 +103,7 @@ class StockBriefingSchedulingUseCase(
                 try {
                     genService.saveWithNewTx(
                         Gen(
-                            url = null,
+                            url = scrapper.stockBriefingPostUrl(nextPostId),
                             thumbnailImageUrl = null,
                             mediaType = MediaType.NAVER_STOCK,
                             headline = headline,

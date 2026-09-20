@@ -51,6 +51,8 @@ class Scrapper(
 
     fun fetchStockBriefingLatestPostId(): Long? = naverStockBriefingScrapper.fetchLatestPostId()
 
+    fun stockBriefingPostUrl(postId: Long): String = naverStockBriefingScrapper.postUrl(postId)
+
     fun checkStockBriefingPostExists(postId: Long): Boolean = naverStockBriefingScrapper.checkPostExists(postId)
 
     fun scrapeStockBriefingPost(postId: Long): List<StockBriefingRawContent> = naverStockBriefingScrapper.scrapePost(postId)

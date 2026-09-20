@@ -56,6 +56,8 @@ class NaverStockBriefingScrapper(
             null
         }
 
+    fun postUrl(postId: Long): String = "$BASE_URL/$postId"
+
     fun checkPostExists(postId: Long): Boolean =
         try {
             val request = Request.Builder().url("$BASE_URL/$postId").build()
