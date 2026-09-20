@@ -59,6 +59,8 @@ class UploadStockBriefingS3UseCase(
                     detailImageUrls = detailUrls,
                     mainPageImageUrl = mainPageUrl,
                     headlines = event.headlines,
+                    mainPageTitle = event.mainPageTitle,
+                    mainPageBody = event.mainPageBody,
                 ),
             )
             log.info {

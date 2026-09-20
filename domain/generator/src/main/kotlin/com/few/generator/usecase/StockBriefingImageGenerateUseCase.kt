@@ -82,6 +82,8 @@ class StockBriefingImageGenerateUseCase(
                     detailImagePaths = detailImagePaths,
                     mainPageImagePath = mainPagePath,
                     headlines = event.headlines,
+                    mainPageTitle = event.mainPageTitle,
+                    mainPageBody = event.mainPageBody,
                 ),
             )
             log.info { "증시 브리핑 이미지 생성 완료 이벤트 발행 (postId=${event.postId}): 상세 ${detailImagePaths.size}개, 표지 1개" }
