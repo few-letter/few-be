@@ -83,6 +83,8 @@ class StockBriefingImageGenerateUseCaseTest :
                     capturedEvent.postId shouldBe 100L
                     capturedEvent.detailImagePaths.size shouldBe 2
                     capturedEvent.headlines shouldBe listOf("코스피 2% 급등", "나스닥 사상 최고치 경신")
+                    capturedEvent.mainPageTitle shouldBe "왜 올랐을까?"
+                    capturedEvent.mainPageBody shouldBe "코스피와 나스닥이 동반 상승했습니다."
                 }
             }
         }

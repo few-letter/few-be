@@ -8,5 +8,7 @@ data class StockBriefingS3UploadedEvent(
     val detailImageUrls: List<String>,
     val mainPageImageUrl: String?,
     val headlines: List<String>,
+    val mainPageTitle: String = "",
+    val mainPageBody: String = "",
     val errorMessage: String? = null,
 )
