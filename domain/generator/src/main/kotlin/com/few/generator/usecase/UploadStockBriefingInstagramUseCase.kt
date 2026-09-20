@@ -15,8 +15,6 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 @Component
 class UploadStockBriefingInstagramUseCase(
@@ -31,7 +29,6 @@ class UploadStockBriefingInstagramUseCase(
 
     companion object {
         private const val MAX_HASHTAGS = 5
-        private val DATE_FORMATTER = DateTimeFormatter.ofPattern("M월 d일", Locale.KOREAN)
         private val FALLBACK_HASHTAGS = listOf("증시브리핑", "주식", "코스피", "나스닥", "주식투자")
     }
 
@@ -56,7 +53,7 @@ class UploadStockBriefingInstagramUseCase(
                     event.detailImageUrls
                 }
 
-            val caption = generateCaption(event.uploadTime, event.headlines)
+            val caption = generateCaption(event.mainPageTitle, event.mainPageBody, event.headlines)
 
             val childCreationIds = mutableListOf<String>()
             allImageUrls.forEachIndexed { index, imageUrl ->
@@ -112,16 +109,19 @@ class UploadStockBriefingInstagramUseCase(
     }
 
     fun generateCaption(
-        uploadTime: LocalDateTime,
+        mainPageTitle: String,
+        mainPageBody: String,
         headlines: List<String>,
     ): String {
         val hashtags = generateDynamicHashtags(headlines)
         val allHashtags = hashtags.joinToString(" ") { "#$it" }
 
         return buildString {
-            appendLine("📈 few letter가 정리한 ${uploadTime.format(DATE_FORMATTER)} 증시 브리핑")
+            appendLine("📈 오늘 증시 $mainPageTitle")
             appendLine()
+            appendLine(mainPageBody)
             if (allHashtags.isNotEmpty()) {
+                appendLine()
                 append(allHashtags)
             }
         }

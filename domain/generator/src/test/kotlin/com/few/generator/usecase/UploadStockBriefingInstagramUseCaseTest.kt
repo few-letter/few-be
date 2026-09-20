@@ -31,6 +31,8 @@ class UploadStockBriefingInstagramUseCaseTest :
             )
 
         val uploadTime = LocalDateTime.of(2025, 5, 30, 13, 10)
+        val mainPageTitle = "왜 올랐을까?"
+        val mainPageBody = "코스피와 나스닥이 동반 상승하며 강한 상승세를 보였습니다."
         val dummyPrompt = mockk<Prompt>()
 
         beforeEach {
@@ -44,10 +46,11 @@ class UploadStockBriefingInstagramUseCaseTest :
             every { chatGpt.ask(dummyPrompt) } returns Keywords(listOf("코스피", "나스닥", "주식", "반도체", "증시"))
 
             When("generateCaption을 호출하면") {
-                val caption = useCase.generateCaption(uploadTime, headlines)
+                val caption = useCase.generateCaption(mainPageTitle, mainPageBody, headlines)
 
-                Then("날짜와 '증시 브리핑' 문구가 포함된다") {
-                    caption shouldContain "5월 30일 증시 브리핑"
+                Then("메인페이지 이미지의 제목과 본문이 포함된다") {
+                    caption shouldContain "오늘 증시 $mainPageTitle"
+                    caption shouldContain mainPageBody
                 }
 
                 Then("GPT가 헤드라인 기반으로 생성한 해시태그가 포함된다") {
@@ -73,7 +76,7 @@ class UploadStockBriefingInstagramUseCaseTest :
             every { chatGpt.ask(dummyPrompt) } returns Keywords((1..10).map { "키워드$it" })
 
             When("GPT가 5개 초과 키워드를 반환해도") {
-                val caption = useCase.generateCaption(uploadTime, headlines)
+                val caption = useCase.generateCaption(mainPageTitle, mainPageBody, headlines)
 
                 Then("해시태그가 5개로 제한된다") {
                     val hashtagCount = caption.split(" ", "\n").count { it.startsWith("#") }
@@ -127,7 +130,7 @@ class UploadStockBriefingInstagramUseCaseTest :
             every { chatGpt.ask(dummyPrompt) } returns Keywords(listOf("삼성전자", "SK하이닉스", "반도체"))
 
             When("캡션을 생성하면") {
-                val caption = useCase.generateCaption(uploadTime, headlines)
+                val caption = useCase.generateCaption(mainPageTitle, mainPageBody, headlines)
 
                 Then("GPT 동적 해시태그가 포함되고 정적 해시태그와 다를 수 있다") {
                     caption shouldContain "#삼성전자"
@@ -145,7 +148,7 @@ class UploadStockBriefingInstagramUseCaseTest :
             every { chatGpt.ask(dummyPrompt) } returns Keywords(listOf("삼성 전자", "SK 하이닉스"))
 
             When("공백이 포함된 키워드가 반환되면") {
-                val caption = useCase.generateCaption(uploadTime, headlines)
+                val caption = useCase.generateCaption(mainPageTitle, mainPageBody, headlines)
 
                 Then("공백이 제거된 해시태그가 생성된다") {
                     caption shouldContain "#삼성전자"
