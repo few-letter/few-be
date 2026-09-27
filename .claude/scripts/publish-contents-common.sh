@@ -32,9 +32,12 @@ fi
 export CLAUDE_CODE_OAUTH_TOKEN
 
 # 이 스크립트는 JVM(ProcessBuilder)/cron 등 비대화형 셸에서 실행되므로 ~/.zshrc 가 로드되지 않는다.
-# 그 결과 nvm 이 설정하는 node/npx PATH 가 없어 npx 기반 stdio MCP 서버
-# (mysql, gemini-image)가 spawn 되지 못하고 "not connected" 에러가 발생한다.
-# 여기서 node bin 디렉토리와 homebrew bin 을 PATH 앞에 명시적으로 추가한다.
+# 그 결과 .zshrc 에 정의된 환경 변수/PATH 설정이 claude 프로세스에 전달되지 않으므로 명시적으로 로드한다.
+[[ -f ~/.zshrc ]] && source ~/.zshrc
+
+# .zshrc 가 없거나 nvm 초기화를 하지 않는 환경을 대비한 fallback.
+# node/npx PATH 가 없으면 npx 기반 stdio MCP 서버(mysql, gemini-image)가 spawn 되지 못하고
+# "not connected" 에러가 발생하므로, node bin 디렉토리와 homebrew bin 을 PATH 앞에 추가한다.
 if [ -d "$HOME/.nvm/versions/node" ]; then
   node_bin=$(/bin/ls -d "$HOME"/.nvm/versions/node/*/bin 2>/dev/null | sort -V | tail -1)
   [ -n "$node_bin" ] && export PATH="$node_bin:$PATH"
@@ -74,10 +77,6 @@ case "${CONTENTS_TYPE}" in
     exit 1
     ;;
 esac
-
-# 비대화형 셸이라 ~/.zshrc 가 로드되지 않으므로, claude 실행 직전에 명시적으로 로드해
-# .zshrc 에 정의된 환경 변수/PATH 설정을 claude 프로세스가 상속받도록 한다.
-[[ -f ~/.zshrc ]] && source ~/.zshrc
 
 /opt/homebrew/bin/claude -p "${PROMPT}" \
   --dangerously-skip-permissions < /dev/null 2>&1 \
