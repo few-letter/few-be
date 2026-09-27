@@ -17,4 +17,11 @@ Controller → UseCase → Service (선택) → Repository
 
 개발이 완료되면 `dev` 브랜치로 Pull Request를 생성합니다.
 
+PR 생성 규칙
+1. 제목은 반드시 "[{prefix}/#{issue-number}] {summary}" 형식으로 작성합니다.
+- Example: [Feat/#1234] 신규 API 추가
+
+2. PR 본문은 반드시 템플릿을 따라야 합니다.
+- template 파일: [`.github/PULL_REQUEST_TEMPLATE.md`](../../.github/PULL_REQUEST_TEMPLATE.md)
+
 브랜치 생성/커밋 메시지 형식 등 반드시 지켜야 하는 워크플로우 규칙은 [`.claude/hooks/README.md`](../hooks/README.md)를 참고하세요.
