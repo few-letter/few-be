@@ -75,6 +75,10 @@ case "${CONTENTS_TYPE}" in
     ;;
 esac
 
+# 비대화형 셸이라 ~/.zshrc 가 로드되지 않으므로, claude 실행 직전에 명시적으로 로드해
+# .zshrc 에 정의된 환경 변수/PATH 설정을 claude 프로세스가 상속받도록 한다.
+[[ -f ~/.zshrc ]] && source ~/.zshrc
+
 /opt/homebrew/bin/claude -p "${PROMPT}" \
   --dangerously-skip-permissions < /dev/null 2>&1 \
   | while IFS= read -r line; do
