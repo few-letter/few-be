@@ -39,5 +39,16 @@
         "테스트 코드 포함",
         "커밋에 Co-Authored-By: Claude <noreply@anthropic.com> 추가",
         "변경된 파일이 많을 경우 커밋을 여러개로 나눠서 진행"
-    ]
+    ],
+    "hooks": {
+        "PreToolUse": [
+            {
+                "matcher": "Bash",
+                "hooks": [
+                    { "type": "command", "command": "bash .claude/hooks/validate-branch-name.sh" },
+                    { "type": "command", "command": "bash .claude/hooks/validate-commit-message.sh" }
+                ]
+            }
+        ]
+    }
 }
