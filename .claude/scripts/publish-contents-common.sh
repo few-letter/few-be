@@ -17,6 +17,36 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" | tee -a "${LOG_FILE}" >&2
 }
 
+# 실패 시에만 Discord 웹훅으로 실패 사유를 알린다.
+# 웹훅 URL 은 커밋되면 안 되므로 호출 측(TriggerContentsPublishSkillsUseCase)이 urls.webhook.discord 값을
+# DISCORD_WEBHOOK_URL 환경변수로 주입한다. 미설정(cron 직접 실행 등)이면 알림 없이 로그만 남긴다.
+notify_discord() {
+    [[ -z "${DISCORD_WEBHOOK_URL}" ]] && return 0
+
+    local msg="🚨 콘텐츠 발행 스크립트 실패 (contentsType=${CONTENTS_TYPE}, host=$(hostname -s))
+$1"
+    # Discord content 최대 2000자 제한
+    msg="${msg[1,1900]}"
+    # jq 의존 없이 JSON 문자열 이스케이프 (\ " 개행 탭, 그 외 제어문자 제거)
+    msg="${msg//\\/\\\\}"
+    msg="${msg//\"/\\\"}"
+    msg="${msg//$'\t'/\\t}"
+    msg="${msg//$'\n'/\\n}"
+    msg=$(print -rn -- "${msg}" | LC_ALL=C tr -d '\000-\010\013-\037')
+
+    curl -sS --max-time 10 -o /dev/null -H "Content-Type: application/json" \
+        -d "{\"content\":\"${msg}\"}" "${DISCORD_WEBHOOK_URL}" \
+        || log "[WARN] Discord 웹훅 호출 실패"
+}
+
+# 실패 로그 기록 + Discord 알림 + 종료
+fail() {
+    local code="$1" reason="$2"
+    log "[ERROR] ${reason}"
+    notify_discord "${reason}"
+    exit "${code}"
+}
+
 # Omniroute 및 비대화형 쉘 설정
 # Claude 로그인에 실패한 경우 `claude setup-token`으로 토큰 발급 후 설정 파일에 저징 필요
 if [ -f ~/.claude/non-interactive-claude-config.env ]; then
@@ -24,9 +54,7 @@ if [ -f ~/.claude/non-interactive-claude-config.env ]; then
 fi
 
 if [ -z "$CLAUDE_CODE_OAUTH_TOKEN" ]; then
-  log "CLAUDE_CODE_OAUTH_TOKEN이 설정되어 있지 않습니다. ~/.claude/non-interactive-claude-config.env 파일을 확인하세요."
-  log "실행 완료 (인증 토큰 없음)\n"
-  exit 1
+  fail 1 "CLAUDE_CODE_OAUTH_TOKEN이 설정되어 있지 않습니다. ~/.claude/non-interactive-claude-config.env 파일을 확인하세요."
 fi
 
 # env 파일에 export 가 없어도 자식 프로세스(claude)가 상속받도록 명시적으로 export
@@ -42,16 +70,14 @@ fi
 [ -d /opt/homebrew/bin ] && export PATH="/opt/homebrew/bin:$PATH"
 
 if ! command -v npx >/dev/null 2>&1; then
-  log "[ERROR] npx 를 PATH 에서 찾을 수 없습니다. npx 기반 MCP 서버(mysql)가 연결되지 않습니다. PATH=$PATH"
-  exit 1
+  fail 1 "npx 를 PATH 에서 찾을 수 없습니다. npx 기반 MCP 서버(mysql)가 연결되지 않습니다. PATH=$PATH"
 fi
 
 # 발행 skill이 프로젝트 .claude/skills 에 있으므로 claude 실행 전 프로젝트 루트로 이동
 # (사용하는 MCP 서버는 user scope 라 디렉토리와 무관하게 연결됨)
 readonly PROJECT_DIR="${0:A:h:h:h}"
 cd "${PROJECT_DIR}" || {
-    log "[ERROR] cd 프로젝트 디렉토리 실패: ${PROJECT_DIR}"
-    exit 1
+    fail 1 "cd 프로젝트 디렉토리 실패: ${PROJECT_DIR}"
 }
 
 # contents_type별로 사용할 skill이 다르므로 bash에서 분기해 프롬프트를 타입별로 짧고 명확하게 구성
@@ -72,8 +98,7 @@ case "${CONTENTS_TYPE}" in
 - 해당 contents_type은 skill 명세 파일의 '{프롬프트에서 제안한 값}' 부분에 추가 쿼리 조건으로 들어가야 함"
     ;;
   *)
-    log "[ERROR] 알 수 없는 CONTENTS_TYPE=${CONTENTS_TYPE}"
-    exit 1
+    fail 1 "알 수 없는 CONTENTS_TYPE=${CONTENTS_TYPE}"
     ;;
 esac
 
@@ -86,8 +111,9 @@ esac
 # 파이프라인 첫 번째 명령(claude)의 종료 코드 확인 (zsh: 1-indexed)
 claude_exit=${pipestatus[1]}
 if [[ ${claude_exit} -ne 0 ]]; then
-    log "[ERROR] claude 명령 실패 (exit=${claude_exit}). 원인은 위 claude 출력 로그를 확인하세요."
-    exit "${claude_exit}"
+    # 방금 tee 로 기록된 claude 출력 마지막 부분을 실패 사유로 첨부
+    fail "${claude_exit}" "claude 명령 실패 (exit=${claude_exit}). claude 출력(마지막 15줄):
+$(tail -n 15 "${LOG_FILE}")"
 fi
 
 log "[INFO] Publish command finished."

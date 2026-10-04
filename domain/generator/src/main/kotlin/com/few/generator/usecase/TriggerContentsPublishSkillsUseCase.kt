@@ -18,6 +18,9 @@ class TriggerContentsPublishSkillsUseCase(
     private val publishScriptPath: String,
     @Value("\${generator.skills.publish-script-timeout-minutes:30}")
     private val publishScriptTimeoutMinutes: Long,
+    // 실패 알림용. 웹훅 URL 이 커밋/프로세스 인자(ps)에 노출되지 않도록 환경변수로 스크립트에 전달한다.
+    @Value("\${urls.webhook.discord:}")
+    private val discordWebhookUrl: String = "",
 ) {
     private val log = KotlinLogging.logger {}
     private val isRunning = AtomicBoolean(false)
@@ -77,6 +80,7 @@ class TriggerContentsPublishSkillsUseCase(
                 val process =
                     ProcessBuilder("/bin/zsh", scriptFile.absolutePath, contentsTypeCode)
                         .redirectErrorStream(true)
+                        .apply { environment()[DISCORD_WEBHOOK_URL_ENV] = discordWebhookUrl }
                         .start()
 
                 // 별도 스레드로 출력을 소비하여 파이프 버퍼가 가득 차 프로세스가 멈추는 것을 방지
@@ -118,4 +122,8 @@ class TriggerContentsPublishSkillsUseCase(
     }
 
     private fun Long.msToSeconds(): Double = this / 1000.0
+
+    companion object {
+        const val DISCORD_WEBHOOK_URL_ENV = "DISCORD_WEBHOOK_URL"
+    }
 }

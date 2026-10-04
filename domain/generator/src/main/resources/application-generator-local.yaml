@@ -87,7 +87,7 @@ scheduling:
 
 urls:
     webhook:
-        discord: "https://localhost:8080/webhook/discord/unused"
+        discord: ${WEBHOOK_DISCORD}
         slack: ${WEBHOOK_SLACK}
 
 generator:
