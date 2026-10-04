@@ -11,6 +11,9 @@ readonly CONTENTS_TYPE="${1:-0}"
 # 로그 디렉토리 보장 + 모든 로그는 LOG_FILE과 stderr에 함께, 항상 현재 시간 prefix
 mkdir -p "$(dirname "${LOG_FILE}")"
 
+# 이번 실행 시작 시점의 로그 파일 크기(byte). 실패 시 이 지점 이후(=이번 실행분) 로그만 사유로 첨부한다.
+readonly LOG_START_OFFSET=$(stat -f %z "${LOG_FILE}" 2>/dev/null || echo 0)
+
 log() {
     # 로그 파일뿐 아니라 stderr에도 출력하여, 이 스크립트를 호출하는 쪽(JVM ProcessBuilder 등)이
     # 캡처하는 stdout/stderr 만으로도 실패 원인을 파악할 수 있도록 한다.
@@ -23,10 +26,11 @@ log() {
 notify_discord() {
     [[ -z "${DISCORD_WEBHOOK_URL}" ]] && return 0
 
+    # Discord content 최대 2000자 제한. 실제 에러는 로그 끝에 있으므로 사유는 뒤쪽 1800자를 남긴다.
+    local reason="$1"
+    (( ${#reason} > 1800 )) && reason="…${reason[-1800,-1]}"
     local msg="🚨 콘텐츠 발행 스크립트 실패 (contentsType=${CONTENTS_TYPE}, host=$(hostname -s))
-$1"
-    # Discord content 최대 2000자 제한
-    msg="${msg[1,1900]}"
+${reason}"
     # jq 의존 없이 JSON 문자열 이스케이프 (\ " 개행 탭, 그 외 제어문자 제거)
     msg="${msg//\\/\\\\}"
     msg="${msg//\"/\\\"}"
@@ -60,6 +64,14 @@ fi
 # env 파일에 export 가 없어도 자식 프로세스(claude)가 상속받도록 명시적으로 export
 export CLAUDE_CODE_OAUTH_TOKEN
 
+# Omniroute 게이트웨이(ANTHROPIC_BASE_URL) 사용 시에만 --model auto 지정.
+# grep 이 아니라 source 된 실제 값으로 판단하므로 주석 처리된 줄은 자연히 미설정으로 간주된다.
+CLAUDE_MODEL_OPTS=()
+if [[ -n "${ANTHROPIC_BASE_URL}" ]]; then
+  export ANTHROPIC_BASE_URL
+  CLAUDE_MODEL_OPTS=(--model auto)
+fi
+
 # .zshrc 가 없거나 nvm 초기화를 하지 않는 환경을 대비한 fallback.
 # node/npx PATH 가 없으면 npx 기반 stdio MCP 서버(mysql, gemini-image)가 spawn 되지 못하고
 # "not connected" 에러가 발생하므로, node bin 디렉토리와 homebrew bin 을 PATH 앞에 추가한다.
@@ -68,9 +80,15 @@ if [ -d "$HOME/.nvm/versions/node" ]; then
   [ -n "$node_bin" ] && export PATH="$node_bin:$PATH"
 fi
 [ -d /opt/homebrew/bin ] && export PATH="/opt/homebrew/bin:$PATH"
+# claude 공식 설치 스크립트(native installer) 기본 경로. npm 전역 설치는 위 nvm node bin 으로 커버된다.
+[ -d "$HOME/.local/bin" ] && export PATH="$HOME/.local/bin:$PATH"
 
 if ! command -v npx >/dev/null 2>&1; then
   fail 1 "npx 를 PATH 에서 찾을 수 없습니다. npx 기반 MCP 서버(mysql)가 연결되지 않습니다. PATH=$PATH"
+fi
+
+if ! command -v claude >/dev/null 2>&1; then
+  fail 1 "claude 를 PATH 에서 찾을 수 없습니다. Claude Code 설치 여부를 확인하세요. PATH=$PATH"
 fi
 
 # 발행 skill이 프로젝트 .claude/skills 에 있으므로 claude 실행 전 프로젝트 루트로 이동
@@ -102,7 +120,7 @@ case "${CONTENTS_TYPE}" in
     ;;
 esac
 
-/opt/homebrew/bin/claude --model auto -p "${PROMPT}" \
+claude "${CLAUDE_MODEL_OPTS[@]}" -p "${PROMPT}" \
   --dangerously-skip-permissions < /dev/null 2>&1 \
   | while IFS= read -r line; do
       echo "[$(date '+%Y-%m-%d %H:%M:%S')] ${line}"
@@ -111,9 +129,9 @@ esac
 # 파이프라인 첫 번째 명령(claude)의 종료 코드 확인 (zsh: 1-indexed)
 claude_exit=${pipestatus[1]}
 if [[ ${claude_exit} -ne 0 ]]; then
-    # 방금 tee 로 기록된 claude 출력 마지막 부분을 실패 사유로 첨부
-    fail "${claude_exit}" "claude 명령 실패 (exit=${claude_exit}). claude 출력(마지막 15줄):
-$(tail -n 15 "${LOG_FILE}")"
+    # 이번 실행 시작 이후 기록된 로그(claude 출력 포함)를 실패 사유로 첨부
+    fail "${claude_exit}" "claude 명령 실패 (exit=${claude_exit}). 이번 실행 로그:
+$(tail -c +$((LOG_START_OFFSET + 1)) "${LOG_FILE}")"
 fi
 
 log "[INFO] Publish command finished."
