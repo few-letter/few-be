@@ -123,3 +123,6 @@ gen_images/
 
 # Claude config files
 **/.claude/non-interactive-claude-config.env
+
+# skill 실행 임시 파일 (카드 이미지, 썸네일 등)
+/tmp/

@@ -59,7 +59,8 @@ gen 1건에 대해 **이미지 1장**만 만든다. (상세페이지 이미지 �
 - **하단 "넘겨서 자세히보기" 문구 및 스와이프 화살표**: 캐러셀이 아니므로 삭제되었다. (템플릿에서 이미 제거됨 — 새로 채우지 않는다.)
 
 #### PNG 로컬 저장
-- 임시 디렉토리를 만든다: `~/Downloads/${현재날짜및시간}/gen-<gen.id>-<YYYYMMDD-HHMMSS>/`
+- 임시 디렉토리를 만든다: `{PROJECT_ROOT}/tmp/instagram-contents-publish/gen-<gen.id>-<YYYYMMDD-HHMMSS>/`
+  - `{PROJECT_ROOT}` 는 `git rev-parse --show-toplevel` 결과(프로젝트 루트 절대경로). 이후 단계에서 파일을 넘길 때도 이 절대경로를 사용한다.
 - 생성된 html 완성본을 위 임시 디렉토리에 png, jpg, jpeg 등의 파일로 다운로드 한다.
 - 파일명: `main.png` (또는 동일 확장자 규칙을 지키는 다른 이름도 무방).
 
@@ -95,7 +96,7 @@ gen 1건에 대해 **이미지 1장**만 만든다. (상세페이지 이미지 �
 2. **업로드할 파일**: 2단계에서 만든 `main.png` 1개의 절대경로.
 3. 새 게시물 만들기: 좌측 사이드바의 `svg[aria-label="새로운 게시물"]` 클릭 → 서브메뉴("게시물"/"라이브 방송"/"광고")가 뜨면 텍스트가 "게시물"인 링크를 클릭(`a`가 2개 매칭되므로 `nth(1)`, 즉 두 번째가 실제 메뉴 항목) → "새 게시물 만들기" 다이얼로그 오픈.
 4. **이미지 업로드**: 다이얼로그 안의 `input[type=file]` (보통 `accept` 에 image 포함) 요소를 찾아, `setInputFiles([파일경로])` 로 파일 1개를 전달한다.
-   - ⚠️ Aside REPL 은 `~/Downloads` 등 임의 경로 파일 접근을 막는다. `setInputFiles` 가 "Path escapes session directory" 로 실패하면, 카드 PNG를 `pwd`(REPL 세션 디렉토리) 하위 `tmp/cards/gen-<gen.id>/` 로 복사한 뒤 그 경로로 `setInputFiles` 를 호출한다. 발행 완료 후 이 복사본도 함께 삭제.
+   - ⚠️ Aside REPL 은 세션 디렉토리 밖 경로의 파일 접근을 막는다. `setInputFiles` 가 "Path escapes session directory" 로 실패하면, 카드 PNG를 `pwd`(REPL 세션 디렉토리) 하위 `tmp/cards/gen-<gen.id>/` 로 복사한 뒤 그 경로로 `setInputFiles` 를 호출한다. 발행 완료 후 이 복사본도 함께 삭제.
    - `setInputFiles` 후 크롭(자르기) 화면으로 진입했는지 확인. 진입하지 않으면 파일 input 을 잘못 잡은 것 → 다이얼로그 재오픈 후 재시도.
 5. **비율을 "4:5"로 고정** — 잘림 방지의 핵심. 이 UI는 Playwright의 일반적인 `locator(...).click()` / `:has-text()` 셀렉터로는 신뢰성 있게 조작이 안 된다 (메뉴 항목이 일반 DOM 쿼리로 안 잡히고, 접근성 스냅샷에서만 보임 — 셰도우 DOM/별도 렌더링 레이어로 추정). 아래 **좌표 기반 마우스 클릭** 방식만 안정적으로 동작함이 확인됐다:
    - `svg[aria-label="자르기 선택"]` 의 boundingBox를 구해 그 중심 좌표를 `igPage.mouse.click(x, y)` (Playwright의 실제 마우스 이벤트)로 클릭해 비율 메뉴를 연다.
@@ -166,7 +167,7 @@ UPDATE gen SET published_via_skills_yn = 'Y' WHERE id = <이 gen id>;
 8. 검증 실패 시 이 gen의 네이버 블로그 발행만 실패로 보고한다 — 이미 완료된 인스타그램 발행·6단계 플래그는 되돌리지 않는다.
 
 ### 8. 임시 디렉토리 삭제
-6단계 플래그 UPDATE와 7단계 네이버 블로그 발행(성공이든 보고된 실패든 시도 자체)까지 끝났으면, 2단계에서 만든 해당 gen의 임시 디렉토리(`~/Downloads/${현재날짜및시간}/gen-<gen.id>-<YYYYMMDD-HHMMSS>/`)를 `rm -rf` 로 삭제.
+6단계 플래그 UPDATE와 7단계 네이버 블로그 발행(성공이든 보고된 실패든 시도 자체)까지 끝났으면, 2단계에서 만든 해당 gen의 임시 디렉토리(`{PROJECT_ROOT}/tmp/instagram-contents-publish/gen-<gen.id>-<YYYYMMDD-HHMMSS>/`)를 `rm -rf` 로 삭제.
 
 ## 주의사항
 - **gen 1건당 게시물 1개, 이미지 1장(단일 이미지 게시물, 캐러셀 아님)**. 여러 건이면 2~7단계를 각 gen마다 반복.
