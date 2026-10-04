@@ -53,12 +53,14 @@ fail() {
 
 # Omniroute 및 비대화형 쉘 설정
 # Claude 로그인에 실패한 경우 `claude setup-token`으로 토큰 발급 후 설정 파일에 저징 필요
-if [ -f ~/.claude/non-interactive-claude-config.env ]; then
-  source ~/.claude/non-interactive-claude-config.env
+# 상대 경로는 실행 위치(cwd) 기준이라 JVM/cron 에서 어긋나므로 스크립트 위치(.claude/scripts) 기준 절대경로로 고정
+readonly CLAUDE_CONFIG_FILE="${0:A:h:h}/non-interactive-claude-config.env"
+if [ -f "${CLAUDE_CONFIG_FILE}" ]; then
+  source "${CLAUDE_CONFIG_FILE}"
 fi
 
 if [ -z "$CLAUDE_CODE_OAUTH_TOKEN" ]; then
-  fail 1 "CLAUDE_CODE_OAUTH_TOKEN이 설정되어 있지 않습니다. ~/.claude/non-interactive-claude-config.env 파일을 확인하세요."
+  fail 1 "CLAUDE_CODE_OAUTH_TOKEN이 설정되어 있지 않습니다. ${CLAUDE_CONFIG_FILE} 파일을 확인하세요."
 fi
 
 # env 파일에 export 가 없어도 자식 프로세스(claude)가 상속받도록 명시적으로 export
