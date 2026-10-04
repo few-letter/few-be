@@ -12,10 +12,11 @@ class GeneratorAsyncConfig {
     @Bean(name = ["keywordExtractorExecutor"])
     fun keywordExtractorExecutor(): Executor {
         val executor = ThreadPoolTaskExecutor()
-        executor.corePoolSize = 4
-        executor.maxPoolSize = 8
-        executor.queueCapacity = 100
+        executor.corePoolSize = 1
+        executor.maxPoolSize = 1
+        executor.queueCapacity = 1
         executor.setThreadNamePrefix("KeywordExtractor-")
+        executor.setTaskDecorator(MdcTaskDecorator())
         executor.initialize()
         return executor
     }
@@ -23,10 +24,11 @@ class GeneratorAsyncConfig {
     @Bean(name = ["generatorSchedulingExecutor"])
     fun generatorSchedulingExecutor(): Executor {
         val executor = ThreadPoolTaskExecutor()
-        executor.corePoolSize = 10
-        executor.maxPoolSize = 10
-        executor.queueCapacity = 20
+        executor.corePoolSize = 3
+        executor.maxPoolSize = 3
+        executor.queueCapacity = 3
         executor.setThreadNamePrefix("gen-sched-")
+        executor.setTaskDecorator(MdcTaskDecorator())
         executor.initialize()
         return executor
     }
