@@ -114,3 +114,6 @@ storage/**/*.sql
 
 # generated images
 gen_images/
+
+# skill runtime log (updated on every publish)
+.claude/skills/investing-dot-com-crawling/references/published-log.md

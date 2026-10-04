@@ -45,9 +45,11 @@ if ! command -v npx >/dev/null 2>&1; then
   exit 1
 fi
 
-# MCP 설정이 홈 디렉토리 기준이므로 claude 실행 전 홈 디렉토리로 이동
-cd "$HOME" || {
-    log "[ERROR] cd \$HOME 실패: $HOME"
+# 발행 skill이 프로젝트 .claude/skills 에 있으므로 claude 실행 전 프로젝트 루트로 이동
+# (사용하는 MCP 서버는 user scope 라 디렉토리와 무관하게 연결됨)
+readonly PROJECT_DIR="${0:A:h:h:h}"
+cd "${PROJECT_DIR}" || {
+    log "[ERROR] cd 프로젝트 디렉토리 실패: ${PROJECT_DIR}"
     exit 1
 }
 
