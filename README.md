@@ -5,7 +5,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Kotlin-1.9.24-7F52FF?logo=kotlin&logoColor=white" alt="Kotlin" />
   <img src="https://img.shields.io/badge/Spring%20Boot-3.2.5-6DB33F?logo=springboot&logoColor=white" alt="Spring Boot" />
-<br></br>
+<br />
   <img src="https://img.shields.io/badge/JDK-21-ED8B00?logo=openjdk&logoColor=white" alt="JDK 21" />
   <img src="https://img.shields.io/badge/Claude%20Code-Skills-D97757?logo=anthropic&logoColor=white" alt="Claude Code" />
 </p>
