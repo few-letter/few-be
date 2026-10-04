@@ -34,7 +34,7 @@ This file provides guidance to AI Agents (ex. Claude Code) when working with cod
 Some contents are published to Instagram by Claude Code via a non-interactive shell run, not by Kotlin code.
 
 - **Flow**: `TriggerContentsPublishSkillsUseCase` runs [`.claude/scripts/publish-contents-common.sh`](.claude/scripts/publish-contents-common.sh) `<contentsTypeCode>` → script runs `claude -p` from the project root → claude executes a project skill.
-  - Triggered by `TriggerContentsPublishSkillsEvent` after local/global gen scheduling (contentsType 1, 2), or by the `economic-analysis` / `hot-news` schedules (contentsType 4, 5).
+  - Triggered by `TriggerContentsPublishSkillsEvent` after local/global gen scheduling (contentsType 0, 1), or by the `economic-analysis` / `hot-news` schedules (contentsType 4, 5).
 - **Skills** ([`.claude/skills/`](.claude/skills/)):
   - `investing-dot-com-crawling`: crawls Investing.com RSS, saves to `gen` (contentsType 4, 5), then chains into `instagram-contents-publish`.
   - `instagram-contents-publish`: renders one card image per unpublished `gen` from `html_templates/main_page_template.html`, posts it to Instagram (and Naver blog), and marks the publish flag.
