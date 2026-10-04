@@ -12,7 +12,7 @@ spring:
                 multiplier: 2
                 max-interval: 10s
         openai:
-            api-key: ${OPENAI_API_TOKEN}
+            api-key: ${OPENAI_API_TOKEN:thisisopenai}
             chat:
                 options:
                     model: gpt-4o-mini
@@ -20,18 +20,18 @@ spring:
     cloud:
         aws:
             s3:
-                bucket: ${BUCKET_NAME}
+                bucket: ${BUCKET_NAME:}
             region:
                 static: ap-northeast-2
             credentials:
-                access-key: ${STORAGE_ACCESS_KEY}
-                secret-key: ${STORAGE_SECRET_KEY}
+                access-key: ${STORAGE_ACCESS_KEY:}
+                secret-key: ${STORAGE_SECRET_KEY:}
     generator:
         datasource:
             hikari:
-                jdbc-url: ${DB_HOSTNAME}
-                username: ${DB_USERNAME}
-                password: ${DB_PASSWORD}
+                jdbc-url: ${DB_HOSTNAME:}
+                username: ${DB_USERNAME:}
+                password: ${DB_PASSWORD:}
                 driver-class-name: com.mysql.cj.jdbc.Driver
                 pool-name: generator-pool
                 maximum-pool-size: 8
@@ -85,8 +85,8 @@ scheduling:
 
 urls:
     webhook:
-        discord: ${WEBHOOK_DISCORD}
-        slack: ${WEBHOOK_SLACK}
+        discord: ${WEBHOOK_DISCORD:}
+        slack: ${WEBHOOK_SLACK:}
 
 generator:
     scraping:
@@ -102,7 +102,7 @@ generator:
         maxGroupSize: 10
         similarityThreshold: 0.7
     instagram:
-        account-id: ${INSTAGRAM_ACCOUNT_ID}
+        account-id: ${INSTAGRAM_ACCOUNT_ID:}
         card-news-upload-enabled: true
         carousel-max-images: 9
     gen-cleanup:

@@ -40,9 +40,11 @@ class TriggerContentsPublishSkillsUseCaseTest :
         fun newUseCase(
             timeoutMinutes: Long = 1L,
             scriptFileName: String = "publish-contents-common.sh",
+            discordWebhookUrl: String = "",
         ) = TriggerContentsPublishSkillsUseCase(
             publishScriptPath = File(scriptsDir, scriptFileName).absolutePath,
             publishScriptTimeoutMinutes = timeoutMinutes,
+            discordWebhookUrl = discordWebhookUrl,
         )
 
         Given("발행 스크립트 파일이 존재하지 않을 때") {
@@ -77,6 +79,22 @@ class TriggerContentsPublishSkillsUseCaseTest :
 
                     Then("예외 없이 완료되고 스크립트가 실제로 실행된다") {
                         marker.exists() shouldBe true
+                    }
+                }
+            }
+
+            Given("Discord 웹훅 URL 이 설정되어 있을 때") {
+                val marker = File(scriptsDir, "marker-webhook.txt").also { it.delete() }
+                writeScript(
+                    "publish-contents-common.sh",
+                    "print -rn -- \"\$DISCORD_WEBHOOK_URL\" > '${marker.absolutePath}'",
+                )
+
+                When("execute 를 호출하면") {
+                    newUseCase(discordWebhookUrl = "https://discord.test/webhook").execute(ContentsType.NAVER_LOCAL_NEWS)
+
+                    Then("스크립트에 DISCORD_WEBHOOK_URL 환경변수로 전달된다") {
+                        marker.readText() shouldBe "https://discord.test/webhook"
                     }
                 }
             }

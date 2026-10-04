@@ -20,12 +20,12 @@ spring:
     cloud:
         aws:
             s3:
-                bucket: ${BUCKET_NAME}
+                bucket: ${BUCKET_NAME:}
             region:
                 static: ap-northeast-2
             credentials:
-                access-key: ${STORAGE_ACCESS_KEY}
-                secret-key: ${STORAGE_SECRET_KEY}
+                access-key: ${STORAGE_ACCESS_KEY:}
+                secret-key: ${STORAGE_SECRET_KEY:}
     generator:
         datasource:
             hikari:
@@ -87,8 +87,8 @@ scheduling:
 
 urls:
     webhook:
-        discord: "https://localhost:8080/webhook/discord/unused"
-        slack: ${WEBHOOK_SLACK}
+        discord: ${WEBHOOK_DISCORD:}
+        slack: ${WEBHOOK_SLACK:}
 
 generator:
     scraping:
@@ -104,7 +104,7 @@ generator:
         maxGroupSize: 10
         similarityThreshold: 0.7
     instagram:
-        account-id: ${INSTAGRAM_ACCOUNT_ID}
+        account-id: ${INSTAGRAM_ACCOUNT_ID:}
         card-news-upload-enabled: true
         carousel-max-images: 9
     gen-cleanup:

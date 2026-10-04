@@ -68,10 +68,14 @@ cd scripts && ./local-develop-env-reset
 claude setup-token
 ```
 
-**② `~/.claude/non-interactive-claude-config.env` 작성**
+**② `{PROJECT_ROOT}/.claude/non-interactive-claude-config.env` 작성**
 
 ```bash
 export CLAUDE_CODE_OAUTH_TOKEN=<발급받은 토큰>
+
+# omniroute config (Optional)
+export ANTHROPIC_BASE_URL="http://localhost:20128"
+export ANTHROPIC_AUTH_TOKEN="<OMNIRoute Auth Token>"
 ```
 
 > [!NOTE]

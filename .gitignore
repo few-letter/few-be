@@ -120,3 +120,6 @@ gen_images/
 
 # publish-contents-common.sh 실행 로그
 **/logs/
+
+# Claude config files
+**/.claude/non-interactive-claude-config.env
