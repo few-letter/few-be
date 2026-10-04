@@ -16,24 +16,20 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" | tee -a "${LOG_FILE}" >&2
 }
 
-# cron은 macOS 로그인 키체인에 접근할 수 없어 claude의 OAuth/키체인 인증이 실패한다.
-# `claude setup-token`으로 발급한 장기 토큰을 이 파일에서 읽어와 대신 사용한다.
-if [ -f ~/.claude/cron-token.env ]; then
-  source ~/.claude/cron-token.env
+# Omniroute 및 비대화형 쉘 설정
+# Claude 로그인에 실패한 경우 `claude setup-token`으로 토큰 발급 후 설정 파일에 저징 필요
+if [ -f ~/.claude/non-interactive-claude-config.env ]; then
+  source ~/.claude/non-interactive-claude-config.env
 fi
 
 if [ -z "$CLAUDE_CODE_OAUTH_TOKEN" ]; then
-  log "CLAUDE_CODE_OAUTH_TOKEN이 설정되어 있지 않습니다. ~/.claude/cron-token.env 파일을 확인하세요."
+  log "CLAUDE_CODE_OAUTH_TOKEN이 설정되어 있지 않습니다. ~/.claude/non-interactive-claude-config.env 파일을 확인하세요."
   log "실행 완료 (인증 토큰 없음)\n"
   exit 1
 fi
 
 # env 파일에 export 가 없어도 자식 프로세스(claude)가 상속받도록 명시적으로 export
 export CLAUDE_CODE_OAUTH_TOKEN
-
-# 이 스크립트는 JVM(ProcessBuilder)/cron 등 비대화형 셸에서 실행되므로 ~/.zshrc 가 로드되지 않는다.
-# 그 결과 .zshrc 에 정의된 환경 변수/PATH 설정이 claude 프로세스에 전달되지 않으므로 명시적으로 로드한다.
-[[ -f ~/.zshrc ]] && source ~/.zshrc
 
 # .zshrc 가 없거나 nvm 초기화를 하지 않는 환경을 대비한 fallback.
 # node/npx PATH 가 없으면 npx 기반 stdio MCP 서버(mysql, gemini-image)가 spawn 되지 못하고
@@ -78,7 +74,7 @@ case "${CONTENTS_TYPE}" in
     ;;
 esac
 
-/opt/homebrew/bin/claude -p "${PROMPT}" \
+/opt/homebrew/bin/claude --model auto -p "${PROMPT}" \
   --dangerously-skip-permissions < /dev/null 2>&1 \
   | while IFS= read -r line; do
       echo "[$(date '+%Y-%m-%d %H:%M:%S')] ${line}"
@@ -87,7 +83,7 @@ esac
 # 파이프라인 첫 번째 명령(claude)의 종료 코드 확인 (zsh: 1-indexed)
 claude_exit=${pipestatus[1]}
 if [[ ${claude_exit} -ne 0 ]]; then
-    log "[ERROR] claude 명령 실패 (exit=${claude_exit}). 'Not logged in' 이면 이 스크립트를 실행하는 사용자/환경에서 'claude' 로그인(/login) 또는 ANTHROPIC_API_KEY 설정이 필요합니다."
+    log "[ERROR] claude 명령 실패 (exit=${claude_exit}). 원인은 위 claude 출력 로그를 확인하세요."
     exit "${claude_exit}"
 fi
 
