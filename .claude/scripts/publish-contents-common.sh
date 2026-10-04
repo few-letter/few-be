@@ -1,7 +1,8 @@
 #!/bin/zsh
 
 # Configuration
-readonly LOG_FILE="$HOME/logs/single-contents-publish.log"
+# 스크립트 위치(.claude/scripts) 기준 프로젝트 루트의 logs/ 에 기록. 스크립트 내에서 cd $HOME 하므로 절대경로로 고정
+readonly LOG_FILE="${0:A:h:h:h}/logs/single-contents-publish.log"
 
 # 발행 대상 contents_type. 호출 측(TriggerContentsPublishSkillsUseCase)에서 첫 번째 인자로 전달한다.
 # 미전달 시 기본값 0(local-news).
