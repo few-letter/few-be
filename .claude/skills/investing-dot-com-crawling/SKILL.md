@@ -73,7 +73,8 @@ curl -s -A "Mozilla/5.0" "<위 표의 RSS URL>"
   - 기자 프로필 사진(`company_logo` 경로), 페이지 하단 "많이 본 기사"/"트렌딩 주식" 목록의 관련기사 썸네일, 광고성 이미지는 제외한다.
   - 본문 안에 쓸만한 이미지가 전혀 없으면 이 항목은 건너뛰고 다음 후보로 넘어간다 (2단계에서 최신 3건을 못 채웠다면 그 다음 순번 후보로 대체).
 - **다운로드**: 위에서 고른 이미지 URL은 `content-media.investing.com` 도메인이며 Cloudflare가 걸려 있어 curl/WebFetch로 직접 받으면 403이 난다. `mcp__aside__repl` 로 실제 브라우저 세션에서 해당 URL(또는 이미지가 걸린 기사 페이지)에 접속해 이미지를 로컬에 저장한다.
-  - 저장 위치: `~/Downloads/investing-dot-com-crawling/<economic-analysis|hot-news>/<YYYYMMDD-HHMMSS>-<기사 article ID>/thumbnail.<원본 확장자>`
+  - 저장 위치: `{PROJECT_ROOT}/tmp/investing-dot-com-crawling/<economic-analysis|hot-news>/<YYYYMMDD-HHMMSS>-<기사 article ID>/thumbnail.<원본 확장자>`
+    - `{PROJECT_ROOT}` 는 `git rev-parse --show-toplevel` 결과(프로젝트 루트 절대경로). gen 에 저장하는 썸네일 경로도 이 절대경로를 사용한다.
   - 저장 직후 파일이 실제로 존재하고 크기가 0바이트가 아닌지 확인한다. 실패하면 이 후보는 건너뛰고 다음 후보로 대체한다.
 
 ### 4. 로컬 DB(`gen`)에 저장 (MySQL MCP)
@@ -120,7 +121,7 @@ INSERT INTO gen (
 - 발행이 **실패**한 gen은 로그에 추가하지 않는다 (다음 실행 때 DB 기준으로는 여전히 잡히되, 로그에는 없으므로 재시도 흐름과 충돌하지 않음).
 
 ### 7. 원본 썸네일 임시 파일 정리
-- 4단계에서 추적한 gen id 별로, 5단계 발행이 **성공**한 건만 3-4에서 만든 썸네일 임시 디렉토리(`~/Downloads/investing-dot-com-crawling/.../<...>/`)를 `rm -rf` 로 삭제한다.
+- 4단계에서 추적한 gen id 별로, 5단계 발행이 **성공**한 건만 3-4에서 만든 썸네일 임시 디렉토리(`{PROJECT_ROOT}/tmp/investing-dot-com-crawling/.../<...>/`)를 `rm -rf` 로 삭제한다.
 - 발행이 실패한 gen은 임시 디렉토리를 **삭제하지 않고 남겨** 재시도 가능하게 하며, 실패 사유를 사용자에게 보고한다. (해당 gen row 자체도 삭제하지 않는다 — `published_via_skills_yn` 이 NULL로 남아 다음 발행 실행 때 다시 대상이 된다.)
 
 ## 주의사항
