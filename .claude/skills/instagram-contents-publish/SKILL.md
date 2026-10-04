@@ -35,7 +35,7 @@ gen 1건에 대해 **이미지 1장**만 만든다. (상세페이지 이미지 �
 - HTML 템플릿의 최상위 `div` 는 `810 x 1012.5 px` (동일한 4:5) 이므로, 렌더 시 **`deviceScaleFactor` 를 `1.7778` (= 1440/810) 로 설정**해 캡처하거나, 뷰포트/클립 영역을 `810x1012.5` 로 고정한 뒤 결과를 `1440x1800` 로 리사이즈한다. 어느 방법이든 **최종 산출물은 정확히 1440x1800 이어야 한다.**
 - 저장 직후 파일의 실제 픽셀 크기를 확인(`sips -g pixelWidth -g pixelHeight` 또는 이미지 메타)해 `1440x1800` 이 아니면 **이 gen은 업로드하지 말고 중단·보고**한다.
 
-1. 현재 skills.MD가 위치한 디렉토리 하위에 html_templates 디렉토리가 있고, 여기 하위에 메인 카드 이미지에 대한 html 템플릿 파일(`main_page_template.html`)이 있음.
+1. 현재 skills.MD가 위치한 디렉토리 하위에 html_templates 디렉토리가 있고, 여기 하위에 메인 카드 이미지에 대한 html 템플릿 파일(`assets/html_templates/main_page_template.html`)이 있음.
 2. 이 템플릿 1개만 사용한다. (상세페이지 템플릿은 더 이상 사용하지 않음)
 
 #### Main Page 채우기

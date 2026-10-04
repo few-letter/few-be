@@ -1,16 +1,11 @@
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/c970feac-c5a5-40f1-959d-3223be8d539d" alt="few-logo" width="150" height="150" />
-</p>
-
-<p align="center">
-  <a href="https://github.com/few-letter/few-be/actions/workflows/ecs-cd.yml">
-    <img src="https://github.com/few-letter/few-be/actions/workflows/ecs-cd.yml/badge.svg" alt="deploy-prd" />
-  </a>
+  <img src="https://github.com/user-attachments/assets/525a8df3-8b87-49dc-9c4a-81b8060395f0" alt="few-logo" width="150" height="150" />
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Kotlin-1.9.24-7F52FF?logo=kotlin&logoColor=white" alt="Kotlin" />
   <img src="https://img.shields.io/badge/Spring%20Boot-3.2.5-6DB33F?logo=springboot&logoColor=white" alt="Spring Boot" />
+<br />
   <img src="https://img.shields.io/badge/JDK-21-ED8B00?logo=openjdk&logoColor=white" alt="JDK 21" />
   <img src="https://img.shields.io/badge/Claude%20Code-Skills-D97757?logo=anthropic&logoColor=white" alt="Claude Code" />
 </p>
@@ -57,7 +52,7 @@ cd scripts && ./local-develop-env-reset
 > Skill이 MCP 툴을 이름으로 호출하므로 서버 이름을 아래처럼 등록해야 합니다.
 > `mcp_server_mysql` · `aside` · `firecrawl`
 
-### 비대화형 Claude 인증
+### 비대화형 쉘 인증
 
 스크립트는 JVM/cron 같은 비대화형 환경에서 실행되므로 macOS 키체인 로그인을 사용할 수 없습니다.
 장기 토큰을 발급해 env 파일에 등록해 주세요.
@@ -75,7 +70,7 @@ export CLAUDE_CODE_OAUTH_TOKEN=<발급받은 토큰>
 
 # omniroute config (Optional)
 export ANTHROPIC_BASE_URL="http://localhost:20128"
-export ANTHROPIC_AUTH_TOKEN="<OMNIRoute Auth Token>"
+export ANTHROPIC_AUTH_TOKEN="<OmniRoute Auth Token>"
 ```
 
 > [!NOTE]
