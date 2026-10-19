@@ -51,6 +51,13 @@ alphavantage:
     base-url: "https://www.alphavantage.co/query"
     top-feed-count: 4
 
+circuit-breaker:
+    enabled: true
+    sliding-window-size: 10
+    minimum-number-of-calls: 5
+    failure-rate-threshold: 50
+    wait-duration-in-open-state: 60s
+
 scheduling:
     local-gen:
         enabled: true

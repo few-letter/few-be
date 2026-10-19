@@ -22,6 +22,9 @@ dependencies {
     /** spring ai */
     implementation("org.springframework.ai:spring-ai-starter-model-openai")
 
+    /** circuit breaker */
+    implementation("io.github.resilience4j:resilience4j-circuitbreaker:${DependencyVersion.RESILIENCE4J}")
+
     /** swagger */
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${DependencyVersion.SPRINGDOC_OPENAPI}")
 

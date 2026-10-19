@@ -61,4 +61,7 @@ object DependencyVersion {
 
     /** spring-ai **/
     const val SPRING_AI = "1.1.7"
+
+    /** resilience4j **/
+    const val RESILIENCE4J = "2.2.0"
 }
