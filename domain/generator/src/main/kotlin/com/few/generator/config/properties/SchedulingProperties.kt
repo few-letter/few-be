@@ -16,6 +16,7 @@ data class SchedulingProperties(
     var expiredGen: Task = Task(),
     var economicAnalysis: Task = Task(),
     var hotNews: Task = Task(),
+    var reels: Task = Task(),
 ) {
     data class Task(
         var enabled: Boolean = false,

@@ -16,6 +16,8 @@ import kotlin.system.measureTimeMillis
 class TriggerContentsPublishSkillsUseCase(
     @Value("\${generator.skills.publish-script-path:.claude/scripts/publish-contents-common.sh}")
     private val publishScriptPath: String,
+    @Value("\${generator.skills.reels-script-path:.claude/scripts/run-instagram-reels-uploader.sh}")
+    private val reelsScriptPath: String = ".claude/scripts/run-instagram-reels-uploader.sh",
     @Value("\${generator.skills.publish-script-timeout-minutes:30}")
     private val publishScriptTimeoutMinutes: Long,
     // 실패 알림용. 웹훅 URL 이 커밋/프로세스 인자(ps)에 노출되지 않도록 환경변수로 스크립트에 전달한다.
@@ -59,7 +61,7 @@ class TriggerContentsPublishSkillsUseCase(
     }
 
     fun execute(contentsType: ContentsType) {
-        val scriptFile = File(publishScriptPath)
+        val scriptFile = File(if (contentsType == ContentsType.REELS) reelsScriptPath else publishScriptPath)
         require(scriptFile.exists()) {
             "발행 스크립트를 찾을 수 없습니다: ${scriptFile.absolutePath} (contentsType=${contentsType.title})"
         }

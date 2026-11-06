@@ -5,3 +5,4 @@ Contents_Type_Code_Mapping.md
 - 3: "popular-nasdaq-stock-news" (ALPHAVANTAGE 인기 나스닥 종목 소식)
 - 4: "economic-analysis" (Investing.com 경제 분석)
 - 5: "hot-news" (Investing.com 인기 뉴스)
+- 6: "reels" (머니스토리 릴스, run-instagram-reels-uploader.sh 로 별도 실행)

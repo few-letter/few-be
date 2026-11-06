@@ -126,3 +126,4 @@ gen_images/
 
 # skill 실행 임시 파일 (카드 이미지, 썸네일 등)
 /tmp/
+.claude/skills/instagram-reels-uploader/references/last-crawled.txt
