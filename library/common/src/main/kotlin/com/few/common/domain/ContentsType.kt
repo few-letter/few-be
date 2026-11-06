@@ -12,6 +12,7 @@ enum class ContentsType(
     ALPHAVANTAGE_POPULAR_NASDAQ_STOCK_NEWS(3, "popular-nasdaq-stock-news"),
     INVESTINGCOM_ECONOMIC_ANALYSIS(4, "economic-analysis"),
     INVESTINGCOM_HOT_NEWS(5, "hot-news"),
+    REELS(6, "reels"),
 
     ;
 

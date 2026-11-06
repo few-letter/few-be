@@ -66,6 +66,12 @@ class SchedulingController(
         if (isDisabled("hot-news", schedulingProperties.hotNews.enabled)) return
         triggerContentsPublishSkillsUseCase.executeAsync(ContentsType.INVESTINGCOM_HOT_NEWS)
     }
+
+    @Scheduled(cron = "\${scheduling.reels.cron:-}", zone = "Asia/Seoul")
+    fun triggerReelsUpload() {
+        if (isDisabled("reels", schedulingProperties.reels.enabled)) return
+        triggerContentsPublishSkillsUseCase.executeAsync(ContentsType.REELS)
+    }
     // ===== Contents Publishing Scheduling Area End =====
 
     // ===== Extra Scheduling Area Start =====

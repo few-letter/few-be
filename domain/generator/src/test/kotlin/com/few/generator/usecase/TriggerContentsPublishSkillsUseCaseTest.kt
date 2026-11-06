@@ -43,6 +43,7 @@ class TriggerContentsPublishSkillsUseCaseTest :
             discordWebhookUrl: String = "",
         ) = TriggerContentsPublishSkillsUseCase(
             publishScriptPath = File(scriptsDir, scriptFileName).absolutePath,
+            reelsScriptPath = File(scriptsDir, "run-instagram-reels-uploader.sh").absolutePath,
             publishScriptTimeoutMinutes = timeoutMinutes,
             discordWebhookUrl = discordWebhookUrl,
         )
@@ -187,7 +188,7 @@ class TriggerContentsPublishSkillsUseCaseTest :
                 val marker = File(scriptsDir, "m-common.txt")
                 writeScript("publish-contents-common.sh", "touch '${marker.absolutePath}'")
 
-                ContentsType.entries.forEach { contentsType ->
+                ContentsType.entries.filter { it != ContentsType.REELS }.forEach { contentsType ->
                     When("$contentsType 으로 execute 하면") {
                         marker.delete()
                         newUseCase().execute(contentsType)
@@ -195,6 +196,22 @@ class TriggerContentsPublishSkillsUseCaseTest :
                         Then("publish-contents-common.sh 가 실행된다") {
                             marker.exists() shouldBe true
                         }
+                    }
+                }
+            }
+
+            Given("REELS 타입으로 호출할 때") {
+                val reelsMarker = File(scriptsDir, "m-reels.txt").also { it.delete() }
+                val commonMarker = File(scriptsDir, "m-common-not-run.txt").also { it.delete() }
+                writeScript("publish-contents-common.sh", "touch '${commonMarker.absolutePath}'")
+                writeScript("run-instagram-reels-uploader.sh", "touch '${reelsMarker.absolutePath}'")
+
+                When("execute(REELS) 를 호출하면") {
+                    newUseCase().execute(ContentsType.REELS)
+
+                    Then("릴스 업로더 스크립트만 실행된다") {
+                        reelsMarker.exists() shouldBe true
+                        commonMarker.exists() shouldBe false
                     }
                 }
             }

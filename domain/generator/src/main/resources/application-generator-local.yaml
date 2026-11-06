@@ -92,6 +92,10 @@ scheduling:
         enabled: true
         cron: "0 0 5,14 * * *"
 
+    reels:
+        enabled: false
+        cron: "0 0 7,12,17,22 * * *"
+
 urls:
     webhook:
         discord: ${WEBHOOK_DISCORD:}
