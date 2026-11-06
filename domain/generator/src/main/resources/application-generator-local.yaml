@@ -91,9 +91,8 @@ scheduling:
     hot-news:
         enabled: true
         cron: "0 0 5,14 * * *"
-
     reels:
-        enabled: false
+        enabled: true
         cron: "0 0 7,12,17,22 * * *"
 
 urls:
