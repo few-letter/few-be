@@ -47,10 +47,11 @@ cd scripts && ./local-develop-env-reset
 | 🗄️ [**MySQL MCP**](https://github.com/benborla/mcp-server-mysql) | `gen` 테이블 조회 · 저장 · 발행 플래그 마킹 |
 | 🌐 [**Aside MCP**](https://aside.com/blog/developers) | 인스타그램 · 네이버 블로그 브라우저 자동화 |
 | 🔥 [**Firecrawl MCP**](https://github.com/firecrawl/firecrawl-mcp-server) | Investing.com 기사 크롤링 |
+| 🎬 [**Mirra MCP**](https://mirra.my) | 머니스토리 글 → 릴스 영상 제작 (`instagram-reels-uploader`) |
 
 > [!IMPORTANT]
 > Skill이 MCP 툴을 이름으로 호출하므로 서버 이름을 아래처럼 등록해야 합니다.
-> `mcp_server_mysql` · `aside` · `firecrawl`
+> `mcp_server_mysql` · `aside` · `firecrawl` · `mirra`
 
 ### 비대화형 쉘 인증
 
